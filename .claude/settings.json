@@ -1,0 +1,49 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./**/*token*)",
+      "Read(./**/*credential*)",
+      "Read(./**/*secret*)",
+      "Read(./**/id_rsa*)",
+      "Bash(rm -rf *)",
+      "Bash(*DROP TABLE*)",
+      "Bash(*DROP DATABASE*)",
+      "Bash(*--force push*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ],
+    "allow": [
+      "Read(./apps/**)",
+      "Read(./packages/**)",
+      "Read(./.claude/**)",
+      "Edit(./apps/**)",
+      "Edit(./packages/**)",
+      "Write(./apps/**)",
+      "Write(./packages/**)",
+      "Bash(pnpm *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git switch*)",
+      "Bash(git stash*)",
+      "Bash(git fetch*)",
+      "Bash(git pull*)",
+      "Bash(git push)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)"
+    ]
+  }
+}
