@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="208" viewBox="0 0 80 104">
+  <style>
+    .accent { fill: #58A8E0; }
+    .base   { fill: #184068; }
+  </style>
+
+  <!-- Geometry: square=16, gap=8, padding=8, radius=6 -->
+
+  <!-- Row 1 -->
+  <rect x="8"  y="8"  width="16" height="16" rx="6" class="accent"/>
+  <rect x="32" y="8"  width="16" height="16" rx="6" class="accent"/>
+  <rect x="56" y="8"  width="16" height="16" rx="6" class="accent"/>
+
+  <!-- Row 2 -->
+  <rect x="8"  y="32" width="16" height="16" rx="6" class="accent"/>
+  <rect x="32" y="32" width="16" height="16" rx="6" class="accent"/>
+  <rect x="56" y="32" width="16" height="16" rx="6" class="base"/>
+
+  <!-- Row 3 -->
+  <rect x="8"  y="56" width="16" height="16" rx="6" class="accent"/>
+  <rect x="32" y="56" width="16" height="16" rx="6" class="base"/>
+  <rect x="56" y="56" width="16" height="16" rx="6" class="base"/>
+
+  <!-- Row 4 -->
+  <rect x="8"  y="80" width="16" height="16" rx="6" class="base"/>
+  <rect x="32" y="80" width="16" height="16" rx="6" class="base"/>
+  <rect x="56" y="80" width="16" height="16" rx="6" class="base"/>
+</svg>

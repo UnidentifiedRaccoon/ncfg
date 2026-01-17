@@ -20,27 +20,30 @@ cd apps/cms && pnpm develop
 - **Package manager**: pnpm
 
 ## Project structure
+
+> **Architecture:** See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed Feature-Sliced Design documentation.
+
 ```
 apps/
-  web/                     # Next.js frontend
-    src/
-      app/                 # App Router pages
-        (marketing)/       # Marketing pages group
-        api/               # API routes (if needed)
-      components/
-        ui/                # shadcn/ui primitives (Button, Card, etc.)
-        sections/          # Page sections (Hero, Features, Team, etc.)
-        layout/            # Header, Footer, Navigation
-      lib/
-        api/               # Strapi fetch functions
-          types.ts         # API response types
-        utils/             # Helper functions
-      styles/              # Global styles, CSS variables
+  web/                     # Next.js frontend (Adapted FSD)
+    app/                   # Next.js App Router (routing layer)
+      (marketing)/         # Route group: public pages
+      api/                 # API routes
+    widgets/               # Complex UI blocks (Header, Footer, HeroSection)
+    features/              # User interactions (ContactForm, Search)
+    entities/              # Business domain (Article, TeamMember, Project)
+    shared/                # Reusable foundation
+      ui/                  # UI primitives (shadcn/ui)
+      lib/                 # Utilities (cn, strapi client)
+      api/                 # API types
+      hooks/               # Shared React hooks
   cms/                     # Strapi CMS
     src/
       api/                 # Content types (article, team-member, etc.)
       components/          # Reusable Strapi components (seo, hero, etc.)
 ```
+
+**Import direction:** `app → widgets → features → entities → shared` (never upward)
 
 ## Naming conventions
 | Entity | Convention | Example |
