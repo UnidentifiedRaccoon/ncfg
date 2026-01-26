@@ -80,54 +80,24 @@
         "present": true,
         "data": {
           "title": "Услуги",
-          "tabs": [
+          "services": [
             {
-              "id": "business",
-              "label": "Компаниям",
-              "services": [
-                {
-                  "title": "Программы well-being для сотрудников",
-                  "description": "Комплексные программы финансовой грамотности для повышения лояльности и продуктивности персонала.",
-                  "href": "https://finzdorov.pro/corp",
-                  "image": "/services/well-being.png"
-                },
-                {
-                  "title": "Мероприятия для клиентов",
-                  "description": "Организация семинаров, фестивалей, марафонов и всероссийских акций для ваших клиентов.",
-                  "href": "#",
-                  "image": "/services/events.png"
-                },
-                {
-                  "title": "Разработка материалов",
-                  "description": "Создание брошюр, памяток, курсов и контента для соцсетей по финансовой тематике.",
-                  "href": "#",
-                  "image": "/services/materials-development.png"
-                }
-              ]
+              "title": "Программы финансового благополучия для сотрудников компаний",
+              "description": "Комплексные решения для развития финансовой культуры",
+              "href": "/companies",
+              "image": null
             },
             {
-              "id": "individuals",
-              "label": "Частным лицам",
-              "services": [
-                {
-                  "title": "Клуб «ФинЗдоровье»",
-                  "description": "Закрытый клуб для тех, кто хочет улучшить своё финансовое состояние. Вебинары, материалы, поддержка экспертов.",
-                  "href": "https://finzdorov.pro/wellf_club",
-                  "image": "/services/financial-health.png"
-                },
-                {
-                  "title": "Финансовое воспитание детей",
-                  "description": "Программы и материалы для родителей, которые хотят научить детей правильно обращаться с деньгами.",
-                  "href": "#",
-                  "image": "/services/financial-education.png"
-                },
-                {
-                  "title": "Онлайн-курсы",
-                  "description": "Самостоятельное обучение основам финансовой грамотности в удобном формате.",
-                  "href": "#",
-                  "image": "/services/online-courses.png"
-                }
-              ]
+              "title": "Методические и образовательные материалы",
+              "description": "Контент для обучения и информирования",
+              "href": "/companies",
+              "image": null
+            },
+            {
+              "title": "Мероприятия и публичные выступления",
+              "description": "Организация событий и экспертные выступления",
+              "href": "/companies",
+              "image": null
             }
           ]
         }

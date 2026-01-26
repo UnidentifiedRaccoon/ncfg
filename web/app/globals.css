@@ -109,7 +109,6 @@
 }
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 80px; /* Header height (h-16=64px mobile, h-20=80px desktop) + small buffer */
 }
 

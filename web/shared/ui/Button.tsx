@@ -46,6 +46,21 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
 
     if ("href" in props && props.href) {
       const { href, ...linkProps } = props as ButtonAsLink;
+
+      // Use native <a> for anchor links (handled by SmoothAnchor)
+      if (href.startsWith("#")) {
+        return (
+          <a
+            href={href}
+            className={classes}
+            ref={ref as React.Ref<HTMLAnchorElement>}
+            {...linkProps}
+          >
+            {children}
+          </a>
+        );
+      }
+
       return (
         <Link
           href={href}

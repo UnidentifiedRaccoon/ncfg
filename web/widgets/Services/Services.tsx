@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
@@ -13,15 +10,9 @@ interface Service {
   image: string | null;
 }
 
-interface Tab {
-  id: string;
-  label: string;
-  services: Service[];
-}
-
 interface ServicesProps {
   title: string;
-  tabs: Tab[];
+  services: Service[];
 }
 
 function ServiceCard({ service }: { service: Service }) {
@@ -72,34 +63,14 @@ function OtherServicesCard({ href }: { href: string }) {
   );
 }
 
-export function Services({ title, tabs }: ServicesProps) {
-  const [activeTab, setActiveTab] = useState(0);
-  const currentTab = tabs[activeTab];
-
+export function Services({ title, services }: ServicesProps) {
   return (
     <Section id="services" title={title} background="gray">
-      <div className="flex justify-center gap-2 mb-12">
-        {tabs.map((tab, index) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(index)}
-            className={cn(
-              "px-4 py-2 text-sm font-medium rounded-full transition-colors",
-              activeTab === index
-                ? "bg-[#1E3A5F] text-white"
-                : "bg-white text-[#475569] border border-[#E2E8F0] hover:bg-[#F1F5F9]"
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {currentTab.services.slice(0, 3).map((service) => (
+        {services.slice(0, 3).map((service) => (
           <ServiceCard key={service.title} service={service} />
         ))}
-        <OtherServicesCard href="/services" />
+        <OtherServicesCard href="/companies" />
       </div>
     </Section>
   );

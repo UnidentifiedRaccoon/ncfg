@@ -25,7 +25,7 @@ export default function Home() {
         <Products />
         <Services
           title={sections.Services.data.title}
-          tabs={sections.Services.data.tabs}
+          services={sections.Services.data.services}
         />
         <Partners
           clientsCarousel={sections.Partners.data.clientsCarousel}
