@@ -8,7 +8,7 @@ import {
   Footer,
 } from "@/widgets";
 import homeData from "@/public/content/home.json";
-import companiesData from "@/public/content/companies.json";
+import { fetchCompaniesPageData } from "@/shared/api/data-provider";
 
 export const metadata: Metadata = {
   title: "Компаниям — Программы финансового благополучия для сотрудников | НЦФГ",
@@ -22,9 +22,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CompaniesPage() {
+export default async function CompaniesPage() {
   const { sections } = homeData;
-  const { hero, services, faq } = companiesData;
+  const { hero, services, faq } = await fetchCompaniesPageData();
 
   return (
     <>

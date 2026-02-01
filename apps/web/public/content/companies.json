@@ -34,21 +34,21 @@
           "icon": "clipboard-check"
         },
         {
-          "id": "webinars_cycle",
+          "id": "webinar_cycles",
           "title": "Цикл вебинаров и тренингов",
           "description": "Регулярные онлайн-занятия с экспертами",
           "href": "/companies/webinar_cycles",
           "icon": "video"
         },
         {
-          "id": "marathons_challenges",
+          "id": "challenges_and_marathons",
           "title": "Марафоны и челленджи",
           "description": "Интерактивные форматы для развития навыков",
           "href": "/companies/challenges_and_marathons",
           "icon": "trophy"
         },
         {
-          "id": "kids_education",
+          "id": "kids_programs_for_employees",
           "title": "Обучение детей сотрудников",
           "description": "Финансовая грамотность для всей семьи",
           "href": "/companies/kids_programs_for_employees",
@@ -65,21 +65,21 @@
           "id": "course_development",
           "title": "Разработка курсов по финансовой грамотности",
           "description": "Создание образовательных программ под задачи компании",
-          "href": "#",
+          "href": "/companies/course_development",
           "icon": "book-open"
         },
         {
-          "id": "brochures_presentations",
+          "id": "brochures_and_presentations",
           "title": "Информационные брошюры и презентации",
           "description": "Готовые материалы для сотрудников",
-          "href": "#",
+          "href": "/companies/brochures_and_presentations",
           "icon": "file-text"
         },
         {
           "id": "expert_articles",
           "title": "Авторские статьи экспертов НЦФГ",
           "description": "Экспертный контент по актуальным темам",
-          "href": "#",
+          "href": "/companies/expert_articles",
           "icon": "pen-tool"
         }
       ]
@@ -90,17 +90,17 @@
       "description": "Организация событий и экспертные выступления",
       "items": [
         {
-          "id": "mass_events",
+          "id": "mass_events_management",
           "title": "Организация массовых мероприятий",
           "description": "Модерация событий по развитию финансовой грамотности",
-          "href": "#",
+          "href": "/companies/mass_events_management",
           "icon": "calendar-days"
         },
         {
           "id": "public_talks",
           "title": "Лекции и публичные выступления",
           "description": "Выступления экспертов НЦФГ на мероприятиях",
-          "href": "#",
+          "href": "/companies/public_talks",
           "icon": "mic"
         }
       ]

@@ -136,7 +136,17 @@ export async function fetchServicesData(): Promise<ServicesData> {
 
   // Fallback to static JSON
   const servicesData = await import('@/public/content/ncfg_services.json');
-  return servicesData.default as ServicesData;
+  return servicesData.default;
+}
+
+// ==================
+// Companies page
+// ==================
+
+export async function fetchCompaniesPageData() {
+  // TODO: switch to Strapi when the content type is modeled
+  const companiesData = await import('@/public/content/companies.json');
+  return companiesData.default;
 }
 
 // ==================

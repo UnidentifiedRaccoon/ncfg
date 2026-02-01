@@ -415,6 +415,57 @@ md:grid-cols-2 lg:grid-cols-3  /* Cards: 1→2→3 columns */
 md:grid-cols-2 lg:grid-cols-4  /* Features: 1→2→4 columns */
 ```
 
+### Timeline Component
+
+Вертикальный таймлайн с зигзаг-лейаутом для пошаговых процессов (напр. «Как мы работаем»).
+
+**Структура:**
+```
+Desktop (md+):                    Mobile:
+
+    ┌────────┐                      │
+    │▌ Card  │───●                  ●───┌────────┐
+    └────────┘   │                  │   │▌ Card  │
+                 │                  │   └────────┘
+          ●───┌────────┐            │
+          │   │▌ Card  │            ●───┌────────┐
+          │   └────────┘            │   │▌ Card  │
+          │                         │   └────────┘
+    ┌────────┐                      │
+    │▌ Card  │───●                  ...
+    └────────┘   │
+```
+
+**Визуальные элементы:**
+- Центральная линия: `w-0.5`, градиент `#58A8E0 → #3B82F6 → #1E3A5F`
+- Маркеры: `w-12 h-12`, `rounded-full`, градиент `from-[#58A8E0] to-[#3B82F6]`
+- Соединители: `w-8 h-0.5`, полупрозрачный `#3B82F6/50`
+- Карточки: **Gradient Accent Edge** стиль:
+  - Белый фон, `rounded-xl`
+  - Левая градиентная полоса 4px (`before:` pseudo-element, `from-[#58A8E0] to-[#3B82F6]`)
+  - `shadow-md` по умолчанию
+  - Hover: `translateY(-2px)` + `shadow-lg`
+
+**Анимации (Framer Motion):**
+
+| Элемент | Триггер | Анимация | Timing |
+|---------|---------|----------|--------|
+| Линия | Секция входит (amount: 0.1) | scaleY 0→1 | 1.2s ease-out |
+| Маркер | Item входит (amount: 0.3) | scale 0→1 | spring(300, 15) |
+| Карточка | Item входит (amount: 0.3) | opacity 0→1, x ±30→0 | 0.5s |
+
+- **Per-item trigger:** каждый `TimelineItem` имеет собственный `useInView` (`amount: 0.3`, `once: true`)
+- **Reduced motion:** все анимации отключаются, элементы видны сразу
+
+**Адаптивность:**
+- Mobile: линия слева (`left-6`), все карточки справа (`ml-16`)
+- Desktop (md+): линия по центру, карточки чередуются left/right
+
+**Accessibility:**
+- Семантика: `<ol>` + `<li>` для списка шагов
+- Screen reader: `<span className="sr-only">Шаг N:</span>` перед заголовком
+- Декоративные элементы: `aria-hidden="true"`
+
 ---
 
 ## Breakpoints

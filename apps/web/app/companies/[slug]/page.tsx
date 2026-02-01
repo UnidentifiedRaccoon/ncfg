@@ -11,7 +11,7 @@ import { ServiceHero } from "@/widgets/ServiceHero";
 import { ServiceDescription } from "@/widgets/ServiceDescription";
 import { ServiceFacts } from "@/widgets/ServiceFacts";
 import { ServiceExamples } from "@/widgets/ServiceExamples";
-import servicesData from "@/public/content/ncfg_services.json";
+import { fetchServicesData } from "@/shared/api/data-provider";
 import homeData from "@/public/content/home.json";
 import type { Service, ServicesData } from "@/shared/api/types/service";
 
@@ -44,13 +44,15 @@ function getAllServiceIds(data: ServicesData): string[] {
 }
 
 export async function generateStaticParams() {
-  const ids = getAllServiceIds(servicesData as ServicesData);
+  const servicesData = await fetchServicesData();
+  const ids = getAllServiceIds(servicesData);
   return ids.map((id) => ({ slug: id }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const service = findServiceById(servicesData as ServicesData, slug);
+  const servicesData = await fetchServicesData();
+  const service = findServiceById(servicesData, slug);
 
   if (!service) {
     return {
@@ -94,7 +96,8 @@ const faqItems = [
 
 export default async function ServicePage({ params }: PageProps) {
   const { slug } = await params;
-  const service = findServiceById(servicesData as ServicesData, slug);
+  const servicesData = await fetchServicesData();
+  const service = findServiceById(servicesData, slug);
 
   if (!service) {
     notFound();
