@@ -263,13 +263,14 @@ function OrbitingPlanet({
   // Card dimensions
   const defaultSize = 112; // 28 * 4 = 112px (w-28)
   const expandedWidth = 220;
+  const currentWidth = isHovered ? expandedWidth : defaultSize;
 
   return (
     <motion.div
       ref={ref}
       className="absolute left-1/2 top-1/2 transform-gpu"
       style={{
-        x: position.x - defaultSize / 2,
+        x: position.x - currentWidth / 2, // Center based on current width
         y: position.y - defaultSize / 2,
         zIndex: isHovered ? 30 : 10,
         opacity: isDimmed ? 0.4 : 1, // Instant opacity change
@@ -288,7 +289,7 @@ function OrbitingPlanet({
         <motion.div
           className="absolute inset-0 rounded-2xl pointer-events-none"
           style={{
-            width: isHovered ? expandedWidth : defaultSize,
+            width: currentWidth,
             background: "linear-gradient(135deg, rgba(88, 168, 224, 0.1), rgba(59, 130, 246, 0.15))",
           }}
           animate={{
@@ -314,7 +315,7 @@ function OrbitingPlanet({
                    focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2
                    overflow-hidden text-left"
         style={{
-          width: isHovered ? expandedWidth : defaultSize,
+          width: currentWidth,
           boxShadow: isHovered
             ? "0 0 30px rgba(59, 130, 246, 0.4), 0 15px 30px rgba(59, 130, 246, 0.25)"
             : "0 10px 25px rgba(59, 130, 246, 0.15)",
