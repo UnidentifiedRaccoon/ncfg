@@ -174,10 +174,10 @@ jobs:
             NODE_ENV=production
             DATABASE_CLIENT=postgres
             DATABASE_SSL=true
+            DATABASE_SSL_REJECT_UNAUTHORIZED=false
             AWS_REGION=ru-central1
             AWS_ENDPOINT=https://storage.yandexcloud.net
             HOST=0.0.0.0
-            PORT=1337
 
   # Health check after deployment
   health-check:

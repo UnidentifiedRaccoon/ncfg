@@ -27,8 +27,8 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=1337
 ENV HOST=0.0.0.0
+# PORT is set by Yandex Cloud Serverless (8080) or can be overridden
 
 # Runtime dependencies
 RUN apk add --no-cache libpq
@@ -50,9 +50,10 @@ RUN mkdir -p ./public/uploads && chown strapi:strapi ./public/uploads
 
 USER strapi
 
-EXPOSE 1337
+EXPOSE 8080
 
+# Healthcheck uses PORT env var (default 8080 for YC Serverless)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:1337/_health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-8080}/_health || exit 1
 
 CMD ["npm", "run", "start"]
