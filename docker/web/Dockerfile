@@ -3,22 +3,16 @@
 # Stage 1: Install dependencies
 FROM node:22-alpine AS deps
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy workspace root files for pnpm
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY apps/web/package.json ./apps/web/
-
-RUN pnpm install --frozen-lockfile --filter=ncfg-web...
+COPY apps/web/package.json apps/web/package-lock.json ./
+RUN npm ci
 
 # Stage 2: Build the application
 FROM node:22-alpine AS builder
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
-COPY . .
+COPY apps/web/ ./
 
 # Build args for environment variables needed at build time
 ARG STRAPI_URL
@@ -27,8 +21,7 @@ ARG NEXT_PUBLIC_SITE_URL
 ENV STRAPI_URL=$STRAPI_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
-WORKDIR /app/apps/web
-RUN pnpm build
+RUN npm run build
 
 # Stage 3: Production runner
 FROM node:22-alpine AS runner
@@ -42,9 +35,9 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Copy static files and standalone build
-COPY --from=builder /app/apps/web/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
