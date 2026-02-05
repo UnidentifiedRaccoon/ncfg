@@ -1,0 +1,39 @@
+# Dependencies
+**/node_modules
+**/.pnpm-store
+
+# Build output
+**/dist
+**/.next
+**/build
+**/out
+
+# Development
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# IDE
+**/.idea
+**/.vscode
+
+# Git
+.git
+.gitignore
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+
+# Misc
+**/*.log
+**/npm-debug.log*
+**/.DS_Store
+**/coverage
+**/.turbo
+**/.cache
+
+# Database
+**/*.db
+**/.tmp

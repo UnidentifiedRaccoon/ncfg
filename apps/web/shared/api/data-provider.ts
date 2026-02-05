@@ -139,7 +139,7 @@ export async function fetchCompaniesPageData() {
 }
 
 // ==================
-// People (Strapi only, no JSON fallback)
+// People (with fallback to static JSON)
 // ==================
 
 export interface PeopleData {
@@ -149,13 +149,50 @@ export interface PeopleData {
 }
 
 export async function fetchPeopleData(): Promise<PeopleData> {
-  const people = await getPeople();
-  const legacyPeople = people.map(transformToLegacyPerson);
+  if (USE_STRAPI) {
+    try {
+      const people = await getPeople();
+      const legacyPeople = people.map(transformToLegacyPerson);
+
+      return {
+        people: legacyPeople,
+        teamPeopleIds: legacyPeople.filter(p => p.isTeam).map(p => p.id),
+        expertPeopleIds: legacyPeople.filter(p => p.isExpert).map(p => p.id),
+      };
+    } catch (error) {
+      console.warn('Failed to fetch people from Strapi, falling back to static JSON:', error);
+    }
+  }
+
+  // Fallback to static JSON
+  const peopleData = await import('@/public/content/ncfg_finzdorov_people.json');
+  interface StaticPerson {
+    id: string;
+    fullName: string;
+    photo?: string;
+    isTeam: boolean;
+    isExpert: boolean;
+    team?: { title?: string };
+    expertProfile?: { headline?: string };
+  }
+  const staticPeople = (peopleData.default as { people: StaticPerson[] }).people;
+
+  // Transform static format to LegacyPerson format
+  const people: LegacyPerson[] = staticPeople.map(p => ({
+    id: p.id,
+    fullName: p.fullName,
+    photoUrl: p.photo || null,
+    position: p.team?.title || null,
+    headline: p.expertProfile?.headline || null,
+    experienceYears: null,
+    isTeam: p.isTeam,
+    isExpert: p.isExpert,
+  }));
 
   return {
-    people: legacyPeople,
-    teamPeopleIds: legacyPeople.filter(p => p.isTeam).map(p => p.id),
-    expertPeopleIds: legacyPeople.filter(p => p.isExpert).map(p => p.id),
+    people,
+    teamPeopleIds: people.filter(p => p.isTeam).map(p => p.id),
+    expertPeopleIds: people.filter(p => p.isExpert).map(p => p.id),
   };
 }
 

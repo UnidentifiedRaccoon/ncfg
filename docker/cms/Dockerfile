@@ -43,6 +43,8 @@ RUN addgroup --system --gid 1001 strapi && \
 
 # Copy built application
 COPY --from=builder --chown=strapi:strapi /app/dist ./dist
+# Copy admin panel build to root (Strapi 5 expects it at ./build)
+COPY --from=builder --chown=strapi:strapi /app/dist/build ./build
 COPY --from=builder --chown=strapi:strapi /app/node_modules ./node_modules
 COPY --from=builder --chown=strapi:strapi /app/package.json ./
 COPY --from=builder --chown=strapi:strapi /app/config ./config
