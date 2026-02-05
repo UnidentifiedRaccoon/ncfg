@@ -10,7 +10,7 @@ interface PostProps {
     title: string;
     tags: string[];
     body: string;
-    anonsImage?: string;
+    anonsImage?: string | null;
     createdAt: string;
   };
   allPosts?: PostCardPost[];

@@ -44,7 +44,7 @@ export function PostCard({ post }: PostCardProps) {
         <div className="aspect-[16/9] relative">
           {hasImage ? (
             <Image
-              src={post.anonsImage}
+              src={post.anonsImage!}
               alt={post.title}
               fill
               className="object-cover rounded-b-xl"
