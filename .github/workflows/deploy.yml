@@ -134,7 +134,9 @@ jobs:
           revision-core-fraction: 100
           revision-concurrency: 8
           revision-execution-timeout: 30s
+          revision-min-instances: 1
           revision-env: |
+            NODE_ENV=production
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
 
@@ -154,24 +156,25 @@ jobs:
           revision-image-url: ${{ env.YC_REGISTRY }}/${{ env.CMS_IMAGE }}:${{ github.sha }}
           revision-service-account-id: ${{ secrets.YC_CONTAINER_SA_ID }}
           revision-cores: 1
-          revision-memory: 1Gb
+          revision-memory: 2Gb
           revision-core-fraction: 100
           revision-concurrency: 4
-          revision-execution-timeout: 60s
+          revision-execution-timeout: 120s
+          revision-min-instances: 1
           revision-secrets: |
-            DATABASE_HOST=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/DATABASE_HOST
-            DATABASE_PORT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/DATABASE_PORT
-            DATABASE_NAME=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/DATABASE_NAME
-            DATABASE_USERNAME=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/DATABASE_USERNAME
-            DATABASE_PASSWORD=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/DATABASE_PASSWORD
-            AWS_ACCESS_KEY_ID=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/AWS_ACCESS_KEY_ID
-            AWS_SECRET_ACCESS_KEY=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/AWS_SECRET_ACCESS_KEY
-            AWS_BUCKET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/AWS_BUCKET
-            APP_KEYS=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/APP_KEYS
-            API_TOKEN_SALT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/API_TOKEN_SALT
-            ADMIN_JWT_SECRET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/ADMIN_JWT_SECRET
-            JWT_SECRET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/JWT_SECRET
-            TRANSFER_TOKEN_SALT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/latest/TRANSFER_TOKEN_SALT
+            DATABASE_HOST=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_HOST
+            DATABASE_PORT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_PORT
+            DATABASE_NAME=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_NAME
+            DATABASE_USERNAME=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_USERNAME
+            DATABASE_PASSWORD=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_PASSWORD
+            AWS_ACCESS_KEY_ID=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/AWS_SECRET_ACCESS_KEY
+            AWS_BUCKET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/AWS_BUCKET
+            APP_KEYS=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/APP_KEYS
+            API_TOKEN_SALT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/API_TOKEN_SALT
+            ADMIN_JWT_SECRET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/ADMIN_JWT_SECRET
+            JWT_SECRET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/JWT_SECRET
+            TRANSFER_TOKEN_SALT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/TRANSFER_TOKEN_SALT
           revision-env: |
             NODE_ENV=production
             DATABASE_CLIENT=postgres
