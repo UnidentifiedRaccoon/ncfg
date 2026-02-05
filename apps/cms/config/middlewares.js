@@ -1,6 +1,13 @@
 module.exports = [
   'strapi::logger',
   'strapi::errors',
+  // Compression middleware - required for YC Serverless (3.5MB response limit)
+  {
+    name: 'strapi::compression',
+    config: {
+      br: false, // Disable brotli (slower)
+    },
+  },
   {
     name: 'strapi::security',
     config: {
