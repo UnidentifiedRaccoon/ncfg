@@ -20,5 +20,4 @@ export { Team } from "./Team";
 export { Experts } from "./Experts";
 export { ServiceHero } from "./ServiceHero";
 export { ServiceDescription } from "./ServiceDescription";
-export { ServiceFacts } from "./ServiceFacts";
 export { ServiceExamples } from "./ServiceExamples";

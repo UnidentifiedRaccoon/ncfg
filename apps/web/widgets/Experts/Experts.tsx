@@ -1,15 +1,16 @@
+import Image from "next/image";
 import { Section } from "@/shared/ui/Section";
 import { Clock } from "lucide-react";
 
 interface Expert {
   id: string;
   fullName: string;
+  photoUrl: string | null;
+  position: string | null;
+  headline: string | null;
+  experienceYears: number | null;
   isTeam: boolean;
   isExpert: boolean;
-  expertProfile?: {
-    headline?: string | null;
-    experienceYears?: number | null;
-  } | null;
 }
 
 interface ExpertsProps {
@@ -26,9 +27,6 @@ function getInitials(fullName: string): string {
 }
 
 function ExpertCard({ expert }: { expert: Expert }) {
-  const headline = expert.expertProfile?.headline;
-  const experienceYears = expert.expertProfile?.experienceYears;
-
   return (
     <div
       className="min-w-[280px] md:min-w-0 bg-white rounded-xl border border-[#F1F5F9] p-5
@@ -37,26 +35,36 @@ function ExpertCard({ expert }: { expert: Expert }) {
       <div className="flex items-center gap-4 mb-4">
         <div
           className="w-14 h-14 shrink-0 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#1E3A5F]
-                     flex items-center justify-center text-white font-bold"
+                     flex items-center justify-center text-white font-bold overflow-hidden"
         >
-          {getInitials(expert.fullName)}
+          {expert.photoUrl ? (
+            <Image
+              src={expert.photoUrl}
+              alt={expert.fullName}
+              width={56}
+              height={56}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            getInitials(expert.fullName)
+          )}
         </div>
         <div className="min-w-0">
           <h4 className="font-semibold text-[#1E3A5F] truncate">
             {expert.fullName}
           </h4>
-          {headline && (
-            <p className="text-sm text-[#3B82F6] line-clamp-2">{headline}</p>
+          {expert.headline && (
+            <p className="text-sm text-[#3B82F6] line-clamp-2">{expert.headline}</p>
           )}
         </div>
       </div>
-      {experienceYears && (
+      {expert.experienceYears && (
         <span
           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
                      bg-[#F8FAFC] text-sm text-[#475569]"
         >
           <Clock size={14} className="text-[#3B82F6]" />
-          {experienceYears}+ лет опыта
+          {expert.experienceYears}+ лет опыта
         </span>
       )}
     </div>
@@ -64,12 +72,12 @@ function ExpertCard({ expert }: { expert: Expert }) {
 }
 
 export function Experts({ title, experts }: ExpertsProps) {
-  // Filter: isExpert === true and NOT team members (or team members who are also experts but exclude featured ones)
+  // Filter: isExpert === true and NOT team members, with headline
   const displayExperts = experts.filter(
     (e) =>
       e.isExpert &&
       !e.isTeam &&
-      e.expertProfile?.headline // Only show experts with headline
+      e.headline // Only show experts with headline
   );
 
   if (displayExperts.length === 0) return null;

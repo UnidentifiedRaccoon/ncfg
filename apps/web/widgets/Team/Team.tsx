@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 import { Container } from "@/shared/ui/Container";
@@ -8,16 +9,12 @@ import { cn } from "@/shared/lib/cn";
 interface TeamMember {
   id: string;
   fullName: string;
+  photoUrl: string | null;
+  position: string | null;
+  headline: string | null;
+  experienceYears: number | null;
   isTeam: boolean;
-  team: {
-    unit: string;
-    title: string;
-    department: string | null;
-  } | null;
-  expertProfile?: {
-    headline?: string | null;
-    experienceYears?: number | null;
-  } | null;
+  isExpert: boolean;
 }
 
 interface TeamProps {
@@ -81,7 +78,7 @@ function HeroCard({
         {/* Avatar */}
         <motion.div
           className={cn(
-            "w-24 h-24 rounded-full",
+            "w-24 h-24 rounded-full overflow-hidden",
             "bg-gradient-to-br from-blue-500 to-[#1E3A5F]",
             "flex items-center justify-center",
             "shadow-lg shadow-blue-500/25",
@@ -89,9 +86,19 @@ function HeroCard({
           )}
           whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
         >
-          <span className="text-3xl font-bold text-white">
-            {getInitials(member.fullName)}
-          </span>
+          {member.photoUrl ? (
+            <Image
+              src={member.photoUrl}
+              alt={member.fullName}
+              width={96}
+              height={96}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-3xl font-bold text-white">
+              {getInitials(member.fullName)}
+            </span>
+          )}
         </motion.div>
 
         {/* Info */}
@@ -99,19 +106,19 @@ function HeroCard({
           {member.fullName}
         </h3>
         <p className="text-blue-600 font-medium">
-          {member.team?.title}
+          {member.position}
         </p>
-        {member.expertProfile?.headline && (
+        {member.headline && (
           <p className="mt-2 text-slate-500 text-sm line-clamp-2">
-            {member.expertProfile.headline}
+            {member.headline}
           </p>
         )}
 
         {/* Experience badge */}
-        {member.expertProfile?.experienceYears && (
+        {member.experienceYears && (
           <div className="mt-auto pt-4">
             <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 text-sm font-medium">
-              {member.expertProfile.experienceYears}+ лет опыта
+              {member.experienceYears}+ лет опыта
             </span>
           </div>
         )}
@@ -167,7 +174,7 @@ function FeaturedCard({
         {/* Avatar */}
         <motion.div
           className={cn(
-            "flex-shrink-0 w-16 h-16 rounded-full",
+            "flex-shrink-0 w-16 h-16 rounded-full overflow-hidden",
             "bg-gradient-to-br from-[#58A8E0] to-[#1E3A5F]",
             "flex items-center justify-center",
             "shadow-md shadow-blue-500/20",
@@ -175,9 +182,19 @@ function FeaturedCard({
           )}
           whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
         >
-          <span className="text-xl font-bold text-white">
-            {getInitials(member.fullName)}
-          </span>
+          {member.photoUrl ? (
+            <Image
+              src={member.photoUrl}
+              alt={member.fullName}
+              width={64}
+              height={64}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-xl font-bold text-white">
+              {getInitials(member.fullName)}
+            </span>
+          )}
         </motion.div>
 
         {/* Info */}
@@ -186,12 +203,12 @@ function FeaturedCard({
             {member.fullName}
           </h3>
           <p className="text-blue-600 text-sm font-medium">
-            {member.team?.title}
+            {member.position}
           </p>
-          {member.expertProfile?.experienceYears && (
+          {member.experienceYears && (
             <div className="mt-2">
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium">
-                {member.expertProfile.experienceYears}+ лет опыта
+                {member.experienceYears}+ лет опыта
               </span>
             </div>
           )}
@@ -242,7 +259,7 @@ function TeamCard({
         {/* Avatar */}
         <motion.div
           className={cn(
-            "w-14 h-14 rounded-full",
+            "w-14 h-14 rounded-full overflow-hidden",
             "bg-gradient-to-br from-[#58A8E0] to-[#3B82F6]",
             "flex items-center justify-center",
             "shadow-md shadow-blue-500/15",
@@ -250,9 +267,19 @@ function TeamCard({
           )}
           whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
         >
-          <span className="text-lg font-bold text-white">
-            {getInitials(member.fullName)}
-          </span>
+          {member.photoUrl ? (
+            <Image
+              src={member.photoUrl}
+              alt={member.fullName}
+              width={56}
+              height={56}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-lg font-bold text-white">
+              {getInitials(member.fullName)}
+            </span>
+          )}
         </motion.div>
 
         {/* Info */}
@@ -260,14 +287,14 @@ function TeamCard({
           {member.fullName}
         </h4>
         <p className="text-slate-500 text-sm line-clamp-2">
-          {member.team?.title}
+          {member.position}
         </p>
 
         {/* Experience badge - always visible */}
-        {member.expertProfile?.experienceYears && (
+        {member.experienceYears && (
           <div className="mt-2">
             <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium">
-              {member.expertProfile.experienceYears}+ лет опыта
+              {member.experienceYears}+ лет опыта
             </span>
           </div>
         )}
@@ -376,9 +403,9 @@ function DesktopBentoView({
   const gridTemplate = getGridTemplate();
 
   // Get hero member (Руководитель НЦФГ - Евгения Блискавка)
-  const heroMember = featured.find((m) => m.team?.title === "Руководитель НЦФГ");
+  const heroMember = featured.find((m) => m.position === "Руководитель НЦФГ");
   // Get featured member (Основатель - Анна Деньгина)
-  const featuredMember = featured.find((m) => m.team?.title?.includes("Основатель"));
+  const featuredMember = featured.find((m) => m.position?.includes("Основатель"));
 
   // Map regular members to grid areas
   const regularGridAreas = ["p1", "p2", "p3", "p4", "p5", "p6", "p7"];
@@ -436,9 +463,9 @@ function DesktopBentoView({
       <ul className="sr-only" aria-label="Наша команда">
         {[...(heroMember ? [heroMember] : []), ...(featuredMember ? [featuredMember] : []), ...regular].map((member) => (
           <li key={member.id}>
-            <strong>{member.fullName}</strong>: {member.team?.title}
-            {member.expertProfile?.experienceYears && (
-              <>, {member.expertProfile.experienceYears}+ лет опыта</>
+            <strong>{member.fullName}</strong>: {member.position}
+            {member.experienceYears && (
+              <>, {member.experienceYears}+ лет опыта</>
             )}
           </li>
         ))}
@@ -488,15 +515,25 @@ function MobileHeroCard({
       <div className="relative z-10">
         {/* Avatar */}
         <div
-          className="w-20 h-20 mx-auto rounded-full
+          className="w-20 h-20 mx-auto rounded-full overflow-hidden
                      bg-gradient-to-br from-white/20 to-white/5
                      border-2 border-white/30
                      flex items-center justify-center
                      shadow-lg shadow-black/20"
         >
-          <span className="text-2xl font-bold text-white">
-            {getInitials(member.fullName)}
-          </span>
+          {member.photoUrl ? (
+            <Image
+              src={member.photoUrl}
+              alt={member.fullName}
+              width={80}
+              height={80}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-2xl font-bold text-white">
+              {getInitials(member.fullName)}
+            </span>
+          )}
         </div>
 
         {/* Info */}
@@ -504,11 +541,11 @@ function MobileHeroCard({
           {member.fullName}
         </h3>
         <p className="mt-1 text-white/80">
-          {member.team?.title}
+          {member.position}
         </p>
-        {member.expertProfile?.experienceYears && (
+        {member.experienceYears && (
           <p className="mt-2 text-sm text-white/60">
-            {member.expertProfile.experienceYears}+ лет опыта
+            {member.experienceYears}+ лет опыта
           </p>
         )}
       </div>
@@ -558,26 +595,36 @@ function MobileTeamCard({
         {/* Content */}
         <div className="relative z-10">
           <div
-            className="w-14 h-14 mx-auto rounded-full
+            className="w-14 h-14 mx-auto rounded-full overflow-hidden
                        bg-gradient-to-br from-[#58A8E0] to-[#3B82F6]
                        flex items-center justify-center
                        shadow-lg shadow-[#3B82F6]/30"
           >
-            <span className="text-lg font-bold text-white">
-              {getInitials(member.fullName)}
-            </span>
+            {member.photoUrl ? (
+              <Image
+                src={member.photoUrl}
+                alt={member.fullName}
+                width={56}
+                height={56}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-lg font-bold text-white">
+                {getInitials(member.fullName)}
+              </span>
+            )}
           </div>
 
           <h4 className="mt-3 font-semibold text-white text-sm line-clamp-2">
             {member.fullName}
           </h4>
           <p className="mt-1 text-white/60 text-xs line-clamp-2">
-            {member.team?.title}
+            {member.position}
           </p>
-          {member.expertProfile?.experienceYears && (
+          {member.experienceYears && (
             <div className="mt-2">
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white/10 text-white/80 text-xs font-medium">
-                {member.expertProfile.experienceYears}+ лет
+                {member.experienceYears}+ лет
               </span>
             </div>
           )}
@@ -632,20 +679,20 @@ function MobileTeamStack({
 
 export function Team({ title, members }: TeamProps) {
   const prefersReducedMotion = useReducedMotion();
-  const teamMembers = members.filter((m) => m.isTeam && m.team);
+  const teamMembers = members.filter((m) => m.isTeam);
 
   // Featured: Основатель and Руководитель НЦФГ
   const featured = teamMembers.filter(
     (m) =>
-      m.team?.title?.includes("Основатель") ||
-      m.team?.title === "Руководитель НЦФГ"
+      m.position?.includes("Основатель") ||
+      m.position === "Руководитель НЦФГ"
   );
 
   // Rest of the team
   const rest = teamMembers.filter(
     (m) =>
-      !m.team?.title?.includes("Основатель") &&
-      m.team?.title !== "Руководитель НЦФГ"
+      !m.position?.includes("Основатель") &&
+      m.position !== "Руководитель НЦФГ"
   );
 
   return (

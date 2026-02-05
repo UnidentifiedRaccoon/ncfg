@@ -430,6 +430,40 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiExpertConfigExpertConfig extends Struct.SingleTypeSchema {
+  collectionName: 'expert_configs';
+  info: {
+    description: 'Configuration for experts display';
+    displayName: 'Experts Configuration';
+    pluralName: 'expert-configs';
+    singularName: 'expert-config';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    experts: Schema.Attribute.Relation<'oneToMany', 'api::person.person'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::expert-config.expert-config'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }> &
+      Schema.Attribute.DefaultTo<'\u041D\u0430\u0448\u0438 \u044D\u043A\u0441\u043F\u0435\u0440\u0442\u044B'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
   collectionName: 'news_articles';
   info: {
@@ -483,29 +517,37 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    expertProfile: Schema.Attribute.Component<'person.expert-profile', false>;
+    experienceYears: Schema.Attribute.Integer;
+    expertGroup: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::expert-config.expert-config'
+    >;
     fullName: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
-    isExpert: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    isTeam: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    headline: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::person.person'
     > &
       Schema.Attribute.Private;
-    notes: Schema.Attribute.Text;
     order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
-    personId: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 50;
-      }>;
     photo: Schema.Attribute.Media<'images'>;
+    position: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
     publishedAt: Schema.Attribute.DateTime;
-    team: Schema.Attribute.Component<'person.team-info', false>;
+    team: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::team-config.team-config'
+    >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -567,37 +609,21 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
       'manyToOne',
       'api::service-category.service-category'
     >;
-    configurationNotes: Schema.Attribute.Text;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     cta: Schema.Attribute.Component<'shared.call-to-action', false>;
-    deliveryFormats: Schema.Attribute.JSON;
     examples: Schema.Attribute.Component<'service.service-example', true>;
-    facts: Schema.Attribute.Component<'service.service-facts', false>;
-    formats: Schema.Attribute.JSON;
     fullDescription: Schema.Attribute.RichText;
     howWeWork: Schema.Attribute.Component<'shared.text-item', true>;
-    includes: Schema.Attribute.Component<'shared.text-item', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::service.service'
     > &
       Schema.Attribute.Private;
-    mechanics: Schema.Attribute.Component<'shared.text-item', true>;
-    methodology: Schema.Attribute.Component<'service.methodology-item', true>;
-    options: Schema.Attribute.Component<'shared.text-item', true>;
     order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
-    otherFormats: Schema.Attribute.Component<'shared.text-item', true>;
-    products: Schema.Attribute.Component<'service.product-item', true>;
     publishedAt: Schema.Attribute.DateTime;
-    recommendedFrequency: Schema.Attribute.Text;
-    rewards: Schema.Attribute.Component<'shared.text-item', true>;
-    serviceId: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
     shortDescription: Schema.Attribute.Text;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     status: Schema.Attribute.Enumeration<['published', 'draft']> &
@@ -607,7 +633,6 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
-    topicsExample: Schema.Attribute.Component<'shared.text-item', true>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -644,6 +669,40 @@ export interface ApiTagTag extends Struct.CollectionTypeSchema {
     >;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'name'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTeamConfigTeamConfig extends Struct.SingleTypeSchema {
+  collectionName: 'team_configs';
+  info: {
+    description: 'Configuration for team members display';
+    displayName: 'Team Configuration';
+    pluralName: 'team-configs';
+    singularName: 'team-config';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::team-config.team-config'
+    > &
+      Schema.Attribute.Private;
+    members: Schema.Attribute.Relation<'oneToMany', 'api::person.person'>;
+    publishedAt: Schema.Attribute.DateTime;
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }> &
+      Schema.Attribute.DefaultTo<'\u041D\u0430\u0448\u0430 \u043A\u043E\u043C\u0430\u043D\u0434\u0430'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1160,11 +1219,13 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::expert-config.expert-config': ApiExpertConfigExpertConfig;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
       'api::person.person': ApiPersonPerson;
       'api::service-category.service-category': ApiServiceCategoryServiceCategory;
       'api::service.service': ApiServiceService;
       'api::tag.tag': ApiTagTag;
+      'api::team-config.team-config': ApiTeamConfigTeamConfig;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

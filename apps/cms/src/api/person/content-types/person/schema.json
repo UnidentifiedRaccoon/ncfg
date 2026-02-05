@@ -17,40 +17,38 @@
       "required": true,
       "maxLength": 255
     },
-    "personId": {
-      "type": "string",
-      "maxLength": 50
-    },
-    "isTeam": {
-      "type": "boolean",
-      "default": false
-    },
-    "isExpert": {
-      "type": "boolean",
-      "default": false
-    },
-    "notes": {
-      "type": "text"
-    },
     "photo": {
       "type": "media",
       "multiple": false,
       "required": false,
       "allowedTypes": ["images"]
     },
-    "team": {
-      "type": "component",
-      "repeatable": false,
-      "component": "person.team-info"
+    "position": {
+      "type": "string",
+      "maxLength": 255
     },
-    "expertProfile": {
-      "type": "component",
-      "repeatable": false,
-      "component": "person.expert-profile"
+    "headline": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "experienceYears": {
+      "type": "integer"
     },
     "order": {
       "type": "integer",
       "default": 0
+    },
+    "team": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::team-config.team-config",
+      "inversedBy": "members"
+    },
+    "expertGroup": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::expert-config.expert-config",
+      "inversedBy": "experts"
     }
   }
 }

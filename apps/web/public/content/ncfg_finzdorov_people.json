@@ -20,70 +20,40 @@
     {
       "id": "person_0001",
       "fullName": "Наталья Колбасина",
+      "photo": "/content/experts_photos/natalya_kolbasina.png",
       "isTeam": true,
       "isExpert": true,
-      "notes": null,
       "team": {
         "unit": "Команда",
-        "title": "Руководитель разработки корпоративных программ финансового благополучия",
-        "department": null
+        "title": "Руководитель разработки корпоративных программ финансового благополучия"
       },
       "expertProfile": {
         "headline": "Руководитель консультационного центра НЦФГ, сервис «ФинЗдоровье»",
-        "roles": ["Финансовый консультант", "Бизнес-психолог"],
-        "specialization": null,
-        "position": null,
-        "organization": "НЦФГ / ФинЗдоровье",
-        "registry": null,
         "experienceYears": 20,
         "experienceText": null,
-        "metrics": {
-          "courseParticipants": "60 000+",
-          "moneySavedRub": "100+ млн ₽",
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Эксперт на РБК, ТВ, СМИ",
           "Автор и ведущая тренингов по личным финансам",
           "Автор и эксперт курсов издательства «МИФ», Т-Учебника, СберСовы и др. проектов"
         ],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": ["Трачу и приобретаю", "Деньги будут с тобой"],
-        "mediaMentions": [],
-        "source": {
-          "pages": [2],
-          "url": null
-        }
+        "books": [
+          "Трачу и приобретаю",
+          "Деньги будут с тобой"
+        ]
       }
     },
     {
       "id": "person_0002",
       "fullName": "Ольга Сычева",
+      "photo": "/content/experts_photos/olga_sycheva.jpg",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": "Консультант по налоговым вычетам для частных лиц",
-        "roles": [],
-        "specialization": "Налоговые вычеты",
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 10,
         "experienceText": "Более 10 лет практики",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": "30 000 000 руб.",
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Методист сервисов по налоговым вычетам в крупных компаниях",
           "Преподаватель налоговых дисциплин в Уральском ГЭУ",
@@ -91,40 +61,20 @@
           "Эксперт СМИ по налоговым вычетам"
         ],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [3],
-          "url": null
-        }
+        "books": []
       }
     },
     {
       "id": "person_0003",
       "fullName": "Олег Гарбуз",
+      "photo": "/content/experts_photos/oleg_garbuz.jpg",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": "Инвестиционный советник (реестр ЦБ)",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": "реестр ЦБ",
         "experienceYears": 20,
         "experienceText": "20+ лет на финансовом рынке",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Специалист финансового рынка по брокерской и дилерской деятельности",
           "Автор и ведущий курсов по финансовой грамотности, инвестициям для начинающих",
@@ -132,44 +82,23 @@
           "Эксперт Проекта Минфина России по повышению финансовой грамотности населения"
         ],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [4],
-          "url": null
-        }
+        "books": []
       }
     },
     {
       "id": "person_0004",
       "fullName": "Анна Деньгина",
+      "photo": "/content/experts_photos/anna_dengina.jpg",
       "isTeam": true,
       "isExpert": true,
-      "notes": null,
       "team": {
         "unit": "Команда",
-        "title": "Руководитель НЦФГ",
-        "department": null
+        "title": "Руководитель НЦФГ"
       },
       "expertProfile": {
         "headline": "Руководитель НЦФГ и ФинЗдоровья",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 20,
         "experienceText": "20+ лет на финансовом рынке: карьера и бизнес",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Автор и методолог образовательных программ по финансовой грамотности и благополучию для взрослых и детей",
           "Консультант по стратегиям корпоративных программ финансового благополучия",
@@ -179,15 +108,7 @@
           "Спикер конференций и эксперт СМИ"
         ],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [5],
-          "url": null
-        }
+        "books": []
       }
     },
     {
@@ -195,48 +116,26 @@
       "fullName": "Евгения Блискавка",
       "isTeam": true,
       "isExpert": true,
-      "notes": null,
       "team": {
         "unit": "Команда",
-        "title": "Основатель НЦФГ",
-        "department": null
+        "title": "Основатель НЦФГ"
       },
       "expertProfile": {
         "headline": "Основатель Национального центра финансовой грамотности",
-        "roles": [],
-        "specialization": "Дизайн финансового поведения",
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 20,
         "experienceText": "20 лет опыта разработки решений",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Консультант государственных структур, финансовых институтов и работодателей",
           "Эксперт СМИ (РБК, Форбс, БО, ТВ и др.)"
         ],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": [],
         "books": [
           "Богатство в голове",
           "Дети и Деньги",
           "Повышение финансовой грамотности: международный опыт и российская практика",
           "Private Banking по-русски",
           "Управление личными финансами"
-        ],
-        "mediaMentions": [],
-        "source": {
-          "pages": [6],
-          "url": null
-        }
+        ]
       }
     },
     {
@@ -244,43 +143,21 @@
       "fullName": "Инна Филатова",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Команда",
-        "title": "Руководитель клуба «ФинЗдоровье», главный редактор культуры-денег.рф",
-        "department": null
+        "title": "Руководитель клуба «ФинЗдоровье», главный редактор культуры-денег.рф"
       },
       "expertProfile": {
         "headline": "Главный редактор проекта «Культура-денег.рф»",
-        "roles": ["Сертифицированный финансовый консультант"],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 10,
         "experienceText": "10 лет в банковской сфере («Сбер»)",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [],
-        "education": ["MBA (управление финансами)"],
-        "background": [],
-        "statuses": [
-          "Квалифицированный инвестор",
-          "Волонтер финансовой грамотности АРФГ",
-          "Член ассоциации финансовых советников СРО НАСФП"
+        "education": [
+          "MBA (управление финансами)"
         ],
-        "products": [],
-        "books": ["Семейные финансы — это просто"],
-        "mediaMentions": [],
-        "source": {
-          "pages": [7],
-          "url": null
-        }
+        "books": [
+          "Семейные финансы — это просто"
+        ]
       }
     },
     {
@@ -288,24 +165,11 @@
       "fullName": "Марат Сафиулин",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": "Основатель проекта СтопПирамида",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": null,
         "experienceText": null,
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Член Экспертного совета Банка России по финансовой грамотности",
           "Эксперт Финансового университета при Правительстве РФ",
@@ -314,16 +178,11 @@
           "Федеральный эксперт АРФГ",
           "Федеральный спикер РО «Знание»"
         ],
-        "education": ["к.э.н.", "МВА"],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [8],
-          "url": null
-        }
+        "education": [
+          "к.э.н.",
+          "МВА"
+        ],
+        "books": []
       }
     },
     {
@@ -331,38 +190,18 @@
       "fullName": "Елена Шагарова",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": "Аттестованный экскурсовод по финансовой истории Москвы",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": null,
         "experienceText": null,
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
-        "activities": ["Эксперт СМИ и ТВ по истории финансовой Москвы"],
-        "education": [],
-        "background": [
-          "Экс-служащий Банка России с 11-летним стажем в надзоре",
-          "Победитель конкурса Правительства Москвы «Покажи Москву» (экскурсия о банках и финансах)"
+        "activities": [
+          "Эксперт СМИ и ТВ по истории финансовой Москвы"
         ],
-        "statuses": [],
-        "products": [],
-        "books": ["Финансовая Москва (изд. АСТ)"],
-        "mediaMentions": [],
-        "source": {
-          "pages": [9],
-          "url": null
-        }
+        "education": [],
+        "books": [
+          "Финансовая Москва (изд. АСТ)"
+        ]
       }
     },
     {
@@ -370,43 +209,24 @@
       "fullName": "Валерия Серова",
       "isTeam": true,
       "isExpert": true,
-      "notes": null,
       "team": {
         "unit": "Команда",
-        "title": "Руководитель детской школы Деньгин's и клуба «Дети в деле»",
-        "department": null
+        "title": "Руководитель детской школы Деньгин's и клуба «Дети в деле»"
       },
       "expertProfile": {
         "headline": "Руководитель детского направления НЦФГ",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 12,
         "experienceText": "12+ лет на финансовом рынке",
-        "metrics": {
-          "courseParticipants": "1500+",
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Автор и ведущая программ по финансовой грамотности для детей",
           "Сооснователь школы семейных финансов Деньгин's",
           "Спикер конференций"
         ],
-        "education": ["Экономическое", "Педагогическое"],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [10],
-          "url": null
-        }
+        "education": [
+          "Экономическое",
+          "Педагогическое"
+        ],
+        "books": []
       }
     },
     {
@@ -414,24 +234,11 @@
       "fullName": "Лилия Жандармова",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": "Инвестиционный советник (реестр ЦБ)",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": "реестр ЦБ",
         "experienceYears": 25,
         "experienceText": "25 лет опыта в инвестировании",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Сертифицированный специалист по финансовому планированию",
           "Квалифицированный специалист финансовых рынков по управлению ценными бумагами",
@@ -439,15 +246,7 @@
           "Преподаватель на образовательной платформе Мосбиржи"
         ],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": ["Finance book", "Finance planner"],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [11],
-          "url": null
-        }
+        "books": []
       }
     },
     {
@@ -455,39 +254,18 @@
       "fullName": "Екатерина",
       "isTeam": false,
       "isExpert": true,
-      "notes": "Фамилия не указана в презентации.",
       "team": null,
       "expertProfile": {
         "headline": "20+ лет карьера на финансовом рынке: страхование, банки, инвестиции, финтех, управление рисками",
-        "roles": ["Экономист", "Финансист", "Риск-менеджер"],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 20,
         "experienceText": null,
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Член инвестиционного комитета эндаумент фонда Высшей Школы экономики",
           "Заместитель генерального директора крупнейшего специализированного депозитария",
           "Спикер и модератор профессиональных конференций, опыт публичных выступлений на аудиторию 500+"
         ],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [12],
-          "url": null
-        }
+        "books": []
       }
     },
     {
@@ -495,66 +273,30 @@
       "fullName": "Екатерина Никитина",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": "Руководитель агентства недвижимости «PRO ОБМЕН»",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 20,
         "experienceText": "20+ лет на рынке недвижимости",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Сертифицированный аналитик российского рынка недвижимости",
           "Бизнес-наставник для руководителей агентств недвижимости"
         ],
         "education": [],
-        "background": [],
-        "statuses": [
-          "Вице-президент Гильдии Риэлторов Москвы",
-          "Член Комитета по строительству Деловой России"
-        ],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [13],
-          "url": null
-        }
+        "books": []
       }
     },
     {
       "id": "person_0013",
       "fullName": "Андрей Кулага",
+      "photo": "/content/experts_photos/andrei_kulaga.jpg",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": "Экономист, эксперт по финансам и инвестициям, МГУ",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 7,
         "experienceText": "7 лет практики в обучении и консультировании",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Основатель FinUp Academy и клуба начинающих инвесторов «Инвестируем вместе»",
           "Спикер по финансам и экономике Российского общества Знание",
@@ -564,15 +306,7 @@
           "Эксперт на ТВ и в СМИ"
         ],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [14],
-          "url": null
-        }
+        "books": []
       }
     },
     {
@@ -580,38 +314,20 @@
       "fullName": "Екатерина Жевжаренко",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": "Финансовый консультант, член НАСФП",
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": 17,
         "experienceText": "Карьера от финансового менеджера до финансового директора в производственных и торговых компаниях — 17 лет",
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [
           "Спикер мероприятий и конференций",
           "Тренер по финансовой грамотности для студентов финансовых ВУЗов"
         ],
-        "education": ["Финансовый менеджмент", "Инвестиционное консультирование"],
-        "background": [],
-        "statuses": ["Член НАСФП"],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [15],
-          "url": null
-        }
+        "education": [
+          "Финансовый менеджмент",
+          "Инвестиционное консультирование"
+        ],
+        "books": []
       }
     },
     {
@@ -619,11 +335,9 @@
       "fullName": "Светлана Шаромова",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Команда",
-        "title": "Руководитель социального проекта коплю-трачу-помогаю.рф",
-        "department": null
+        "title": "Руководитель социального проекта коплю-трачу-помогаю.рф"
       },
       "expertProfile": null
     },
@@ -632,11 +346,9 @@
       "fullName": "Лариса Смелова",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Команда",
-        "title": "Финансовый директор и главный бухгалтер",
-        "department": null
+        "title": "Финансовый директор и главный бухгалтер"
       },
       "expertProfile": null
     },
@@ -645,11 +357,9 @@
       "fullName": "Валерия Зинзирова",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Команда",
-        "title": "Руководитель по работе с партнёрами и компаниями",
-        "department": null
+        "title": "Руководитель по работе с партнёрами и компаниями"
       },
       "expertProfile": null
     },
@@ -658,11 +368,9 @@
       "fullName": "Алена Прилепина",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Проектные менеджеры",
-        "title": "Проектный менеджер",
-        "department": null
+        "title": "Проектный менеджер"
       },
       "expertProfile": null
     },
@@ -671,11 +379,9 @@
       "fullName": "Полина Рожкова",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Проектные менеджеры",
-        "title": "Проектный менеджер",
-        "department": null
+        "title": "Проектный менеджер"
       },
       "expertProfile": null
     },
@@ -684,11 +390,9 @@
       "fullName": "Дарья Семенова",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Проектные менеджеры",
-        "title": "Проектный менеджер",
-        "department": null
+        "title": "Проектный менеджер"
       },
       "expertProfile": null
     },
@@ -697,11 +401,9 @@
       "fullName": "Валентина Мацык",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Техническая поддержка",
-        "title": "Техническая поддержка",
-        "department": null
+        "title": "Техническая поддержка"
       },
       "expertProfile": null
     },
@@ -710,11 +412,9 @@
       "fullName": "Денис Смелов",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Техническая поддержка",
-        "title": "Техническая поддержка",
-        "department": null
+        "title": "Техническая поддержка"
       },
       "expertProfile": null
     },
@@ -723,11 +423,9 @@
       "fullName": "Александра Федяева",
       "isTeam": true,
       "isExpert": false,
-      "notes": null,
       "team": {
         "unit": "Внутренние коммуникации",
-        "title": "Внутренние коммуникации",
-        "department": null
+        "title": "Внутренние коммуникации"
       },
       "expertProfile": null
     },
@@ -736,35 +434,14 @@
       "fullName": "Сергей Даньков",
       "isTeam": false,
       "isExpert": true,
-      "notes": null,
       "team": null,
       "expertProfile": {
         "headline": null,
-        "roles": [],
-        "specialization": null,
-        "position": null,
-        "organization": null,
-        "registry": null,
         "experienceYears": null,
         "experienceText": null,
-        "metrics": {
-          "courseParticipants": null,
-          "moneySavedRub": null,
-          "returnedTaxesRub": null,
-          "eventsCount": null,
-          "audienceSize": null
-        },
         "activities": [],
         "education": [],
-        "background": [],
-        "statuses": [],
-        "products": [],
-        "books": [],
-        "mediaMentions": [],
-        "source": {
-          "pages": [],
-          "url": null
-        }
+        "books": []
       }
     }
   ],

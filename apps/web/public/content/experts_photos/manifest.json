@@ -1,0 +1,142 @@
+[
+  {
+    "slide": 1,
+    "name": "Наталья Колбасина",
+    "filename": "natalya_kolbasina.png",
+    "ext": "png",
+    "md5": "180e5e53d3bf429166af6552aa1aa330",
+    "image_shape_name": "Рисунок 1",
+    "bbox": [
+      5428281,
+      0,
+      3715719,
+      5174227
+    ]
+  },
+  {
+    "slide": 2,
+    "name": "Анна Деньгина",
+    "filename": "anna_dengina.jpg",
+    "ext": "jpg",
+    "md5": "70b461f819703eb73ef0338abd458908",
+    "image_shape_name": "Рисунок 4",
+    "bbox": [
+      5428281,
+      0,
+      3715719,
+      5143500
+    ]
+  },
+  {
+    "slide": 3,
+    "name": "Евгения Кулага",
+    "filename": "evgeniya_kulaga.jpg",
+    "ext": "jpg",
+    "md5": "b24ed4c8a135c8885e98ee98a4fde05d",
+    "image_shape_name": "Рисунок 2",
+    "bbox": [
+      5428281,
+      0,
+      3715719,
+      5143500
+    ]
+  },
+  {
+    "slide": 4,
+    "name": "Олег Гарбуз",
+    "filename": "oleg_garbuz.jpg",
+    "ext": "jpg",
+    "md5": "598fd651085104c07257fae8520ff020",
+    "image_shape_name": "Рисунок 2",
+    "bbox": [
+      5428281,
+      -1,
+      3715719,
+      5143501
+    ]
+  },
+  {
+    "slide": 5,
+    "name": "Павел Деньгин",
+    "filename": "pavel_dengin.jpg",
+    "ext": "jpg",
+    "md5": "a9b6e29bd5f5600393579cf7f89efd05",
+    "image_shape_name": "Рисунок 7",
+    "bbox": [
+      5428281,
+      0,
+      3715719,
+      5143500
+    ]
+  },
+  {
+    "slide": 6,
+    "name": "Андрей Кулага",
+    "filename": "andrei_kulaga.jpg",
+    "ext": "jpg",
+    "md5": "c37d18ace5806e5488e0f1e5a70524b0",
+    "image_shape_name": "Рисунок 10",
+    "bbox": [
+      5428281,
+      0,
+      3715719,
+      5143500
+    ]
+  },
+  {
+    "slide": 7,
+    "name": "Ольга Сычева",
+    "filename": "olga_sycheva.jpg",
+    "ext": "jpg",
+    "md5": "05e9b81d33b68e731d0ec23da4fbc173",
+    "image_shape_name": "Рисунок 2",
+    "bbox": [
+      5460615,
+      0,
+      3683386,
+      5163584
+    ]
+  },
+  {
+    "slide": 8,
+    "name": "Сергей Макаров",
+    "filename": "sergei_makarov.jpg",
+    "ext": "jpg",
+    "md5": "50075e608f8262aa3ba43e978874d062",
+    "image_shape_name": "Рисунок 2",
+    "bbox": [
+      5428281,
+      0,
+      3715719,
+      5143500
+    ]
+  },
+  {
+    "slide": 9,
+    "name": "Наталья Соколовская",
+    "filename": "natalya_sokolovskaya.jpg",
+    "ext": "jpg",
+    "md5": "00d64d5adbfdb36ae80c8497c2ae41aa",
+    "image_shape_name": "Рисунок 2",
+    "bbox": [
+      5428280,
+      0,
+      3715720,
+      5143500
+    ]
+  },
+  {
+    "slide": 10,
+    "name": "Юлия Чиндина",
+    "filename": "yuliya_chindina.jpg",
+    "ext": "jpg",
+    "md5": "e3ec50d0b8e8ef9c87668bb3e14614b3",
+    "image_shape_name": "Рисунок 4",
+    "bbox": [
+      5428280,
+      0,
+      3715720,
+      5143500
+    ]
+  }
+]

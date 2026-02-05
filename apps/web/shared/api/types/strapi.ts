@@ -99,22 +99,6 @@ export interface StrapiTextItem {
   text: string;
 }
 
-export interface StrapiServiceFacts {
-  id: number;
-  experienceYears: number | null;
-  developedBy: string | null;
-  participantsCount: string | null;
-  deliveryFormat: string | null;
-  dataOutputs: StrapiTextItem[];
-}
-
-export interface StrapiMethodologyItem {
-  id: number;
-  itemId: string | null;
-  title: string;
-  description: string | null;
-}
-
 export interface StrapiServiceExample {
   id: number;
   exampleId: string | null;
@@ -139,7 +123,6 @@ export interface StrapiCallToAction {
   id: number;
   label: string;
   type: 'form' | 'link' | 'email' | 'phone';
-  url: string | null;
 }
 
 export interface StrapiService {
@@ -147,26 +130,12 @@ export interface StrapiService {
   documentId: string;
   title: string;
   slug: string;
-  serviceId: string | null;
   status: 'published' | 'draft';
   order: number;
   shortDescription: string | null;
   fullDescription: string | null;
   benefits: StrapiTextItem[];
-  facts: StrapiServiceFacts | null;
-  methodology: StrapiMethodologyItem[];
   howWeWork: StrapiTextItem[];
-  deliveryFormats: string[] | null;
-  topicsExample: StrapiTextItem[];
-  recommendedFrequency: string | null;
-  configurationNotes: string | null;
-  mechanics: StrapiTextItem[];
-  rewards: StrapiTextItem[];
-  otherFormats: StrapiTextItem[];
-  formats: string[] | null;
-  options: StrapiTextItem[];
-  includes: StrapiTextItem[];
-  products: StrapiProductItem[];
   examples: StrapiServiceExample[];
   cta: StrapiCallToAction | null;
   category: StrapiServiceCategory | null;
@@ -179,56 +148,17 @@ export interface StrapiService {
 // Person
 // ==================
 
-export interface StrapiTeamInfo {
-  id: number;
-  unit: string | null;
-  title: string | null;
-  department: string | null;
-}
-
-export interface StrapiExpertMetrics {
-  id: number;
-  courseParticipants: string | null;
-  moneySavedRub: string | null;
-  returnedTaxesRub: string | null;
-  eventsCount: string | null;
-  audienceSize: string | null;
-}
-
-export interface StrapiExpertProfile {
-  id: number;
-  headline: string | null;
-  roles: string[] | null;
-  specialization: string | null;
-  position: string | null;
-  organization: string | null;
-  registry: string | null;
-  experienceYears: number | null;
-  experienceText: string | null;
-  metrics: StrapiExpertMetrics | null;
-  activities: string[] | null;
-  education: string[] | null;
-  background: string[] | null;
-  statuses: string[] | null;
-  products: string[] | null;
-  books: string[] | null;
-  mediaMentions: string[] | null;
-  sourcePages: number[] | null;
-  sourceUrl: string | null;
-}
-
 export interface StrapiPerson {
   id: number;
   documentId: string;
   fullName: string;
-  personId: string | null;
-  isTeam: boolean;
-  isExpert: boolean;
-  notes: string | null;
   photo: StrapiImage | null;
-  team: StrapiTeamInfo | null;
-  expertProfile: StrapiExpertProfile | null;
+  position: string | null;
+  headline: string | null;
+  experienceYears: number | null;
   order: number;
+  team: { id: number } | null;
+  expertGroup: { id: number } | null;
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;

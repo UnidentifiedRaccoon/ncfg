@@ -14,7 +14,6 @@ import {
 import homeData from "@/public/content/home.json";
 import howWeWorkData from "@/public/content/ncfg_how_we_work.json";
 import principlesData from "@/public/content/ncfg_principles.json";
-import peopleData from "@/public/content/ncfg_finzdorov_people.json";
 import { fetchPeopleData } from "@/shared/api/data-provider";
 
 export const metadata: Metadata = {
@@ -56,15 +55,9 @@ const faqItems = [
 
 export default async function AboutPage() {
   const { sections } = homeData;
-  
-  // Try to fetch from Strapi, fallback to static data
-  let people;
-  try {
-    const data = await fetchPeopleData();
-    people = data.people;
-  } catch {
-    people = peopleData.people;
-  }
+
+  // fetchPeopleData has internal fallback to static JSON
+  const { people } = await fetchPeopleData();
 
   return (
     <>

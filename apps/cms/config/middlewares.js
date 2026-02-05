@@ -18,7 +18,16 @@ module.exports = [
   {
     name: 'strapi::cors',
     config: {
-      origin: ['http://localhost:3000', 'http://localhost:1337'],
+      origin: [
+        'http://localhost:3000',
+        'http://localhost:1337',
+        // Yandex Cloud Serverless Containers
+        /\.serverless\.yandexcloud\.net$/,
+        // Production domains (add when ready)
+        // 'https://ncfg.ru',
+        // 'https://www.ncfg.ru',
+        // 'https://admin.ncfg.ru',
+      ],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
       headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
       keepHeaderOnError: true,

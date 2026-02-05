@@ -1,0 +1,58 @@
+# syntax=docker/dockerfile:1
+
+# Stage 1: Install dependencies
+FROM node:22-alpine AS deps
+WORKDIR /app
+
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
+COPY apps/cms/package.json apps/cms/package-lock.json ./
+RUN npm ci
+
+# Stage 2: Build the application
+FROM node:22-alpine AS builder
+WORKDIR /app
+
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY apps/cms/ ./
+
+RUN npm run build
+
+# Stage 3: Production runner
+FROM node:22-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=1337
+ENV HOST=0.0.0.0
+
+# Runtime dependencies
+RUN apk add --no-cache libpq
+
+# Security: run as non-root user
+RUN addgroup --system --gid 1001 strapi && \
+    adduser --system --uid 1001 strapi
+
+# Copy built application
+COPY --from=builder --chown=strapi:strapi /app/dist ./dist
+COPY --from=builder --chown=strapi:strapi /app/node_modules ./node_modules
+COPY --from=builder --chown=strapi:strapi /app/package.json ./
+COPY --from=builder --chown=strapi:strapi /app/config ./config
+COPY --from=builder --chown=strapi:strapi /app/src ./src
+COPY --from=builder --chown=strapi:strapi /app/public ./public
+
+# Create uploads directory (will be overridden by S3 in production)
+RUN mkdir -p ./public/uploads && chown strapi:strapi ./public/uploads
+
+USER strapi
+
+EXPOSE 1337
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:1337/_health || exit 1
+
+CMD ["npm", "run", "start"]

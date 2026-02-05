@@ -15,7 +15,7 @@ export async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
   const query = buildQueryString({
     populate: {
       services: {
-        populate: ['benefits', 'facts', 'facts.dataOutputs', 'howWeWork', 'examples', 'cta'],
+        populate: ['benefits', 'howWeWork', 'examples', 'cta'],
         sort: ['order:asc'],
       },
     },
@@ -108,7 +108,7 @@ export async function getPublishedServices(): Promise<StrapiService[]> {
 // Helper: Transform to legacy format
 // ==================
 
-import type { Service, ServiceCategory, ServiceFacts, ServiceExample, ServiceCTA, ServicesData } from './types/service';
+import type { Service, ServiceCategory, ServiceExample, ServiceCTA, ServicesData } from './types/service';
 
 function extractTextItems(items: StrapiTextItem[] | null | undefined): string[] {
   if (!items || !Array.isArray(items)) return [];
@@ -116,15 +116,7 @@ function extractTextItems(items: StrapiTextItem[] | null | undefined): string[] 
 }
 
 export function transformToLegacyService(service: StrapiService): Service {
-  const facts: ServiceFacts | undefined = service.facts ? {
-    experienceYears: service.facts.experienceYears || 0,
-    developedBy: service.facts.developedBy || '',
-    participantsCount: parseInt(service.facts.participantsCount || '0') || 0,
-    deliveryFormat: service.facts.deliveryFormat || '',
-    dataOutputs: extractTextItems(service.facts.dataOutputs),
-  } : undefined;
-
-  const examples: ServiceExample[] | undefined = service.examples?.length ? 
+  const examples: ServiceExample[] | undefined = service.examples?.length ?
     service.examples.map(ex => ({
       id: ex.exampleId || ex.id,
       title: ex.title,
@@ -136,21 +128,19 @@ export function transformToLegacyService(service: StrapiService): Service {
 
   const cta: ServiceCTA = {
     label: service.cta?.label || '',
-    type: service.cta?.type === 'form' || service.cta?.type === 'link' 
-      ? service.cta.type 
+    type: service.cta?.type === 'form' || service.cta?.type === 'link'
+      ? service.cta.type
       : 'form',
-    url: service.cta?.url || null,
   };
 
   return {
-    id: service.serviceId || service.slug,
+    id: service.slug,
     order: service.order,
     status: service.status,
     title: service.title,
     shortDescription: service.shortDescription || '',
     fullDescription: service.fullDescription || '',
     benefits: extractTextItems(service.benefits),
-    facts,
     examples,
     howWeWork: extractTextItems(service.howWeWork),
     cta,

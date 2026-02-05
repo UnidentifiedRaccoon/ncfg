@@ -1,7 +1,6 @@
 export interface ServiceCTA {
   label: string;
   type: "form" | "link";
-  url: string | null;
 }
 
 export interface ServiceExample {
@@ -13,14 +12,6 @@ export interface ServiceExample {
   notes?: string;
 }
 
-export interface ServiceFacts {
-  experienceYears: number;
-  developedBy: string;
-  participantsCount: number;
-  deliveryFormat: string;
-  dataOutputs?: string[];
-}
-
 export interface Service {
   id: string;
   order: number;
@@ -29,7 +20,6 @@ export interface Service {
   shortDescription: string;
   fullDescription: string;
   benefits?: string[];
-  facts?: ServiceFacts;
   examples?: ServiceExample[];
   howWeWork?: string[];
   cta: ServiceCTA;

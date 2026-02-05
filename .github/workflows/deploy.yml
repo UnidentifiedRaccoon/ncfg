@@ -1,0 +1,210 @@
+# Yandex Cloud Deployment Pipeline
+# Deploys Next.js and Strapi to Serverless Containers
+
+name: Deploy to Yandex Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_web:
+        description: 'Deploy web (Next.js)'
+        type: boolean
+        default: true
+      deploy_cms:
+        description: 'Deploy CMS (Strapi)'
+        type: boolean
+        default: true
+
+env:
+  YC_REGISTRY: cr.yandex/${{ secrets.YC_REGISTRY_ID }}
+  WEB_IMAGE: ncfg-web
+  CMS_IMAGE: ncfg-cms
+
+jobs:
+  # Detect which services changed
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      cms: ${{ steps.filter.outputs.cms }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+              - 'docker/web/**'
+              - 'pnpm-lock.yaml'
+            cms:
+              - 'apps/cms/**'
+              - 'docker/cms/**'
+
+  # Build and push Next.js image
+  build-web:
+    name: Build Next.js
+    runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      needs.changes.outputs.web == 'true' ||
+      github.event.inputs.deploy_web == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Yandex Container Registry
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:${{ github.sha }}
+            ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:latest
+          build-args: |
+            STRAPI_URL=${{ secrets.STRAPI_URL }}
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Build and push Strapi image
+  build-cms:
+    name: Build Strapi
+    runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      needs.changes.outputs.cms == 'true' ||
+      github.event.inputs.deploy_cms == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Yandex Container Registry
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/cms/Dockerfile
+          push: true
+          tags: |
+            ${{ env.YC_REGISTRY }}/${{ env.CMS_IMAGE }}:${{ github.sha }}
+            ${{ env.YC_REGISTRY }}/${{ env.CMS_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Deploy Next.js to Serverless Container
+  deploy-web:
+    name: Deploy Next.js
+    runs-on: ubuntu-latest
+    needs: build-web
+    environment: production
+    steps:
+      - name: Deploy to Yandex Serverless Container
+        uses: yc-actions/yc-sls-container-deploy@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          container-name: ncfg-web
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
+          revision-image-url: ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:${{ github.sha }}
+          revision-service-account-id: ${{ secrets.YC_CONTAINER_SA_ID }}
+          revision-cores: 1
+          revision-memory: 512Mb
+          revision-core-fraction: 100
+          revision-concurrency: 8
+          revision-execution-timeout: 30s
+          revision-env: |
+            STRAPI_URL=${{ secrets.STRAPI_URL }}
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+  # Deploy Strapi to Serverless Container
+  deploy-cms:
+    name: Deploy Strapi
+    runs-on: ubuntu-latest
+    needs: build-cms
+    environment: production
+    steps:
+      - name: Deploy to Yandex Serverless Container
+        uses: yc-actions/yc-sls-container-deploy@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          container-name: ncfg-cms
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
+          revision-image-url: ${{ env.YC_REGISTRY }}/${{ env.CMS_IMAGE }}:${{ github.sha }}
+          revision-service-account-id: ${{ secrets.YC_CONTAINER_SA_ID }}
+          revision-cores: 1
+          revision-memory: 1Gb
+          revision-core-fraction: 100
+          revision-concurrency: 4
+          revision-execution-timeout: 60s
+          revision-secrets: |
+            DATABASE_HOST=${{ secrets.YC_LOCKBOX_SECRET_ID }}/database_host
+            DATABASE_PORT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/database_port
+            DATABASE_NAME=${{ secrets.YC_LOCKBOX_SECRET_ID }}/database_name
+            DATABASE_USERNAME=${{ secrets.YC_LOCKBOX_SECRET_ID }}/database_username
+            DATABASE_PASSWORD=${{ secrets.YC_LOCKBOX_SECRET_ID }}/database_password
+            AWS_ACCESS_KEY_ID=${{ secrets.YC_LOCKBOX_SECRET_ID }}/aws_access_key_id
+            AWS_SECRET_ACCESS_KEY=${{ secrets.YC_LOCKBOX_SECRET_ID }}/aws_secret_access_key
+            AWS_BUCKET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/aws_bucket
+            APP_KEYS=${{ secrets.YC_LOCKBOX_SECRET_ID }}/app_keys
+            API_TOKEN_SALT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/api_token_salt
+            ADMIN_JWT_SECRET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/admin_jwt_secret
+            JWT_SECRET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/jwt_secret
+            TRANSFER_TOKEN_SALT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/transfer_token_salt
+          revision-env: |
+            NODE_ENV=production
+            DATABASE_CLIENT=postgres
+            DATABASE_SSL=true
+            AWS_REGION=ru-central1
+            AWS_ENDPOINT=https://storage.yandexcloud.net
+            HOST=0.0.0.0
+            PORT=1337
+
+  # Health check after deployment
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-web, deploy-cms]
+    if: always() && (needs.deploy-web.result == 'success' || needs.deploy-cms.result == 'success')
+    steps:
+      - name: Wait for containers to start
+        run: sleep 30
+
+      - name: Check web health
+        if: needs.deploy-web.result == 'success'
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.NEXT_PUBLIC_SITE_URL }}/api/health" || echo "000")
+          if [ "$response" != "200" ]; then
+            echo "Web health check failed with status: $response"
+            exit 1
+          fi
+          echo "Web health check passed"
+
+      - name: Check CMS health
+        if: needs.deploy-cms.result == 'success'
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.STRAPI_URL }}/_health" || echo "000")
+          if [ "$response" != "204" ]; then
+            echo "CMS health check failed with status: $response"
+            exit 1
+          fi
+          echo "CMS health check passed"

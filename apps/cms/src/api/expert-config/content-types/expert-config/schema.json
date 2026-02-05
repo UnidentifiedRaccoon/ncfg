@@ -1,0 +1,27 @@
+{
+  "kind": "singleType",
+  "collectionName": "expert_configs",
+  "info": {
+    "singularName": "expert-config",
+    "pluralName": "expert-configs",
+    "displayName": "Experts Configuration",
+    "description": "Configuration for experts display"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Наши эксперты",
+      "maxLength": 255
+    },
+    "experts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::person.person",
+      "mappedBy": "expertGroup"
+    }
+  }
+}

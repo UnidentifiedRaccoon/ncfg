@@ -9,7 +9,6 @@ import {
 } from "@/widgets";
 import { ServiceHero } from "@/widgets/ServiceHero";
 import { ServiceDescription } from "@/widgets/ServiceDescription";
-import { ServiceFacts } from "@/widgets/ServiceFacts";
 import { ServiceExamples } from "@/widgets/ServiceExamples";
 import { fetchServicesData } from "@/shared/api/data-provider";
 import homeData from "@/public/content/home.json";
@@ -125,7 +124,6 @@ export default async function ServicePage({ params }: PageProps) {
           fullDescription={service.fullDescription}
           benefits={service.benefits}
         />
-        {service.facts && <ServiceFacts facts={service.facts} />}
         {howWeWorkSteps && howWeWorkSteps.length > 0 && (
           <HowWeWork title="Как мы работаем" steps={howWeWorkSteps} />
         )}

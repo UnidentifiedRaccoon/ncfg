@@ -26,10 +26,6 @@ function formatDate(dateStr: string): string {
 export function PostCard({ post }: PostCardProps) {
   const hasImage = post.anonsImage && post.anonsImage.length > 0;
 
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/0e19e85a-50b5-4c87-aa61-382b8bbf87ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PostCard.tsx:28',message:'PostCard render',data:{postId:post.id,anonsImage:post.anonsImage,hasImage,startsWithSlash:post.anonsImage?.startsWith('/')},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1-H2'})}).catch(()=>{});
-  // #endregion
-
   return (
     <article className="group w-full max-w-[624px] bg-white rounded-xl overflow-hidden border border-[#F1F5F9] hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
       <Link href={`/blog/${post.slug}`} className="block">

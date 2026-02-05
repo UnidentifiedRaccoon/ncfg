@@ -16,10 +16,6 @@
       "type": "enumeration",
       "enum": ["form", "link", "email", "phone"],
       "default": "form"
-    },
-    "url": {
-      "type": "string",
-      "maxLength": 500
     }
   }
 }

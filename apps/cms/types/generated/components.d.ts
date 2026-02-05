@@ -1,106 +1,5 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
-export interface PersonExpertMetrics extends Struct.ComponentSchema {
-  collectionName: 'components_person_expert_metrics';
-  info: {
-    description: 'Quantitative metrics about expert achievements';
-    displayName: 'Expert Metrics';
-    icon: 'chartPie';
-  };
-  attributes: {
-    audienceSize: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    courseParticipants: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    eventsCount: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    moneySavedRub: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    returnedTaxesRub: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-  };
-}
-
-export interface PersonExpertProfile extends Struct.ComponentSchema {
-  collectionName: 'components_person_expert_profiles';
-  info: {
-    description: 'Full expert profile with credentials and achievements';
-    displayName: 'Expert Profile';
-    icon: 'star';
-  };
-  attributes: {
-    activities: Schema.Attribute.JSON;
-    background: Schema.Attribute.JSON;
-    books: Schema.Attribute.JSON;
-    education: Schema.Attribute.JSON;
-    experienceText: Schema.Attribute.Text;
-    experienceYears: Schema.Attribute.Integer;
-    headline: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 500;
-      }>;
-    mediaMentions: Schema.Attribute.JSON;
-    metrics: Schema.Attribute.Component<'person.expert-metrics', false>;
-    organization: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    position: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    products: Schema.Attribute.JSON;
-    registry: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    roles: Schema.Attribute.JSON;
-    sourcePages: Schema.Attribute.JSON;
-    sourceUrl: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 500;
-      }>;
-    specialization: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    statuses: Schema.Attribute.JSON;
-  };
-}
-
-export interface PersonTeamInfo extends Struct.ComponentSchema {
-  collectionName: 'components_person_team_infos';
-  info: {
-    description: 'Team member position information';
-    displayName: 'Team Info';
-    icon: 'users';
-  };
-  attributes: {
-    department: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 200;
-      }>;
-    title: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    unit: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 200;
-      }>;
-  };
-}
-
 export interface ServiceExpertAgenda extends Struct.ComponentSchema {
   collectionName: 'components_service_expert_agendas';
   info: {
@@ -218,31 +117,6 @@ export interface ServiceServiceExample extends Struct.ComponentSchema {
   };
 }
 
-export interface ServiceServiceFacts extends Struct.ComponentSchema {
-  collectionName: 'components_service_service_facts';
-  info: {
-    description: 'Key facts about a service';
-    displayName: 'Service Facts';
-    icon: 'chartBubble';
-  };
-  attributes: {
-    dataOutputs: Schema.Attribute.Component<'shared.text-item', true>;
-    deliveryFormat: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    developedBy: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 200;
-      }>;
-    experienceYears: Schema.Attribute.Integer;
-    participantsCount: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-  };
-}
-
 export interface SharedCallToAction extends Struct.ComponentSchema {
   collectionName: 'components_shared_call_to_actions';
   info: {
@@ -258,10 +132,6 @@ export interface SharedCallToAction extends Struct.ComponentSchema {
       }>;
     type: Schema.Attribute.Enumeration<['form', 'link', 'email', 'phone']> &
       Schema.Attribute.DefaultTo<'form'>;
-    url: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 500;
-      }>;
   };
 }
 
@@ -280,15 +150,11 @@ export interface SharedTextItem extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
-      'person.expert-metrics': PersonExpertMetrics;
-      'person.expert-profile': PersonExpertProfile;
-      'person.team-info': PersonTeamInfo;
       'service.expert-agenda': ServiceExpertAgenda;
       'service.methodology-item': ServiceMethodologyItem;
       'service.practice-block': ServicePracticeBlock;
       'service.product-item': ServiceProductItem;
       'service.service-example': ServiceServiceExample;
-      'service.service-facts': ServiceServiceFacts;
       'shared.call-to-action': SharedCallToAction;
       'shared.text-item': SharedTextItem;
     }

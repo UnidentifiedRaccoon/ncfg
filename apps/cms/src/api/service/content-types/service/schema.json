@@ -22,10 +22,6 @@
       "targetField": "title",
       "required": true
     },
-    "serviceId": {
-      "type": "string",
-      "maxLength": 100
-    },
     "status": {
       "type": "enumeration",
       "enum": ["published", "draft"],
@@ -46,67 +42,10 @@
       "repeatable": true,
       "component": "shared.text-item"
     },
-    "facts": {
-      "type": "component",
-      "repeatable": false,
-      "component": "service.service-facts"
-    },
-    "methodology": {
-      "type": "component",
-      "repeatable": true,
-      "component": "service.methodology-item"
-    },
     "howWeWork": {
       "type": "component",
       "repeatable": true,
       "component": "shared.text-item"
-    },
-    "deliveryFormats": {
-      "type": "json"
-    },
-    "topicsExample": {
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.text-item"
-    },
-    "recommendedFrequency": {
-      "type": "text"
-    },
-    "configurationNotes": {
-      "type": "text"
-    },
-    "mechanics": {
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.text-item"
-    },
-    "rewards": {
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.text-item"
-    },
-    "otherFormats": {
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.text-item"
-    },
-    "formats": {
-      "type": "json"
-    },
-    "options": {
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.text-item"
-    },
-    "includes": {
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.text-item"
-    },
-    "products": {
-      "type": "component",
-      "repeatable": true,
-      "component": "service.product-item"
     },
     "examples": {
       "type": "component",

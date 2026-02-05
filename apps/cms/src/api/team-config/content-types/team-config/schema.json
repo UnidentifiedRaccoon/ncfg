@@ -1,0 +1,27 @@
+{
+  "kind": "singleType",
+  "collectionName": "team_configs",
+  "info": {
+    "singularName": "team-config",
+    "pluralName": "team-configs",
+    "displayName": "Team Configuration",
+    "description": "Configuration for team members display"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Наша команда",
+      "maxLength": 255
+    },
+    "members": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::person.person",
+      "mappedBy": "team"
+    }
+  }
+}
