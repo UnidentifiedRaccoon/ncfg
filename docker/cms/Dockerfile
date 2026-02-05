@@ -50,6 +50,7 @@ COPY --from=builder --chown=strapi:strapi /app/package.json ./
 COPY --from=builder --chown=strapi:strapi /app/config ./config
 COPY --from=builder --chown=strapi:strapi /app/src ./src
 COPY --from=builder --chown=strapi:strapi /app/public ./public
+COPY --from=builder --chown=strapi:strapi /app/favicon.png ./favicon.png
 
 # Create uploads directory (will be overridden by S3 in production)
 RUN mkdir -p ./public/uploads && chown strapi:strapi ./public/uploads
