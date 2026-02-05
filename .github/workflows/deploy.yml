@@ -134,7 +134,7 @@ jobs:
           revision-core-fraction: 100
           revision-concurrency: 8
           revision-execution-timeout: 30s
-          revision-min-instances: 1
+          revision-provisioned: 1
           revision-env: |
             NODE_ENV=production
             STRAPI_URL=${{ secrets.STRAPI_URL }}
@@ -160,7 +160,7 @@ jobs:
           revision-core-fraction: 100
           revision-concurrency: 4
           revision-execution-timeout: 120s
-          revision-min-instances: 1
+          revision-provisioned: 1
           revision-secrets: |
             DATABASE_HOST=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_HOST
             DATABASE_PORT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_PORT
