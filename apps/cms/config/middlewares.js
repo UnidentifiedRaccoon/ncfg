@@ -29,7 +29,7 @@ module.exports = [
         'http://localhost:3000',
         'http://localhost:1337',
         // Yandex Cloud Serverless Containers
-        /\.serverless\.yandexcloud\.net$/,
+        /\.containers\.yandexcloud\.net$/,
         // Production domains (add when ready)
         // 'https://ncfg.ru',
         // 'https://www.ncfg.ru',
