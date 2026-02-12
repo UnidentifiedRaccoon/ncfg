@@ -76,6 +76,7 @@ jobs:
             ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:latest
           build-args: |
             STRAPI_URL=${{ secrets.STRAPI_URL }}
+            STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -138,6 +139,7 @@ jobs:
           revision-env: |
             NODE_ENV=production
             STRAPI_URL=${{ secrets.STRAPI_URL }}
+            STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
 
   # Deploy Strapi to Serverless Container

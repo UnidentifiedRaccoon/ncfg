@@ -20,14 +20,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  
-  // Try to fetch from Strapi, fallback to static
-  let post;
-  try {
-    post = await fetchNewsArticle(slug);
-  } catch {
-    post = blogData.posts.find((p) => p.slug === slug);
-  }
+  const post = await fetchNewsArticle(slug);
 
   if (!post) {
     return {
@@ -54,19 +47,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  
-  // Try to fetch from Strapi, fallback to static
-  let post;
-  let allPosts;
-  try {
-    post = await fetchNewsArticle(slug);
-    allPosts = await fetchNewsArticles();
-  } catch {
-    post = blogData.posts.find((p) => p.slug === slug);
-    allPosts = blogData.posts;
-  }
-
-  console.log(post);
+  const post = await fetchNewsArticle(slug);
+  const allPosts = await fetchNewsArticles();
 
   if (!post) {
     notFound();

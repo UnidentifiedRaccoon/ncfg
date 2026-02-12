@@ -13,14 +13,7 @@ export const revalidate = 60; // Revalidate every 60 seconds
 export default async function BlogPage() {
   const { sections } = homeData;
   const { meta } = blogData;
-  
-  // Try to fetch from Strapi, fallback to static data
-  let posts;
-  try {
-    posts = await fetchNewsArticles();
-  } catch {
-    posts = blogData.posts;
-  }
+  const posts = await fetchNewsArticles();
 
   return (
     <>

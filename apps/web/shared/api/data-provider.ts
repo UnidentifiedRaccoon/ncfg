@@ -1,8 +1,10 @@
 /**
  * Data Provider
- * 
- * Provides a unified interface for fetching data from either Strapi CMS
- * or static JSON files. Falls back to static files if Strapi is unavailable.
+ *
+ * Unified interface for fetching data from Strapi CMS.
+ *
+ * This module is intentionally "fail fast": if Strapi is not configured or
+ * unavailable, it throws instead of silently falling back to static JSON.
  */
 
 import { getNews, getNewsArticle, getLatestNews, transformToLegacyNews } from './news';
@@ -10,9 +12,16 @@ import { getServicesDataLegacy } from './services';
 import { getPeople, transformToLegacyPerson, type LegacyPerson } from './people';
 import type { ServicesData } from './types/service';
 
-// Check if Strapi is configured
 const STRAPI_URL = process.env.STRAPI_URL;
-const USE_STRAPI = Boolean(STRAPI_URL && process.env.STRAPI_API_TOKEN);
+const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
+
+function assertStrapiConfigured(): void {
+  if (!STRAPI_URL || !STRAPI_API_TOKEN) {
+    throw new Error(
+      'Strapi is required. Set STRAPI_URL and STRAPI_API_TOKEN (see apps/web/.env.local.example).'
+    );
+  }
+}
 
 // ==================
 // News
@@ -29,85 +38,36 @@ export interface NewsArticleData {
 }
 
 export async function fetchNewsArticles(): Promise<NewsArticleData[]> {
-  if (USE_STRAPI) {
-    try {
-      const { articles } = await getNews({ pageSize: 100 });
-      return articles.map(transformToLegacyNews);
-    } catch (error) {
-      console.warn('Failed to fetch news from Strapi, falling back to static JSON:', error);
-    }
-  }
+  assertStrapiConfigured();
 
-  // Fallback to static JSON
-  const newsData = await import('@/public/content/news/ncfg_news.json');
-  const articles = newsData.default as NewsArticleData[];
-  
-  // Normalize image paths - ensure they start with /
-  return articles.map(article => ({
-    ...article,
-    anonsImage: article.anonsImage 
-      ? (article.anonsImage.startsWith('/') || article.anonsImage.startsWith('http') 
-          ? article.anonsImage 
-          : `/${article.anonsImage}`)
-      : null,
-  }));
+  try {
+    const { articles } = await getNews({ pageSize: 100 });
+    return articles.map(transformToLegacyNews);
+  } catch (error) {
+    throw new Error('Failed to fetch news from Strapi.', { cause: error });
+  }
 }
 
 export async function fetchNewsArticle(slug: string): Promise<NewsArticleData | null> {
-  if (USE_STRAPI) {
-    try {
-      const article = await getNewsArticle(slug);
-      if (article) {
-        return transformToLegacyNews(article);
-      }
-      return null;
-    } catch (error) {
-      console.warn('Failed to fetch article from Strapi, falling back to static JSON:', error);
-    }
-  }
+  assertStrapiConfigured();
 
-  // Fallback to static JSON
-  const newsData = await import('@/public/content/news/ncfg_news.json');
-  const articles = newsData.default as NewsArticleData[];
-  const article = articles.find(a => a.slug === slug);
-  if (!article) return null;
-  
-  // Normalize image path
-  return {
-    ...article,
-    anonsImage: article.anonsImage 
-      ? (article.anonsImage.startsWith('/') || article.anonsImage.startsWith('http') 
-          ? article.anonsImage 
-          : `/${article.anonsImage}`)
-      : null,
-  };
+  try {
+    const article = await getNewsArticle(slug);
+    return article ? transformToLegacyNews(article) : null;
+  } catch (error) {
+    throw new Error(`Failed to fetch article from Strapi (slug: ${slug}).`, { cause: error });
+  }
 }
 
 export async function fetchLatestNewsArticles(limit: number = 5): Promise<NewsArticleData[]> {
-  if (USE_STRAPI) {
-    try {
-      const articles = await getLatestNews(limit);
-      return articles.map(transformToLegacyNews);
-    } catch (error) {
-      console.warn('Failed to fetch latest news from Strapi, falling back to static JSON:', error);
-    }
-  }
+  assertStrapiConfigured();
 
-  // Fallback to static JSON
-  const newsData = await import('@/public/content/news/ncfg_news.json');
-  const articles = (newsData.default as NewsArticleData[])
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, limit);
-  
-  // Normalize image paths
-  return articles.map(article => ({
-    ...article,
-    anonsImage: article.anonsImage 
-      ? (article.anonsImage.startsWith('/') || article.anonsImage.startsWith('http') 
-          ? article.anonsImage 
-          : `/${article.anonsImage}`)
-      : null,
-  }));
+  try {
+    const articles = await getLatestNews(limit);
+    return articles.map(transformToLegacyNews);
+  } catch (error) {
+    throw new Error(`Failed to fetch latest news from Strapi (limit: ${limit}).`, { cause: error });
+  }
 }
 
 // ==================
@@ -115,17 +75,13 @@ export async function fetchLatestNewsArticles(limit: number = 5): Promise<NewsAr
 // ==================
 
 export async function fetchServicesData(): Promise<ServicesData> {
-  if (USE_STRAPI) {
-    try {
-      return await getServicesDataLegacy();
-    } catch (error) {
-      console.warn('Failed to fetch services from Strapi, falling back to static JSON:', error);
-    }
-  }
+  assertStrapiConfigured();
 
-  // Fallback to static JSON
-  const servicesData = await import('@/public/content/ncfg_services.json');
-  return servicesData.default as ServicesData;
+  try {
+    return await getServicesDataLegacy();
+  } catch (error) {
+    throw new Error('Failed to fetch services from Strapi.', { cause: error });
+  }
 }
 
 // ==================
@@ -149,51 +105,20 @@ export interface PeopleData {
 }
 
 export async function fetchPeopleData(): Promise<PeopleData> {
-  if (USE_STRAPI) {
-    try {
-      const people = await getPeople();
-      const legacyPeople = people.map(transformToLegacyPerson);
+  assertStrapiConfigured();
 
-      return {
-        people: legacyPeople,
-        teamPeopleIds: legacyPeople.filter(p => p.isTeam).map(p => p.id),
-        expertPeopleIds: legacyPeople.filter(p => p.isExpert).map(p => p.id),
-      };
-    } catch (error) {
-      console.warn('Failed to fetch people from Strapi, falling back to static JSON:', error);
-    }
+  try {
+    const people = await getPeople();
+    const legacyPeople = people.map(transformToLegacyPerson);
+
+    return {
+      people: legacyPeople,
+      teamPeopleIds: legacyPeople.filter((p) => p.isTeam).map((p) => p.id),
+      expertPeopleIds: legacyPeople.filter((p) => p.isExpert).map((p) => p.id),
+    };
+  } catch (error) {
+    throw new Error('Failed to fetch people from Strapi.', { cause: error });
   }
-
-  // Fallback to static JSON
-  const peopleData = await import('@/public/content/ncfg_finzdorov_people.json');
-  interface StaticPerson {
-    id: string;
-    fullName: string;
-    photo?: string;
-    isTeam: boolean;
-    isExpert: boolean;
-    team?: { title?: string };
-    expertProfile?: { headline?: string };
-  }
-  const staticPeople = (peopleData.default as { people: StaticPerson[] }).people;
-
-  // Transform static format to LegacyPerson format
-  const people: LegacyPerson[] = staticPeople.map(p => ({
-    id: p.id,
-    fullName: p.fullName,
-    photoUrl: p.photo || null,
-    position: p.team?.title || null,
-    headline: p.expertProfile?.headline || null,
-    experienceYears: null,
-    isTeam: p.isTeam,
-    isExpert: p.isExpert,
-  }));
-
-  return {
-    people,
-    teamPeopleIds: people.filter(p => p.isTeam).map(p => p.id),
-    expertPeopleIds: people.filter(p => p.isExpert).map(p => p.id),
-  };
 }
 
 export async function fetchTeamMembers(): Promise<LegacyPerson[]> {
@@ -211,5 +136,5 @@ export async function fetchExperts(): Promise<LegacyPerson[]> {
 // ==================
 
 export function isUsingStrapi(): boolean {
-  return USE_STRAPI;
+  return Boolean(STRAPI_URL && STRAPI_API_TOKEN);
 }
