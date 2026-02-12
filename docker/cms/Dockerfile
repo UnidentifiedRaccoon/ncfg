@@ -24,7 +24,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY apps/cms/ ./
 
 # Build Strapi (includes admin panel)
-RUN echo "Cache bust: $CACHE_BUST" && npm run build
+# Note: Strapi v5 runs from ./dist in production. We ensure JSON schemas/components
+# are present there; otherwise Content API endpoints can return 404 in prod.
+RUN echo "Cache bust: $CACHE_BUST" && npm run build && npm run copy:schemas
 
 # Stage 3: Production runner
 FROM node:22-alpine AS runner
