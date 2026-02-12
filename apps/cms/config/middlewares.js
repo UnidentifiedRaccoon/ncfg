@@ -30,10 +30,11 @@ module.exports = [
         'http://localhost:1337',
         // Yandex Cloud Serverless Containers
         /\.containers\.yandexcloud\.net$/,
+        // CMS gateway domain
+        'https://admin.ncfg.ru',
         // Production domains (add when ready)
         // 'https://ncfg.ru',
         // 'https://www.ncfg.ru',
-        // 'https://admin.ncfg.ru',
       ],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
       headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],

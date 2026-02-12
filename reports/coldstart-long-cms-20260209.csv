@@ -1,0 +1,8 @@
+ts,target,phase,idle_sec,attempt,http_code,time_namelookup,time_connect,time_appconnect,time_pretransfer,time_starttransfer,time_total,remote_ip,remote_port,url
+2026-02-09T12:34:48Z,cms,warm_baseline,0,1,204,0.001515,0.014172,0.025931,0.025956,0.338610,0.338640,2a0d:d6c1:0:1c::33,443,https://bbaousfesom46c65itc1.containers.yandexcloud.net/_health,,,,,,,,
+2026-02-09T12:34:49Z,cms,warm_baseline,0,2,204,0.002759,0.024045,0.035783,0.035826,0.141962,0.141978,2a0d:d6c1:0:1c::33,443,https://bbaousfesom46c65itc1.containers.yandexcloud.net/_health,,,,,,,,
+2026-02-09T12:34:50Z,cms,warm_baseline,0,3,204,0.001750,0.012931,0.019973,0.019996,0.057138,0.057151,2a0d:d6c1:0:1c::33,443,https://bbaousfesom46c65itc1.containers.yandexcloud.net/_health,,,,,,,,
+2026-02-09T12:44:50Z,cms,after_idle_first,600,1,204,0.031402,0.037440,0.046694,0.046738,0.120288,0.120353,2a0d:d6c1:0:1c::33,443,https://bbaousfesom46c65itc1.containers.yandexcloud.net/_health,,,,,,,,
+2026-02-09T12:44:50Z,cms,after_idle_followup,600,2,204,0.002375,0.014997,0.025506,0.025546,0.080090,0.080129,2a0d:d6c1:0:1c::33,443,https://bbaousfesom46c65itc1.containers.yandexcloud.net/_health,,,,,,,,
+2026-02-09T12:59:50Z,cms,after_idle_first,900,1,204,0.002591,0.016065,0.027610,0.027642,0.111338,0.111370,2a0d:d6c1:0:1c::33,443,https://bbaousfesom46c65itc1.containers.yandexcloud.net/_health,,,,,,,,
+2026-02-09T12:59:50Z,cms,after_idle_followup,900,2,204,0.002646,0.012220,0.022013,0.022077,0.093004,0.093032,2a0d:d6c1:0:1c::33,443,https://bbaousfesom46c65itc1.containers.yandexcloud.net/_health,,,,,,,,
