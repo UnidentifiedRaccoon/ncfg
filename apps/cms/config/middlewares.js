@@ -1,3 +1,29 @@
+const parseHost = (value) => {
+  if (!value) return null;
+
+  try {
+    return new URL(value).host;
+  } catch {
+    return value.replace(/^https?:\/\//, '').split('/')[0] || null;
+  }
+};
+
+const extraMediaSources = (process.env.CSP_MEDIA_SRC || '')
+  .split(',')
+  .map((source) => source.trim())
+  .filter(Boolean);
+
+const mediaSources = [
+  'market-assets.strapi.io',
+  'res.cloudinary.com',
+  'storage.yandexcloud.net',
+  '*.storage.yandexcloud.net',
+  parseHost(process.env.AWS_ENDPOINT),
+  ...extraMediaSources,
+].filter(Boolean);
+
+const mediaSourcesUnique = [...new Set(mediaSources)];
+
 module.exports = [
   'strapi::logger',
   'strapi::errors',
@@ -15,8 +41,8 @@ module.exports = [
         useDefaults: true,
         directives: {
           'connect-src': ["'self'", 'https:'],
-          'img-src': ["'self'", 'data:', 'blob:', 'market-assets.strapi.io', 'res.cloudinary.com'],
-          'media-src': ["'self'", 'data:', 'blob:', 'market-assets.strapi.io', 'res.cloudinary.com'],
+          'img-src': ["'self'", 'data:', 'blob:', ...mediaSourcesUnique],
+          'media-src': ["'self'", 'data:', 'blob:', ...mediaSourcesUnique],
           upgradeInsecureRequests: null,
         },
       },
