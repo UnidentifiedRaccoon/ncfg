@@ -5,7 +5,17 @@
  */
 
 const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
-const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN;
+
+function normalizeStrapiToken(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  // Allow passing either raw token or "Bearer <token>" (common in CI/secrets).
+  return trimmed.replace(/^Bearer\s+/i, '');
+}
+
+const STRAPI_TOKEN = normalizeStrapiToken(process.env.STRAPI_API_TOKEN);
 
 // ==================
 // Types
