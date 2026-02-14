@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Design Expert"
+  short_description: "Web design concepts: palette, layout, hierarchy"
+  default_prompt: "Use $web-design-expert to propose 2-3 web design directions with palette and layout."

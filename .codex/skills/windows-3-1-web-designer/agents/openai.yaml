@@ -1,0 +1,4 @@
+interface:
+  display_name: "Windows 3.1 Web Designer"
+  short_description: "Authentic Windows 3.1 UI patterns for the web"
+  default_prompt: "Use $windows-3-1-web-designer to design an authentic Win31 interface for this web app."

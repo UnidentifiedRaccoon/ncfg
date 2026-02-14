@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vaporwave Glassomorphic UI Designer"
+  short_description: "Vaporwave glass UI: neon + frosted blur"
+  default_prompt: "Use $vaporwave-glassomorphic-ui-designer to design a neon glass UI direction for this screen."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADHD Design Expert"
+  short_description: "ADHD-friendly UX patterns and audits"
+  default_prompt: "Use $adhd-design-expert to audit this UI and propose ADHD-friendly patterns."

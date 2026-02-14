@@ -1,0 +1,4 @@
+interface:
+  display_name: "Competitive Cartographer"
+  short_description: "Competitive mapping and positioning strategy"
+  default_prompt: "Use $competitive-cartographer to map competitors and recommend a differentiated positioning."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibe Matcher"
+  short_description: "Turn vibes into actionable visual specs"
+  default_prompt: "Use $vibe-matcher to translate the vibe into concrete visual specs with rationale."

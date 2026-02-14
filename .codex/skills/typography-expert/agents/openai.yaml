@@ -1,0 +1,4 @@
+interface:
+  display_name: "Typography Expert"
+  short_description: "Fonts, type scales, and fast loading plans"
+  default_prompt: "Use $typography-expert to choose fonts, define a type scale, and plan font loading."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Explaining Code"
+  short_description: "Explain code with diagrams and gotchas"
+  default_prompt: "Use $explaining-code to explain this code with a small Mermaid diagram and gotchas."

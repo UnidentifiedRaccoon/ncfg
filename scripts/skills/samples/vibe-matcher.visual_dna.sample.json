@@ -1,0 +1,38 @@
+{
+  "colors": {
+    "primary": "#1A1A1A",
+    "secondary": "#F2F2F2",
+    "accent": "#FF3366",
+    "neutrals": ["#0E0E0E", "#2A2A2A", "#E6E6E6", "#FFFFFF"],
+    "rationale": "Dark base signals confidence; a single hot accent adds edge without chaos; neutrals preserve readability."
+  },
+  "typography": {
+    "headings": {
+      "family": "Inter",
+      "weight": 800,
+      "characteristics": "Bold, condensed feeling, high contrast for hierarchy"
+    },
+    "body": {
+      "family": "Inter",
+      "weight": 400,
+      "size": "16-18px for readability"
+    },
+    "rationale": "Heavy headings deliver attitude; calm body keeps content scannable."
+  },
+  "layout": {
+    "system": "Asymmetric 12-col grid",
+    "spacing": "Generous",
+    "hierarchy": "One hero block, then clear sections with strong whitespace breaks",
+    "rationale": "Asymmetry provides edge; whitespace keeps it professional."
+  },
+  "interactions": {
+    "speed": "Snappy",
+    "patterns": ["hover-lift", "underline-sweep", "staggered-reveal"],
+    "rationale": "Fast feedback feels confident; a few signature motions prevent over-animation."
+  },
+  "moodBoard": {
+    "references": ["https://example.com/ref-1", "https://example.com/ref-2"],
+    "takeaways": ["High-contrast hero hierarchy", "Single accent color discipline"]
+  }
+}
+

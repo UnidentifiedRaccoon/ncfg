@@ -1,0 +1,4 @@
+interface:
+  display_name: "Photo Composition Critic"
+  short_description: "Photo critique, composition, and scoring rubric"
+  default_prompt: "Use $photo-composition-critic to critique these photos and recommend improvements."

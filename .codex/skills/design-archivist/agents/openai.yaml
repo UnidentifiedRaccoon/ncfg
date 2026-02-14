@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Archivist"
+  short_description: "Large-sample design research and pattern mining"
+  default_prompt: "Use $design-archivist to build a large-sample pattern database for this domain."

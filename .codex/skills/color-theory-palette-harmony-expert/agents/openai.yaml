@@ -1,0 +1,4 @@
+interface:
+  display_name: "Color Theory Palette Harmony Expert"
+  short_description: "Perceptual palette matching and sequencing"
+  default_prompt: "Use $color-theory-palette-harmony-expert to pick a cohesive palette and sequence these images."

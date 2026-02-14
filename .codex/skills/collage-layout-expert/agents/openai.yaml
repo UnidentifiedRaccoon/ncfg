@@ -1,0 +1,4 @@
+interface:
+  display_name: "Collage Layout Expert"
+  short_description: "Collage layouts, algorithms, and blending"
+  default_prompt: "Use $collage-layout-expert to choose a collage style and layout algorithm for this set."

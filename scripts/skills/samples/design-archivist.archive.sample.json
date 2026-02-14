@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "domain": "fintech landing pages",
+    "examplesAnalyzed": 3,
+    "dateRange": "2026-01-01..2026-02-01"
+  },
+  "examples": [
+    {
+      "url": "https://example.com/a",
+      "notes": "Minimal hero, strong trust signals."
+    },
+    {
+      "url": "https://example.com/b",
+      "notes": "Bento grid with product screenshots."
+    },
+    {
+      "url": "https://example.com/c",
+      "notes": "Dark mode by default, heavy typography."
+    }
+  ],
+  "patterns": {
+    "dominant": ["Clear hero + CTA", "Social proof above the fold"],
+    "emerging": ["Grain texture overlays", "Bento grids"],
+    "deprecated": ["Auto-rotating hero carousels"],
+    "outliers": ["Program-manager style navigation"]
+  },
+  "insights": {
+    "colorTrends": ["Neutral base with a single accent"],
+    "typographyTrends": ["Oversized headings with tight leading"],
+    "layoutTrends": ["Bento sections and asymmetric grids"],
+    "interactionTrends": ["Staggered reveals with restrained motion"],
+    "technicalTrends": ["Low JS, fast LCP, inline SVG icons"]
+  },
+  "recommendations": {
+    "safeChoices": ["Neutral palette + one accent", "Clear hero copy + CTA"],
+    "differentiators": ["Signature illustration system", "Distinct interaction motif"],
+    "avoid": ["Low-contrast body text", "Hero sliders"]
+  }
+}
+

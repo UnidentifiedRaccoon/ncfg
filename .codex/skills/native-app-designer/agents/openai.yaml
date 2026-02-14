@@ -1,0 +1,4 @@
+interface:
+  display_name: "Native App Designer"
+  short_description: "Native-feel UI and motion design (SwiftUI/Web)"
+  default_prompt: "Use $native-app-designer to design native-feel screens and motion specs for this app."
