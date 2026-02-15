@@ -15,7 +15,6 @@ export interface ServiceExample {
 export interface Service {
   id: string;
   order: number;
-  status: "published" | "draft";
   title: string;
   shortDescription: string;
   fullDescription: string;

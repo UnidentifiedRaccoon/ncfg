@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_home_clients_carousels",
+  "info": {
+    "displayName": "Clients Carousel",
+    "description": "Clients carousel section data",
+    "icon": "carousel"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "archiveCta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.link"
+    },
+    "categories": {
+      "type": "component",
+      "repeatable": true,
+      "component": "home.clients-category"
+    }
+  }
+}
+

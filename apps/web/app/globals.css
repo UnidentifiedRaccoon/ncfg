@@ -132,6 +132,19 @@ body {
   outline-offset: 2px;
 }
 
+/* FAQ: hide native <details> marker (we render our own chevron) */
+.faq-summary {
+  list-style: none;
+}
+
+.faq-summary::marker {
+  content: "";
+}
+
+.faq-summary::-webkit-details-marker {
+  display: none;
+}
+
 /* Selection */
 ::selection {
   background: var(--color-accent);

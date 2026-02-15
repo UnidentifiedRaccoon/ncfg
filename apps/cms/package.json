@@ -9,7 +9,7 @@
     "build": "strapi build",
     "strapi": "strapi",
     "deploy": "strapi deploy",
-    "copy:schemas": "node -e \"const fs=require('fs');const path=require('path');const copyDir=(src,dest)=>{if(!fs.existsSync(src))return;fs.mkdirSync(dest,{recursive:true});fs.readdirSync(src,{withFileTypes:true}).forEach(f=>{const srcPath=path.join(src,f.name);const destPath=path.join(dest,f.name);f.isDirectory()?copyDir(srcPath,destPath):f.name.endsWith('.json')&&fs.copyFileSync(srcPath,destPath)})};['news-article','tag','service','service-category','person'].forEach(api=>copyDir('src/api/'+api+'/content-types','dist/src/api/'+api+'/content-types'));copyDir('src/components','dist/src/components')\""
+    "copy:schemas": "node -e \"const fs=require('fs');const path=require('path');const copyDir=(src,dest)=>{if(!fs.existsSync(src))return;fs.mkdirSync(dest,{recursive:true});fs.readdirSync(src,{withFileTypes:true}).forEach(f=>{const srcPath=path.join(src,f.name);const destPath=path.join(dest,f.name);f.isDirectory()?copyDir(srcPath,destPath):f.name.endsWith('.json')&&fs.copyFileSync(srcPath,destPath)})};const apis=fs.existsSync('src/api')?fs.readdirSync('src/api',{withFileTypes:true}).filter(d=>d.isDirectory()).map(d=>d.name):[];apis.forEach(api=>copyDir('src/api/'+api+'/content-types','dist/src/api/'+api+'/content-types'));copyDir('src/components','dist/src/components')\""
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -1,0 +1,55 @@
+{
+  "kind": "singleType",
+  "collectionName": "about_pages",
+  "info": {
+    "singularName": "about-page",
+    "pluralName": "about-pages",
+    "displayName": "About Page",
+    "description": "About page content (how we work, principles, FAQ)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "heroHeadline": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "heroCta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.link"
+    },
+    "howWeWorkTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "howWeWorkLead": {
+      "type": "text"
+    },
+    "howWeWorkSteps": {
+      "type": "component",
+      "repeatable": true,
+      "component": "about.how-we-work-step"
+    },
+    "principlesTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "principlesLead": {
+      "type": "text"
+    },
+    "principles": {
+      "type": "component",
+      "repeatable": true,
+      "component": "about.principle"
+    },
+    "faqItems": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.faq-item"
+    }
+  }
+}
+

@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_home_logos",
+  "info": {
+    "displayName": "Logo",
+    "description": "Partner/client logo item",
+    "icon": "picture"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "href": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "imgPath": {
+      "type": "string",
+      "maxLength": 500
+    }
+  }
+}
+

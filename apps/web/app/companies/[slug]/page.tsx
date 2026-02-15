@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   Header,
   HowWeWork,
@@ -10,8 +10,7 @@ import {
 import { ServiceHero } from "@/widgets/ServiceHero";
 import { ServiceDescription } from "@/widgets/ServiceDescription";
 import { ServiceExamples } from "@/widgets/ServiceExamples";
-import { fetchServicesData } from "@/shared/api/data-provider";
-import homeData from "@/public/content/home.json";
+import { fetchServicesData, fetchSiteSettings } from "@/shared/api/data-provider";
 import type { Service, ServicesData } from "@/shared/api/types/service";
 
 interface PageProps {
@@ -34,9 +33,7 @@ function getAllServiceIds(data: ServicesData): string[] {
   const ids: string[] = [];
   for (const category of data.serviceCategories) {
     for (const service of category.services) {
-      if (service.status === "published") {
-        ids.push(service.id);
-      }
+      ids.push(service.id);
     }
   }
   return ids;
@@ -95,7 +92,15 @@ const faqItems = [
 
 export default async function ServicePage({ params }: PageProps) {
   const { slug } = await params;
-  const servicesData = await fetchServicesData();
+
+  if (slug.includes("_")) {
+    redirect(`/companies/${slug.replace(/_/g, "-")}`);
+  }
+
+  const [servicesData, siteSetting] = await Promise.all([
+    fetchServicesData(),
+    fetchSiteSettings(),
+  ]);
   const service = findServiceById(servicesData, slug);
 
   if (!service) {
@@ -105,11 +110,8 @@ export default async function ServicePage({ params }: PageProps) {
   // Transform howWeWork string[] to Step[] for HowWeWork widget
   const howWeWorkSteps = service.howWeWork?.map((step, index) => ({
     id: index + 1,
-    title: `Шаг ${index + 1}`,
-    description: step,
+    title: step,
   }));
-
-  const { sections } = homeData;
 
   return (
     <>
@@ -133,7 +135,34 @@ export default async function ServicePage({ params }: PageProps) {
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />
       </main>
-      <Footer data={sections.Footer.data} />
+      <Footer
+        data={{
+          organization: {
+            fullName: siteSetting.organizationFullName,
+            shortName: siteSetting.organizationShortName,
+          },
+          contacts: {
+            phone: siteSetting.contactsPhone,
+            email: siteSetting.contactsEmail,
+            legalAddress: siteSetting.contactsLegalAddress ?? "",
+          },
+          social: siteSetting.socialLinks.map((l) => ({ label: l.label, href: l.href })),
+          legalLinks: siteSetting.legalLinks.map((l) => ({ label: l.label, href: l.href })),
+          legalDocuments: {
+            title: siteSetting.legalDocumentsTitle ?? "Юридические документы",
+            items: siteSetting.legalDocuments.map((d) => ({
+              label: d.label,
+              href: d.href,
+              type: d.type,
+            })),
+          },
+          copyright: {
+            years: siteSetting.copyrightYears ?? "",
+            text: siteSetting.copyrightText ?? "",
+            notice: siteSetting.copyrightNotice ?? "",
+          },
+        }}
+      />
     </>
   );
 }

@@ -21,7 +21,7 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::person.person",
-      "mappedBy": "team"
+      "mappedBy": "teamGroup"
     }
   }
 }

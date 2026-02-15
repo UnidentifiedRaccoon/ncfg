@@ -22,11 +22,6 @@
       "targetField": "title",
       "required": true
     },
-    "status": {
-      "type": "enumeration",
-      "enum": ["published", "draft"],
-      "default": "draft"
-    },
     "order": {
       "type": "integer",
       "default": 0

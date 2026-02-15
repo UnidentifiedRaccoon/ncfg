@@ -102,7 +102,14 @@ function StatItem({
 // Stats Data
 // ─────────────────────────────────────────────────────────────────────────────
 
-const stats = [
+export interface Stat {
+  value: number;
+  label: string;
+  decimals?: number;
+  suffix?: string;
+}
+
+const defaultStats: Stat[] = [
   { value: 3502, label: "клиентов" },
   { value: 9.63, decimals: 2, label: "NPS" },
   { value: 30.2, decimals: 1, suffix: " млн", label: "участников" },
@@ -113,7 +120,9 @@ const stats = [
 // Main Stats Component
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function Stats() {
+export function Stats({ items }: { items?: Stat[] }) {
+  const stats = items && items.length > 0 ? items : defaultStats;
+
   return (
     <Section
       id="about"

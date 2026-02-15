@@ -1,0 +1,39 @@
+{
+  "kind": "singleType",
+  "collectionName": "individuals_pages",
+  "info": {
+    "singularName": "individuals-page",
+    "pluralName": "individuals-pages",
+    "displayName": "Individuals Page",
+    "description": "Individuals page content (hero + products + FAQ)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "hero": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.hero"
+    },
+    "productsTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "productsLead": {
+      "type": "text"
+    },
+    "products": {
+      "type": "component",
+      "repeatable": true,
+      "component": "individuals.product"
+    },
+    "faqItems": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.faq-item"
+    }
+  }
+}
+

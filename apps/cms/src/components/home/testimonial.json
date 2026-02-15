@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_home_testimonials",
+  "info": {
+    "displayName": "Testimonial",
+    "description": "Recommendation/testimonial item",
+    "icon": "quote"
+  },
+  "options": {},
+  "attributes": {
+    "company": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "logoImgPath": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "quote": {
+      "type": "text",
+      "required": true
+    }
+  }
+}
+

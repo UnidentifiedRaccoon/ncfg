@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_home_testimonials_blocks",
+  "info": {
+    "displayName": "Testimonials Block",
+    "description": "Testimonials section data",
+    "icon": "comment"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "home.testimonial"
+    },
+    "more": {
+      "type": "component",
+      "repeatable": false,
+      "component": "home.testimonials-more"
+    }
+  }
+}
+

@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_home_testimonials_mores",
+  "info": {
+    "displayName": "Testimonials More",
+    "description": "CTA for testimonials section",
+    "icon": "cursor"
+  },
+  "options": {},
+  "attributes": {
+    "labelTop": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "labelBottom": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "href": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    }
+  }
+}
+

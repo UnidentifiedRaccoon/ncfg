@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_home_proof_points",
+  "info": {
+    "displayName": "Proof Point",
+    "description": "Hero proof point with optional links",
+    "icon": "check"
+  },
+  "options": {},
+  "attributes": {
+    "strong": {
+      "type": "boolean",
+      "default": false
+    },
+    "text": {
+      "type": "text",
+      "required": true
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.link"
+    }
+  }
+}
+

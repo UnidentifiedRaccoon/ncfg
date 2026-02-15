@@ -1,7 +1,9 @@
 import { Header, BlogPosts, Footer } from "@/widgets";
-import homeData from "@/public/content/home.json";
-import blogData from "@/public/content/blog.json";
-import { fetchNewsArticles } from "@/shared/api/data-provider";
+import {
+  fetchBlogPageData,
+  fetchNewsArticles,
+  fetchSiteSettings,
+} from "@/shared/api/data-provider";
 
 export const metadata = {
   title: "Блог — НЦФГ",
@@ -11,17 +13,51 @@ export const metadata = {
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function BlogPage() {
-  const { sections } = homeData;
-  const { meta } = blogData;
-  const posts = await fetchNewsArticles();
+  const [siteSetting, blogPage, posts] = await Promise.all([
+    fetchSiteSettings(),
+    // Blog meta is optional during Strapi setup; avoid failing the whole build on 404.
+    fetchBlogPageData().catch(() => null),
+    fetchNewsArticles(),
+  ]);
 
   return (
     <>
       <Header />
       <main>
-        <BlogPosts title={meta.title} lead={meta.lead} posts={posts} />
+        <BlogPosts
+          title={blogPage?.title ?? "Блог"}
+          lead={blogPage?.lead ?? undefined}
+          posts={posts}
+        />
       </main>
-      <Footer data={sections.Footer.data} />
+      <Footer
+        data={{
+          organization: {
+            fullName: siteSetting.organizationFullName,
+            shortName: siteSetting.organizationShortName,
+          },
+          contacts: {
+            phone: siteSetting.contactsPhone,
+            email: siteSetting.contactsEmail,
+            legalAddress: siteSetting.contactsLegalAddress ?? "",
+          },
+          social: siteSetting.socialLinks.map((l) => ({ label: l.label, href: l.href })),
+          legalLinks: siteSetting.legalLinks.map((l) => ({ label: l.label, href: l.href })),
+          legalDocuments: {
+            title: siteSetting.legalDocumentsTitle ?? "Юридические документы",
+            items: siteSetting.legalDocuments.map((d) => ({
+              label: d.label,
+              href: d.href,
+              type: d.type,
+            })),
+          },
+          copyright: {
+            years: siteSetting.copyrightYears ?? "",
+            text: siteSetting.copyrightText ?? "",
+            notice: siteSetting.copyrightNotice ?? "",
+          },
+        }}
+      />
     </>
   );
 }

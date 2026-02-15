@@ -59,42 +59,63 @@ export function BentoCard({
     <Link
       href={href}
       className={cn(
-        "group flex flex-col rounded-2xl border transition-all duration-300",
-        "hover:shadow-lg hover:-translate-y-1",
-        featured
-          ? "bg-[#F0F7FF] border-[#E2E8F0] p-6 md:p-8"
-          : "bg-white border-[#F1F5F9] p-5 md:p-6 hover:border-[#E2E8F0]",
+        "group relative flex flex-col overflow-hidden rounded-xl border border-[#E2E8F0]/70",
+        "bg-white/85 shadow-sm backdrop-blur-sm",
+        "transition-all duration-200",
+        "hover:-translate-y-0.5 hover:border-[#3B82F6]/25 hover:shadow-lg hover:shadow-blue-500/10",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
+        featured ? "bg-white/90 p-6 md:p-8" : "p-5 md:p-6",
         className
       )}
     >
+      {/* Hairline highlight + accent rail (decorative) */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-60"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-6 bottom-6 left-0 w-[2px] rounded-full bg-gradient-to-b from-[#58A8E0] via-[#3B82F6] to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+      />
+
+      {/* Hover atmosphere (decorative) */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100",
+          "bg-[radial-gradient(circle_at_18%_12%,rgba(88,168,224,0.18),transparent_60%)]"
+        )}
+      />
+
       <div
         className={cn(
-          "rounded-xl flex items-center justify-center",
-          featured
-            ? "w-14 h-14 rounded-2xl bg-[#3B82F6]/10 mb-6"
-            : "w-11 h-11 bg-[#1E3A5F]/10 mb-4"
+          "relative flex items-center justify-center rounded-xl",
+          "bg-[#1E3A5F]/[0.08] ring-1 ring-inset ring-[#1E3A5F]/10",
+          "transition-colors group-hover:bg-[#3B82F6]/10 group-hover:ring-[#3B82F6]/20",
+          featured ? "h-14 w-14 rounded-2xl mb-6" : "h-11 w-11 mb-4"
         )}
       >
         <Icon
           className={cn(
-            featured ? "w-7 h-7 text-[#3B82F6]" : "w-5 h-5 text-[#1E3A5F]"
+            "text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]",
+            featured ? "h-7 w-7" : "h-5 w-5"
           )}
         />
       </div>
 
-      <h3
+      <h4
         className={cn(
-          "font-semibold text-[#1E3A5F] group-hover:text-[#3B82F6] transition-colors",
+          "font-semibold tracking-tight text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]",
           featured ? "text-xl md:text-2xl mb-3" : "text-lg mb-2"
         )}
       >
         {title}
-      </h3>
+      </h4>
 
       <p
         className={cn(
           "text-[#475569] leading-relaxed flex-grow",
-          featured ? "text-base md:text-lg" : "text-sm"
+          featured ? "text-base md:text-lg line-clamp-3" : "text-sm line-clamp-3"
         )}
       >
         {description}

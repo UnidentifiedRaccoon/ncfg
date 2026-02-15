@@ -20,6 +20,21 @@ export async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
       },
     },
     sort: 'order:asc',
+    publicationState: 'live',
+  });
+
+  const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
+    `/service-categories${query}`,
+    { tags: ['services'] }
+  );
+
+  return response.data;
+}
+
+export async function getServiceCategoriesSummary(): Promise<StrapiServiceCategory[]> {
+  const query = buildQueryString({
+    sort: 'order:asc',
+    pagination: { limit: 100 },
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
@@ -41,6 +56,7 @@ export async function getServiceCategory(slug: string): Promise<StrapiServiceCat
     filters: {
       slug: { $eq: slug },
     },
+    publicationState: 'live',
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
@@ -60,6 +76,7 @@ export async function getServices(): Promise<StrapiService[]> {
     populate: '*',
     sort: 'order:asc',
     pagination: { limit: 100 },
+    publicationState: 'live',
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiService[]>>(
@@ -76,6 +93,7 @@ export async function getService(slug: string): Promise<StrapiService | null> {
     filters: {
       slug: { $eq: slug },
     },
+    publicationState: 'live',
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiService[]>>(
@@ -89,11 +107,9 @@ export async function getService(slug: string): Promise<StrapiService | null> {
 export async function getPublishedServices(): Promise<StrapiService[]> {
   const query = buildQueryString({
     populate: '*',
-    filters: {
-      status: { $eq: 'published' },
-    },
     sort: 'order:asc',
     pagination: { limit: 100 },
+    publicationState: 'live',
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiService[]>>(
@@ -136,7 +152,6 @@ export function transformToLegacyService(service: StrapiService): Service {
   return {
     id: service.slug,
     order: service.order,
-    status: service.status,
     title: service.title,
     shortDescription: service.shortDescription || '',
     fullDescription: service.fullDescription || '',
@@ -153,7 +168,9 @@ export function transformToLegacyCategory(category: StrapiServiceCategory): Serv
     order: category.order,
     title: category.title,
     description: category.description || '',
-    services: category.services?.map(transformToLegacyService) || [],
+    services: (category.services ?? [])
+      .filter((service) => Boolean(service.publishedAt))
+      .map(transformToLegacyService),
   };
 }
 

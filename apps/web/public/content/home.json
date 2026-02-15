@@ -68,7 +68,7 @@
             "links": [
               {
                 "label": "Архив публикаций...",
-                "href": "/news"
+                "href": "/blog"
               }
             ]
           }
@@ -85,21 +85,21 @@
             "title": "Программы финансового благополучия для сотрудников компаний",
             "description": "Комплексные решения для развития финансовой культуры",
             "href": "/companies",
-            "image": null
+            "image": "/services/well-being.png"
           },
           {
             "id": "educational_materials",
             "title": "Методические и образовательные материалы",
             "description": "Контент для обучения и информирования",
             "href": "/companies",
-            "image": null
+            "image": "/services/materials-development.png"
           },
           {
             "id": "events_talks",
             "title": "Мероприятия и публичные выступления",
             "description": "Организация событий и экспертные выступления",
             "href": "/companies",
-            "image": null
+            "image": "/services/events.png"
           }
         ]
       }
@@ -325,7 +325,7 @@
         "links": [
           {
             "label": "Архив публикаций...",
-            "href": "/news"
+            "href": "/blog"
           }
         ],
         "items": []
@@ -334,7 +334,7 @@
     "FAQ": {
       "present": false,
       "data": {
-        "title": "FAQ",
+        "title": "Частые вопросы",
         "items": []
       }
     },

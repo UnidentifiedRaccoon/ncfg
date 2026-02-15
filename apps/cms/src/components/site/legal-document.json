@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_site_legal_documents",
+  "info": {
+    "displayName": "Legal Document",
+    "description": "Footer legal document link",
+    "icon": "file"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "href": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["pdf", "docx", "other"],
+      "default": "other"
+    }
+  }
+}
+

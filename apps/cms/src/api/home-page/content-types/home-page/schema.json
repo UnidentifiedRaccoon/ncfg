@@ -1,0 +1,57 @@
+{
+  "kind": "singleType",
+  "collectionName": "home_pages",
+  "info": {
+    "singularName": "home-page",
+    "pluralName": "home-pages",
+    "displayName": "Home Page",
+    "description": "Home page content (hero, partners, section titles)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "hero": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.hero"
+    },
+    "supportingHeadings": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.text-item"
+    },
+    "proofPoints": {
+      "type": "component",
+      "repeatable": true,
+      "component": "home.proof-point"
+    },
+    "servicesTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "partners": {
+      "type": "component",
+      "repeatable": false,
+      "component": "home.partners"
+    },
+    "faqTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "newsTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "newsTeaser": {
+      "type": "text"
+    },
+    "newsArchiveLink": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.link"
+    }
+  }
+}
+

@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "service_uis",
+  "info": {
+    "singularName": "service-ui",
+    "pluralName": "service-uis",
+    "displayName": "Service UI",
+    "description": "UI mapping for services (icons, etc.)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "service": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::service.service"
+    },
+    "iconKey": {
+      "type": "string",
+      "required": true,
+      "maxLength": 64
+    }
+  }
+}
+

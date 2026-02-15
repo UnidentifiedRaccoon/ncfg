@@ -15,6 +15,14 @@
  *   npm run migrate:categories # Only migrate service categories
  *   npm run migrate:services  # Only migrate services
  *   npm run migrate:people    # Only migrate people
+ *   node scripts/migrate-to-strapi.mjs --only=site-settings
+ *   node scripts/migrate-to-strapi.mjs --only=home-page
+ *   node scripts/migrate-to-strapi.mjs --only=companies-page
+ *   node scripts/migrate-to-strapi.mjs --only=individuals-page
+ *   node scripts/migrate-to-strapi.mjs --only=about-page
+ *   node scripts/migrate-to-strapi.mjs --only=blog-page
+ *   node scripts/migrate-to-strapi.mjs --only=service-slugs-kebab
+ *   node scripts/migrate-to-strapi.mjs --only=service-ui-icons
  */
 
 import fs from 'fs/promises';
@@ -32,10 +40,16 @@ const CONFIG = {
   strapiUrl: process.env.STRAPI_URL || 'http://localhost:1337',
   strapiToken: process.env.STRAPI_API_TOKEN,
   paths: {
-    news: path.join(__dirname, '..', process.env.NEWS_JSON_PATH || 'web/public/content/news/ncfg_news.json'),
-    services: path.join(__dirname, '..', process.env.SERVICES_JSON_PATH || 'web/public/content/ncfg_services.json'),
-    people: path.join(__dirname, '..', process.env.PEOPLE_JSON_PATH || 'web/public/content/ncfg_finzdorov_people.json'),
-    newsImages: path.join(__dirname, '..', process.env.NEWS_IMAGES_PATH || 'web/public/content/news/anonsImages'),
+    news: path.join(__dirname, '..', process.env.NEWS_JSON_PATH || 'apps/web/public/content/news/ncfg_news.json'),
+    services: path.join(__dirname, '..', process.env.SERVICES_JSON_PATH || 'apps/web/public/content/ncfg_services.json'),
+    people: path.join(__dirname, '..', process.env.PEOPLE_JSON_PATH || 'apps/web/public/content/ncfg_finzdorov_people.json'),
+    newsImages: path.join(__dirname, '..', process.env.NEWS_IMAGES_PATH || 'apps/web/public/content/news/anonsImages'),
+    home: path.join(__dirname, '..', process.env.HOME_JSON_PATH || 'apps/web/public/content/home.json'),
+    companiesPage: path.join(__dirname, '..', process.env.COMPANIES_JSON_PATH || 'apps/web/public/content/companies.json'),
+    individualsPage: path.join(__dirname, '..', process.env.INDIVIDUALS_JSON_PATH || 'apps/web/public/content/individuals.json'),
+    howWeWork: path.join(__dirname, '..', process.env.HOW_WE_WORK_JSON_PATH || 'apps/web/public/content/ncfg_how_we_work.json'),
+    principles: path.join(__dirname, '..', process.env.PRINCIPLES_JSON_PATH || 'apps/web/public/content/ncfg_principles.json'),
+    blog: path.join(__dirname, '..', process.env.BLOG_JSON_PATH || 'apps/web/public/content/blog.json'),
   },
 };
 
@@ -127,6 +141,34 @@ function slugify(text) {
     .replace(/\-\-+/g, '-')
     .replace(/^-+/, '')
     .replace(/-+$/, '');
+}
+
+function toKebabFromLegacyId(value) {
+  return String(value).trim().toLowerCase().replace(/_/g, '-');
+}
+
+function parseNumberFromDisplayValue(displayValue) {
+  if (displayValue === null || displayValue === undefined) return null;
+
+  const cleaned = String(displayValue)
+    .toLowerCase()
+    .replace(/,/g, '.')
+    .replace(/[^0-9.\-]+/g, '')
+    .trim();
+
+  if (!cleaned) return null;
+  const num = Number(cleaned);
+  return Number.isFinite(num) ? num : null;
+}
+
+async function upsertSingleType(endpoint, data) {
+  try {
+    await strapiRequest(endpoint, 'GET');
+  } catch {
+    // If single type is not created yet, Strapi may return 404. PUT should create/update it.
+  }
+
+  return await strapiRequest(endpoint, 'PUT', data);
 }
 
 // ====================
@@ -289,28 +331,37 @@ async function migrateServiceCategories() {
 
   for (const category of categories) {
     try {
-      const slug = slugify(category.title);
-      
-      // Check if category already exists (by title, since slugs may differ)
-      const existing = await strapiRequest(`/service-categories?filters[title][$eq]=${encodeURIComponent(category.title)}`);
-      
-      if (existing.data && existing.data.length > 0) {
-        console.log(`   ⏭️  Category "${category.title}" already exists`);
-        categoryMap.set(category.id, existing.data[0].id);
-        continue;
-      }
+      const desiredSlug = toKebabFromLegacyId(category.id);
+
+      const bySlug = await strapiRequest(
+        `/service-categories?filters[slug][$eq]=${encodeURIComponent(desiredSlug)}&pagination[limit]=1`
+      );
+      const byTitle = await strapiRequest(
+        `/service-categories?filters[title][$eq]=${encodeURIComponent(category.title)}&pagination[limit]=1`
+      );
+
+      const existing =
+        (bySlug.data && bySlug.data.length > 0 ? bySlug.data[0] : null) ||
+        (byTitle.data && byTitle.data.length > 0 ? byTitle.data[0] : null);
 
       const categoryData = {
         title: category.title,
-        slug: slug,
-        description: category.description,
+        slug: desiredSlug,
+        description: category.description || null,
         order: category.order || 0,
         publishedAt: new Date().toISOString(),
       };
 
-      const result = await strapiRequest('/service-categories', 'POST', categoryData);
-      console.log(`   ✅ Created category: ${category.title}`);
-      categoryMap.set(category.id, result.data.id);
+      if (existing) {
+        const documentId = existing.documentId || existing.id;
+        await strapiRequest(`/service-categories/${documentId}`, 'PUT', categoryData);
+        console.log(`   ✅ Updated category: ${category.title}`);
+        categoryMap.set(category.id, existing.id);
+      } else {
+        const result = await strapiRequest('/service-categories', 'POST', categoryData);
+        console.log(`   ✅ Created category: ${category.title}`);
+        categoryMap.set(category.id, result.data.id);
+      }
     } catch (error) {
       console.error(`   ❌ Error creating category "${category.title}":`, error.message);
     }
@@ -332,16 +383,20 @@ async function migrateServices(categoryMap = null) {
   if (!categoryMap) {
     categoryMap = new Map();
     const existingCategories = await strapiRequest('/service-categories?pagination[limit]=100');
-    existingCategories.data?.forEach(cat => {
+    existingCategories.data?.forEach((cat) => {
       const attrs = cat.attributes || cat;
-      if (attrs.slug) {
-        // Try to match by slug
-        categories.forEach(origCat => {
-          if (slugify(origCat.title) === attrs.slug) {
-            categoryMap.set(origCat.id, cat.id);
-          }
-        });
-      }
+      const existingSlug = attrs.slug;
+      const existingTitle = attrs.title;
+
+      categories.forEach((origCat) => {
+        if (existingSlug && toKebabFromLegacyId(origCat.id) === existingSlug) {
+          categoryMap.set(origCat.id, cat.id);
+          return;
+        }
+        if (existingTitle && origCat.title === existingTitle) {
+          categoryMap.set(origCat.id, cat.id);
+        }
+      });
     });
   }
 
@@ -351,119 +406,65 @@ async function migrateServices(categoryMap = null) {
 
     for (const service of services) {
       try {
-        const slug = slugify(service.title);
-        
-        // Check if service already exists (by title, since slugs may differ)
-        const existing = await strapiRequest(`/services?filters[title][$eq]=${encodeURIComponent(service.title)}`);
-        
-        if (existing.data && existing.data.length > 0) {
-          console.log(`     ⏭️  Service "${service.title.substring(0, 30)}..." already exists`);
-          continue;
-        }
+        const desiredSlug = toKebabFromLegacyId(service.id);
 
-        // Transform data to match Strapi schema
+        const bySlug = await strapiRequest(
+          `/services?filters[slug][$eq]=${encodeURIComponent(desiredSlug)}&pagination[limit]=1`
+        );
+        const byTitle = await strapiRequest(
+          `/services?filters[title][$eq]=${encodeURIComponent(service.title)}&pagination[limit]=1`
+        );
+
+        const existing =
+          (bySlug.data && bySlug.data.length > 0 ? bySlug.data[0] : null) ||
+          (byTitle.data && byTitle.data.length > 0 ? byTitle.data[0] : null);
+
         const serviceData = {
           title: service.title,
-          slug: slug,
-          serviceId: service.id,
-          status: service.status || 'draft',
+          slug: desiredSlug,
           order: service.order || 0,
-          shortDescription: service.shortDescription,
-          fullDescription: service.fullDescription,
-          recommendedFrequency: service.recommendedFrequency,
-          configurationNotes: service.configurationNotes,
-          deliveryFormats: service.deliveryFormats || [],
-          formats: service.formats || [],
+          shortDescription: service.shortDescription || null,
+          fullDescription: service.fullDescription || null,
           publishedAt: new Date().toISOString(),
         };
 
-        // Add category relation
         const strapiCategoryId = categoryMap.get(category.id);
         if (strapiCategoryId) {
           serviceData.category = strapiCategoryId;
         }
 
-        // Transform component arrays
-        if (service.benefits) {
-          serviceData.benefits = service.benefits.map(text => ({ text }));
+        if (Array.isArray(service.benefits)) {
+          serviceData.benefits = service.benefits.map((text) => ({ text }));
         }
-        if (service.howWeWork) {
-          serviceData.howWeWork = service.howWeWork.map(text => ({ text }));
+        if (Array.isArray(service.howWeWork)) {
+          serviceData.howWeWork = service.howWeWork.map((text) => ({ text }));
         }
-        if (service.topicsExample) {
-          serviceData.topicsExample = service.topicsExample.map(text => ({ text }));
-        }
-        if (service.mechanics) {
-          serviceData.mechanics = service.mechanics.map(text => ({ text }));
-        }
-        if (service.rewards) {
-          serviceData.rewards = service.rewards.map(text => ({ text }));
-        }
-        if (service.otherFormats) {
-          serviceData.otherFormats = service.otherFormats.map(text => ({ text }));
-        }
-        if (service.options) {
-          serviceData.options = service.options.map(text => ({ text }));
-        }
-        if (service.includes) {
-          serviceData.includes = service.includes.map(text => ({ text }));
-        }
-
-        // Transform facts
-        if (service.facts) {
-          serviceData.facts = {
-            experienceYears: service.facts.experienceYears,
-            developedBy: service.facts.developedBy,
-            participantsCount: String(service.facts.participantsCount || ''),
-            deliveryFormat: service.facts.deliveryFormat,
-            dataOutputs: (service.facts.dataOutputs || []).map(text => ({ text })),
-          };
-        }
-
-        // Transform methodology
-        if (service.methodology) {
-          serviceData.methodology = service.methodology.map(item => ({
-            itemId: item.id,
-            title: item.title,
-            description: item.description,
-          }));
-        }
-
-        // Transform examples
-        if (service.examples) {
-          serviceData.examples = service.examples.map(example => ({
-            exampleId: String(example.id || ''),
+        if (Array.isArray(service.examples)) {
+          serviceData.examples = service.examples.map((example) => ({
+            exampleId: example.id !== undefined && example.id !== null ? String(example.id) : null,
             title: example.title,
             type: example.type || 'custom',
-            link: example.link,
-            description: example.description,
-            notes: example.notes,
-            durationMinutes: example.durationMinutes,
+            link: example.link || null,
+            description: example.description || null,
+            notes: example.notes || null,
+            durationMinutes: example.durationMinutes || null,
           }));
         }
-
-        // Transform products
-        if (service.products) {
-          serviceData.products = service.products.map(product => ({
-            productId: product.id,
-            title: product.title,
-            type: product.type || 'other',
-            notes: product.notes,
-            pricingOptions: (product.pricingOptions || []).map(text => ({ text })),
-          }));
-        }
-
-        // Transform CTA
         if (service.cta) {
           serviceData.cta = {
             label: service.cta.label,
             type: service.cta.type || 'form',
-            url: service.cta.url,
           };
         }
 
-        const result = await strapiRequest('/services', 'POST', serviceData);
-        console.log(`     ✅ Created service: ${service.title.substring(0, 40)}...`);
+        if (existing) {
+          const documentId = existing.documentId || existing.id;
+          await strapiRequest(`/services/${documentId}`, 'PUT', serviceData);
+          console.log(`     ✅ Updated service: ${service.title.substring(0, 40)}...`);
+        } else {
+          await strapiRequest('/services', 'POST', serviceData);
+          console.log(`     ✅ Created service: ${service.title.substring(0, 40)}...`);
+        }
       } catch (error) {
         console.error(`     ❌ Error creating service "${service.title}":`, error.message);
       }
@@ -549,6 +550,404 @@ async function migratePeople() {
       console.log(`   ✅ Created person: ${person.fullName}`);
     } catch (error) {
       console.error(`   ❌ Error creating person "${person.fullName}":`, error.message);
+    }
+  }
+}
+
+// ====================
+// MIGRATION: Site Settings (Footer + Metrics)
+// ====================
+async function migrateSiteSettings() {
+  console.log('\n⚙️  Migrating Site Settings...');
+
+  const homeData = await readJSON(CONFIG.paths.home);
+  const footer = homeData?.sections?.Footer?.data;
+  const statsItems = homeData?.sections?.Stats?.data?.items || [];
+
+  if (!footer) {
+    throw new Error('home.json does not contain sections.Footer.data');
+  }
+
+  const legalDocumentsItems = footer.legalDocuments?.items || [];
+
+  const payload = {
+    organizationFullName: footer.organization?.fullName,
+    organizationShortName: footer.organization?.shortName,
+    contactsPhone: footer.contacts?.phone,
+    contactsEmail: footer.contacts?.email,
+    contactsLegalAddress: footer.contacts?.legalAddress,
+    socialLinks: (footer.social || []).map((l) => ({ label: l.label, href: l.href })),
+    legalLinks: (footer.legalLinks || []).map((l) => ({ label: l.label, href: l.href })),
+    legalDocumentsTitle: footer.legalDocuments?.title,
+    legalDocuments: legalDocumentsItems.map((doc) => ({
+      label: doc.label,
+      href: doc.href,
+      type: doc.type === 'pdf' || doc.type === 'docx' ? doc.type : 'other',
+    })),
+    copyrightYears: footer.copyright?.years,
+    copyrightText: footer.copyright?.text,
+    copyrightNotice: footer.copyright?.notice,
+    metrics: (statsItems || []).map((item) => ({
+      key: item.key,
+      label: item.label,
+      displayValue: item.displayValue,
+      valueNumber: parseNumberFromDisplayValue(item.displayValue),
+    })),
+  };
+
+  const result = await upsertSingleType('/site-setting', payload);
+  console.log(`   ✅ Site settings updated (id: ${result?.data?.id ?? 'n/a'})`);
+}
+
+// ====================
+// MIGRATION: Home Page
+// ====================
+async function migrateHomePage() {
+  console.log('\n🏠 Migrating Home Page...');
+
+  const homeData = await readJSON(CONFIG.paths.home);
+  const hero = homeData?.sections?.Hero?.data;
+  const services = homeData?.sections?.Services?.data;
+  const partners = homeData?.sections?.Partners?.data;
+  const faq = homeData?.sections?.FAQ?.data;
+  const news = homeData?.sections?.News?.data;
+
+  if (!hero) {
+    throw new Error('home.json does not contain sections.Hero.data');
+  }
+
+  const payload = {
+    hero: {
+      headline: hero.headline,
+      lead: hero.lead,
+      primaryCta: hero.primaryCta ? { label: hero.primaryCta.label, href: hero.primaryCta.href } : null,
+    },
+    supportingHeadings: (hero.supportingHeadings || []).map((text) => ({ text })),
+    proofPoints: (hero.proofPoints || []).map((pp) => ({
+      strong: Boolean(pp.strong),
+      text: pp.text,
+      links: (pp.links || []).map((l) => ({ label: l.label, href: l.href })),
+    })),
+    servicesTitle: services?.title || null,
+    partners: partners
+      ? {
+          awards: (partners.awards || []).map((a) => ({
+            title: a.title,
+            year: a.year || null,
+            imgPath: a.img || null,
+          })),
+          clientsCarousel: partners.clientsCarousel
+            ? {
+                title: partners.clientsCarousel.title,
+                archiveCta: partners.clientsCarousel.archiveCta
+                  ? {
+                      label: partners.clientsCarousel.archiveCta.label,
+                      href: partners.clientsCarousel.archiveCta.href,
+                    }
+                  : null,
+                categories: (partners.clientsCarousel.categories || []).map((c) => ({
+                  key: c.id,
+                  name: c.name,
+                  logos: (c.logos || []).map((logo) => ({
+                    title: logo.title,
+                    href: logo.href || null,
+                    imgPath: logo.img || null,
+                  })),
+                  moreDisplay: c.more?.display || null,
+                  moreValue: c.more?.value || null,
+                  moreUnit: c.more?.unit || null,
+                })),
+              }
+            : null,
+          testimonials: partners.testimonials
+            ? {
+                title: partners.testimonials.title,
+                items: (partners.testimonials.items || []).map((t) => ({
+                  company: t.company,
+                  logoImgPath: t.logoImg || null,
+                  quote: t.quote,
+                })),
+                more: partners.testimonials.more
+                  ? {
+                      labelTop: partners.testimonials.more.labelTop,
+                      labelBottom: partners.testimonials.more.labelBottom,
+                      href: partners.testimonials.more.href,
+                    }
+                  : null,
+              }
+            : null,
+        }
+      : null,
+    faqTitle: faq?.title || null,
+    newsTitle: news?.title || null,
+    newsTeaser: news?.teaser || null,
+    newsArchiveLink: news?.links && news.links.length > 0 ? { label: news.links[0].label, href: news.links[0].href } : null,
+  };
+
+  const result = await upsertSingleType('/home-page', payload);
+  console.log(`   ✅ Home page updated (id: ${result?.data?.id ?? 'n/a'})`);
+}
+
+// ====================
+// MIGRATION: Companies Page
+// ====================
+async function migrateCompaniesPage() {
+  console.log('\n🏢 Migrating Companies Page...');
+
+  const data = await readJSON(CONFIG.paths.companiesPage);
+  const hero = data?.hero;
+  const faq = data?.faq || [];
+
+  if (!hero) {
+    throw new Error('companies.json does not contain hero');
+  }
+
+  const payload = {
+    hero: {
+      headline: hero.headline,
+      lead: hero.lead,
+      primaryCta: hero.primaryCta ? { label: hero.primaryCta.label, href: hero.primaryCta.href } : null,
+    },
+    faqItems: faq.map((item, index) => ({
+      question: item.question,
+      answer: item.answer,
+      order: item.id || index + 1,
+    })),
+  };
+
+  const result = await upsertSingleType('/companies-page', payload);
+  console.log(`   ✅ Companies page updated (id: ${result?.data?.id ?? 'n/a'})`);
+}
+
+// ====================
+// MIGRATION: Individuals Page
+// ====================
+async function migrateIndividualsPage() {
+  console.log('\n👤 Migrating Individuals Page...');
+
+  const data = await readJSON(CONFIG.paths.individualsPage);
+  const hero = data?.hero;
+  const products = data?.products || [];
+  const faq = data?.faq || [];
+
+  if (!hero) {
+    throw new Error('individuals.json does not contain hero');
+  }
+
+  const payload = {
+    hero: {
+      headline: hero.headline,
+      lead: hero.lead,
+      primaryCta: hero.primaryCta ? { label: hero.primaryCta.label, href: hero.primaryCta.href } : null,
+    },
+    productsTitle: 'Наши продукты',
+    productsLead: 'Выберите подходящий формат обучения финансовой грамотности',
+    products: products.map((p) => ({
+      title: p.title,
+      description: p.description,
+      href: p.href,
+      audience: p.audience || null,
+      iconKey: p.icon || null,
+      imagePath: p.image || null,
+    })),
+    faqItems: faq.map((item, index) => ({
+      question: item.question,
+      answer: item.answer,
+      order: item.id || index + 1,
+    })),
+  };
+
+  const result = await upsertSingleType('/individuals-page', payload);
+  console.log(`   ✅ Individuals page updated (id: ${result?.data?.id ?? 'n/a'})`);
+}
+
+// ====================
+// MIGRATION: About Page
+// ====================
+async function migrateAboutPage() {
+  console.log('\nℹ️  Migrating About Page...');
+
+  const howWeWorkData = await readJSON(CONFIG.paths.howWeWork);
+  const principlesData = await readJSON(CONFIG.paths.principles);
+
+  const payload = {
+    heroHeadline:
+      'Национальный центр финансовой грамотности — лидер в сфере финансового просвещения с 2005 года',
+    heroCta: { label: 'Наши проекты', href: '/companies' },
+    howWeWorkTitle: howWeWorkData.title,
+    howWeWorkLead: howWeWorkData.description,
+    howWeWorkSteps: (howWeWorkData.steps || []).map((s, index) => ({
+      order: s.id || index + 1,
+      title: s.title,
+      description: s.description || null,
+    })),
+    principlesTitle: principlesData.title,
+    principlesLead: principlesData.description,
+    principles: (principlesData.principles || []).map((p) => ({
+      key: p.id,
+      order: p.order || 0,
+      title: p.title,
+      description: p.description,
+    })),
+    faqItems: [
+      {
+        question: 'Как давно существует НЦФГ?',
+        answer:
+          'Национальный центр финансовой грамотности работает с 2005 года. За это время мы реализовали сотни проектов по повышению финансовой грамотности для государственных структур, бизнеса и частных лиц.',
+        order: 1,
+      },
+      {
+        question: 'Какие специалисты работают в НЦФГ?',
+        answer:
+          'В нашей команде работают сертифицированные финансовые консультанты, методологи образовательных программ, эксперты по инвестициям, налогам и недвижимости. Многие из них имеют более 20 лет опыта на финансовом рынке.',
+        order: 2,
+      },
+      {
+        question: 'Можно ли сотрудничать с НЦФГ как эксперт?',
+        answer:
+          'Да, мы всегда открыты для сотрудничества с профессионалами в области финансов. Оставьте заявку на сайте, и мы свяжемся с вами для обсуждения возможных форматов взаимодействия.',
+        order: 3,
+      },
+      {
+        question: 'В каких регионах работает НЦФГ?',
+        answer:
+          'НЦФГ реализует проекты по всей России — в 84 регионах. Мы работаем как онлайн, так и офлайн, что позволяет охватить максимально широкую аудиторию.',
+        order: 4,
+      },
+    ],
+  };
+
+  const result = await upsertSingleType('/about-page', payload);
+  console.log(`   ✅ About page updated (id: ${result?.data?.id ?? 'n/a'})`);
+}
+
+// ====================
+// MIGRATION: Blog Page Meta
+// ====================
+async function migrateBlogPage() {
+  console.log('\n📝 Migrating Blog Page...');
+
+  const data = await readJSON(CONFIG.paths.blog);
+  const meta = data?.meta;
+
+  if (!meta) {
+    throw new Error('blog.json does not contain meta');
+  }
+
+  const payload = {
+    title: meta.title,
+    lead: meta.lead,
+  };
+
+  const result = await upsertSingleType('/blog-page', payload);
+  console.log(`   ✅ Blog page updated (id: ${result?.data?.id ?? 'n/a'})`);
+}
+
+// ====================
+// MIGRATION: Service slugs to kebab-case (data-only)
+// ====================
+async function migrateServiceSlugsKebab() {
+  console.log('\n🔤 Migrating service/category slugs to kebab-case...');
+
+  const servicesData = await readJSON(CONFIG.paths.services);
+  const categories = servicesData.serviceCategories || [];
+
+  for (const category of categories) {
+    const desiredSlug = toKebabFromLegacyId(category.id);
+    try {
+      const existing = await strapiRequest(
+        `/service-categories?filters[title][$eq]=${encodeURIComponent(category.title)}&pagination[limit]=1`
+      );
+      const item = existing.data && existing.data.length > 0 ? existing.data[0] : null;
+      if (!item) {
+        console.log(`   ⚠️  Category not found in Strapi (skip): ${category.title}`);
+        continue;
+      }
+      const documentId = item.documentId || item.id;
+      await strapiRequest(`/service-categories/${documentId}`, 'PUT', { slug: desiredSlug });
+      console.log(`   ✅ Category slug: ${category.title} -> ${desiredSlug}`);
+    } catch (error) {
+      console.error(`   ❌ Error updating category slug "${category.title}":`, error.message);
+    }
+  }
+
+  for (const category of categories) {
+    for (const service of category.services || []) {
+      const desiredSlug = toKebabFromLegacyId(service.id);
+      try {
+        const existing = await strapiRequest(
+          `/services?filters[title][$eq]=${encodeURIComponent(service.title)}&pagination[limit]=1`
+        );
+        const item = existing.data && existing.data.length > 0 ? existing.data[0] : null;
+        if (!item) {
+          console.log(`   ⚠️  Service not found in Strapi (skip): ${service.title}`);
+          continue;
+        }
+        const documentId = item.documentId || item.id;
+        await strapiRequest(`/services/${documentId}`, 'PUT', { slug: desiredSlug });
+        console.log(`   ✅ Service slug: ${service.title.substring(0, 48)} -> ${desiredSlug}`);
+      } catch (error) {
+        console.error(`   ❌ Error updating service slug "${service.title}":`, error.message);
+      }
+    }
+  }
+}
+
+// ====================
+// MIGRATION: Service UI icons
+// ====================
+async function migrateServiceUiIcons() {
+  console.log('\n🎨 Migrating Service UI icons...');
+
+  const companiesData = await readJSON(CONFIG.paths.companiesPage);
+  const blocks = companiesData?.services || [];
+
+  const items = [];
+  for (const block of blocks) {
+    for (const item of block.items || []) {
+      items.push(item);
+    }
+  }
+
+  console.log(`   Found ${items.length} service items in companies.json`);
+
+  for (const item of items) {
+    const serviceSlug = toKebabFromLegacyId(item.id);
+    const iconKey = item.icon;
+
+    if (!serviceSlug || !iconKey) continue;
+
+    try {
+      const serviceRes = await strapiRequest(
+        `/services?filters[slug][$eq]=${encodeURIComponent(serviceSlug)}&pagination[limit]=1`
+      );
+      const service = serviceRes.data && serviceRes.data.length > 0 ? serviceRes.data[0] : null;
+
+      if (!service) {
+        console.log(`   ⚠️  Service not found for icon mapping: ${serviceSlug}`);
+        continue;
+      }
+
+      const existingRes = await strapiRequest(
+        `/service-uis?filters[service][id][$eq]=${service.id}&pagination[limit]=1&populate=service`
+      );
+      const existing = existingRes.data && existingRes.data.length > 0 ? existingRes.data[0] : null;
+
+      const payload = {
+        service: service.id,
+        iconKey,
+      };
+
+      if (existing) {
+        const documentId = existing.documentId || existing.id;
+        await strapiRequest(`/service-uis/${documentId}`, 'PUT', payload);
+        console.log(`   ✅ Updated icon: ${serviceSlug} -> ${iconKey}`);
+      } else {
+        await strapiRequest('/service-uis', 'POST', payload);
+        console.log(`   ✅ Created icon: ${serviceSlug} -> ${iconKey}`);
+      }
+    } catch (error) {
+      console.error(`   ❌ Error migrating icon for "${item.id}":`, error.message);
     }
   }
 }

@@ -132,7 +132,6 @@ const serviceFieldTypes: Record<string, string> = {
   title: 'string',
   slug: 'uid',
   serviceId: 'string',
-  status: 'enumeration',
   order: 'integer',
   shortDescription: 'text',
   fullDescription: 'richtext',

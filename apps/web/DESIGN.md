@@ -306,6 +306,82 @@ background: rgba(59, 130, 246, 0.05);
 }
 ```
 
+### Experts (Glass Cards)
+
+Блок «Наши эксперты» — витрина **внешних** экспертов (без дублей с «Наша команда»). По умолчанию карточки статичные: только hover-эффекты, без клика/модалов.
+
+**Stage (canvas):**
+- Outer: `rounded-2xl ... p-px` (градиентная “1px” окантовка)
+- Inner: `rounded-2xl bg-[#F8FAFC] p-4 md:p-6 overflow-hidden`
+- Atmosphere: 1 радиальный акцент `rgba(88,168,224,0.22)` с низкой непрозрачностью
+
+**Layout:**
+- Mobile: горизонтальный скролл со snap, карточки `min-w-[280px]`, fade-края слева/справа
+- `md+`: `md:grid md:grid-cols-2 lg:grid-cols-4`, без `overflow-x`
+
+**Card (Glass):**
+- Base: `rounded-xl border border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm p-5 shadow-sm`
+- Detail: hairline highlight (top) + accent rail (left) на hover (градиент `#58A8E0 → #3B82F6`)
+- Hover: `hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25`
+
+**Правило по акценту:** `#58A8E0` — только как тонкий декоративный акцент (градиенты/рейлы), не как основной цвет текста внутри карточек.
+
+```tsx
+/* Stage */
+<div className="rounded-2xl bg-gradient-to-br from-[#58A8E0]/35 via-[#3B82F6]/15 to-[#1E3A5F]/10 p-px">
+  <div className="relative rounded-2xl bg-[#F8FAFC] p-4 md:p-6 overflow-hidden">...</div>
+</div>
+
+/* Card */
+<article className="rounded-xl border border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25" />
+```
+
+### FAQ (Частые вопросы)
+
+Цель: закрыть 6–10 популярных вопросов “банковским” образом (быстро, понятно, с воздухом) и мягко подвести к заявке.
+
+**Композиция (общее):**
+- Секция: белый фон, стандартный `Section` заголовок (H2) + опциональный lead.
+- Контейнер: **одна** основная карточка (аккордеон) без внешней рамки-обёртки, чтобы не было эффекта “карточка в карточке”.
+- Атмосфера: деликатный grid + 1–2 glow размещаем **внутри** карточки (через абсолютный overlay) или за ней, но без видимого внешнего контура.
+- Внутри: либо аккордеон-список, либо сетка карточек (для быстрого сканирования).
+
+**Вариант A — Stage Accordion (рекомендуем):**
+- Accordion card (единый контейнер, без внешнего “stage”):
+  - Base: `relative overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white/80 backdrop-blur-sm shadow-sm`
+  - Atmosphere overlay: grid `opacity ~0.05` + 1–2 glow (Ocean/Accent на низкой непрозрачности)
+- Item:
+  - Семантика: `<details><summary>` (без JS, good for performance)
+  - Open-state: лёгкая подложка + hairline highlight сверху + акцентный rail слева (градиент `#58A8E0 → #3B82F6`)
+  - Toggle icon: chevron (rotate 180 на open)
+- Footer CTA: строка внутри карточки, отделена `border-t`, кнопка `secondary` на `#lead-form`
+
+**Вариант B — Split + Support (для длинных страниц/продуктов):**
+- Layout: `grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start`
+- Left: support-card (glass) + 2–3 буллета ценности + secondary CTA на `#lead-form`
+- Right: тот же Stage Accordion
+
+**Вариант C — Cards Grid (для “быстрого FAQ”):**
+- Grid: `grid gap-4 md:grid-cols-2`
+- Card: glass card, внутри `<details><summary>`
+- Toggle icon: plus (rotate 45 на open)
+
+**Правила текста:**
+- Вопрос: 1 строка (макс 2), без вводных слов (“подскажите”, “скажите пожалуйста”).
+- Ответ: 2–4 коротких предложения. Если нужен CTA, делаем один линк или одну secondary-кнопку.
+
+**A11y:**
+- `<details><summary>` обеспечивает базовую доступность и управление с клавиатуры.
+- `focus-visible` не отключаем.
+- Нативный marker у `summary` скрываем и рисуем свой icon.
+
+**API (widgets/FAQ):**
+```tsx
+<FAQ title="Частые вопросы" items={faqItems} variant="stage" />
+<FAQ title="Частые вопросы" items={faqItems} variant="split" />
+<FAQ title="Частые вопросы" items={faqItems} variant="cards" />
+```
+
 ### Form Inputs
 
 ```css
@@ -330,26 +406,101 @@ input::placeholder {
 }
 ```
 
+### LeadForm (Primary CTA Section)
+
+Главный блок-конвертер «Оставить заявку» в духе современного банкинга: светлая секция с “атмосферой” + выраженная карточка формы.
+
+**Композиция**
+- Фон секции: `Gray 50 (#F8FAFC)` + очень лёгкий grid + 2–3 `radial glow` пятна (`Ocean Blue` / `Electric Cyan`) на низкой непрозрачности.
+- Контент: `lg` 2 колонки (слева ценность и “что дальше”, справа карточка формы).
+- Карточка формы: `rounded-2xl`, `border` + мягкая “банковская” тень, тонкая акцентная линия сверху (градиент `Electric Cyan → Ocean Blue`).
+
+**Поля формы**
+- Inputs/textarea: `rounded-md (8px)` как в токенах (не `rounded-lg`).
+- Focus: `Ocean Blue` border + мягкий ring.
+- Ошибки: inline alert внутри карточки (не выносить в отдельный экран).
+
+**Согласие**
+- Внутри карточки: required checkbox + ссылка на `/politika-konfidencialnosti`.
+- Текст короткий, без “юридического полотна”.
+
+**CTA**
+- Единственная primary-кнопка (Electric Cyan) в секции: submit.
+- Дополнительные элементы (чипы/ссылки) не должны конкурировать с primary CTA.
+
+### Header (Glass Dock)
+
+Цель: “банковская” шапка (T-Bank/Альфа по ощущению) без лишней декоративности: стеклянный sticky header + центральный dock с сегментом и ссылками.
+
+**Chrome**
+- Sticky: `top-0`, `z-50`
+- Высота: mobile `h-16` (64px), `md+ h-20` (80px)
+- Фон: `bg-white/95` + `backdrop-blur-md`
+- Разделитель: `border-b` `#E2E8F0/70`
+
+**Layout (md+)**
+
+Dock должен быть **визуально по центру** доступного пространства между логотипом и CTA. Для этого используем grid:
+
+```
+grid: grid-cols-[auto,1fr,auto]
+left:  logo (justify-self-start)
+center: dock (justify-self-center)
+right: actions (justify-self-end)
+```
+
+Схема:
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│ [Logo]            [ Segment: 2 links ] | [ Dock links ]     [CTA Btn] │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+**Dock capsule**
+- Container: `rounded-full border border-[#E2E8F0]/70 bg-white/65 backdrop-blur-md shadow-sm px-2.5 py-1.5`
+- Segment wrapper: `rounded-full bg-[#F1F5F9] p-1`
+- Segment item: `rounded-full px-3.5 py-1.5 text-[13px] font-semibold leading-none`
+  - Active: “bubble” `bg-white text-[#1E3A5F] shadow-sm`
+  - Inactive hover: `hover:bg-white/70 hover:text-[#1E3A5F]`
+- Divider: `w-px h-6 bg-[#E2E8F0]` (внутри dock, между segment и ссылками)
+- Dock links: `rounded-full px-3.5 py-1.5 text-[13px] font-medium leading-none`
+  - Active: `bg-[#3B82F6]/10 text-[#1E3A5F]`
+  - Inactive hover: `hover:bg-[rgba(30,58,95,0.06)] hover:text-[#1E3A5F]`
+
+**Mobile**
+- Dock скрыт (`md:hidden`), остаётся CTA (с `sm`) + burger.
+- В раскрытом меню:
+  - сверху тот же segmented (2 первые ссылки)
+  - ниже список остальных ссылок
+
+**A11y**
+- Active state: `aria-current="page"`
+- Burger: `aria-expanded`, `aria-controls`
+
 ### Navigation
 
 ```css
-.nav-link {
+.nav-pill {
   color: #475569;
   font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
   transition: color 0.15s, background 0.15s;
 }
 
-.nav-link:hover {
+.nav-pill:hover {
   color: #1E3A5F;
-  background: rgba(30, 58, 95, 0.05);
+  background: rgba(30, 58, 95, 0.06);
 }
 
-.nav-link.active {
-  color: #3B82F6;
+.nav-pill.active {
+  color: #1E3A5F;
+  background: rgba(59, 130, 246, 0.1);
 }
 ```
+
+Правило: в навигации **не используем** текстовые разделители (`|`) или `span`-разделители между ссылками. Вместо этого используем `gap` и/или 1px divider внутри dock.
 
 ---
 
@@ -390,6 +541,121 @@ input::placeholder {
 └─────────────────────────────────────────────────────────────┘
 ```
 
+### Services (Bento Tiles)
+
+Цель: сделать блок «Услуги» “как в современном банкинге” (T-Bank / Альфа): крупные медиа-тайлы, стеклянная подложка под текст, один тёмный CTA-тайл для контраста.
+
+**Сетка (главная страница):**
+
+```css
+grid: grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6;
+featured: md:col-span-2 lg:col-span-2 lg:row-span-2;
+wide: md:col-span-2 lg:col-span-2;
+compact: default;
+cta: default;
+```
+
+Desktop (lg) раскладка:
+```
+┌───────────────────────────┬───────────────────────────┐
+│ Featured (row-span: 2)    │ Wide (col-span: 2)         │
+│ col-span: 2               │                            │
+├───────────────────────────┼───────────────┬────────────┤
+│ Featured                  │ Compact        │ CTA tile   │
+│                           │                │ («Другие») │
+└───────────────────────────┴───────────────┴────────────┘
+```
+
+**Тайл услуги (с изображением):**
+- Контейнер: `rounded-xl border border-[#E2E8F0]/70 bg-white shadow-sm`
+- Hover: `hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25`
+- Изображение: `next/image` с `fill`, `object-cover`, лёгкий zoom `group-hover:scale-[1.03]`
+- Скримы (читаемость): сверху `from-white/20`, снизу `from-black/20`
+- Текст в “glass panel”: `bg-white/90 backdrop-blur-sm border-white/40 rounded-2xl`
+- CTA внутри тайла: текстовая строка `Подробнее →` (Ocean Blue), без primary-кнопок внутри карточек
+  - Desktop: показывать на hover (`md:opacity-0 md:group-hover:opacity-100`)
+  - Mobile: всегда видно (без md-ограничения)
+
+**CTA-тайл «Другие услуги»:**
+- Единственный тёмный акцент в секции: градиент `from-[#0B1A33] via-[#1E3A5F] to-[#3B82F6]`
+- Сетка-оверлей как в Hero, но очень деликатно (`opacity ~0.08`)
+- Электрический акцент: точка `#58A8E0` (минимально, без “кислоты”)
+- Hover: лёгкий glow `shadow-[0_18px_60px_rgba(59,130,246,0.25)]`
+
+### Service Catalog (Companies page)
+
+Блок «Наши услуги» на `/companies`: быстрый индекс групп (якоря) + 3 “stage”-группы с “банковскими” glass‑карточками услуг. Цель: быстрое сканирование, много воздуха, аккуратная атмосфера (grid + glow), без тяжёлых декоративных рамок.
+
+**Индекс групп (сверху секции):**
+- Mobile: горизонтальный скролл + `snap` + fade-края.
+- `md+`: `grid-cols-3`.
+- Каждый пункт: “pill-card” ссылка `href="#services-{categoryId}"` с номером `01`, названием (clamp 2 строки) и бейджем `N услуг`.
+
+**Stage группы:**
+- Outer frame: `rounded-2xl bg-gradient-to-br from-[#58A8E0]/35 via-[#3B82F6]/15 to-[#1E3A5F]/10 p-px`
+- Inner canvas: `relative overflow-hidden rounded-2xl bg-[#F8FAFC] p-4 md:p-6`
+- Atmosphere: лёгкий grid `opacity-[0.06]` + 1–2 glow пятна (`#3B82F6` / `#58A8E0` на низкой непрозрачности)
+
+**Карточка услуги (glass):**
+- Base: `rounded-xl border border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm shadow-sm`
+- Hover: `hover:-translate-y-0.5 hover:border-[#3B82F6]/25 hover:shadow-lg hover:shadow-blue-500/10`
+- Detail: hairline highlight (top) + accent rail (left) на hover (`#58A8E0 → #3B82F6`)
+
+**Иерархия заголовков:**
+- H2: `Section` title «Наши услуги»
+- H3: заголовок группы
+- H4: заголовок карточки услуги
+
+```tsx
+<nav aria-label="Группы услуг" className="relative">
+  <ul
+    role="list"
+    className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible md:pb-0 md:snap-none"
+  >
+    <li className="min-w-[260px] snap-start md:min-w-0 md:snap-none">
+      <a
+        href="#services-employee_wellbeing"
+        className="group block rounded-xl border border-[#E2E8F0]/70 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#3B82F6]/25 hover:shadow-lg hover:shadow-blue-500/10"
+      >
+        ...
+      </a>
+    </li>
+  </ul>
+
+  <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-white to-transparent md:hidden" />
+  <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white to-transparent md:hidden" />
+</nav>
+```
+
+### Home News (Spotlight + List)
+
+Блок «Новости» на главной: банковская витрина “как у продуктов”, но с контентом. Формат: **1 featured + 3 compact**, обложки строго **4:3**.
+
+**Композиция (lg):**
+- Grid: `lg:grid-cols-12`
+- Featured: `lg:col-span-7` (крупная карточка)
+- List: `lg:col-span-5` (3 компактных карточки столбцом)
+
+**Featured card:**
+- Контейнер: `rounded-2xl border border-[#E2E8F0]/70 bg-white shadow-sm`
+- Media: `aspect-[4/3]`, `next/image fill`, `object-cover`
+- Overlay: лёгкий vignette + нормализация цвета (деликатный градиент поверх)
+- Текст: “glass panel” снизу:
+  - `rounded-2xl border border-white/40 bg-white/90 backdrop-blur-sm`
+  - CTA внутри карточки: текстовая строка `Читать →` (Ocean Blue на hover), без primary-кнопки
+
+**Compact cards (x3):**
+- Контейнер: `rounded-xl border border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm shadow-sm`
+- Layout: row split (thumbnail слева фиксированной ширины, текст справа)
+- Thumbnail: `aspect-[4/3]`, `object-cover`
+
+**Обложка без картинки (fallback):**
+- Брендовый cover: градиент + тонкий паттерн + watermark `НЦФГ` (как в Blog Cards).
+
+**Hover/Focus:**
+- Hover: лёгкий lift (`translateY -2..4px`) + усиление тени + `border-[#3B82F6]/25`
+- Focus: `focus-visible:outline-[#3B82F6]` (не отключаем)
+
 ### Blog Article Page
 
 ```
@@ -399,6 +665,26 @@ input::placeholder {
 - Тело статьи — слева для читабельности, но внутри центрированной колонки
 - Отступы: meta → H1 = 16px, H1 → body = 32px
 - Контейнер страницы статьи: mobile padding 20px (только для страницы поста)
+```
+
+### Blog Cards (Row Split)
+
+Стандарт карточек для ленты `/blog` (и блока «Другие статьи»):
+- **Обложка:** 4:3, `object-cover`. Если обложки нет — **брендовый cover** (градиент + лёгкий паттерн + watermark `НЦФГ`).
+- **Layout:** mobile — вертикально (обложка сверху), `md+` — split (обложка слева фиксированной ширины, текст справа).
+- **Ширина карточки:** max 624px (base), **desktop: max 760px**. `.post-content` wrapper остаётся 624px.
+
+Hover:
+- Карточка: лёгкий lift (`translateY -2px`) + `shadow-md`
+- Обложка: лёгкий zoom (`scale ~1.03`)
+
+```
+md+ (row split):
+┌──────────────────────────────────────────────────────────────┐
+│ [ cover 4:3 ]  [tags chips] • [date]                          │
+│               Title (2 lines)                                 │
+│               Excerpt (2 lines)                      Читать → │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### Grid System
@@ -437,28 +723,29 @@ Desktop (md+):                    Mobile:
 ```
 
 **Визуальные элементы:**
-- Центральная линия: `w-0.5`, градиент `#58A8E0 → #3B82F6 → #1E3A5F`
-- Маркеры: `w-12 h-12`, `rounded-full`, градиент `from-[#58A8E0] to-[#3B82F6]`
-- Соединители: `w-8 h-0.5`, полупрозрачный `#3B82F6/50`
-- Карточки: **Gradient Accent Edge** стиль:
-  - Белый фон, `rounded-xl`
-  - Левая градиентная полоса 4px (`before:` pseudo-element, `from-[#58A8E0] to-[#3B82F6]`)
-  - `shadow-md` по умолчанию
-  - Hover: `translateY(-2px)` + `shadow-lg`
+- Центральная линия (rail): `w-[2px]`, градиент `#58A8E0 → #3B82F6 → #1E3A5F`, лёгкий glow через box-shadow
+- Маркеры: **dot** `w-3 h-3`, градиент `from-[#58A8E0] to-[#3B82F6]` + `ring-4 ring-[#58A8E0]/15`
+- Номер шага: внутри карточки, chip `bg-[#3B82F6]/10` + `font-mono`, формат `01`, `02`, ...
+- Соединители: `w-14 h-px`, градиент `rgba(59,130,246,0.55) → transparent`
+- Карточки: **Banking Glass Card** стиль:
+  - `bg-white/90` + `backdrop-blur-sm`, `rounded-xl`
+  - Hairline highlight сверху (`before:inset-x-6 before:top-0 before:h-px`)
+  - Border: `#E2E8F0/70` → active/hover `#3B82F6/25`
+  - Hover: `translateY(-4px)` + мягкий `shadow-lg`
 
 **Анимации (Framer Motion):**
 
 | Элемент | Триггер | Анимация | Timing |
 |---------|---------|----------|--------|
 | Линия | Секция входит (amount: 0.1) | scaleY 0→1 | 1.2s ease-out |
-| Маркер | Item входит (amount: 0.3) | scale 0→1 | spring(300, 15) |
-| Карточка | Item входит (amount: 0.3) | opacity 0→1, x ±30→0 | 0.5s |
+| Маркер | Item входит (amount: 0.3) | scale 0.85→1, opacity 0→1 | 0.55s ease-out (cubic) |
+| Карточка | Item входит (amount: 0.3) | opacity 0→1, y 14→0, x ±18→0, scale 0.985→1 | 0.65s ease-out (cubic) |
 
 - **Per-item trigger:** каждый `TimelineItem` имеет собственный `useInView` (`amount: 0.3`, `once: true`)
 - **Reduced motion:** все анимации отключаются, элементы видны сразу
 
 **Адаптивность:**
-- Mobile: линия слева (`left-6`), все карточки справа (`ml-16`)
+- Mobile: линия слева (`left-6`), контент с отступом (`pl-14`)
 - Desktop (md+): линия по центру, карточки чередуются left/right
 
 **Accessibility:**

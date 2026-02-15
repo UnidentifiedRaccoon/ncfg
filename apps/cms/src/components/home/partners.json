@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_home_partners_blocks",
+  "info": {
+    "displayName": "Partners Block",
+    "description": "Partners section data (awards + clients carousel + testimonials)",
+    "icon": "users"
+  },
+  "options": {},
+  "attributes": {
+    "awards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "home.award"
+    },
+    "clientsCarousel": {
+      "type": "component",
+      "repeatable": false,
+      "component": "home.clients-carousel"
+    },
+    "testimonials": {
+      "type": "component",
+      "repeatable": false,
+      "component": "home.testimonials"
+    }
+  }
+}
+

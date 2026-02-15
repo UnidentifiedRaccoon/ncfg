@@ -1,0 +1,38 @@
+{
+  "collectionName": "components_individuals_products",
+  "info": {
+    "displayName": "Product",
+    "description": "Individuals page: product item",
+    "icon": "shopping-bag"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "href": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "audience": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "iconKey": {
+      "type": "enumeration",
+      "enum": ["graduation-cap", "trending-up", "zap"]
+    },
+    "imagePath": {
+      "type": "string",
+      "maxLength": 500
+    }
+  }
+}
+

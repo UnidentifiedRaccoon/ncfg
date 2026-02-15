@@ -1,0 +1,38 @@
+{
+  "collectionName": "components_home_clients_categories",
+  "info": {
+    "displayName": "Clients Category",
+    "description": "Carousel category with logos and \"more\" info",
+    "icon": "folder"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "maxLength": 64
+    },
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "logos": {
+      "type": "component",
+      "repeatable": true,
+      "component": "home.logo"
+    },
+    "moreDisplay": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "moreValue": {
+      "type": "integer"
+    },
+    "moreUnit": {
+      "type": "string",
+      "maxLength": 64
+    }
+  }
+}
+

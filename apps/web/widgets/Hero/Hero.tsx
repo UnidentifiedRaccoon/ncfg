@@ -1,39 +1,54 @@
-import { Container } from "@/shared/ui/Container";
-import { Button } from "@/shared/ui/Button";
+import { HeroLayout } from "@/shared/ui/HeroLayout";
+
+interface HeroMetric {
+  value: string;
+  label: string;
+}
 
 interface HeroProps {
   headline: string;
+  lead?: string;
   primaryCta?: {
     label: string;
     href: string;
   };
+  metrics?: HeroMetric[];
+  imageSrc?: string;
+  imageAlt?: string;
 }
 
-export function Hero({ headline, primaryCta }: HeroProps) {
-  return (
-    <section
-      className="relative min-h-[400px] md:min-h-[500px] flex items-center bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/hero.png')" }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-r from-[#1E3A5F]/90 via-[#1E3A5F]/70 to-transparent" />
+export function Hero({
+  headline,
+  lead,
+  primaryCta,
+  metrics,
+  imageSrc = "/hero.png",
+  imageAlt = "",
+}: HeroProps) {
+  const sanitizeLabel = (label: string) => label.replace(/\.{2,}$/, "");
 
-      <Container className="relative z-10">
-        <div className="max-w-2xl md:max-w-3xl lg:max-w-4xl py-16 md:py-24">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-bold text-white leading-tight tracking-tight">
-            {headline}
-          </h1>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Button href="#lead-form" size="lg">
-              Оставить заявку
-            </Button>
-            {primaryCta && (
-              <Button href={primaryCta.href} variant="secondary" size="lg" className="!bg-transparent border-2 border-white text-white hover:bg-white/10">
-                {primaryCta.label.replace(/\.{2,}$/, "")}
-              </Button>
-            )}
-          </div>
-        </div>
-      </Container>
-    </section>
+  const secondaryAction = primaryCta
+    ? { label: sanitizeLabel(primaryCta.label), href: primaryCta.href }
+    : undefined;
+
+  return (
+    <HeroLayout
+      headline={headline}
+      lead={lead}
+      primaryAction={{ label: "Оставить заявку", href: "#lead-form" }}
+      secondaryAction={secondaryAction}
+      imageSrc={imageSrc}
+      imageAlt={imageAlt}
+      metricsCard={
+        metrics && metrics.length > 0
+          ? {
+              title: "Метрики программ",
+              subtitle: "Охват и результаты",
+              badge: "В цифрах",
+              metrics: metrics,
+            }
+          : undefined
+      }
+    />
   );
 }

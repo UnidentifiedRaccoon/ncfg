@@ -1,17 +1,18 @@
 "use client";
 
 import { motion, useInView, useReducedMotion } from "framer-motion";
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { Section } from "@/shared/ui/Section";
 
 interface Step {
   id: number;
   title: string;
-  description: string;
+  description?: string;
 }
 
 interface HowWeWorkProps {
   title: string;
+  lead?: string;
   steps: Step[];
 }
 
@@ -22,179 +23,87 @@ interface TimelineItemProps {
   prefersReducedMotion: boolean | null;
 }
 
-// Generate S-curve ribbon path for desktop
-function generateRibbonPath(itemCount: number): string {
-  const waveHeight = 180; // px per step
-  const amplitude = 100; // horizontal deviation
-  const centerX = 200;
+const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
-  let path = `M ${centerX} 0`;
-
-  for (let i = 0; i < itemCount; i++) {
-    const startY = i * waveHeight;
-    const endY = (i + 1) * waveHeight;
-    const midY = startY + waveHeight / 2;
-    const direction = i % 2 === 0 ? 1 : -1;
-    const controlX = centerX + amplitude * direction;
-
-    path += ` Q ${controlX} ${midY}, ${centerX} ${endY}`;
-  }
-
-  return path;
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
 }
 
-
-// SVG Flowing Ribbon component for desktop
-function FlowingRibbon({
-  itemCount,
-  prefersReducedMotion,
-}: {
-  itemCount: number;
-  prefersReducedMotion: boolean | null;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.1 });
-  const path = useMemo(() => generateRibbonPath(itemCount), [itemCount]);
-  const height = itemCount * 180 + 40;
-
+function DecorativeBackground() {
   return (
-    <svg
-      ref={ref}
-      className="absolute left-1/2 -translate-x-[200px] top-0 pointer-events-none"
-      width="400"
-      height={height}
-      viewBox={`0 0 400 ${height}`}
-      fill="none"
+    <div
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
       aria-hidden="true"
     >
-      <defs>
-        {/* Main gradient */}
-        <linearGradient id="ribbonGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#58A8E0" />
-          <stop offset="50%" stopColor="#3B82F6" />
-          <stop offset="100%" stopColor="#1E3A5F" />
-        </linearGradient>
+      <div className="absolute -top-24 left-1/2 h-72 w-[560px] -translate-x-1/2 rounded-full bg-[#58A8E0]/12 blur-3xl" />
+      <div className="absolute -bottom-24 left-1/3 h-72 w-[560px] -translate-x-1/2 rounded-full bg-[#3B82F6]/10 blur-3xl" />
 
-        {/* Glow filter */}
-        <filter id="ribbonGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      {/* Background glow path */}
-      <motion.path
-        d={path}
-        stroke="url(#ribbonGradient)"
-        strokeWidth="12"
-        strokeLinecap="round"
-        fill="none"
-        opacity={0.2}
-        filter="url(#ribbonGlow)"
-        initial={prefersReducedMotion ? { pathLength: 1 } : { pathLength: 0 }}
-        animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
-        transition={{ duration: 2, ease: "easeInOut" }}
-      />
-
-      {/* Main ribbon path */}
-      <motion.path
-        d={path}
-        stroke="url(#ribbonGradient)"
-        strokeWidth="6"
-        strokeLinecap="round"
-        fill="none"
-        initial={prefersReducedMotion ? { pathLength: 1 } : { pathLength: 0 }}
-        animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
-        transition={{ duration: 2, ease: "easeInOut" }}
-      />
-
-      {/* Pulsing animation overlay */}
-      {!prefersReducedMotion && (
-        <motion.path
-          d={path}
-          stroke="url(#ribbonGradient)"
-          strokeWidth="6"
-          strokeLinecap="round"
-          fill="none"
-          opacity={0.5}
-          initial={{ strokeWidth: 6 }}
-          animate={
-            isInView
-              ? {
-                  strokeWidth: [6, 8, 6],
-                  opacity: [0.3, 0.5, 0.3],
-                }
-              : {}
-          }
-          transition={{
-            duration: 3,
-            ease: "easeInOut",
-            repeat: Infinity,
-            delay: 2,
-          }}
-        />
-      )}
-    </svg>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.35]" />
+    </div>
   );
 }
 
-// Simple vertical line for mobile
-function MobileRibbon({
+function Rail({
+  align,
   prefersReducedMotion,
 }: {
+  align: "center" | "left";
   prefersReducedMotion: boolean | null;
 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
+
+  const alignClass =
+    align === "center"
+      ? "left-1/2 -translate-x-1/2"
+      : "left-6 -translate-x-1/2";
 
   return (
     <motion.div
       ref={ref}
-      className="absolute left-6 top-0 bottom-0 w-1
-                 bg-gradient-to-b from-[#58A8E0] via-[#3B82F6] to-[#1E3A5F]
-                 rounded-full origin-top"
+      className={`absolute ${alignClass} top-0 bottom-0 z-0 w-[2px] rounded-full origin-top
+                  bg-gradient-to-b from-[#58A8E0] via-[#3B82F6] to-[#1E3A5F]
+                  shadow-[0_0_0_6px_rgba(88,168,224,0.06)]`}
       initial={prefersReducedMotion ? { scaleY: 1 } : { scaleY: 0 }}
       animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-      transition={{ duration: 1.2, ease: "easeOut" }}
+      transition={{ duration: 1.1, ease: "easeOut" }}
       aria-hidden="true"
     />
   );
 }
 
-export function HowWeWork({ title, steps }: HowWeWorkProps) {
+export function HowWeWork({ title, lead, steps }: HowWeWorkProps) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <Section id="how-we-work" title={title} background="gray">
+    <Section id="how-we-work" title={title} lead={lead} background="gray">
       <div className="relative">
-        {/* Desktop: Flowing S-curve ribbon */}
-        <div className="hidden md:block">
-          <FlowingRibbon
-            itemCount={steps.length}
-            prefersReducedMotion={prefersReducedMotion}
-          />
-        </div>
+        <DecorativeBackground />
 
-        {/* Mobile: Simple vertical line */}
-        <div className="md:hidden">
-          <MobileRibbon prefersReducedMotion={prefersReducedMotion} />
-        </div>
+        <div className="relative z-10">
+          {/* Desktop rail (center) */}
+          <div className="hidden md:block">
+            <Rail align="center" prefersReducedMotion={prefersReducedMotion} />
+          </div>
 
-        {/* Steps as ordered list for accessibility */}
-        <ol className="relative space-y-8 md:space-y-0 list-none m-0 p-0">
-          {steps.map((step, index) => (
-            <TimelineItem
-              key={step.id}
-              step={step}
-              totalSteps={steps.length}
-              isLeft={index % 2 === 0}
-              prefersReducedMotion={prefersReducedMotion}
-            />
-          ))}
-        </ol>
+          {/* Mobile rail (left) */}
+          <div className="md:hidden">
+            <Rail align="left" prefersReducedMotion={prefersReducedMotion} />
+          </div>
+
+          {/* Steps as ordered list for accessibility */}
+          <ol className="relative z-10 space-y-8 md:space-y-0 list-none m-0 p-0">
+            {steps.map((step, index) => (
+              <TimelineItem
+                key={step.id}
+                step={step}
+                totalSteps={steps.length}
+                isLeft={index % 2 === 0}
+                prefersReducedMotion={prefersReducedMotion}
+              />
+            ))}
+          </ol>
+        </div>
       </div>
     </Section>
   );
@@ -209,10 +118,9 @@ function TimelineItem({
   const itemRef = useRef(null);
   const isInView = useInView(itemRef, { once: true, amount: 0.3 });
   const shouldAnimate = !prefersReducedMotion;
-  const waveHeight = 180;
 
-  // Card rotation follows the curve direction
-  const cardRotation = isLeft ? -2 : 2;
+  const waveHeight = 180;
+  const stepCode = pad2(step.id);
 
   return (
     <motion.li
@@ -237,12 +145,21 @@ function TimelineItem({
         {/* Card container */}
         <div className={`w-1/2 ${isLeft ? "order-1 pr-16" : "order-2 pl-16"}`}>
           <motion.div
-            className="relative bg-white rounded-xl p-6 max-w-sm
-                       shadow-md hover:shadow-xl transition-shadow duration-300
-                       border border-[#E2E8F0]/50 hover:border-[#3B82F6]/30
-                       before:absolute before:left-0 before:top-4 before:bottom-4
-                       before:w-1 before:rounded-full
-                       before:bg-gradient-to-b before:from-[#58A8E0] before:to-[#3B82F6]"
+            className={`relative max-w-md rounded-xl bg-white/90 backdrop-blur-sm p-6
+                        border shadow-sm shadow-[#0F172A]/5 transition-colors transition-shadow duration-300
+                        hover:shadow-lg hover:shadow-[#0F172A]/10 hover:border-[#3B82F6]/30
+                        before:absolute before:inset-x-6 before:top-0 before:h-px
+                        before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent
+                        after:pointer-events-none after:absolute after:inset-0 after:rounded-xl
+                        after:bg-[linear-gradient(110deg,transparent,rgba(88,168,224,0.10),transparent)]
+                        after:opacity-0 after:translate-x-[-20%] after:transition after:duration-700
+                        hover:after:opacity-100 hover:after:translate-x-[20%]
+                        [will-change:transform]
+                        ${
+                          isInView
+                            ? "border-[#3B82F6]/25"
+                            : "border-[#E2E8F0]/70"
+                        }`}
             style={{
               marginLeft: isLeft ? "auto" : 0,
               marginRight: isLeft ? 0 : "auto",
@@ -251,143 +168,157 @@ function TimelineItem({
               shouldAnimate
                 ? {
                     opacity: 0,
-                    x: isLeft ? -50 : 50,
-                    rotate: isLeft ? -6 : 6,
-                    scale: 0.8,
+                    y: 14,
+                    x: isLeft ? -18 : 18,
+                    scale: 0.985,
                   }
                 : { opacity: 1 }
             }
-            animate={
-              isInView
-                ? {
-                    opacity: 1,
-                    x: 0,
-                    rotate: cardRotation,
-                    scale: 1,
-                  }
-                : {}
-            }
+            animate={isInView ? { opacity: 1, y: 0, x: 0, scale: 1 } : {}}
             transition={
               shouldAnimate
-                ? {
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 15,
-                    delay: 0.1,
-                  }
+                ? { duration: 0.65, ease: EASE_OUT, delay: 0.02 }
                 : { duration: 0 }
             }
+            whileHover={shouldAnimate ? { y: -6 } : {}}
+            whileTap={shouldAnimate ? { y: -2 } : {}}
           >
-            <h3 className="text-lg font-semibold text-[#1E3A5F] mb-2">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center rounded-full bg-[#3B82F6]/10 px-3 py-1 text-xs font-mono font-semibold tracking-wide text-[#1E3A5F]">
+                {stepCode}
+              </span>
+              <div className="h-px flex-1 bg-gradient-to-r from-[#E2E8F0] via-[#E2E8F0]/60 to-transparent" />
+            </div>
+
+            <h3 className="mt-3 text-lg font-semibold text-[#1E3A5F] leading-snug">
               <span className="sr-only">
                 Шаг {step.id} из {totalSteps}:{" "}
               </span>
               {step.title}
             </h3>
-            <p className="text-[#475569] text-sm leading-relaxed">
-              {step.description}
-            </p>
+            {step.description && (
+              <p className="mt-2 text-sm leading-relaxed text-[#475569]">
+                {step.description}
+              </p>
+            )}
           </motion.div>
 
           {/* Connector line from card to marker */}
           <motion.div
-            className={`absolute top-[50px] h-0.5 w-12
+            className={`absolute top-[56px] h-px w-14
                        ${isLeft ? "right-[calc(50%-60px)]" : "left-[calc(50%-60px)]"}`}
             style={{
+              transformOrigin: isLeft ? "100% 50%" : "0% 50%",
               background: isLeft
-                ? "linear-gradient(to left, #3B82F6, transparent)"
-                : "linear-gradient(to right, #3B82F6, transparent)",
+                ? "linear-gradient(to left, rgba(59,130,246,0.55), transparent)"
+                : "linear-gradient(to right, rgba(59,130,246,0.55), transparent)",
             }}
-            initial={shouldAnimate ? { scaleX: 0 } : { scaleX: 1 }}
-            animate={isInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 0.3, delay: 0.4 }}
+            initial={
+              shouldAnimate
+                ? { scaleX: 0, opacity: 0 }
+                : { scaleX: 1, opacity: 1 }
+            }
+            animate={isInView ? { scaleX: 1, opacity: 1 } : {}}
+            transition={
+              shouldAnimate
+                ? { duration: 0.55, ease: EASE_OUT, delay: 0.06 }
+                : { duration: 0 }
+            }
             aria-hidden="true"
           />
         </div>
 
-        {/* Marker on the ribbon */}
+        {/* Marker dot on the rail */}
         <motion.div
-          className="absolute left-1/2 -translate-x-1/2 z-10
-                     w-14 h-14 rounded-full flex items-center justify-center
-                     bg-gradient-to-br from-[#58A8E0] to-[#3B82F6]
-                     text-white text-xl font-bold
-                     shadow-lg shadow-[#3B82F6]/30
-                     ring-4 ring-[#58A8E0]/20"
-          style={{ top: "36px" }}
+          className="absolute left-1/2 -translate-x-1/2 z-10"
+          style={{ top: "46px" }}
           initial={
-            shouldAnimate ? { scale: 0, rotate: -180 } : { scale: 1, rotate: 0 }
+            shouldAnimate
+              ? { scale: 0.85, opacity: 0 }
+              : { scale: 1, opacity: 1 }
           }
-          animate={isInView ? { scale: 1, rotate: 0 } : {}}
+          animate={isInView ? { scale: 1, opacity: 1 } : {}}
           transition={
             shouldAnimate
-              ? {
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 15,
-                }
+              ? { duration: 0.55, ease: EASE_OUT }
               : { duration: 0 }
           }
-          whileHover={
-            shouldAnimate
-              ? {
-                  y: -4,
-                  transition: { duration: 0.2 },
-                }
-              : {}
-          }
+          whileHover={shouldAnimate ? { scale: 1.08 } : {}}
           aria-hidden="true"
         >
-          {step.id}
+          <div className="h-3 w-3 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] ring-4 ring-[#58A8E0]/15 shadow-[0_6px_18px_rgba(59,130,246,0.25)] [will-change:transform]" />
         </motion.div>
       </div>
 
       {/* Mobile layout */}
-      <div className="md:hidden flex items-start gap-4">
-        {/* Marker circle with step number */}
+      <div className="md:hidden relative pl-14">
+        {/* Marker dot */}
         <motion.div
-          className="relative z-10 flex-shrink-0 ml-1
-                     w-12 h-12 rounded-full flex items-center justify-center
-                     bg-gradient-to-br from-[#58A8E0] to-[#3B82F6]
-                     text-white text-lg font-bold shadow-lg"
-          initial={shouldAnimate ? { scale: 0 } : { scale: 1 }}
-          animate={isInView ? { scale: 1 } : {}}
+          className="absolute left-6 -translate-x-1/2 z-10"
+          style={{ top: "28px" }}
+          initial={
+            shouldAnimate
+              ? { scale: 0.85, opacity: 0 }
+              : { scale: 1, opacity: 1 }
+          }
+          animate={isInView ? { scale: 1, opacity: 1 } : {}}
           transition={
             shouldAnimate
-              ? {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 15,
-                }
+              ? { duration: 0.55, ease: EASE_OUT }
               : { duration: 0 }
           }
           aria-hidden="true"
         >
-          {step.id}
+          <div className="h-3 w-3 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] ring-4 ring-[#58A8E0]/15 shadow-[0_6px_18px_rgba(59,130,246,0.25)] [will-change:transform]" />
         </motion.div>
 
         {/* Card */}
         <motion.div
-          className="relative bg-white rounded-xl p-5 flex-1
-                     shadow-md
-                     border border-[#E2E8F0]/50
-                     before:absolute before:left-0 before:top-3 before:bottom-3
-                     before:w-1 before:rounded-full
-                     before:bg-gradient-to-b before:from-[#58A8E0] before:to-[#3B82F6]"
-          initial={shouldAnimate ? { opacity: 0, x: 30 } : { opacity: 1 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
-          transition={
-            shouldAnimate ? { duration: 0.4, delay: 0.1 } : { duration: 0 }
+          className={`relative rounded-xl bg-white/90 backdrop-blur-sm p-5
+                      border shadow-sm shadow-[#0F172A]/5 transition-colors transition-shadow duration-300
+                      hover:shadow-lg hover:shadow-[#0F172A]/10 hover:border-[#3B82F6]/30
+                      before:absolute before:inset-x-6 before:top-0 before:h-px
+                      before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent
+                      after:pointer-events-none after:absolute after:inset-0 after:rounded-xl
+                      after:bg-[linear-gradient(110deg,transparent,rgba(88,168,224,0.10),transparent)]
+                      after:opacity-0 after:translate-x-[-20%] after:transition after:duration-700
+                      hover:after:opacity-100 hover:after:translate-x-[20%]
+                      [will-change:transform]
+                      ${
+                        isInView ? "border-[#3B82F6]/25" : "border-[#E2E8F0]/70"
+                      }`}
+          initial={
+            shouldAnimate
+              ? { opacity: 0, y: 14, scale: 0.99 }
+              : { opacity: 1 }
           }
+          animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+          transition={
+            shouldAnimate
+              ? { duration: 0.6, ease: EASE_OUT, delay: 0.02 }
+              : { duration: 0 }
+          }
+          whileHover={shouldAnimate ? { y: -4 } : {}}
+          whileTap={shouldAnimate ? { y: -2 } : {}}
         >
-          <h3 className="text-base font-semibold text-[#1E3A5F] mb-1.5">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center rounded-full bg-[#3B82F6]/10 px-3 py-1 text-xs font-mono font-semibold tracking-wide text-[#1E3A5F]">
+              {stepCode}
+            </span>
+            <div className="h-px flex-1 bg-gradient-to-r from-[#E2E8F0] via-[#E2E8F0]/60 to-transparent" />
+          </div>
+
+          <h3 className="mt-3 text-base font-semibold text-[#1E3A5F] leading-snug">
             <span className="sr-only">
               Шаг {step.id} из {totalSteps}:{" "}
             </span>
             {step.title}
           </h3>
-          <p className="text-[#475569] text-sm leading-relaxed">
-            {step.description}
-          </p>
+          {step.description && (
+            <p className="mt-2 text-sm leading-relaxed text-[#475569]">
+              {step.description}
+            </p>
+          )}
         </motion.div>
       </div>
     </motion.li>

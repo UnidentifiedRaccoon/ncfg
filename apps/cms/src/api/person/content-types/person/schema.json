@@ -14,14 +14,16 @@
   "attributes": {
     "fullName": {
       "type": "string",
-      "required": true,
-      "maxLength": 255
+      "maxLength": 255,
+      "required": true
     },
     "photo": {
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": ["images"]
+      "allowedTypes": [
+        "images"
+      ]
     },
     "position": {
       "type": "string",
@@ -38,7 +40,7 @@
       "type": "integer",
       "default": 0
     },
-    "team": {
+    "teamGroup": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::team-config.team-config",

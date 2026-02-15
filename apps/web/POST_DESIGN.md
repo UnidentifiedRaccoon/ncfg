@@ -52,6 +52,12 @@ List items inherit paragraph color (#475569).
 | Border Radius | 12px (rounded-xl) |
 | Spacing | my-6 |
 
+### PostCard Covers (Blog)
+
+- Aspect ratio: **4:3** (`object-cover`)
+- Recommended upload size: **1200×900** (or smaller, same ratio), prefer **webp**
+- Fallback (when no image): branded auto-cover (gradient + subtle pattern + watermark `НЦФГ`)
+
 ## Code
 
 | Element | Background | Padding | Font |
@@ -89,4 +95,4 @@ All colors use design tokens from `globals.css`:
 | .post-content wrapper | 624px | Совпадает с PostCard |
 | PostQuestionForm | 760px | — |
 | OtherPosts section | 760px | Фон #F8FAFC |
-| PostCard | 624px | Эталонная ширина |
+| PostCard | 760px | Desktop max width; cover 4:3. `.post-content` остаётся 624px |

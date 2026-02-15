@@ -1,0 +1,27 @@
+{
+  "kind": "singleType",
+  "collectionName": "companies_pages",
+  "info": {
+    "singularName": "companies-page",
+    "pluralName": "companies-pages",
+    "displayName": "Companies Page",
+    "description": "Companies page content (hero + FAQ)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "hero": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.hero"
+    },
+    "faqItems": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.faq-item"
+    }
+  }
+}
+

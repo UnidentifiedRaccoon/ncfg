@@ -1,0 +1,75 @@
+{
+  "kind": "singleType",
+  "collectionName": "site_settings",
+  "info": {
+    "singularName": "site-setting",
+    "pluralName": "site-settings",
+    "displayName": "Site Setting",
+    "description": "Global site settings (footer, contacts, metrics)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "organizationFullName": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "organizationShortName": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "contactsPhone": {
+      "type": "string",
+      "required": true,
+      "maxLength": 64
+    },
+    "contactsEmail": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "contactsLegalAddress": {
+      "type": "text"
+    },
+    "socialLinks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.link"
+    },
+    "legalLinks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.link"
+    },
+    "legalDocumentsTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "legalDocuments": {
+      "type": "component",
+      "repeatable": true,
+      "component": "site.legal-document"
+    },
+    "copyrightYears": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "copyrightText": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "copyrightNotice": {
+      "type": "text"
+    },
+    "metrics": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.metric"
+    }
+  }
+}
+
