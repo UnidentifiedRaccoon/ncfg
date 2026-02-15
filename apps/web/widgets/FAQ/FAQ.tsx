@@ -57,7 +57,7 @@ function FAQAccordionItem({
     <details
       className={cn(
         "group relative border-b border-[#E2E8F0]/70 last:border-b-0",
-        "transition-colors hover:bg-white/60 open:bg-white/70"
+        "open:bg-white/70"
       )}
       open={defaultOpen ? true : undefined}
     >

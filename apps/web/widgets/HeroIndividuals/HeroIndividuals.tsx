@@ -19,7 +19,7 @@ export function HeroIndividuals({ headline, lead, primaryCta }: HeroIndividualsP
       headline={headline}
       lead={lead}
       primaryAction={primaryAction}
-      secondaryAction={{ label: "Подробнее", href: "#products" }}
+      secondaryAction={{ label: "Наши услуги", href: "#services" }}
       imageSrc="/hero.png"
       imageAlt=""
     />

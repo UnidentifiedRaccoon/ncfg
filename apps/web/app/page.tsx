@@ -1,7 +1,7 @@
 import {
-  Header,
   Hero,
   Products,
+  Projects,
   Services,
   Partners,
   News,
@@ -104,7 +104,6 @@ export default async function Home() {
 
   return (
     <>
-      <Header />
       <main>
         <Hero
           headline={hero?.headline ?? ""}
@@ -116,16 +115,17 @@ export default async function Home() {
           }
           metrics={heroMetrics}
         />
-        <Products />
         <Services
           title={homePage.servicesTitle ?? "Услуги"}
           services={servicesData.serviceCategories.slice(0, 3).map((category) => ({
+            id: category.id,
             title: category.title,
             description: category.description,
-            href: "/companies",
-            image: null,
+            href: `/companies#services-${category.id}`,
           }))}
         />
+        <Products />
+        <Projects />
         <Partners
           awards={mappedAwards}
           clientsCarousel={mappedClientsCarousel}

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import {
-  Header,
   Hero,
   HowWeWork,
   Principles,
@@ -75,7 +74,6 @@ export default async function AboutPage() {
 
   return (
     <>
-      <Header />
       <main>
         <Hero
           headline={aboutPage.heroHeadline ?? ""}

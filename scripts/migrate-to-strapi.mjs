@@ -772,7 +772,7 @@ async function migrateAboutPage() {
 
   const payload = {
     heroHeadline:
-      'Национальный центр финансовой грамотности — лидер в сфере финансового просвещения с 2005 года',
+      'Лидер в сфере финансового просвещения с 2005 года',
     heroCta: { label: 'Наши проекты', href: '/companies' },
     howWeWorkTitle: howWeWorkData.title,
     howWeWorkLead: howWeWorkData.description,

@@ -8,7 +8,7 @@ interface PostProps {
   post: {
     id: string | number;
     title: string;
-    tags: string[];
+    category: { slug: string; title: string } | null;
     body: string;
     anonsImage?: string | null;
     createdAt: string;
@@ -39,14 +39,15 @@ export function Post({ post, allPosts = [] }: PostProps) {
         <Container className="px-5 md:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-[760px]">
             <header className="text-center">
-              {/* Meta: tag and date */}
+              {/* Meta: category and date */}
               <div className="flex flex-wrap items-center justify-center gap-2 text-sm mb-4">
-                {post.tags[0] && (
-                  <span className="text-[#3B82F6] font-medium uppercase">
-                    {post.tags[0]}
+                {post.category?.title && (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/5 px-3 py-1 text-xs font-semibold tracking-wide text-[#3B82F6]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
+                    {post.category.title}
                   </span>
                 )}
-                {post.tags[0] && <span className="text-[#94A3B8]">•</span>}
+                {post.category?.title && <span className="text-[#94A3B8]">•</span>}
                 <time className="text-[#94A3B8]">{formatDate(post.createdAt)}</time>
               </div>
 

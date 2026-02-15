@@ -1,3 +1,5 @@
+import { cn } from "@/shared/lib/cn";
+import type { ServiceCatalogVariant } from "./ServiceCatalog";
 import { BentoCard } from "./BentoCard";
 
 interface ServiceItem {
@@ -11,9 +13,12 @@ interface ServiceBlockProps {
   id: string;
   index: number;
   total: number;
+  showBadges: boolean;
   title: string;
   description: string;
   items: ServiceItem[];
+  variant: ServiceCatalogVariant;
+  idBase: string;
 }
 
 function pad2(value: number) {
@@ -38,69 +43,93 @@ export function ServiceBlock({
   id,
   index,
   total,
+  showBadges,
   title,
   description,
   items,
+  variant,
+  idBase,
 }: ServiceBlockProps) {
-  const anchorId = `services-${id}`;
+  const anchorId = `${idBase}-${id}`;
   const number = pad2(index + 1);
   const totalFormatted = pad2(total);
 
   return (
-    <section id={anchorId} className="scroll-mt-24">
-      <div className="rounded-2xl bg-gradient-to-br from-[#58A8E0]/35 via-[#3B82F6]/15 to-[#1E3A5F]/10 p-px">
-        <div className="relative overflow-hidden rounded-2xl bg-[#F8FAFC] p-4 md:p-6">
-          {/* Background atmosphere (subtle) */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-            <div className="absolute inset-0 opacity-[0.06] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:64px_64px]" />
-            <div className="absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/12 blur-3xl" />
-            <div className="absolute -bottom-44 left-1/4 h-[560px] w-[560px] rounded-full bg-[#58A8E0]/10 blur-3xl" />
-          </div>
+    <section
+      id={anchorId}
+      className={cn(
+        "scroll-mt-24",
+        // Light separation between groups without an extra "stage" wrapper.
+        index > 0 && "border-t border-[#E2E8F0] pt-10 md:pt-12"
+      )}
+      >
+      <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="max-w-3xl">
+          {showBadges && (
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0]/70 bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur">
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-[#58A8E0]"
+                aria-hidden="true"
+              />
+              {number} / {totalFormatted}
+            </div>
+          )}
 
-          <div className="relative">
-            <header className="mb-6 flex flex-col gap-4 md:mb-8 md:flex-row md:items-start md:justify-between">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0]/70 bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur">
-                  <span
-                    className="h-1.5 w-1.5 rounded-full bg-[#58A8E0]"
-                    aria-hidden="true"
-                  />
-                  {number} / {totalFormatted}
-                </div>
-
-                <h3 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-[#1E3A5F] md:text-3xl">
-                  {title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-[#475569] md:text-base">
-                  {description}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="rounded-full border border-[#E2E8F0]/70 bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur">
-                  {formatServiceCount(items.length)}
-                </span>
-              </div>
-            </header>
-
-            {renderGrid(items)}
-          </div>
+          <h3 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-[#1E3A5F] md:text-3xl">
+            {title}
+          </h3>
+          <p className="mt-3 text-sm leading-relaxed text-[#475569] md:text-base">
+            {description}
+          </p>
         </div>
-      </div>
+
+        {showBadges && (
+          <div className="flex items-center gap-2">
+            <span className="rounded-full border border-[#E2E8F0]/70 bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur">
+              {formatServiceCount(items.length)}
+            </span>
+          </div>
+        )}
+      </header>
+
+      <div className="mt-6 md:mt-8">{renderGrid(items, variant)}</div>
     </section>
   );
 }
 
-function renderGrid(items: ServiceItem[]) {
+function renderGrid(items: ServiceItem[], variant: ServiceCatalogVariant) {
+  if (items.length === 6) {
+    return (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-5 lg:gap-6">
+        <BentoCard
+          {...items[0]}
+          featured
+          variant={variant}
+          className="md:col-span-7 md:row-span-2"
+        />
+        <BentoCard {...items[1]} variant={variant} className="md:col-span-5" />
+        <BentoCard {...items[2]} variant={variant} className="md:col-span-5" />
+        <BentoCard {...items[3]} variant={variant} className="md:col-span-4" />
+        <BentoCard {...items[4]} variant={variant} className="md:col-span-4" />
+        <BentoCard {...items[5]} variant={variant} className="md:col-span-4" />
+      </div>
+    );
+  }
+
   // 5 items: top row (featured spanning 2 cols + 1), bottom row (3 equal)
   if (items.length === 5) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5 lg:gap-6">
-        <BentoCard {...items[0]} featured className="md:col-span-2" />
-        <BentoCard {...items[1]} />
-        <BentoCard {...items[2]} />
-        <BentoCard {...items[3]} />
-        <BentoCard {...items[4]} />
+        <BentoCard
+          {...items[0]}
+          featured
+          variant={variant}
+          className="md:col-span-2"
+        />
+        <BentoCard {...items[1]} variant={variant} />
+        <BentoCard {...items[2]} variant={variant} />
+        <BentoCard {...items[3]} variant={variant} />
+        <BentoCard {...items[4]} variant={variant} />
       </div>
     );
   }
@@ -112,10 +141,11 @@ function renderGrid(items: ServiceItem[]) {
         <BentoCard
           {...items[0]}
           featured
+          variant={variant}
           className="md:col-span-2 md:row-span-2"
         />
-        <BentoCard {...items[1]} />
-        <BentoCard {...items[2]} />
+        <BentoCard {...items[1]} variant={variant} />
+        <BentoCard {...items[2]} variant={variant} />
       </div>
     );
   }
@@ -124,8 +154,13 @@ function renderGrid(items: ServiceItem[]) {
   if (items.length === 2) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-5 md:gap-5 lg:gap-6">
-        <BentoCard {...items[0]} featured className="md:col-span-3" />
-        <BentoCard {...items[1]} className="md:col-span-2" />
+        <BentoCard
+          {...items[0]}
+          featured
+          variant={variant}
+          className="md:col-span-3"
+        />
+        <BentoCard {...items[1]} variant={variant} className="md:col-span-2" />
       </div>
     );
   }
@@ -134,7 +169,7 @@ function renderGrid(items: ServiceItem[]) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
       {items.map((item) => (
-        <BentoCard key={item.href} {...item} />
+        <BentoCard key={item.href} {...item} variant={variant} />
       ))}
     </div>
   );

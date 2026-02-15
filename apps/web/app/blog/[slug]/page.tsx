@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Header, Post, Footer } from "@/widgets";
+import { Post, Footer } from "@/widgets";
 import {
   fetchNewsArticle,
   fetchNewsArticles,
@@ -59,7 +59,6 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1">
         <Post post={post} allPosts={allPosts} />
       </main>

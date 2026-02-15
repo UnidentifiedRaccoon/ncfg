@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import {
-  Header,
   HeroIndividuals,
   ProductShowcase,
   FAQ,
@@ -8,15 +7,6 @@ import {
   Footer,
 } from "@/widgets";
 import { fetchIndividualsPageData, fetchSiteSettings } from "@/shared/api/data-provider";
-
-type IconType = "graduation-cap" | "trending-up" | "zap";
-
-interface Product {
-  title: string;
-  description: string;
-  href: string;
-  icon?: IconType;
-}
 
 export const metadata: Metadata = {
   title: "Частным лицам — Финансовая грамотность для вас и вашей семьи | НЦФГ",
@@ -41,7 +31,9 @@ export default async function IndividualsPage() {
     title: p.title,
     description: p.description,
     href: p.href,
-    icon: (p.iconKey ?? undefined) as IconType | undefined,
+    icon: p.iconKey ?? undefined,
+    audience: p.audience ?? undefined,
+    image: p.imagePath ?? undefined,
   }));
   const faqItems = [...individualsPage.faqItems]
     .sort((a, b) => a.order - b.order)
@@ -49,7 +41,6 @@ export default async function IndividualsPage() {
 
   return (
     <>
-      <Header />
       <main>
         <HeroIndividuals
           headline={hero?.headline ?? ""}
@@ -61,9 +52,9 @@ export default async function IndividualsPage() {
           }
         />
         <ProductShowcase
-          title={individualsPage.productsTitle ?? "Наши продукты"}
+          title={individualsPage.productsTitle ?? "Наши услуги"}
           lead={individualsPage.productsLead ?? undefined}
-          products={products as Product[]}
+          products={products}
         />
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />

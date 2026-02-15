@@ -48,7 +48,7 @@ export function HeroLayout({
   metricsCard,
 }: HeroLayoutProps) {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden -mt-16 md:-mt-20 pt-16 md:pt-20">
       <div aria-hidden="true" className="absolute inset-0 bg-[#050B16]" />
 
       <div
@@ -195,6 +195,9 @@ export function HeroLayout({
           </div>
         </div>
       </Container>
+
+      {/* Sentinel for dock header tone switching (Hero -> surface). */}
+      <div data-header-hero-end aria-hidden="true" className="h-px" />
     </section>
   );
 }

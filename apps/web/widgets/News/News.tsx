@@ -42,9 +42,9 @@ function hashString(input: string): number {
   return hash;
 }
 
-function BrandedCover({ slug, primaryTag }: { slug: string; primaryTag?: string }) {
+function BrandedCover({ slug, categoryTitle }: { slug: string; categoryTitle?: string }) {
   const variant = COVER_VARIANTS[hashString(slug) % COVER_VARIANTS.length];
-  const tag = primaryTag?.trim();
+  const label = categoryTitle?.trim();
 
   return (
     <div
@@ -58,9 +58,9 @@ function BrandedCover({ slug, primaryTag }: { slug: string; primaryTag?: string 
     >
       <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-black/0" />
 
-      {tag && (
+      {label && (
         <div className="absolute left-3 top-3 max-w-[85%] truncate rounded-full border border-white/20 bg-white/15 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
-          {tag}
+          {label}
         </div>
       )}
 
@@ -78,10 +78,10 @@ function Cover({
   post,
   sizes,
 }: {
-  post: Pick<NewsArticleData, "slug" | "title" | "anonsImage" | "tags">;
+  post: Pick<NewsArticleData, "slug" | "title" | "anonsImage" | "category">;
   sizes: string;
 }) {
-  const primaryTag = post.tags?.[0];
+  const categoryTitle = post.category?.title;
   const hasImage = Boolean(post.anonsImage && post.anonsImage.length > 0);
 
   return (
@@ -105,7 +105,7 @@ function Cover({
           />
         </>
       ) : (
-        <BrandedCover slug={post.slug} primaryTag={primaryTag} />
+        <BrandedCover slug={post.slug} categoryTitle={categoryTitle} />
       )}
 
       <div
@@ -121,7 +121,7 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
 
   const featured = posts[0];
   const compact = posts.slice(1, 4);
-  const featuredTag = featured.tags?.[0];
+  const featuredCategoryTitle = featured.category?.title;
   const featuredExcerpt = makeExcerpt(stripHtmlToText(featured.body), 170);
 
   return (
@@ -158,12 +158,13 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
                 )}
               >
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  {featuredTag && (
-                    <span className="inline-flex items-center rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/5 px-2 py-0.5 font-medium text-[#3B82F6]">
-                      {featuredTag}
+                  {featuredCategoryTitle && (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/5 px-3 py-1 text-xs font-semibold tracking-wide text-[#3B82F6]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
+                      {featuredCategoryTitle}
                     </span>
                   )}
-                  {featuredTag && <span className="text-[#E2E8F0]">•</span>}
+                  {featuredCategoryTitle && <span className="text-[#E2E8F0]">•</span>}
                   <time className="whitespace-nowrap text-[#94A3B8]">
                     {formatDate(featured.createdAt)}
                   </time>
@@ -196,9 +197,9 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
           />
         </Link>
 
-        <div className="lg:col-span-5 flex flex-col gap-4 md:gap-5">
+        <div className="lg:col-span-5 flex flex-col gap-4 md:gap-5 lg:h-full lg:justify-between">
           {compact.map((post) => {
-            const tag = post.tags?.[0];
+            const categoryTitle = post.category?.title;
 
             return (
               <Link
@@ -221,12 +222,13 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
 
                 <div className="min-w-0 flex-1 py-4 pr-4">
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    {tag && (
-                      <span className="text-[#3B82F6] font-medium">
-                        {tag}
+                    {categoryTitle && (
+                      <span className="inline-flex items-center gap-2 rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/5 px-3 py-1 text-xs font-semibold tracking-wide text-[#3B82F6]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
+                        {categoryTitle}
                       </span>
                     )}
-                    {tag && <span className="text-[#E2E8F0]">•</span>}
+                    {categoryTitle && <span className="text-[#E2E8F0]">•</span>}
                     <time className="whitespace-nowrap text-[#94A3B8]">
                       {formatDate(post.createdAt)}
                     </time>
@@ -267,4 +269,3 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
     </Section>
   );
 }
-

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import {
-  Header,
   HeroCompanies,
   ServiceCatalog,
   FAQ,
@@ -55,7 +54,6 @@ export default async function CompaniesPage() {
 
   return (
     <>
-      <Header />
       <main>
         <HeroCompanies
           headline={hero?.headline ?? ""}
@@ -66,7 +64,7 @@ export default async function CompaniesPage() {
               : undefined
           }
         />
-        <ServiceCatalog services={serviceBlocks} />
+        <ServiceCatalog services={serviceBlocks} variant="glass" showBadges={false} />
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />
       </main>

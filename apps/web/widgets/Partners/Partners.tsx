@@ -4,7 +4,6 @@ import { useId, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Quote,
   ChevronLeft,
   ChevronRight,
   ArrowRight,
@@ -87,7 +86,7 @@ function CategoryTabs({
       role="tablist"
       aria-label="Категории партнеров"
       className={cn(
-        "flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] p-1",
+        "flex w-full min-w-0 max-w-full items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] p-1",
         "overflow-x-auto snap-x snap-mandatory"
       )}
     >
@@ -105,11 +104,13 @@ function CategoryTabs({
             aria-controls={panelId}
             onClick={() => onChange(index)}
             className={cn(
-              "snap-start whitespace-nowrap px-4 py-2 text-sm font-semibold rounded-full transition-all duration-150",
+              // Keep geometry stable: constant border width prevents "jumping" when active tab changes.
+              "snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full border border-transparent",
+              "transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
               isActive
-                ? "bg-white text-[#1E3A5F] shadow-sm border border-[#E2E8F0]"
-                : "text-[#475569] hover:text-[#1E3A5F] hover:bg-white/60"
+                ? "bg-white text-[#1E3A5F] shadow-sm border-[#E2E8F0]"
+                : "text-[#475569] hover:text-[#1E3A5F] hover:bg-white/60 hover:border-[#E2E8F0]/60"
             )}
           >
             {category.name}
@@ -130,19 +131,15 @@ function LogoTile({ logo }: { logo: Logo }) {
   const tileClassName = cn(
     "group relative aspect-[3/2] rounded-xl border border-[#E2E8F0]/70 bg-white",
     "shadow-sm shadow-[#0F172A]/[0.03]",
-    "transition-all duration-200",
-    "hover:-translate-y-0.5 hover:border-[#3B82F6]/40 hover:shadow-md",
-    "after:pointer-events-none after:absolute after:inset-0 after:rounded-xl",
-    "after:bg-[linear-gradient(110deg,transparent,rgba(88,168,224,0.12),transparent)]",
-    "after:opacity-0 after:translate-x-[-20%] after:transition after:duration-700",
-    "hover:after:opacity-100 hover:after:translate-x-[20%]"
+    // Hover: only a subtle scale + "color comes back" on the content.
+    "transition-transform duration-200 ease-out hover:scale-[1.03]"
   );
 
   const content = (
     <div
       className={cn(
         "relative h-full w-full overflow-hidden rounded-xl",
-        "flex items-center justify-center p-3"
+        "flex items-center justify-center p-2 sm:p-3"
       )}
     >
       {showImage ? (
@@ -154,7 +151,9 @@ function LogoTile({ logo }: { logo: Logo }) {
             sizes="(min-width: 1024px) 150px, (min-width: 640px) 130px, 44vw"
             className={cn(
               "object-contain transition-all duration-300",
-              imageLoaded ? "opacity-90 grayscale" : "opacity-0",
+              imageLoaded
+                ? "opacity-90 grayscale [@media(hover:none)]:opacity-100 [@media(hover:none)]:grayscale-0"
+                : "opacity-0",
               "group-hover:opacity-100 group-hover:grayscale-0"
             )}
             onLoad={() => setImageLoaded(true)}
@@ -163,7 +162,7 @@ function LogoTile({ logo }: { logo: Logo }) {
         </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center text-center">
-          <span className="text-[11px] sm:text-xs font-semibold tracking-tight text-[#1E3A5F] leading-snug line-clamp-2">
+          <span className="text-[11px] sm:text-xs font-semibold tracking-tight text-[#475569] leading-snug line-clamp-2 transition-colors group-hover:text-[#1E3A5F] group-focus-visible:text-[#1E3A5F]">
             {logo.title}
           </span>
         </div>
@@ -239,7 +238,7 @@ function TestimonialCard({
   if (!current) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm lg:h-[500px]">
       {/* Decorative background */}
       <div
         aria-hidden="true"
@@ -250,27 +249,60 @@ function TestimonialCard({
         className="pointer-events-none absolute inset-0 opacity-[0.22] bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:24px_24px]"
       />
 
-      <div className="relative z-10 p-6 md:p-7">
+      <div className="relative z-10 flex flex-col p-4 sm:p-6 md:p-7 lg:h-full">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-xs font-semibold text-[#475569] tracking-wide uppercase">
               {title}
             </div>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="inline-flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-white/70 px-3 py-2 backdrop-blur-sm">
-                <Quote className="h-4 w-4 text-[#58A8E0]" aria-hidden="true" />
-                <div className="leading-tight">
-                  <div className="text-sm font-mono font-semibold text-[#1E3A5F]">
-                    {more.labelTop}
-                  </div>
-                  <div className="text-[11px] text-[#94A3B8]">
-                    {more.labelBottom}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
+          {items.length > 1 && items.length <= 6 && (
+            <div className="flex items-center gap-2">
+              {items.map((item, idx) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={cn(
+                    "h-2.5 w-2.5 rounded-full transition-colors",
+                    idx === activeIndex
+                      ? "bg-[#3B82F6]"
+                      : "bg-[#E2E8F0] hover:bg-[#94A3B8]"
+                  )}
+                  aria-label={`Перейти к рекомендации ${idx + 1}`}
+                  aria-current={idx === activeIndex ? "true" : undefined}
+                  onClick={() => onSelect(idx)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-5">
+          <CompanyMark
+            key={(current.logoImg || "") + current.company}
+            company={current.company}
+            logoImg={current.logoImg}
+          />
+        </div>
+
+        <blockquote
+          className={cn(
+            "mt-5 pr-1 text-[#475569] text-[15px] leading-relaxed",
+            // Clean multi-line truncation with ellipsis.
+            "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:10]",
+            "md:[-webkit-line-clamp:11]"
+          )}
+        >
+          {current.quote}
+        </blockquote>
+
+        <div
+          className={cn(
+            "mt-auto pt-6 flex items-center gap-4",
+            items.length > 1 ? "justify-between" : "justify-end"
+          )}
+        >
           {items.length > 1 && (
             <div className="flex items-center gap-2">
               <button
@@ -301,44 +333,12 @@ function TestimonialCard({
               </button>
             </div>
           )}
-        </div>
-
-        <blockquote className="mt-6 text-[#475569] text-[15px] leading-relaxed">
-          {current.quote}
-        </blockquote>
-
-        <div className="mt-6 flex items-end justify-between gap-4">
-          <CompanyMark
-            key={(current.logoImg || "") + current.company}
-            company={current.company}
-            logoImg={current.logoImg}
-          />
 
           <Button href={more.href} variant="ghost" size="sm">
             Все рекомендации
             <ArrowRight size={16} className="ml-2" />
           </Button>
         </div>
-
-        {items.length > 1 && items.length <= 6 && (
-          <div className="mt-5 flex items-center gap-2">
-            {items.map((item, idx) => (
-              <button
-                key={item.id}
-                type="button"
-                className={cn(
-                  "h-2.5 w-2.5 rounded-full transition-colors",
-                  idx === activeIndex
-                    ? "bg-[#3B82F6]"
-                    : "bg-[#E2E8F0] hover:bg-[#94A3B8]"
-                )}
-                aria-label={`Перейти к рекомендации ${idx + 1}`}
-                aria-current={idx === activeIndex ? "true" : undefined}
-                onClick={() => onSelect(idx)}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -421,9 +421,9 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
 
   return (
     <Section id="partners" title={clientsCarousel.title}>
-      <div className="grid gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-8">
-          <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="min-w-0 lg:col-span-8">
+          <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm lg:h-[500px]">
             {/* Decorative background */}
             <div
               aria-hidden="true"
@@ -434,28 +434,14 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
               className="pointer-events-none absolute inset-0 opacity-[0.18] bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:24px_24px]"
             />
 
-            <div className="relative z-10 p-6 md:p-7">
-              <div className="flex flex-col gap-4">
+            <div className="relative z-10 flex min-w-0 flex-col p-4 sm:p-6 md:p-7 lg:h-full">
+              <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <div className="text-xs font-semibold text-[#475569] tracking-wide uppercase">
+                    <h3 className="text-xl md:text-2xl font-bold text-[#1E3A5F] tracking-tight">
                       Клиенты и партнеры
-                    </div>
-                    <h3 className="mt-1 text-xl md:text-2xl font-bold text-[#1E3A5F] tracking-tight">
-                      {currentCategory?.name ?? "Категории"}
                     </h3>
                   </div>
-
-                  {currentCategory?.more?.display && (
-                    <div className="rounded-xl border border-[#E2E8F0] bg-white/70 px-3 py-2 backdrop-blur-sm">
-                      <div className="text-[11px] text-[#94A3B8] leading-tight">
-                        в категории
-                      </div>
-                      <div className="mt-0.5 font-mono text-sm font-semibold text-[#1E3A5F] leading-tight">
-                        {currentCategory.more.display}
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 <CategoryTabs
@@ -471,22 +457,20 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                   role="tabpanel"
                   aria-label="Партнеры по выбранной категории"
                   aria-labelledby={activeTabId}
-                  className="mt-1"
+                  className="mt-1 flex min-w-0 flex-col lg:min-h-0 lg:flex-1"
                 >
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-                    {(currentCategory?.logos ?? []).slice(0, 12).map((logo) => (
-                      <LogoTile key={logo.id} logo={logo} />
-                    ))}
+                  <div className="min-w-0 flex-1 overflow-visible lg:min-h-0 lg:overflow-auto lg:pr-1">
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-4 md:gap-4">
+                      {(currentCategory?.logos ?? []).slice(0, 12).map((logo) => (
+                        <LogoTile key={logo.id} logo={logo} />
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="text-sm text-[#94A3B8]">
-                      Выбирайте отрасль, чтобы увидеть примеры партнерств
-                    </div>
-
-                    <Button href={clientsCarousel.archiveCta.href} variant="secondary">
+                  <div className="mt-6 flex items-center justify-end">
+                    <Button href={clientsCarousel.archiveCta.href} variant="ghost" size="sm">
                       {clientsCarousel.archiveCta.label || "Все клиенты"}
-                      <ArrowRight size={18} className="ml-2" />
+                      <ArrowRight size={16} className="ml-2" />
                     </Button>
                   </div>
                 </div>
@@ -495,7 +479,7 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
           </div>
         </div>
 
-        <div className="lg:col-span-4">
+        <div className="min-w-0 lg:col-span-4">
           <TestimonialCard
             title={testimonials.title}
             items={testimonialItems}
@@ -513,7 +497,7 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
           />
         </div>
 
-        <div className="lg:col-span-12">
+        <div className="min-w-0 lg:col-span-12">
           <AwardsStrip awards={awards} />
         </div>
       </div>

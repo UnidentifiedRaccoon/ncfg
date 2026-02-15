@@ -1,9 +1,10 @@
-import { Header, BlogPosts, Footer } from "@/widgets";
+import { BlogPosts, Footer } from "@/widgets";
 import {
   fetchBlogPageData,
   fetchNewsArticles,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
+import { isBlogLayoutVariant, isBlogRubricSlug } from "@/shared/lib/blog-rubrics";
 
 export const metadata = {
   title: "Блог — НЦФГ",
@@ -12,22 +13,39 @@ export const metadata = {
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
-export default async function BlogPage() {
+type SearchParams = Record<string, string | string[] | undefined>;
+
+interface PageProps {
+  searchParams?: SearchParams | Promise<SearchParams>;
+}
+
+export default async function BlogPage({ searchParams }: PageProps) {
+  const sp = await Promise.resolve(searchParams ?? {});
+  const rawCategory = sp.category;
+  const rawLayout = sp.layout;
+
+  const selectedCategory =
+    typeof rawCategory === "string" && isBlogRubricSlug(rawCategory) ? rawCategory : undefined;
+
+  const layout =
+    typeof rawLayout === "string" && isBlogLayoutVariant(rawLayout) ? rawLayout : "rail";
+
   const [siteSetting, blogPage, posts] = await Promise.all([
     fetchSiteSettings(),
     // Blog meta is optional during Strapi setup; avoid failing the whole build on 404.
     fetchBlogPageData().catch(() => null),
-    fetchNewsArticles(),
+    fetchNewsArticles({ category: selectedCategory }),
   ]);
 
   return (
     <>
-      <Header />
       <main>
         <BlogPosts
           title={blogPage?.title ?? "Блог"}
           lead={blogPage?.lead ?? undefined}
           posts={posts}
+          selectedCategory={selectedCategory}
+          layout={layout}
         />
       </main>
       <Footer

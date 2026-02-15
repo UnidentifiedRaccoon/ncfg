@@ -186,28 +186,48 @@ interface FallbackPeopleJson {
 // News
 // ==================
 
-export interface NewsArticleData {
+export interface NewsArticleCategoryData {
+  slug: string;
+  title: string;
+}
+
+const DEFAULT_NEWS_CATEGORY: NewsArticleCategoryData = { slug: 'news', title: 'Новости' };
+
+interface FallbackNewsArticleData {
   id: string;
   title: string;
-  tags: string[];
+  tags?: string[];
   slug: string;
   body: string;
   anonsImage: string | null;
   createdAt: string;
 }
 
-export async function fetchNewsArticles(): Promise<NewsArticleData[]> {
+export interface NewsArticleData {
+  id: string;
+  title: string;
+  category: NewsArticleCategoryData | null;
+  slug: string;
+  body: string;
+  anonsImage: string | null;
+  createdAt: string;
+}
+
+export async function fetchNewsArticles(options: { category?: string } = {}): Promise<NewsArticleData[]> {
   try {
     assertStrapiConfigured();
 
-    const { articles } = await getNews({ pageSize: 100 });
+    const { articles } = await getNews({ pageSize: 100, category: options.category });
     return articles.map(transformToLegacyNews);
   } catch (_error) {
-    const fallback = (await import('@/public/content/news/ncfg_news.json')).default as NewsArticleData[];
-    return fallback.map((item) => ({
+    const fallback = (await import('@/public/content/news/ncfg_news.json')).default as unknown as FallbackNewsArticleData[];
+    const mapped = fallback.map((item) => ({
       ...item,
       anonsImage: item.anonsImage ? withLeadingSlash(item.anonsImage) : null,
+      category: DEFAULT_NEWS_CATEGORY,
     }));
+    if (options.category && options.category !== DEFAULT_NEWS_CATEGORY.slug) return [];
+    return mapped;
   }
 }
 
@@ -217,28 +237,34 @@ export async function fetchNewsArticle(slug: string): Promise<NewsArticleData | 
     const article = await getNewsArticle(slug);
     return article ? transformToLegacyNews(article) : null;
   } catch (_error) {
-    const fallback = (await import('@/public/content/news/ncfg_news.json')).default as NewsArticleData[];
+    const fallback = (await import('@/public/content/news/ncfg_news.json')).default as unknown as FallbackNewsArticleData[];
     const found = fallback.find((item) => item.slug === slug) ?? null;
     if (!found) return null;
     return {
       ...found,
       anonsImage: found.anonsImage ? withLeadingSlash(found.anonsImage) : null,
+      category: DEFAULT_NEWS_CATEGORY,
     };
   }
 }
 
-export async function fetchLatestNewsArticles(limit: number = 5): Promise<NewsArticleData[]> {
+export async function fetchLatestNewsArticles(
+  limit: number = 5,
+  options: { category?: string } = {}
+): Promise<NewsArticleData[]> {
   try {
     assertStrapiConfigured();
-    const articles = await getLatestNews(limit);
+    const articles = await getLatestNews(limit, options);
     return articles.map(transformToLegacyNews);
   } catch (_error) {
-    const fallback = (await import('@/public/content/news/ncfg_news.json')).default as NewsArticleData[];
+    const fallback = (await import('@/public/content/news/ncfg_news.json')).default as unknown as FallbackNewsArticleData[];
+    if (options.category && options.category !== DEFAULT_NEWS_CATEGORY.slug) return [];
     return fallback
       .slice(0, limit)
       .map((item) => ({
         ...item,
         anonsImage: item.anonsImage ? withLeadingSlash(item.anonsImage) : null,
+        category: DEFAULT_NEWS_CATEGORY,
       }));
   }
 }
@@ -579,7 +605,7 @@ export async function fetchAboutPageData(): Promise<StrapiAboutPage> {
       id: 1,
       documentId: 'fallback-about-page',
       heroHeadline:
-        'Национальный центр финансовой грамотности — лидер в сфере финансового просвещения с 2005 года',
+        'Лидер в сфере финансового просвещения с 2005 года',
       heroCta: { id: 1, label: 'Наши проекты', href: '/companies' },
       howWeWorkTitle: howWeWork.title ?? 'Как мы работаем',
       howWeWorkLead: howWeWork.description ?? null,

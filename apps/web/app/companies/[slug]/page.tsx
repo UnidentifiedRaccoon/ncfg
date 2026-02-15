@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import {
-  Header,
   HowWeWork,
   LeadForm,
   FAQ,
@@ -115,7 +114,6 @@ export default async function ServicePage({ params }: PageProps) {
 
   return (
     <>
-      <Header />
       <main>
         <ServiceHero
           title={service.title}

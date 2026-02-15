@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { SmoothAnchor } from "@/shared/ui/SmoothAnchor";
+import { Header } from "@/widgets";
 import "./globals.css";
 
 const inter = Inter({
@@ -35,6 +36,7 @@ export default function RootLayout({
     <html lang="ru">
       <body className={`${inter.variable} font-sans antialiased`}>
         <SmoothAnchor />
+        <Header variant="dock" />
         {children}
       </body>
     </html>

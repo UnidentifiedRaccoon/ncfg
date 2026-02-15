@@ -191,7 +191,7 @@ dividerTop (смежные секции с одинаковым фоном):
 
 | Токен | Значение | Применение |
 |-------|----------|------------|
-| `rounded-sm` | 4px | Badges, tags, small inputs |
+| `rounded-sm` | 4px | Badges, chips, small inputs |
 | `rounded` | 6px | Chips |
 | `rounded-md` | 8px | Form inputs |
 | `rounded-lg` | 12px | **Buttons** (основной радиус кнопок) |
@@ -205,7 +205,7 @@ dividerTop (смежные секции с одинаковым фоном):
 Buttons:  rounded-lg  (12px) — все кнопки
 Cards:    rounded-xl  (16px) — карточки услуг, новостей, продуктов
 Sections: rounded-2xl (24px) — блоки статистики, hero-элементы
-Pills:    rounded-full       — табы, badges, теги
+Pills:    rounded-full       — табы, badges, чипы (в т.ч. рубрики блога)
 ```
 
 ---
@@ -287,6 +287,45 @@ background: rgba(59, 130, 246, 0.05);
 | sm | 32px | 8px 16px | 14px |
 | md | 44px | 12px 24px | 16px |
 | lg | 56px | 16px 32px | 18px |
+
+### Header (Navigation)
+
+Цель: 4 ключевых раздела + один primary CTA, в “банковском” стиле (T-Bank / Альфа): чистый фон, стеклянный dock, типографика и аккуратные пилюли.
+
+**Состав:**
+- Logo → `/` + wordmark `НЦФГ` (крупные буквы)
+- Links: `/individuals`, `/companies`, `/about`, `/blog`
+- CTA: `#lead-form` (на страницах блога — `/#lead-form`)
+- Mobile: burger + dropdown panel
+
+**Варианты дизайна (переключаемые):**
+- `dock` (по умолчанию): стеклянная капсула‑dock, без внешнего grid‑фона; CTA в pill‑форме (`rounded-full`).
+  - Авто-инверсия на границе Hero: пока Hero “под” хедером — тёмный glass (hero-tone), после — светлый glass (surface-tone).
+  - Граница определяется sentinel-элементом `data-header-hero-end` внутри `HeroLayout`.
+- `rail`: строгая “рейка” с underline‑индикатором активной страницы.
+- `pills`: центрированный pill‑nav (акцент на навигации).
+
+**Как переключать:**
+- через env: `NEXT_PUBLIC_HEADER_VARIANT=dock|rail|pills`
+- или пропсом компонента: `<Header variant="dock" />`
+
+### Footer
+
+Цель: футер в духе современного банкинга (T-Bank / Альфа), который визуально **продолжает Hero**. Без “простыни”: контент собираем в один цельный `slab` с деликатными разделителями (без эффекта “стекла” на всю панель).
+
+**Структура (общая):**
+- Subtle CTA-ряд: «Консультация бесплатно» + кнопка на `/#lead-form` + pill‑контакты (телефон/почта).
+- Колонки: бренд/контакты, навигация, соцсети + юр. ссылки, юр. документы (если есть).
+- Нижняя полоса: `© {years} {shortName}.` + 1–2 строки юридического текста.
+
+**Варианты (переключаемые):**
+- `hero` (default): фон как `HeroLayout` (`#050B16` + glow + grid), панель цельная `bg-[#0B1324]` (без blur).
+- `navy`: строгий `Deep Navy #1E3A5F`, без glow; hairline‑линия сверху; панель более спокойная `bg-white/[0.04]`.
+- `light`: `Gray 50 #F8FAFC` + очень лёгкие glow + grid; панель `bg-white/80 border-[#E2E8F0]/70`.
+
+**Как переключать:**
+- через env: `NEXT_PUBLIC_FOOTER_VARIANT=hero|navy|light`
+- или пропсом компонента: `<Footer variant="hero" />` (проп имеет приоритет)
 
 ### Cards
 
@@ -428,82 +467,6 @@ input::placeholder {
 - Единственная primary-кнопка (Electric Cyan) в секции: submit.
 - Дополнительные элементы (чипы/ссылки) не должны конкурировать с primary CTA.
 
-### Header (Glass Dock)
-
-Цель: “банковская” шапка (T-Bank/Альфа по ощущению) без лишней декоративности: стеклянный sticky header + центральный dock с сегментом и ссылками.
-
-**Chrome**
-- Sticky: `top-0`, `z-50`
-- Высота: mobile `h-16` (64px), `md+ h-20` (80px)
-- Фон: `bg-white/95` + `backdrop-blur-md`
-- Разделитель: `border-b` `#E2E8F0/70`
-
-**Layout (md+)**
-
-Dock должен быть **визуально по центру** доступного пространства между логотипом и CTA. Для этого используем grid:
-
-```
-grid: grid-cols-[auto,1fr,auto]
-left:  logo (justify-self-start)
-center: dock (justify-self-center)
-right: actions (justify-self-end)
-```
-
-Схема:
-
-```
-┌───────────────────────────────────────────────────────────────────────┐
-│ [Logo]            [ Segment: 2 links ] | [ Dock links ]     [CTA Btn] │
-└───────────────────────────────────────────────────────────────────────┘
-```
-
-**Dock capsule**
-- Container: `rounded-full border border-[#E2E8F0]/70 bg-white/65 backdrop-blur-md shadow-sm px-2.5 py-1.5`
-- Segment wrapper: `rounded-full bg-[#F1F5F9] p-1`
-- Segment item: `rounded-full px-3.5 py-1.5 text-[13px] font-semibold leading-none`
-  - Active: “bubble” `bg-white text-[#1E3A5F] shadow-sm`
-  - Inactive hover: `hover:bg-white/70 hover:text-[#1E3A5F]`
-- Divider: `w-px h-6 bg-[#E2E8F0]` (внутри dock, между segment и ссылками)
-- Dock links: `rounded-full px-3.5 py-1.5 text-[13px] font-medium leading-none`
-  - Active: `bg-[#3B82F6]/10 text-[#1E3A5F]`
-  - Inactive hover: `hover:bg-[rgba(30,58,95,0.06)] hover:text-[#1E3A5F]`
-
-**Mobile**
-- Dock скрыт (`md:hidden`), остаётся CTA (с `sm`) + burger.
-- В раскрытом меню:
-  - сверху тот же segmented (2 первые ссылки)
-  - ниже список остальных ссылок
-
-**A11y**
-- Active state: `aria-current="page"`
-- Burger: `aria-expanded`, `aria-controls`
-
-### Navigation
-
-```css
-.nav-pill {
-  color: #475569;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  transition: color 0.15s, background 0.15s;
-}
-
-.nav-pill:hover {
-  color: #1E3A5F;
-  background: rgba(30, 58, 95, 0.06);
-}
-
-.nav-pill.active {
-  color: #1E3A5F;
-  background: rgba(59, 130, 246, 0.1);
-}
-```
-
-Правило: в навигации **не используем** текстовые разделители (`|`) или `span`-разделители между ссылками. Вместо этого используем `gap` и/или 1px divider внутри dock.
-
----
-
 ## Layout Patterns
 
 ### Hero Section
@@ -522,6 +485,10 @@ right: actions (justify-self-end)
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+**Header overlap (рекомендуем):**
+- Hero фон начинается “под” хедером (как в банковских лендингах): `HeroLayout` использует `-mt-16/-mt-20` и компенсирует `pt-16/pt-20` (под высоту header).
+- Dock‑header остаётся прозрачным по всей ширине, а видимым элементом выступает glass‑капсула.
 
 ### Content Section
 
@@ -681,10 +648,25 @@ Hover:
 ```
 md+ (row split):
 ┌──────────────────────────────────────────────────────────────┐
-│ [ cover 4:3 ]  [tags chips] • [date]                          │
+│ [ cover 4:3 ]  [rubric chip] • [date]                         │
 │               Title (2 lines)                                 │
 │               Excerpt (2 lines)                      Читать → │
 └──────────────────────────────────────────────────────────────┘
+
+### Blog Rubrics (Categories)
+
+Фиксированный набор рубрик (категорий) для материалов блога:
+- Новости (`news`)
+- Анонс (`announce`)
+- Пострелиз (`postrelease`)
+- Статьи (`articles`)
+- Исследования (`research`)
+
+**Отображение в UI:**
+- На карточке и в статье показываем **одну** рубрику (chip/pill) + дата.
+- Для списка `/blog` поддерживаем 2 layout-варианта (A/B) через URL:
+  - `layout=rail` (default): на `lg+` появляется левый rubrics-rail (sticky), на mobile остаются sticky-pills.
+  - `layout=pills`: горизонтальные banking-pills под заголовком (скролл на mobile).
 ```
 
 ### Grid System

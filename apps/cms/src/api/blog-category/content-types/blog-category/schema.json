@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "blog_categories",
+  "info": {
+    "singularName": "blog-category",
+    "pluralName": "blog-categories",
+    "displayName": "Blog Category",
+    "description": "Blog rubrics for categorizing posts"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "maxLength": 100
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    },
+    "description": {
+      "type": "text"
+    },
+    "news_articles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::news-article.news-article",
+      "mappedBy": "category"
+    }
+  }
+}
+

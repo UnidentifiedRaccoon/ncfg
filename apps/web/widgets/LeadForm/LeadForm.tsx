@@ -29,6 +29,9 @@ const TRUST_CHIPS = ["Минфин России", "Сбербанк", "Почт�
 
 const fieldLabelClass = "block text-sm font-medium text-[#1E3A5F]";
 
+const leadBadgeClass =
+  "inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur";
+
 const inputBaseClass = cn(
   "w-full rounded-md border border-[#E2E8F0] bg-white px-4 py-3",
   "text-[#0F172A] placeholder:text-[#94A3B8]",
@@ -246,19 +249,31 @@ export function LeadForm() {
         <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/14 blur-3xl" />
         <div className="absolute -bottom-56 left-1/3 h-[640px] w-[640px] rounded-full bg-[#58A8E0]/12 blur-3xl" />
         <div className="absolute -top-52 -right-52 h-[560px] w-[560px] rounded-full bg-[#1E3A5F]/10 blur-3xl" />
-      </div>
+	      </div>
 
-      <div className="relative z-10 grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-        <div className="max-w-xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#58A8E0]" />
-            Консультация бесплатно. Ответим в течение 1 дня
-          </div>
+	      <div className="relative z-10 grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+	        <div className="max-w-xl">
+	          <div className="flex flex-wrap items-center gap-2">
+	            <div className={leadBadgeClass}>
+	              <span
+	                aria-hidden="true"
+	                className="h-1.5 w-1.5 rounded-full bg-[#58A8E0]"
+	              />
+	              Консультация бесплатно
+	            </div>
+	            <div className={leadBadgeClass}>
+	              <span
+	                aria-hidden="true"
+	                className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]"
+	              />
+	              Ответим в течение 1 дня
+	            </div>
+	          </div>
 
-          <h2 className="mt-5 text-3xl md:text-4xl lg:text-[42px] font-bold tracking-tight text-[#1E3A5F] leading-tight">
-            Оставить заявку
-          </h2>
-          <p className="mt-4 text-lg md:text-xl text-[#475569] leading-relaxed">
+	          <h2 className="mt-5 text-3xl md:text-4xl lg:text-[42px] font-bold tracking-tight text-[#1E3A5F] leading-tight">
+	            Оставить заявку
+	          </h2>
+	          <p className="mt-4 text-lg md:text-xl text-[#475569] leading-relaxed">
             Заполните форму, и мы свяжемся с вами, чтобы уточнить задачу и предложить
             подходящий формат сотрудничества.
           </p>

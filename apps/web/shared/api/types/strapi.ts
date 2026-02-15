@@ -43,14 +43,16 @@ export interface StrapiImageFormat {
 }
 
 // ==================
-// Tag
+// Blog Category (Rubric)
 // ==================
 
-export interface StrapiTag {
+export interface StrapiBlogCategory {
   id: number;
   documentId: string;
-  name: string;
   slug: string;
+  title: string;
+  order: number;
+  description: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -66,7 +68,7 @@ export interface StrapiNewsArticle {
   slug: string;
   body: string | null;
   anonsImage: StrapiImage | null;
-  tags: StrapiTag[];
+  category: StrapiBlogCategory | null;
   publishedDate: string | null;
   createdAt: string;
   updatedAt: string;

@@ -31,11 +31,12 @@
       "required": false,
       "allowedTypes": ["images"]
     },
-    "tags": {
+    "category": {
       "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::tag.tag",
-      "inversedBy": "news_articles"
+      "relation": "manyToOne",
+      "target": "api::blog-category.blog-category",
+      "inversedBy": "news_articles",
+      "required": true
     },
     "publishedDate": {
       "type": "date"

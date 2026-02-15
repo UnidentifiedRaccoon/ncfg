@@ -31,15 +31,6 @@ const iconMap: Record<ProductIcon, LucideIcon> = {
 
 const products: Product[] = [
   {
-    id: "dengins_school",
-    title: "Школа «Деньгин's» и клуб «Дети в Деле»",
-    description:
-      "Финансовое воспитание для детей и подростков. Интерактивные программы, которые учат ребёнка управлять деньгами с ранних лет.",
-    href: "https://dengins.ru/",
-    audience: "Дети",
-    icon: "graduation-cap",
-  },
-  {
     title: "Клуб «ФинЗдоровье»",
     description:
       "Сообщество для взрослых, где участники учатся управлять личными финансами, планировать бюджет и достигать финансовых целей.",
@@ -49,11 +40,20 @@ const products: Product[] = [
     icon: "trending-up",
   },
   {
+    id: "dengins_school",
+    title: "Школа «Деньгин's» и клуб «Дети в Деле»",
+    description:
+      "Финансовое воспитание для детей и подростков. Интерактивные программы, которые учат ребёнка управлять деньгами с ранних лет.",
+    href: "https://dengins.ru/",
+    audience: "Дети",
+    icon: "graduation-cap",
+  },
+  {
     id: "fin_habit_day",
     title: "День «ФинПривычки»",
     description:
       "Однодневная интенсивная программа для формирования здоровых финансовых привычек. Практические инструменты и техники.",
-    href: "https://fgrm.ncfg.ru/FinHabit",
+    href: "http://finhabit52.ru/",
     audience: "Все",
     icon: "zap",
   },

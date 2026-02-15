@@ -7,7 +7,7 @@ import { cn } from "@/shared/lib/cn";
 export interface PostCardPost {
   id: string | number;
   title: string;
-  tags: string[];
+  category: { slug: string; title: string } | null;
   slug: string;
   anonsImage: string | null;
   createdAt: string;
@@ -45,9 +45,9 @@ function hashString(input: string): number {
   return hash;
 }
 
-function BrandedCover({ slug, primaryTag }: { slug: string; primaryTag?: string }) {
+function BrandedCover({ slug, categoryTitle }: { slug: string; categoryTitle?: string }) {
   const variant = COVER_VARIANTS[hashString(slug) % COVER_VARIANTS.length];
-  const tag = primaryTag?.trim();
+  const label = categoryTitle?.trim();
 
   return (
     <div
@@ -61,9 +61,10 @@ function BrandedCover({ slug, primaryTag }: { slug: string; primaryTag?: string 
     >
       <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0" />
 
-      {tag && (
-        <div className="absolute left-3 top-3 max-w-[85%] truncate rounded-full border border-white/20 bg-white/15 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
-          {tag}
+      {label && (
+        <div className="absolute left-3 top-3 max-w-[85%] truncate rounded-full border border-white/20 bg-white/15 px-2.5 py-1 text-xs font-semibold tracking-wide text-white backdrop-blur-sm">
+          <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-white/80 align-middle" />
+          {label}
         </div>
       )}
 
@@ -78,8 +79,7 @@ function BrandedCover({ slug, primaryTag }: { slug: string; primaryTag?: string 
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const tags = post.tags.filter((t) => t && t.trim().length > 0).slice(0, 3);
-  const primaryTag = tags[0];
+  const categoryTitle = post.category?.title?.trim();
   const hasImage = Boolean(post.anonsImage && post.anonsImage.length > 0);
   const hasExcerpt = Boolean(post.excerpt && post.excerpt.trim().length > 0);
 
@@ -108,26 +108,24 @@ export function PostCard({ post }: PostCardProps) {
                 />
               </>
             ) : (
-              <BrandedCover slug={post.slug} primaryTag={primaryTag} />
+              <BrandedCover slug={post.slug} categoryTitle={categoryTitle} />
             )}
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col p-5">
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              {tags.map((tag, idx) => (
+              {categoryTitle && (
                 <span
-                  key={`${tag}-${idx}`}
                   className={cn(
-                    "inline-flex max-w-full items-center truncate rounded-full border px-2 py-0.5 font-medium",
-                    idx === 0
-                      ? "border-[#3B82F6]/30 bg-[#3B82F6]/5 text-[#3B82F6]"
-                      : "border-[#E2E8F0] bg-[#F8FAFC] text-[#1E3A5F]"
+                    "inline-flex max-w-full items-center gap-2 truncate rounded-full border px-3 py-1 font-semibold tracking-wide",
+                    "border-[#3B82F6]/30 bg-[#3B82F6]/5 text-[#3B82F6]"
                   )}
                 >
-                  {tag}
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
+                  {categoryTitle}
                 </span>
-              ))}
-              {tags.length > 0 && <span className="text-[#E2E8F0]">•</span>}
+              )}
+              {categoryTitle && <span className="text-[#E2E8F0]">•</span>}
               <time className="whitespace-nowrap text-[#94A3B8]">
                 {formatDate(post.createdAt)}
               </time>

@@ -7,7 +7,7 @@ interface SectionProps {
   className?: string;
   containerClassName?: string;
   title?: string;
-  lead?: string;
+  lead?: ReactNode;
   id?: string;
   background?: "white" | "gray";
   /** Add top divider line (use when adjacent section has same background) */
