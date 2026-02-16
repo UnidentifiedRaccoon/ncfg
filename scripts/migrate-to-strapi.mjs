@@ -35,22 +35,27 @@ import dotenv from 'dotenv';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+function resolveRepoPath(relativePath, fallback) {
+  const value = (relativePath || fallback || '').trim();
+  return value ? path.join(__dirname, '..', value) : '';
+}
+
 // Configuration
 const CONFIG = {
   strapiUrl: process.env.STRAPI_URL || 'http://localhost:1337',
   strapiToken: process.env.STRAPI_API_TOKEN,
   paths: {
-    news: path.join(__dirname, '..', process.env.NEWS_JSON_PATH || 'apps/web/public/content/news/ncfg_news.json'),
-    services: path.join(__dirname, '..', process.env.SERVICES_JSON_PATH || 'apps/web/public/content/ncfg_services.json'),
-    people: path.join(__dirname, '..', process.env.PEOPLE_JSON_PATH || 'apps/web/public/content/ncfg_finzdorov_people.json'),
-    // Where the actual image files live on disk. `article.anonsImage` values still reference `/news/anonsImages/...`.
-    newsImages: path.join(__dirname, '..', process.env.NEWS_IMAGES_PATH || 'apps/web/public/news/anonsImages'),
-    home: path.join(__dirname, '..', process.env.HOME_JSON_PATH || 'apps/web/public/content/home.json'),
-    companiesPage: path.join(__dirname, '..', process.env.COMPANIES_JSON_PATH || 'apps/web/public/content/companies.json'),
-    individualsPage: path.join(__dirname, '..', process.env.INDIVIDUALS_JSON_PATH || 'apps/web/public/content/individuals.json'),
-    howWeWork: path.join(__dirname, '..', process.env.HOW_WE_WORK_JSON_PATH || 'apps/web/public/content/ncfg_how_we_work.json'),
-    principles: path.join(__dirname, '..', process.env.PRINCIPLES_JSON_PATH || 'apps/web/public/content/ncfg_principles.json'),
-    blog: path.join(__dirname, '..', process.env.BLOG_JSON_PATH || 'apps/web/public/content/blog.json'),
+    news: resolveRepoPath(process.env.NEWS_JSON_PATH, 'apps/web/public/content/news/ncfg_news.json'),
+    services: resolveRepoPath(process.env.SERVICES_JSON_PATH, 'apps/web/public/content/ncfg_services.json'),
+    people: resolveRepoPath(process.env.PEOPLE_JSON_PATH, 'apps/web/public/content/ncfg_finzdorov_people.json'),
+    // Optional after S3 migration cleanup. Set NEWS_IMAGES_PATH to a backup directory if you need re-upload.
+    newsImages: resolveRepoPath(process.env.NEWS_IMAGES_PATH, ''),
+    home: resolveRepoPath(process.env.HOME_JSON_PATH, 'apps/web/public/content/home.json'),
+    companiesPage: resolveRepoPath(process.env.COMPANIES_JSON_PATH, 'apps/web/public/content/companies.json'),
+    individualsPage: resolveRepoPath(process.env.INDIVIDUALS_JSON_PATH, 'apps/web/public/content/individuals.json'),
+    howWeWork: resolveRepoPath(process.env.HOW_WE_WORK_JSON_PATH, 'apps/web/public/content/ncfg_how_we_work.json'),
+    principles: resolveRepoPath(process.env.PRINCIPLES_JSON_PATH, 'apps/web/public/content/ncfg_principles.json'),
+    blog: resolveRepoPath(process.env.BLOG_JSON_PATH, 'apps/web/public/content/blog.json'),
   },
 };
 
@@ -228,6 +233,10 @@ async function migrateNews(tagMap = null) {
   
   const newsData = await readJSON(CONFIG.paths.news);
   console.log(`   Found ${newsData.length} news articles`);
+  const canUploadImages = Boolean(CONFIG.paths.newsImages);
+  if (!canUploadImages) {
+    console.log('   ⚠️  NEWS_IMAGES_PATH is not set; news image upload will be skipped.');
+  }
 
   // Get tag map if not provided
   if (!tagMap) {
@@ -248,7 +257,7 @@ async function migrateNews(tagMap = null) {
         const hasImage = existingArticle.anonsImage || existingArticle.attributes?.anonsImage;
         
         // If article exists but has no image, try to upload it
-        if (!hasImage && article.anonsImage) {
+        if (!hasImage && article.anonsImage && canUploadImages) {
           const imageName = article.anonsImage.replace(/^(news\/anonsImages\/|\/news\/anonsImages\/)/, '');
           const imagePath = path.join(CONFIG.paths.newsImages, imageName);
           try {
@@ -294,7 +303,7 @@ async function migrateNews(tagMap = null) {
       console.log(`   ✅ Created article: ${article.title.substring(0, 50)}...`);
 
       // Handle image upload if exists
-      if (article.anonsImage) {
+      if (article.anonsImage && canUploadImages) {
         // `article.anonsImage` usually looks like "news/anonsImages/<filename>" (or "/news/anonsImages/<filename>").
         const imageName = article.anonsImage.replace(/^(news\/anonsImages\/|\/news\/anonsImages\/)/, '');
         const imagePath = path.join(CONFIG.paths.newsImages, imageName);

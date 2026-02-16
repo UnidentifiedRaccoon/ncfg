@@ -7,21 +7,16 @@ import fetch from 'node-fetch';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const args = new Set(process.argv.slice(2));
+const resolvePath = (value) => {
+  if (!value) return '';
+  return path.isAbsolute(value) ? value : path.join(__dirname, '..', value);
+};
 
 const CONFIG = {
   strapiUrl: process.env.STRAPI_URL || 'http://localhost:1337',
   strapiToken: process.env.STRAPI_API_TOKEN,
-  manifestPath: path.join(
-    __dirname,
-    '..',
-    'apps',
-    'web',
-    'public',
-    'content',
-    'experts_photos',
-    'manifest.json'
-  ),
-  photosDir: path.join(__dirname, '..', 'apps', 'web', 'public', 'content', 'experts_photos'),
+  manifestPath: resolvePath(process.env.PEOPLE_PHOTOS_MANIFEST_PATH),
+  photosDir: resolvePath(process.env.PEOPLE_PHOTOS_DIR),
   dryRun: args.has('--dry-run'),
   force: args.has('--force'),
 };
@@ -153,6 +148,11 @@ async function main() {
 
   if (!CONFIG.strapiToken) {
     console.error('Missing STRAPI_API_TOKEN environment variable.');
+    process.exit(1);
+  }
+
+  if (!CONFIG.photosDir || !CONFIG.manifestPath) {
+    console.error('Set PEOPLE_PHOTOS_DIR and PEOPLE_PHOTOS_MANIFEST_PATH before running this script.');
     process.exit(1);
   }
 

@@ -9,7 +9,10 @@
     "migrate:news": "node migrate-to-strapi.mjs --only=news",
     "migrate:categories": "node migrate-to-strapi.mjs --only=categories",
     "migrate:services": "node migrate-to-strapi.mjs --only=services",
-    "migrate:people": "node migrate-to-strapi.mjs --only=people"
+    "migrate:people": "node migrate-to-strapi.mjs --only=people",
+    "media:check": "node check-and-repair-media.mjs",
+    "media:fix": "node check-and-repair-media.mjs --fix",
+    "media:fix:dry-run": "node check-and-repair-media.mjs --fix --dry-run"
   },
   "dependencies": {
     "dotenv": "^16.4.0",

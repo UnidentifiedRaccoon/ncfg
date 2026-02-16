@@ -17,32 +17,19 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    // In development, use unoptimized images from localhost Strapi
-    // to avoid "private ip" security restrictions
+    // Keep unoptimized in dev for faster iteration.
     unoptimized: isDev,
     remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '1337',
-        pathname: '/uploads/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.strapiapp.com',
-        pathname: '/uploads/**',
-      },
       // Yandex Cloud Object Storage
       {
         protocol: 'https',
         hostname: 'storage.yandexcloud.net',
         pathname: '/**',
       },
-      // Yandex Cloud Serverless Containers (for Strapi uploads)
       {
         protocol: 'https',
-        hostname: '*.serverless.yandexcloud.net',
-        pathname: '/uploads/**',
+        hostname: '*.storage.yandexcloud.net',
+        pathname: '/**',
       },
     ],
   },
