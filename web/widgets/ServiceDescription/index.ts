@@ -1,1 +1,0 @@
-export { ServiceDescription } from "./ServiceDescription";

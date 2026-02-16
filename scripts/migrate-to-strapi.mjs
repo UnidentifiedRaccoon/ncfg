@@ -43,7 +43,8 @@ const CONFIG = {
     news: path.join(__dirname, '..', process.env.NEWS_JSON_PATH || 'apps/web/public/content/news/ncfg_news.json'),
     services: path.join(__dirname, '..', process.env.SERVICES_JSON_PATH || 'apps/web/public/content/ncfg_services.json'),
     people: path.join(__dirname, '..', process.env.PEOPLE_JSON_PATH || 'apps/web/public/content/ncfg_finzdorov_people.json'),
-    newsImages: path.join(__dirname, '..', process.env.NEWS_IMAGES_PATH || 'apps/web/public/content/news/anonsImages'),
+    // Where the actual image files live on disk. `article.anonsImage` values still reference `/news/anonsImages/...`.
+    newsImages: path.join(__dirname, '..', process.env.NEWS_IMAGES_PATH || 'apps/web/public/news/anonsImages'),
     home: path.join(__dirname, '..', process.env.HOME_JSON_PATH || 'apps/web/public/content/home.json'),
     companiesPage: path.join(__dirname, '..', process.env.COMPANIES_JSON_PATH || 'apps/web/public/content/companies.json'),
     individualsPage: path.join(__dirname, '..', process.env.INDIVIDUALS_JSON_PATH || 'apps/web/public/content/individuals.json'),
@@ -294,7 +295,7 @@ async function migrateNews(tagMap = null) {
 
       // Handle image upload if exists
       if (article.anonsImage) {
-        // Support both old path (news/anonsImages/...) and new path (apps/web/public/content/news/anonsImages/...)
+        // `article.anonsImage` usually looks like "news/anonsImages/<filename>" (or "/news/anonsImages/<filename>").
         const imageName = article.anonsImage.replace(/^(news\/anonsImages\/|\/news\/anonsImages\/)/, '');
         const imagePath = path.join(CONFIG.paths.newsImages, imageName);
         try {

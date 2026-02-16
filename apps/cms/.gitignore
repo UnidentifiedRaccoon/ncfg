@@ -32,6 +32,7 @@ Thumbs.db
 
 # Strapi specific
 exports/
+public/uploads/
 .strapi-updater.json
 
 # License

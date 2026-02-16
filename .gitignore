@@ -56,6 +56,11 @@ coverage/
 .nyc_output/
 
 # ===================
+# Reports
+# ===================
+reports/
+
+# ===================
 # IDE & Editors
 # ===================
 .idea/
@@ -91,6 +96,7 @@ license.txt
 # ===================
 *.pem
 *.local
+apps/web/public/content/**/*.pptx
 
 # Debug
 .debug.log

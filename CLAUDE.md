@@ -6,10 +6,10 @@ Corporate website for NCFG: about, projects/portfolio, team, partners, reviews, 
 ## Quick start
 ```bash
 # Frontend (Next.js)
-cd apps/web && pnpm dev
+cd apps/web && npm run dev
 
 # CMS (Strapi)
-cd apps/cms && pnpm develop
+cd apps/cms && npm run develop
 ```
 
 ## Tech stack
@@ -17,7 +17,7 @@ cd apps/cms && pnpm develop
 - **CMS**: Strapi 4+ (content types for pages, news, articles, materials, team, partners)
 - **Styling**: Tailwind CSS
 - **UI components**: shadcn/ui
-- **Package manager**: pnpm
+- **Package manager**: npm
 
 ## Project structure
 
