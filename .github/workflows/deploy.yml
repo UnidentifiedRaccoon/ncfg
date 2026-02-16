@@ -144,7 +144,7 @@ jobs:
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.NEXT_PUBLIC_YANDEX_METRIKA_ID }}
             GETCOURSE_BASE_URL=https://fgrm.ncfg.ru
-            GETCOURSE_API_KEY=wgWY7w33279yQ6TBtCZfPGluS7NWfmyDbRFDjA3xYBZoUdGqW9TX4QdOn3U3rThyl6W1liRPOIQTpTFlCrrwOT7yWi5v4WEonzEbxJM9J8Q2bBgcjLQYXkd3gLixzSv2
+            GETCOURSE_API_KEY=${{ secrets.GETCOURSE_API_KEY }}
             GETCOURSE_LEAD_GROUP_NAME=Website Leads
             GETCOURSE_QUESTION_GROUP_NAME=Website Questions
             GETCOURSE_SOURCE_VALUE=fgrm.ncfg.ru
