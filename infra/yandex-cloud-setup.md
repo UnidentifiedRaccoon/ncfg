@@ -138,8 +138,25 @@ Add the following secrets to your GitHub repository:
 | `YC_CONTAINER_SA_ID` | SA ID from step 1.6 | Runtime service account |
 | `YC_LOCKBOX_SECRET_ID` | Secret ID from step 1.4 | Lockbox secret ID |
 | `STRAPI_URL` | `https://<cms-container-id>.containers.yandexcloud.net` | CMS URL for Next.js |
+| `STRAPI_API_TOKEN` | Strapi read-only Content API token | Token for web -> Strapi API |
 | `NEXT_PUBLIC_SITE_URL` | `https://<web-container-id>.containers.yandexcloud.net` | Public site URL |
 | `NEXT_PUBLIC_YANDEX_METRIKA_ID` | `106842784` | Yandex.Metrika counter ID |
+| `GETCOURSE_BASE_URL` | `https://fgrm.ncfg.ru` | GetCourse account URL |
+| `GETCOURSE_API_KEY` | API key from GetCourse | Lead/question sync key |
+
+Optional secrets for extended GetCourse mapping:
+
+| Secret | Value | Description |
+|--------|-------|-------------|
+| `GETCOURSE_LEAD_GROUP_NAME` | e.g. `Website Leads` | Group for lead form submissions |
+| `GETCOURSE_QUESTION_GROUP_NAME` | e.g. `Website Questions` | Group for question form submissions |
+| `GETCOURSE_SOURCE_VALUE` | e.g. `fgrm.ncfg.ru` | Source marker stored in GetCourse |
+| `GETCOURSE_FIELD_SOURCE` | code of custom field in GetCourse | Save source into custom field |
+| `GETCOURSE_FIELD_COMPANY` | code of custom field in GetCourse | Save company into custom field |
+| `GETCOURSE_FIELD_MESSAGE` | code of custom field in GetCourse | Save lead message into custom field |
+| `GETCOURSE_FIELD_QUESTION` | code of custom field in GetCourse | Save question text into custom field |
+| `GETCOURSE_FIELD_POST_TITLE` | code of custom field in GetCourse | Save post title into custom field |
+| `GETCOURSE_FIELD_REQUEST_ID` | code of custom field in GetCourse | Save request ID for tracing |
 
 ## 3. Get Container URLs
 
