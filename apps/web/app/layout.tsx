@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import { SmoothAnchor } from "@/shared/ui/SmoothAnchor";
 import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
 import { Header } from "@/widgets";
@@ -67,7 +68,9 @@ ym(${ymCounterId}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"d
                 />
               </div>
             </noscript>
-            <YandexMetrikaRouteTracker counterId={ymCounterId} />
+            <Suspense fallback={null}>
+              <YandexMetrikaRouteTracker counterId={ymCounterId} />
+            </Suspense>
           </>
         ) : null}
         <SmoothAnchor />
