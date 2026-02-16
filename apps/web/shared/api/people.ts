@@ -13,7 +13,7 @@ import type { StrapiPerson } from './types/strapi';
 
 export async function getPeople(): Promise<StrapiPerson[]> {
   const query = buildQueryString({
-    populate: ['photo', 'team', 'expertGroup'],
+    populate: ['photo', 'teamGroup', 'expertGroup'],
     sort: 'order:asc',
     pagination: { limit: 100 },
   });
@@ -28,7 +28,7 @@ export async function getPeople(): Promise<StrapiPerson[]> {
 
 export async function getPerson(documentId: string): Promise<StrapiPerson | null> {
   const query = buildQueryString({
-    populate: ['photo', 'team', 'expertGroup'],
+    populate: ['photo', 'teamGroup', 'expertGroup'],
     filters: {
       documentId: { $eq: documentId },
     },
@@ -48,9 +48,9 @@ export async function getPerson(documentId: string): Promise<StrapiPerson | null
 
 export async function getTeamMembers(): Promise<StrapiPerson[]> {
   const query = buildQueryString({
-    populate: ['photo', 'team', 'expertGroup'],
+    populate: ['photo', 'teamGroup', 'expertGroup'],
     filters: {
-      team: { id: { $notNull: true } },
+      teamGroup: { id: { $notNull: true } },
     },
     sort: 'order:asc',
     pagination: { limit: 100 },
@@ -70,7 +70,7 @@ export async function getTeamMembers(): Promise<StrapiPerson[]> {
 
 export async function getExperts(): Promise<StrapiPerson[]> {
   const query = buildQueryString({
-    populate: ['photo', 'team', 'expertGroup'],
+    populate: ['photo', 'teamGroup', 'expertGroup'],
     filters: {
       expertGroup: { id: { $notNull: true } },
     },
@@ -109,7 +109,7 @@ export function transformToLegacyPerson(person: StrapiPerson): LegacyPerson {
     position: person.position,
     headline: person.headline,
     experienceYears: person.experienceYears,
-    isTeam: person.team !== null,
+    isTeam: person.teamGroup !== null,
     isExpert: person.expertGroup !== null,
   };
 }

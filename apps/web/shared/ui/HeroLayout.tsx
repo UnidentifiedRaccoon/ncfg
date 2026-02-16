@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
+import { cn } from "@/shared/lib/cn";
 import { Container } from "@/shared/ui/Container";
 import { Button } from "@/shared/ui/Button";
 
@@ -36,6 +37,59 @@ interface HeroLayoutProps {
 const DEFAULT_EYEBROW = "С 2005 года. Проекты по всей России";
 const DEFAULT_TRUST_CHIPS = ["Минфин России", "Сбербанк", "Почта Банк", "Мир"];
 
+interface HeroActionsAndTrustProps {
+  primaryAction: HeroAction;
+  secondaryAction?: HeroAction;
+  trustChips: string[];
+  className?: string;
+}
+
+function HeroActionsAndTrust({
+  primaryAction,
+  secondaryAction,
+  trustChips,
+  className,
+}: HeroActionsAndTrustProps) {
+  return (
+    <div className={cn("flex flex-col gap-8", className)}>
+      <div className="flex flex-wrap items-center gap-4">
+        <Button
+          href={primaryAction.href}
+          size="lg"
+          className="shadow-[0_16px_44px_rgba(88,168,224,0.22)]"
+        >
+          {primaryAction.label}
+        </Button>
+
+        {secondaryAction && (
+          <Button
+            href={secondaryAction.href}
+            variant="secondary"
+            size="lg"
+            className="!bg-transparent !text-white border border-white/25 hover:bg-white/10"
+          >
+            {secondaryAction.label}
+            <ArrowRight className="ml-2 h-4 w-4 opacity-80" aria-hidden="true" />
+          </Button>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-xs text-white/55">
+        <ShieldCheck className="h-4 w-4 text-white/50" aria-hidden="true" />
+        <span className="font-medium text-white/70">Нам доверяют:</span>
+        {trustChips.slice(0, 8).map((chip) => (
+          <span
+            key={chip}
+            className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1"
+          >
+            {chip}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function HeroLayout({
   headline,
   lead,
@@ -47,6 +101,8 @@ export function HeroLayout({
   imageAlt = "",
   metricsCard,
 }: HeroLayoutProps) {
+  const hasMetricsCard = Boolean(metricsCard && metricsCard.metrics.length > 0);
+
   return (
     <section className="relative overflow-hidden -mt-16 md:-mt-20 pt-16 md:pt-20">
       <div aria-hidden="true" className="absolute inset-0 bg-[#050B16]" />
@@ -93,46 +149,23 @@ export function HeroLayout({
                 </p>
               )}
 
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Button
-                  href={primaryAction.href}
-                  size="lg"
-                  className="shadow-[0_16px_44px_rgba(88,168,224,0.22)]"
-                >
-                  {primaryAction.label}
-                </Button>
-
-                {secondaryAction && (
-                  <Button
-                    href={secondaryAction.href}
-                    variant="secondary"
-                    size="lg"
-                    className="!bg-transparent !text-white border border-white/25 hover:bg-white/10"
-                  >
-                    {secondaryAction.label}
-                    <ArrowRight
-                      className="ml-2 h-4 w-4 opacity-80"
-                      aria-hidden="true"
-                    />
-                  </Button>
-                )}
-              </div>
-
-              <div className="mt-8 flex flex-wrap items-center gap-2 text-xs text-white/55">
-                <ShieldCheck
-                  className="h-4 w-4 text-white/50"
-                  aria-hidden="true"
+              {hasMetricsCard ? (
+                <div className="hidden lg:block">
+                  <HeroActionsAndTrust
+                    primaryAction={primaryAction}
+                    secondaryAction={secondaryAction}
+                    trustChips={trustChips}
+                    className="mt-8"
+                  />
+                </div>
+              ) : (
+                <HeroActionsAndTrust
+                  primaryAction={primaryAction}
+                  secondaryAction={secondaryAction}
+                  trustChips={trustChips}
+                  className="mt-8"
                 />
-                <span className="font-medium text-white/70">Нам доверяют:</span>
-                {trustChips.slice(0, 8).map((chip) => (
-                  <span
-                    key={chip}
-                    className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1"
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
+              )}
             </div>
 
             <div className="relative">
@@ -148,8 +181,8 @@ export function HeroLayout({
                   />
                 </div>
 
-                {metricsCard && metricsCard.metrics.length > 0 && (
-                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl lg:-translate-y-10">
+                {hasMetricsCard && metricsCard && (
+                  <div className="relative z-10 -mt-10 lg:mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl lg:-translate-y-10">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="text-sm font-semibold text-white">
@@ -192,6 +225,16 @@ export function HeroLayout({
                 />
               </div>
             </div>
+
+            {hasMetricsCard && (
+              <div className="lg:hidden">
+                <HeroActionsAndTrust
+                  primaryAction={primaryAction}
+                  secondaryAction={secondaryAction}
+                  trustChips={trustChips}
+                />
+              </div>
+            )}
           </div>
         </div>
       </Container>
