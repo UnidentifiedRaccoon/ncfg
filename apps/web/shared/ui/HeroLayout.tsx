@@ -168,8 +168,8 @@ export function HeroLayout({
               )}
             </div>
 
-            <div className="relative">
-              <div className="relative mx-auto w-full max-w-[560px]">
+            <div className={cn("relative", !hasMetricsCard && "hidden lg:block")}>
+              <div className="relative mx-auto hidden w-full max-w-[560px] lg:block">
                 <div className="relative aspect-[4/3]">
                   <Image
                     src={imageSrc}
@@ -177,12 +177,19 @@ export function HeroLayout({
                     fill
                     priority
                     sizes="(min-width: 1024px) 560px, 90vw"
-                    className="object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)]"
+                    className="pointer-events-none object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)]"
                   />
                 </div>
 
-                {hasMetricsCard && metricsCard && (
-                  <div className="relative z-10 -mt-10 lg:mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl lg:-translate-y-10">
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full border border-white/10"
+                />
+              </div>
+
+              {hasMetricsCard && metricsCard && (
+                <div className="relative mx-auto w-full max-w-[560px]">
+                  <div className="relative z-10 mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl lg:-mt-4 lg:-translate-y-10">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="text-sm font-semibold text-white">
@@ -217,13 +224,8 @@ export function HeroLayout({
                       ))}
                     </dl>
                   </div>
-                )}
-
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full border border-white/10"
-                />
-              </div>
+                </div>
+              )}
             </div>
 
             {hasMetricsCard && (

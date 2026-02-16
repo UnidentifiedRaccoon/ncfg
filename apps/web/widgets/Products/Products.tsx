@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
-  ArrowRight,
-  ExternalLink,
+  ArrowUpRight,
   GraduationCap,
   TrendingUp,
   Zap,
@@ -66,7 +65,6 @@ function DecorativeBackground() {
       aria-hidden="true"
     >
       <div className="absolute -top-24 right-[-160px] h-80 w-80 rounded-full bg-[#58A8E0]/14 blur-3xl" />
-      <div className="absolute -bottom-24 left-[-160px] h-80 w-80 rounded-full bg-[#3B82F6]/12 blur-3xl" />
 
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:28px_28px] opacity-[0.22]" />
     </div>
@@ -141,30 +139,27 @@ function ProductTile({
         <div className="flex items-center gap-3">
           <span
             className={cn(
-              "inline-flex items-center justify-center",
-              featured
-                ? "h-12 w-12 rounded-2xl bg-[#3B82F6]/10"
-                : "h-10 w-10 rounded-xl bg-[#1E3A5F]/10"
+              "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+              featured ? "bg-[#3B82F6]/10" : "bg-[#1E3A5F]/10"
             )}
             aria-hidden="true"
           >
             <Icon
               className={cn(
-                featured ? "h-6 w-6 text-[#3B82F6]" : "h-5 w-5 text-[#1E3A5F]"
+                featured ? "h-4 w-4 text-[#3B82F6]" : "h-4 w-4 text-[#1E3A5F]"
               )}
             />
           </span>
 
-          <span className="inline-flex items-center rounded-full bg-[#3B82F6]/10 px-3 py-1 text-xs font-semibold text-[#1E3A5F]">
+          <span className="inline-flex h-8 w-24 shrink-0 items-center justify-center rounded-full bg-[#3B82F6]/10 px-0 py-1 text-xs font-semibold text-[#1E3A5F] whitespace-nowrap">
             {product.audience}
           </span>
         </div>
 
         {isExternal && (
-          <ExternalLink
-            className="h-4 w-4 text-[#94A3B8] transition-colors group-hover:text-[#3B82F6]"
-            aria-hidden="true"
-          />
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-white/80 text-[#475569] transition-colors group-hover:border-[#3B82F6]/35 group-hover:text-[#3B82F6]">
+            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+          </span>
         )}
       </div>
 
@@ -193,9 +188,15 @@ function ProductTile({
         )}
       >
         <span className={cn("font-medium", featured ? "text-base" : "text-sm")}>
-          Подробнее
+          Открыть
         </span>
-        <ArrowRight className={cn(featured ? "h-5 w-5" : "h-4 w-4")} aria-hidden="true" />
+        <ArrowUpRight
+          className={cn(
+            featured ? "h-5 w-5" : "h-4 w-4",
+            "transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          )}
+          aria-hidden="true"
+        />
       </div>
     </ProductTileLink>
   );

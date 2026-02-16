@@ -2,13 +2,7 @@ import { Section } from "@/shared/ui/Section";
 import { cn } from "@/shared/lib/cn";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BookOpen,
-  HeartPulse,
-  Mic,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface Service {
   id?: string;
@@ -23,24 +17,17 @@ interface ServicesProps {
   services: Service[];
 }
 
-const SERVICE_PRESETS: Record<string, { image: string; icon: LucideIcon }> = {
+const SERVICE_PRESETS: Record<string, { image: string }> = {
   employee_wellbeing: {
     image: "/services/well-being.png",
-    icon: HeartPulse,
   },
   educational_materials: {
     image: "/services/materials-development.png",
-    icon: BookOpen,
   },
   events_and_talks: {
     image: "/services/events.png",
-    icon: Mic,
   },
 };
-
-function pad2(value: number) {
-  return String(value).padStart(2, "0");
-}
 
 function getPreset(service: Service) {
   if (!service.id) return null;
@@ -123,17 +110,12 @@ function OtherServicesCard({
 function ServiceTile({
   service,
   featured = false,
-  index,
   className,
 }: {
   service: Service;
   featured?: boolean;
-  index: number;
   className?: string;
 }) {
-  const number = pad2(index + 1);
-  const preset = getPreset(service);
-  const Icon = preset?.icon ?? Mic;
   const image = resolveServiceImage(service);
 
   return (
@@ -161,31 +143,8 @@ function ServiceTile({
         aria-hidden="true"
       />
 
-      <div className="relative z-10 flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span
-            className={cn(
-              "inline-flex items-center justify-center",
-              featured
-                ? "h-12 w-12 rounded-2xl bg-[#3B82F6]/10"
-                : "h-10 w-10 rounded-xl bg-[#1E3A5F]/10"
-            )}
-            aria-hidden="true"
-          >
-            <Icon
-              className={cn(
-                featured ? "h-6 w-6 text-[#3B82F6]" : "h-5 w-5 text-[#1E3A5F]"
-              )}
-              aria-hidden="true"
-            />
-          </span>
-
-          <span className="inline-flex items-center rounded-full bg-[#3B82F6]/10 px-3 py-1 text-xs font-semibold text-[#1E3A5F]">
-            {number}
-          </span>
-        </div>
-
-        {image && (
+      {image && (
+        <div className="relative z-10 flex justify-end">
           <div
             className={cn(
               "relative overflow-hidden rounded-xl border border-black/5 bg-white/40",
@@ -202,12 +161,12 @@ function ServiceTile({
             />
             <div className="absolute inset-0 bg-gradient-to-tr from-[#58A8E0]/14 via-transparent to-[#3B82F6]/12" />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <h3
         className={cn(
-          "relative z-10 mt-5 leading-tight tracking-tight text-[#1E3A5F]",
+          "relative z-10 mt-4 leading-tight tracking-tight text-[#1E3A5F]",
           featured ? "text-2xl md:text-3xl font-bold" : "text-lg font-semibold"
         )}
       >
@@ -225,8 +184,7 @@ function ServiceTile({
 
       <div
         className={cn(
-          "relative z-10 mt-auto pt-6 flex items-center gap-2 text-[#3B82F6] transition-opacity",
-          featured ? "" : "md:opacity-0 md:group-hover:opacity-100"
+          "relative z-10 mt-auto pt-6 flex items-center gap-2 text-[#3B82F6]"
         )}
       >
         <span className={cn("font-medium", featured ? "text-base" : "text-sm")}>
@@ -263,20 +221,17 @@ export function Services({ title, services }: ServicesProps) {
         <ServiceTile
           service={featured}
           featured
-          index={0}
           className="md:col-span-2 lg:col-span-2 lg:row-span-2"
         />
         {wide && (
           <ServiceTile
             service={wide}
-            index={1}
             className="md:col-span-2 lg:col-span-2"
           />
         )}
-        {compact && <ServiceTile service={compact} index={2} />}
+        {compact && <ServiceTile service={compact} />}
         <OtherServicesCard href="/companies" />
       </div>
     </Section>
   );
 }
-

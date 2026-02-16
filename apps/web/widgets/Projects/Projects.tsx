@@ -49,10 +49,7 @@ export function Projects() {
 
             <div className="relative z-10 flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <div className="text-xs font-semibold tracking-wide text-[#475569] uppercase">
-                  Внешний проект
-                </div>
-                <h3 className="mt-2 truncate text-xl font-bold tracking-tight text-[#1E3A5F]">
+                <h3 className="truncate text-xl font-bold tracking-tight text-[#1E3A5F]">
                   {project.title}
                 </h3>
               </div>
@@ -76,4 +73,3 @@ export function Projects() {
     </Section>
   );
 }
-
