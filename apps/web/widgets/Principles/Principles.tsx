@@ -37,7 +37,7 @@ export function Principles({ title, lead, principles }: PrinciplesProps) {
 
   return (
     <Section id="principles" title={title} lead={leadNode} background="gray">
-      <div className="relative overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white px-5 py-6 md:px-8 md:py-8">
+      <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white px-5 py-6 md:px-8 md:py-8">
         {/* Ambient gradients */}
         <div
           className="pointer-events-none absolute -top-40 -right-28 h-[420px] w-[420px] rounded-full bg-[#58A8E0]/25 blur-3xl"

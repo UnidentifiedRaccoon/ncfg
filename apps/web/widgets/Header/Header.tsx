@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
 
 import { Button } from "@/shared/ui/Button";
 import { Container } from "@/shared/ui/Container";
@@ -194,6 +194,7 @@ function DesktopNav({
 
 export function Header({ variant }: { variant?: HeaderVariant }) {
   const pathname = usePathname();
+  const mobileMenuPanelId = useId();
   const [mobileMenu, setMobileMenu] = useState<{
     open: boolean;
     openedOnPath: string | null;
@@ -202,6 +203,21 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
   const resolvedVariant = useMemo(() => resolveVariant(variant), [variant]);
   const ctaHref = pathname?.startsWith("/blog") ? "/#lead-form" : "#lead-form";
   const mobileMenuOpen = mobileMenu.open && mobileMenu.openedOnPath === pathname;
+
+  const closeMobileMenu = () =>
+    setMobileMenu({ open: false, openedOnPath: pathname });
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMobileMenu({ open: false, openedOnPath: pathname });
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileMenuOpen, pathname]);
 
   const dockTone = useSyncExternalStore(
     subscribeDockTone,
@@ -337,6 +353,8 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
                   })
                 }
                 aria-label={mobileMenuOpen ? "Закрыть меню" : "Открыть меню"}
+                aria-expanded={mobileMenuOpen}
+                aria-controls={mobileMenuPanelId}
               >
                 {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
@@ -345,13 +363,26 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
         </nav>
       </Container>
 
+      <button
+        type="button"
+        aria-label="Закрыть меню"
+        aria-hidden={!mobileMenuOpen}
+        tabIndex={mobileMenuOpen ? 0 : -1}
+        className={cn(
+          "md:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-transparent transition-opacity duration-200",
+          mobileMenuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={closeMobileMenu}
+      />
+
       <div
+        id={mobileMenuPanelId}
         aria-hidden={!mobileMenuOpen}
         className={cn(
-          "overflow-hidden transition-[max-height,opacity] duration-300 md:hidden",
+          "md:hidden absolute inset-x-0 top-full z-50 overflow-hidden transition-[max-height] duration-300",
           mobileMenuOpen
-            ? "max-h-96 opacity-100"
-            : "max-h-0 pointer-events-none opacity-0"
+            ? "max-h-96"
+            : "max-h-0 pointer-events-none"
         )}
       >
         <Container className="pb-4">
@@ -397,9 +428,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
                           : "text-[#475569] hover:bg-[#3B82F6]/[0.06] hover:text-[#1E3A5F]"
                     )}
                     aria-current={isActive ? "page" : undefined}
-                    onClick={() =>
-                      setMobileMenu({ open: false, openedOnPath: pathname })
-                    }
+                    onClick={closeMobileMenu}
                     tabIndex={mobileMenuOpen ? 0 : -1}
                   >
                     {item.label}
@@ -412,7 +441,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
                   href={ctaHref}
                   className="h-11 w-full rounded-full text-base"
                   tabIndex={mobileMenuOpen ? 0 : -1}
-                  onClick={() => setMobileMenu({ open: false, openedOnPath: pathname })}
+                  onClick={closeMobileMenu}
                 >
                   Оставить заявку
                 </Button>
@@ -424,4 +453,3 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
     </header>
   );
 }
-

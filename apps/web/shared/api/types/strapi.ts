@@ -158,7 +158,7 @@ export interface StrapiPerson {
   headline: string | null;
   experienceYears: number | null;
   order: number;
-  team: { id: number } | null;
+  teamGroup: { id: number } | null;
   expertGroup: { id: number } | null;
   createdAt: string;
   updatedAt: string;

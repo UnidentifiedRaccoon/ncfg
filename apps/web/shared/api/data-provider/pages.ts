@@ -1,15 +1,6 @@
-/**
- * Data Provider
- *
- * Unified interface for fetching:
- * - Dynamic content from Strapi CMS (fail-fast; no fallbacks).
- * - Static page content from local JSON files (no Strapi requests).
- */
+import { getFallbackUpdatedAt } from './fallback-meta';
+import { isIndividualsProductIconKey, stripEllipsis } from './utils';
 
-import { getLatestNews, getNews, getNewsArticle, transformToLegacyNews } from './news';
-import { getPeople, transformToLegacyPerson, type LegacyPerson } from './people';
-import { getServiceUiIconMap } from './service-ui';
-import { getServicesDataLegacy } from './services';
 import type {
   StrapiAboutPage,
   StrapiBlogPage,
@@ -17,26 +8,10 @@ import type {
   StrapiHomePage,
   StrapiIndividualsPage,
   StrapiSiteSetting,
-} from './types/strapi';
-import type { ServicesData } from './types/service';
-
-function stripEllipsis(text: string): string {
-  return text.replace(/\.{2,}$/, '');
-}
-
-function isIndividualsProductIconKey(
-  value: unknown
-): value is 'graduation-cap' | 'trending-up' | 'zap' {
-  return value === 'graduation-cap' || value === 'trending-up' || value === 'zap';
-}
-
-function getFallbackUpdatedAt(): string {
-  // Keep it stable/deterministic for builds.
-  return '2026-01-31';
-}
+} from '../types/strapi';
 
 // ==================
-// Static content types (JSON source)
+// Static content types (local JSON)
 // ==================
 
 interface FallbackLink {
@@ -146,56 +121,11 @@ interface FallbackPrinciplesJson {
 }
 
 interface FallbackBlogJson {
-  meta?: { updatedAt?: string; title?: string; lead?: string };
+  meta?: { title?: string; lead?: string };
 }
 
 // ==================
-// News
-// ==================
-
-export interface NewsArticleCategoryData {
-  slug: string;
-  title: string;
-}
-
-export interface NewsArticleData {
-  id: string;
-  title: string;
-  category: NewsArticleCategoryData | null;
-  slug: string;
-  body: string;
-  anonsImage: string | null;
-  createdAt: string;
-}
-
-export async function fetchNewsArticles(options: { category?: string } = {}): Promise<NewsArticleData[]> {
-  const { articles } = await getNews({ pageSize: 100, category: options.category });
-  return articles.map(transformToLegacyNews);
-}
-
-export async function fetchNewsArticle(slug: string): Promise<NewsArticleData | null> {
-  const article = await getNewsArticle(slug);
-  return article ? transformToLegacyNews(article) : null;
-}
-
-export async function fetchLatestNewsArticles(
-  limit: number = 5,
-  options: { category?: string } = {}
-): Promise<NewsArticleData[]> {
-  const articles = await getLatestNews(limit, options);
-  return articles.map(transformToLegacyNews);
-}
-
-// ==================
-// Services
-// ==================
-
-export async function fetchServicesData(): Promise<ServicesData> {
-  return await getServicesDataLegacy();
-}
-
-// ==================
-// Pages / Settings (JSON-only)
+// Pages / Settings
 // ==================
 
 export async function fetchSiteSettings(): Promise<StrapiSiteSetting> {
@@ -455,8 +385,10 @@ export async function fetchIndividualsPageData(): Promise<StrapiIndividualsPage>
 }
 
 export async function fetchAboutPageData(): Promise<StrapiAboutPage> {
-  const howWeWork = (await import('@/public/content/ncfg_how_we_work.json')).default as unknown as FallbackHowWeWorkJson;
-  const principles = (await import('@/public/content/ncfg_principles.json')).default as unknown as FallbackPrinciplesJson;
+  const howWeWork = (await import('@/public/content/ncfg_how_we_work.json'))
+    .default as unknown as FallbackHowWeWorkJson;
+  const principles = (await import('@/public/content/ncfg_principles.json'))
+    .default as unknown as FallbackPrinciplesJson;
   const updatedAt = howWeWork.meta?.updatedAt ?? getFallbackUpdatedAt();
 
   return {
@@ -494,50 +426,15 @@ export async function fetchAboutPageData(): Promise<StrapiAboutPage> {
 
 export async function fetchBlogPageData(): Promise<StrapiBlogPage> {
   const blog = (await import('@/public/content/blog.json')).default as unknown as FallbackBlogJson;
-  const updatedAt = blog.meta?.updatedAt ?? getFallbackUpdatedAt();
+  const updatedAt = getFallbackUpdatedAt();
 
   return {
     id: 1,
     documentId: 'json-blog-page',
     title: blog.meta?.title ?? 'Блог',
-    lead: blog.meta?.lead ?? null,
+    lead: blog.meta?.lead ?? 'Полезные материалы о финансовой грамотности',
     createdAt: updatedAt,
     updatedAt: updatedAt,
     publishedAt: updatedAt,
   };
-}
-
-export async function fetchServiceUiIconMap(): Promise<Record<string, string>> {
-  return await getServiceUiIconMap();
-}
-
-// ==================
-// People
-// ==================
-
-export interface PeopleData {
-  people: LegacyPerson[];
-  teamPeopleIds: string[];
-  expertPeopleIds: string[];
-}
-
-export async function fetchPeopleData(): Promise<PeopleData> {
-  const people = await getPeople();
-  const legacyPeople = people.map(transformToLegacyPerson);
-
-  return {
-    people: legacyPeople,
-    teamPeopleIds: legacyPeople.filter((p) => p.isTeam).map((p) => p.id),
-    expertPeopleIds: legacyPeople.filter((p) => p.isExpert).map((p) => p.id),
-  };
-}
-
-export async function fetchTeamMembers(): Promise<LegacyPerson[]> {
-  const data = await fetchPeopleData();
-  return data.people.filter((p) => p.isTeam);
-}
-
-export async function fetchExperts(): Promise<LegacyPerson[]> {
-  const data = await fetchPeopleData();
-  return data.people.filter((p) => p.isExpert);
 }

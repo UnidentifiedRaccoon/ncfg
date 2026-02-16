@@ -67,6 +67,7 @@ interface StatItemProps {
   decimals?: number;
   suffix?: string;
   isLast?: boolean;
+  isLeftColumn?: boolean;
   isBottomRow?: boolean;
 }
 
@@ -76,6 +77,7 @@ function StatItem({
   decimals = 0,
   suffix = "",
   isLast = false,
+  isLeftColumn = false,
   isBottomRow = false,
 }: StatItemProps) {
   return (
@@ -84,8 +86,8 @@ function StatItem({
         "px-4 py-6 md:px-6 md:py-8 text-center",
         // Desktop: vertical divider (except last)
         !isLast && "md:border-r md:border-[#E2E8F0]",
-        // Mobile: right border for left column items
-        !isLast && "border-r border-[#E2E8F0]",
+        // Mobile: right border only for left column items (avoid outer right border)
+        isLeftColumn && !isLast && "border-r border-[#E2E8F0]",
         // Mobile: bottom border for top row
         !isBottomRow && "border-b border-[#E2E8F0] md:border-b-0"
       )}
@@ -93,7 +95,7 @@ function StatItem({
       <div className="text-2xl md:text-4xl font-bold text-[#1E3A5F]">
         <AnimatedCounter to={value} decimals={decimals} suffix={suffix} />
       </div>
-      <div className="mt-1 text-sm text-[#64748B]">{label}</div>
+      <div className="mt-1 text-sm text-[#475569]">{label}</div>
     </div>
   );
 }
@@ -149,7 +151,8 @@ export function Stats({ items }: { items?: Stat[] }) {
             decimals={stat.decimals}
             suffix={stat.suffix}
             isLast={index === stats.length - 1}
-            isBottomRow={index >= 2}
+            isLeftColumn={index % 2 === 0}
+            isBottomRow={index >= (Math.ceil(stats.length / 2) - 1) * 2}
           />
         ))}
       </div>
