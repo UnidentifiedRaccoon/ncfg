@@ -85,8 +85,18 @@ HOST=0.0.0.0
 PORT=1337
 
 # Database
+# Option 1: SQLite (quick local development)
 DATABASE_CLIENT=better-sqlite3
 DATABASE_FILENAME=.tmp/data.db
+
+# Option 2: PostgreSQL (recommended for development)
+# DATABASE_CLIENT=postgres
+# DATABASE_HOST=localhost
+# DATABASE_PORT=5432
+# DATABASE_NAME=ncfg_cms
+# DATABASE_USERNAME=postgres
+# DATABASE_PASSWORD=
+# DATABASE_SSL=false
 
 # Secrets (обязательно изменить в production)
 APP_KEYS=...
@@ -94,12 +104,22 @@ API_TOKEN_SALT=...
 ADMIN_JWT_SECRET=...
 TRANSFER_TOKEN_SALT=...
 JWT_SECRET=...
+
+# Uploads (S3 / Yandex Object Storage)
+# Required in S3-only mode (without these vars Strapi fails fast on startup):
+AWS_BUCKET=ncfg-uploads-1770291983
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_REGION=ru-central1
+AWS_ENDPOINT=https://storage.yandexcloud.net
 ```
+
+Для локальной разработки задайте `AWS_*` в `apps/cms/.env`, затем перезапустите `npm run develop`.
 
 ## Продакшен
 
 Для продакшена рекомендуется:
 - Использовать PostgreSQL вместо SQLite
-- Настроить S3 или Cloudinary для медиафайлов
+- Настроить S3/Object Storage для медиафайлов
 - Изменить все секретные ключи
 - Настроить CORS для продакшен-домена

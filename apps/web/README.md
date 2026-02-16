@@ -42,3 +42,16 @@ Required GitHub Actions secrets:
 - `STRAPI_URL` = `https://admin.ncfg.ru`
 - `STRAPI_API_TOKEN` = your read-only token
 - `NEXT_PUBLIC_SITE_URL` = public site URL (used for health-checks and metadata)
+- `GETCOURSE_BASE_URL` = `https://fgrm.ncfg.ru`
+- `GETCOURSE_API_KEY` = API key from GetCourse account
+
+Optional GitHub Actions secrets (GetCourse enrichment):
+- `GETCOURSE_LEAD_GROUP_NAME` (example: `Website Leads`)
+- `GETCOURSE_QUESTION_GROUP_NAME` (example: `Website Questions`)
+- `GETCOURSE_SOURCE_VALUE` (example: `fgrm.ncfg.ru`)
+- `GETCOURSE_FIELD_SOURCE`
+- `GETCOURSE_FIELD_COMPANY`
+- `GETCOURSE_FIELD_MESSAGE`
+- `GETCOURSE_FIELD_QUESTION`
+- `GETCOURSE_FIELD_POST_TITLE`
+- `GETCOURSE_FIELD_REQUEST_ID`

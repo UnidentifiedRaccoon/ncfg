@@ -4,7 +4,12 @@
  * Provides typed fetch functions for interacting with Strapi CMS.
  */
 
-const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+const STRAPI_REQUIRED_MESSAGE =
+  'Strapi is required. Set STRAPI_URL and STRAPI_API_TOKEN (see apps/web/.env.local.example).';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
 
 function normalizeStrapiToken(value: string | undefined): string | undefined {
   if (!value) return undefined;
@@ -15,7 +20,36 @@ function normalizeStrapiToken(value: string | undefined): string | undefined {
   return trimmed.replace(/^Bearer\s+/i, '');
 }
 
-const STRAPI_TOKEN = normalizeStrapiToken(process.env.STRAPI_API_TOKEN);
+function normalizeBaseUrl(value: string): string {
+  const normalized = value.replace(/\/+$/, '');
+  let parsed: URL;
+  try {
+    parsed = new URL(normalized);
+  } catch {
+    throw new Error(
+      `Invalid STRAPI_URL. Expected an absolute http(s) URL, got: "${normalized}".`
+    );
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error(
+      `Invalid STRAPI_URL protocol "${parsed.protocol}". Expected http: or https:.`
+    );
+  }
+
+  return normalized;
+}
+
+function getStrapiConfigOrThrow(): { url: string; token: string } {
+  const urlRaw = process.env.STRAPI_URL?.trim();
+  const token = normalizeStrapiToken(process.env.STRAPI_API_TOKEN);
+
+  if (!urlRaw || !token) {
+    throw new Error(STRAPI_REQUIRED_MESSAGE);
+  }
+
+  return { url: normalizeBaseUrl(urlRaw), token };
+}
 
 // ==================
 // Types
@@ -56,6 +90,50 @@ interface FetchOptions extends RequestInit {
 const isDev = process.env.NODE_ENV === 'development';
 const DEFAULT_REVALIDATE = isDev ? 0 : 60; // 0 = no cache in dev, 60s in prod
 
+function getFetchErrorCauseMessage(error: unknown): string | null {
+  if (!isRecord(error)) return null;
+  const cause = error.cause;
+  if (cause instanceof Error) return cause.message;
+  if (typeof cause === 'string') return cause;
+  return null;
+}
+
+function getFetchFailureHint(errorMessage: string, requestUrl: string): string | null {
+  const normalized = errorMessage.toLowerCase();
+  let host = '';
+  try {
+    host = new URL(requestUrl).host.toLowerCase();
+  } catch {
+    host = '';
+  }
+
+  const isLocalStrapi = host === 'localhost:1337' || host === '127.0.0.1:1337';
+
+  if (normalized.includes('fetch failed') && isLocalStrapi) {
+    return (
+      'Hint: local Strapi is unreachable. ' +
+      'Start CMS (`cd apps/cms && npm run develop`) and ensure AWS_* vars are set in apps/cms/.env (S3-only mode).'
+    );
+  }
+
+  if (normalized.includes('econnrefused')) {
+    return (
+      'Hint: Strapi is not reachable (connection refused). ' +
+      'If developing locally, start CMS: `cd apps/cms && npm run develop`.'
+    );
+  }
+
+  if (normalized.includes('enotfound') || normalized.includes('getaddrinfo')) {
+    return "Hint: STRAPI_URL hostname can't be resolved (DNS). Check STRAPI_URL.";
+  }
+
+  if (normalized.includes('certificate') || normalized.includes('self signed') || normalized.includes('tls')) {
+    return 'Hint: TLS/certificate issue. Check STRAPI_URL protocol (http vs https) and certs.';
+  }
+
+  return null;
+}
+
 /**
  * Make a request to the Strapi API
  */
@@ -65,26 +143,38 @@ export async function fetchAPI<T>(
 ): Promise<T> {
   const { revalidate = DEFAULT_REVALIDATE, tags, ...fetchOptions } = options;
   
-  const url = `${STRAPI_URL}/api${endpoint}`;
+  const { url: baseUrl, token } = getStrapiConfigOrThrow();
+  const url = `${baseUrl}/api${endpoint}`;
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...fetchOptions.headers,
   };
 
-  if (STRAPI_TOKEN) {
-    (headers as Record<string, string>)['Authorization'] = `Bearer ${STRAPI_TOKEN}`;
-  }
+  (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(url, {
-    ...fetchOptions,
-    headers,
-    // In dev mode, don't cache; in prod, use ISR with revalidate
-    ...(isDev 
-      ? { cache: 'no-store' as const }
-      : { next: { revalidate, tags } }
-    ),
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...fetchOptions,
+      headers,
+      // In dev mode, don't cache; in prod, use ISR with revalidate
+      ...(isDev ? { cache: 'no-store' as const } : { next: { revalidate, tags } }),
+    });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const causeMessage = getFetchErrorCauseMessage(error);
+    const hint = getFetchFailureHint(causeMessage ?? errorMessage, url);
+
+    const details: string[] = [
+      `Strapi fetch failed: ${url}`,
+      `Error: ${errorMessage}`,
+      ...(causeMessage && causeMessage !== errorMessage ? [`Cause: ${causeMessage}`] : []),
+      ...(hint ? [hint] : []),
+    ];
+
+    throw new Error(details.join('\n'));
+  }
 
   if (!res.ok) {
     const errorText = await res.text();
@@ -99,14 +189,17 @@ export async function fetchAPI<T>(
  */
 export function getStrapiMediaUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  
-  // If it's already an absolute URL, return as is
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
+  const normalizedUrl = url.trim();
+  if (!normalizedUrl) return null;
+
+  // S3 migration is strict: media URLs must already be absolute.
+  if (normalizedUrl.startsWith('http://') || normalizedUrl.startsWith('https://')) {
+    return normalizedUrl;
   }
-  
-  // Otherwise, prepend the Strapi URL
-  return `${STRAPI_URL}${url}`;
+
+  throw new Error(
+    `Strapi media URL must be absolute after S3 migration. Got relative value: "${normalizedUrl}".`
+  );
 }
 
 // ==================

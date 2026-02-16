@@ -1,4 +1,13 @@
 import { NextResponse } from "next/server";
+import {
+  asOptionalTrimmedString,
+  asTrimmedString,
+  getClientIp,
+  getOrCreateRequestId,
+  isValidEmail,
+  readJsonSafe,
+} from "@/shared/lib/api-route-utils";
+import { contactSink } from "@/shared/lib/contact-sink";
 
 interface QuestionData {
   question: string;
@@ -7,55 +16,77 @@ interface QuestionData {
   postTitle?: string;
 }
 
-const RECIPIENT_EMAIL = "yura.posledov@yandex.ru";
+function parseQuestionPayload(payload: unknown): QuestionData | null {
+  if (typeof payload !== "object" || payload === null) return null;
+  const record = payload as Record<string, unknown>;
+
+  const question = asTrimmedString(record.question);
+  const name = asTrimmedString(record.name);
+  const email = asTrimmedString(record.email);
+
+  if (!question || !name || !email) return null;
+
+  return {
+    question,
+    name,
+    email,
+    postTitle: asOptionalTrimmedString(record.postTitle),
+  };
+}
 
 export async function POST(request: Request) {
-  try {
-    const data: QuestionData = await request.json();
+  const requestId = getOrCreateRequestId(request);
+  const responseHeaders = { "x-request-id": requestId };
 
-    if (!data.question || !data.name || !data.email) {
+  try {
+    const rawBody = await readJsonSafe(request);
+    if (!rawBody.ok) {
+      return NextResponse.json(
+        { error: "Некорректный JSON в теле запроса" },
+        { status: 400, headers: responseHeaders }
+      );
+    }
+
+    const data = parseQuestionPayload(rawBody.data);
+    if (!data) {
       return NextResponse.json(
         { error: "Вопрос, имя и email обязательны для заполнения" },
-        { status: 400 }
+        { status: 400, headers: responseHeaders }
       );
     }
 
     if (data.question.length > 1000) {
       return NextResponse.json(
         { error: "Вопрос не должен превышать 1000 символов" },
-        { status: 400 }
+        { status: 400, headers: responseHeaders }
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
+    if (!isValidEmail(data.email)) {
       return NextResponse.json(
         { error: "Некорректный формат email" },
-        { status: 400 }
+        { status: 400, headers: responseHeaders }
       );
     }
 
-    // Log the question data (in production, this would be sent via email service)
-    console.log("=== Новый вопрос с сайта НЦФГ ===");
-    console.log(`Получатель: ${RECIPIENT_EMAIL}`);
-    console.log(`Статья: ${data.postTitle || "не указана"}`);
-    console.log(`Имя: ${data.name}`);
-    console.log(`Email: ${data.email}`);
-    console.log(`Вопрос: ${data.question}`);
-    console.log("================================");
-
-    // TODO: Integrate with email service (e.g., Resend, SendGrid, Nodemailer)
-    // For now, we'll just log the data and return success
-
-    return NextResponse.json({
-      success: true,
-      message: "Вопрос успешно отправлен",
+    await contactSink.submitQuestion(data, {
+      requestId,
+      clientIp: getClientIp(request),
+      userAgent: request.headers.get("user-agent") ?? undefined,
     });
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Вопрос успешно отправлен",
+      },
+      { headers: responseHeaders }
+    );
   } catch (error) {
-    console.error("Error processing question:", error);
+    console.error(`[${requestId}] Error processing question:`, error);
     return NextResponse.json(
       { error: "Произошла ошибка при обработке вопроса" },
-      { status: 500 }
+      { status: 500, headers: responseHeaders }
     );
   }
 }
