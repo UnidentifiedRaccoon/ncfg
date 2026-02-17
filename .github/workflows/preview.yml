@@ -217,6 +217,39 @@ jobs:
         run: |
           yc serverless container delete --name "$CONTAINER_NAME" || true
 
+      - name: Delete preview images for closed PR
+        env:
+          YC_REGISTRY_ID: ${{ secrets.YC_REGISTRY_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          repository="${YC_REGISTRY_ID}/ncfg-web"
+          tag_regex="^pr-${PR_NUMBER}(-[0-9a-f]{40})?$"
+
+          image_ids="$(
+            yc container image list \
+              --registry-id "$YC_REGISTRY_ID" \
+              --repository-name "$repository" \
+              --format json \
+            | jq -r --arg tag_regex "$tag_regex" '
+                .[]
+                | select(any((.tags // [])[]?; test($tag_regex)))
+                | .id
+              '
+          )"
+
+          if [ -z "$image_ids" ]; then
+            echo "No preview images found for PR #$PR_NUMBER"
+            exit 0
+          fi
+
+          while IFS= read -r image_id; do
+            [ -z "$image_id" ] && continue
+            echo "Deleting preview image: $image_id"
+            yc container image delete "$image_id"
+          done <<< "$image_ids"
+
       - name: Update preview comment (optional)
         uses: actions/github-script@v7
         env:
