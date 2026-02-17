@@ -187,9 +187,7 @@ function ServiceTile({
           "relative z-10 mt-auto pt-6 flex items-center gap-2 text-[#3B82F6]"
         )}
       >
-        <span className={cn("font-medium", featured ? "text-base" : "text-sm")}>
-          Подробнее
-        </span>
+        <span className="text-sm font-medium">Подробнее</span>
         <ArrowRight className={cn(featured ? "h-5 w-5" : "h-4 w-4")} aria-hidden="true" />
       </div>
     </Link>

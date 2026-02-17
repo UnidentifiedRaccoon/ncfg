@@ -147,7 +147,8 @@ export function BlogPosts({
       title={title}
       lead={lead}
       background="gray"
-      className="relative isolate"
+      className="relative isolate -mt-16 md:-mt-20 pt-16 md:pt-20"
+      containerClassName="pt-12 md:pt-16"
     >
       <div
         aria-hidden="true"
@@ -160,7 +161,7 @@ export function BlogPosts({
 
       {isRailLayout ? (
         <>
-          <div className="lg:hidden sticky top-[72px] md:top-[88px] z-40 mb-6">
+          <div className="lg:hidden sticky top-[72px] z-40 mb-6">
             <PillsNav active={selectedCategory} layout={layout} />
           </div>
 

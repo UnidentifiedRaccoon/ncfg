@@ -182,14 +182,9 @@ function ProductTile({
       </p>
 
       <div
-        className={cn(
-          "relative z-10 mt-auto pt-6 flex items-center gap-2 text-[#3B82F6] transition-opacity",
-          featured ? "" : "md:opacity-0 md:group-hover:opacity-100"
-        )}
+        className="relative z-10 mt-auto pt-6 flex items-center gap-2 text-[#3B82F6]"
       >
-        <span className={cn("font-medium", featured ? "text-base" : "text-sm")}>
-          Открыть
-        </span>
+        <span className="text-sm font-medium">Открыть</span>
         <ArrowUpRight
           className={cn(
             featured ? "h-5 w-5" : "h-4 w-4",

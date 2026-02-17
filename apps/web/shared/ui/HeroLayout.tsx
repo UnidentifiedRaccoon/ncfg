@@ -177,7 +177,10 @@ export function HeroLayout({
                     fill
                     priority
                     sizes="(min-width: 1024px) 560px, 90vw"
-                    className="pointer-events-none object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)]"
+                    className={cn(
+                      "pointer-events-none object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)]",
+                      !hasMetricsCard && "scale-[1.5]"
+                    )}
                   />
                 </div>
 

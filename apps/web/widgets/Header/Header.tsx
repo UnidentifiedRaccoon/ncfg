@@ -25,7 +25,7 @@ type DockTone = "hero" | "surface";
 const HERO_END_SENTINEL_SELECTOR = "[data-header-hero-end]";
 
 function getHeaderHeightPx() {
-  return window.matchMedia("(min-width: 768px)").matches ? 80 : 64;
+  return window.matchMedia("(min-width: 1024px)").matches ? 80 : 64;
 }
 
 function computeDockTone(options: {
@@ -98,7 +98,7 @@ function DesktopNav({
 }) {
   if (variant === "pills") {
     return (
-      <div className="hidden md:flex flex-1 justify-center">
+      <div className="hidden lg:flex flex-1 justify-center">
         <div className="relative flex items-center gap-1 rounded-full border border-[#E2E8F0]/70 bg-white/70 px-1.5 py-1 shadow-sm backdrop-blur-sm">
           <div
             aria-hidden="true"
@@ -132,7 +132,7 @@ function DesktopNav({
 
   if (variant === "rail") {
     return (
-      <div className="hidden md:flex items-center gap-7 ml-8">
+      <div className="hidden lg:flex items-center gap-7 ml-8">
         {NAV_ITEMS.map((item) => {
           const isActive = isActiveHref(pathname, item.href);
 
@@ -163,7 +163,7 @@ function DesktopNav({
   }
 
   return (
-    <div className="hidden md:flex items-center gap-1 ml-4 lg:gap-1.5 lg:ml-5">
+    <div className="hidden lg:flex items-center gap-1 ml-4 lg:gap-1.5 lg:ml-5">
       {NAV_ITEMS.map((item) => {
         const isActive = isActiveHref(pathname, item.href);
 
@@ -265,7 +265,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
       )}
     >
       <Container>
-        <nav className="flex h-16 items-center md:h-20" aria-label="Основная навигация">
+        <nav className="flex h-16 items-center lg:h-20" aria-label="Основная навигация">
           <div className={shellClassName}>
             {resolvedVariant === "dock" && (
               <>
@@ -298,6 +298,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
                 height={40}
                 className={cn(
                   "h-9 w-9 md:h-10 md:w-10",
+                  isHeroTone && "brightness-0 invert",
                   isHeroTone && "drop-shadow-[0_10px_24px_rgba(0,0,0,0.55)]"
                 )}
                 priority
@@ -314,7 +315,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
 
             <DesktopNav pathname={pathname} variant={resolvedVariant} tone={dockTone} />
 
-            <div className="relative z-10 ml-auto flex items-center gap-2 pr-2">
+            <div className="relative z-10 ml-auto flex items-center gap-2">
               <Button
                 href={ctaHref}
                 className={cn(
@@ -336,7 +337,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
               <button
                 type="button"
                 className={cn(
-                  "inline-flex items-center justify-center rounded-full p-2 transition-colors md:hidden",
+                  "mr-1 inline-flex items-center justify-center rounded-full p-2 transition-colors lg:hidden",
                   isHeroTone
                     ? "text-white/75 hover:bg-white/10 hover:text-white"
                     : "text-[#475569] hover:bg-[#3B82F6]/[0.06] hover:text-[#1E3A5F]",
@@ -369,7 +370,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
         aria-hidden={!mobileMenuOpen}
         tabIndex={mobileMenuOpen ? 0 : -1}
         className={cn(
-          "md:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-transparent transition-opacity duration-200",
+          "lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-transparent transition-opacity duration-200",
           mobileMenuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={closeMobileMenu}
@@ -379,7 +380,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
         id={mobileMenuPanelId}
         aria-hidden={!mobileMenuOpen}
         className={cn(
-          "md:hidden absolute inset-x-0 top-full z-50 overflow-hidden transition-[max-height] duration-300",
+          "lg:hidden absolute inset-x-0 top-full z-50 overflow-hidden transition-[max-height] duration-300",
           mobileMenuOpen
             ? "max-h-96"
             : "max-h-0 pointer-events-none"

@@ -9,7 +9,10 @@ Headless CMS для управления контентом сайта НЦФГ.
 ```bash
 cd apps/cms
 npm install
+cp .env.example .env
 ```
+
+Заполните все обязательные переменные в `apps/cms/.env` до запуска CMS.
 
 ### 2. Запуск в режиме разработки
 
@@ -84,37 +87,31 @@ GET /api/people
 HOST=0.0.0.0
 PORT=1337
 
-# Database
-# Option 1: SQLite (quick local development)
-DATABASE_CLIENT=better-sqlite3
-DATABASE_FILENAME=.tmp/data.db
+# Database (required for develop/build/start)
+DATABASE_CLIENT=postgres
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=ncfg_cms
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=replace-with-password
+DATABASE_SSL=false
 
-# Option 2: PostgreSQL (recommended for development)
-# DATABASE_CLIENT=postgres
-# DATABASE_HOST=localhost
-# DATABASE_PORT=5432
-# DATABASE_NAME=ncfg_cms
-# DATABASE_USERNAME=postgres
-# DATABASE_PASSWORD=
-# DATABASE_SSL=false
+# Secrets (required for develop/build/start)
+APP_KEYS=replace-with-key-1,replace-with-key-2
+API_TOKEN_SALT=replace-with-api-token-salt
+ADMIN_JWT_SECRET=replace-with-admin-jwt-secret
+TRANSFER_TOKEN_SALT=replace-with-transfer-token-salt
+JWT_SECRET=replace-with-jwt-secret
 
-# Secrets (обязательно изменить в production)
-APP_KEYS=...
-API_TOKEN_SALT=...
-ADMIN_JWT_SECRET=...
-TRANSFER_TOKEN_SALT=...
-JWT_SECRET=...
-
-# Uploads (S3 / Yandex Object Storage)
-# Required in S3-only mode (without these vars Strapi fails fast on startup):
+# Uploads (S3 / Yandex Object Storage, required for develop/build/start)
 AWS_BUCKET=ncfg-uploads-1770291983
-AWS_ACCESS_KEY_ID=...
-AWS_SECRET_ACCESS_KEY=...
+AWS_ACCESS_KEY_ID=replace-with-access-key-id
+AWS_SECRET_ACCESS_KEY=replace-with-secret-access-key
 AWS_REGION=ru-central1
 AWS_ENDPOINT=https://storage.yandexcloud.net
 ```
 
-Для локальной разработки задайте `AWS_*` в `apps/cms/.env`, затем перезапустите `npm run develop`.
+Во всех режимах (`npm run develop`, `npm run build`, `npm run start`) выполняется строгая fail-fast валидация: если любой обязательный ключ пустой или отсутствует, команда завершится с ошибкой.
 
 ## Продакшен
 

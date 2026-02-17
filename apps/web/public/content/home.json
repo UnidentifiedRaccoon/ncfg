@@ -185,7 +185,7 @@
         "clientsCarousel": {
           "title": "Партнеры",
           "archiveCta": {
-            "label": "ВСЕ КЛИЕНТЫ",
+            "label": "Все клиенты",
             "href": "/klienty-partnery"
           },
           "categories": [
