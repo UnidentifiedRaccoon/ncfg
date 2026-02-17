@@ -468,8 +468,12 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                   </div>
 
                   <div className="mt-6 flex items-center justify-end">
-                    <Button href={clientsCarousel.archiveCta.href} variant="ghost" size="sm">
-                      {clientsCarousel.archiveCta.label || "Все клиенты"}
+                    <Button
+                      href={clientsCarousel.archiveCta.href}
+                      variant="ghost"
+                      size="sm"
+                    >
+                      Все клиенты
                       <ArrowRight size={16} className="ml-2" />
                     </Button>
                   </div>

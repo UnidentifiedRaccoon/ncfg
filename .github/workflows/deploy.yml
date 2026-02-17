@@ -94,6 +94,73 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install yc CLI
+        run: |
+          # Official installation script from Yandex Cloud docs.
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
+
+      - name: Configure yc CLI
+        env:
+          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+        run: |
+          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
+          yc config set service-account-key /tmp/sa.json
+          yc config set folder-id "$YC_FOLDER_ID"
+
+      - name: Lockbox preflight
+        env:
+          YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
+          YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
+        run: |
+          set -euo pipefail
+
+          required_lockbox_keys=(
+            DATABASE_HOST
+            DATABASE_PORT
+            DATABASE_NAME
+            DATABASE_USERNAME
+            DATABASE_PASSWORD
+            APP_KEYS
+            API_TOKEN_SALT
+            ADMIN_JWT_SECRET
+            JWT_SECRET
+            TRANSFER_TOKEN_SALT
+            AWS_BUCKET
+            AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY
+          )
+
+          fetch_required_key() {
+            local key="$1"
+            local value=""
+            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" 2>/dev/null || true)"
+
+            if [ -z "$value" ]; then
+              echo "::error::Missing required Lockbox key: $key"
+              exit 1
+            fi
+
+            echo "::add-mask::$value"
+            printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
+          }
+
+          for key in "${required_lockbox_keys[@]}"; do
+            fetch_required_key "$key"
+          done
+
+          aws_region="ru-central1"
+          aws_endpoint="https://storage.yandexcloud.net"
+
+          if [ -z "$aws_region" ] || [ -z "$aws_endpoint" ]; then
+            echo "::error::AWS_REGION or AWS_ENDPOINT is empty"
+            exit 1
+          fi
+
+          printf 'AWS_REGION=%s\n' "$aws_region" >> "$GITHUB_ENV"
+          printf 'AWS_ENDPOINT=%s\n' "$aws_endpoint" >> "$GITHUB_ENV"
+
       - name: Login to Yandex Container Registry
         uses: yc-actions/yc-cr-login@v2
         with:
@@ -113,6 +180,22 @@ jobs:
             ${{ env.YC_REGISTRY }}/${{ env.CMS_IMAGE }}:latest
           build-args: |
             CACHE_BUST=${{ github.sha }}
+          secret-envs: |
+            DATABASE_HOST=DATABASE_HOST
+            DATABASE_PORT=DATABASE_PORT
+            DATABASE_NAME=DATABASE_NAME
+            DATABASE_USERNAME=DATABASE_USERNAME
+            DATABASE_PASSWORD=DATABASE_PASSWORD
+            APP_KEYS=APP_KEYS
+            API_TOKEN_SALT=API_TOKEN_SALT
+            ADMIN_JWT_SECRET=ADMIN_JWT_SECRET
+            JWT_SECRET=JWT_SECRET
+            TRANSFER_TOKEN_SALT=TRANSFER_TOKEN_SALT
+            AWS_BUCKET=AWS_BUCKET
+            AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY
+            AWS_REGION=AWS_REGION
+            AWS_ENDPOINT=AWS_ENDPOINT
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

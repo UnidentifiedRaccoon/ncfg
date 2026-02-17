@@ -26,7 +26,40 @@ COPY apps/cms/ ./
 # Build Strapi (includes admin panel)
 # Note: Strapi v5 runs from ./dist in production. We ensure JSON schemas/components
 # are present there; otherwise Content API endpoints can return 404 in prod.
-RUN echo "Cache bust: $CACHE_BUST" && npm run build && npm run copy:schemas
+RUN --mount=type=secret,id=DATABASE_HOST \
+    --mount=type=secret,id=DATABASE_PORT \
+    --mount=type=secret,id=DATABASE_NAME \
+    --mount=type=secret,id=DATABASE_USERNAME \
+    --mount=type=secret,id=DATABASE_PASSWORD \
+    --mount=type=secret,id=APP_KEYS \
+    --mount=type=secret,id=API_TOKEN_SALT \
+    --mount=type=secret,id=ADMIN_JWT_SECRET \
+    --mount=type=secret,id=JWT_SECRET \
+    --mount=type=secret,id=TRANSFER_TOKEN_SALT \
+    --mount=type=secret,id=AWS_BUCKET \
+    --mount=type=secret,id=AWS_ACCESS_KEY_ID \
+    --mount=type=secret,id=AWS_SECRET_ACCESS_KEY \
+    --mount=type=secret,id=AWS_REGION \
+    --mount=type=secret,id=AWS_ENDPOINT \
+    set -eu; \
+    export DATABASE_HOST="$(cat /run/secrets/DATABASE_HOST)"; \
+    export DATABASE_PORT="$(cat /run/secrets/DATABASE_PORT)"; \
+    export DATABASE_NAME="$(cat /run/secrets/DATABASE_NAME)"; \
+    export DATABASE_USERNAME="$(cat /run/secrets/DATABASE_USERNAME)"; \
+    export DATABASE_PASSWORD="$(cat /run/secrets/DATABASE_PASSWORD)"; \
+    export APP_KEYS="$(cat /run/secrets/APP_KEYS)"; \
+    export API_TOKEN_SALT="$(cat /run/secrets/API_TOKEN_SALT)"; \
+    export ADMIN_JWT_SECRET="$(cat /run/secrets/ADMIN_JWT_SECRET)"; \
+    export JWT_SECRET="$(cat /run/secrets/JWT_SECRET)"; \
+    export TRANSFER_TOKEN_SALT="$(cat /run/secrets/TRANSFER_TOKEN_SALT)"; \
+    export AWS_BUCKET="$(cat /run/secrets/AWS_BUCKET)"; \
+    export AWS_ACCESS_KEY_ID="$(cat /run/secrets/AWS_ACCESS_KEY_ID)"; \
+    export AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/AWS_SECRET_ACCESS_KEY)"; \
+    export AWS_REGION="$(cat /run/secrets/AWS_REGION)"; \
+    export AWS_ENDPOINT="$(cat /run/secrets/AWS_ENDPOINT)"; \
+    echo "Cache bust: $CACHE_BUST"; \
+    npm run build; \
+    npm run copy:schemas
 
 # Stage 3: Production runner
 FROM node:22-alpine AS runner

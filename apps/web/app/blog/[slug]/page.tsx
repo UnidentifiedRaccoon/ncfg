@@ -18,9 +18,19 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
+async function safeFetchNewsArticle(slug: string) {
+  try {
+    return await fetchNewsArticle(slug);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[blog/${slug}] failed to fetch article from Strapi: ${message}`);
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await fetchNewsArticle(slug);
+  const post = await safeFetchNewsArticle(slug);
 
   if (!post) {
     return {
@@ -47,11 +57,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const [siteSetting, post, allPosts] = await Promise.all([
+  const [siteSetting, allPosts] = await Promise.all([
     fetchSiteSettings(),
-    fetchNewsArticle(slug),
     fetchNewsArticles(),
   ]);
+  const post = await safeFetchNewsArticle(slug);
 
   if (!post) {
     notFound();
