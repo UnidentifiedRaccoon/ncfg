@@ -169,13 +169,21 @@ jobs:
             ].join('\n');
 
             const { owner, repo } = context.repo;
-            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number });
-            const existing = comments.find((c) => typeof c.body === 'string' && c.body.includes(marker));
+            try {
+              const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number });
+              const existing = comments.find((c) => typeof c.body === 'string' && c.body.includes(marker));
 
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-            } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              if (existing) {
+                await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+              } else {
+                await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              }
+            } catch (error) {
+              if (error?.status === 403) {
+                core.warning('Skipping preview comment: GITHUB_TOKEN has no permission to write issue comments.');
+              } else {
+                throw error;
+              }
             }
 
   cleanup-preview:
@@ -216,16 +224,24 @@ jobs:
             const marker = '<!-- ncfg-preview -->';
             const issue_number = context.payload.pull_request.number;
             const { owner, repo } = context.repo;
-            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number });
-            const existing = comments.find((c) => typeof c.body === 'string' && c.body.includes(marker));
-            if (!existing) return;
+            try {
+              const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number });
+              const existing = comments.find((c) => typeof c.body === 'string' && c.body.includes(marker));
+              if (!existing) return;
 
-            const body = [
-              marker,
-              '',
-              '### Frontend Preview',
-              `- Container: \`${process.env.CONTAINER_NAME}\``,
-              '- Status: cleaned up (PR closed)',
-            ].join('\n');
+              const body = [
+                marker,
+                '',
+                '### Frontend Preview',
+                `- Container: \`${process.env.CONTAINER_NAME}\``,
+                '- Status: cleaned up (PR closed)',
+              ].join('\n');
 
-            await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } catch (error) {
+              if (error?.status === 403) {
+                core.warning('Skipping cleanup comment update: GITHUB_TOKEN has no permission.');
+              } else {
+                throw error;
+              }
+            }
