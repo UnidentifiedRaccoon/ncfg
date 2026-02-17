@@ -115,8 +115,9 @@ jobs:
         env:
           PREVIEW_URL: ${{ steps.preview.outputs.url }}
         run: |
+          preview_base="${PREVIEW_URL%/}"
           for i in $(seq 1 20); do
-            code="$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$PREVIEW_URL/api/health" || echo "000")"
+            code="$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$preview_base/api/health" || echo "000")"
             if [ "$code" = "200" ]; then
               echo "Health check passed"
               break
@@ -228,4 +229,3 @@ jobs:
             ].join('\n');
 
             await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-
