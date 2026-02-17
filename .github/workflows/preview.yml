@@ -8,6 +8,7 @@ on:
 permissions:
   contents: read
   issues: write
+  pull-requests: write
 
 concurrency:
   group: pr-preview-web-${{ github.event.pull_request.number }}
@@ -153,6 +154,7 @@ jobs:
           CONTAINER_NAME: ncfg-web-pr-${{ github.event.pull_request.number }}
           IMAGE_TAG: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
         with:
+          github-token: ${{ secrets.PREVIEW_COMMENT_TOKEN || github.token }}
           script: |
             const marker = '<!-- ncfg-preview -->';
             const issue_number = context.payload.pull_request.number;
@@ -220,6 +222,7 @@ jobs:
         env:
           CONTAINER_NAME: ncfg-web-pr-${{ github.event.pull_request.number }}
         with:
+          github-token: ${{ secrets.PREVIEW_COMMENT_TOKEN || github.token }}
           script: |
             const marker = '<!-- ncfg-preview -->';
             const issue_number = context.payload.pull_request.number;
