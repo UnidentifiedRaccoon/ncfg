@@ -52,21 +52,21 @@ const cardStylesByVariant = {
     ),
     cardFeatured: "bg-[#F0F7FF] border-[#E2E8F0] p-6 md:p-8",
     cardDefault: "bg-white border-[#F1F5F9] p-5 md:p-6",
-    rail: "pointer-events-none absolute top-6 bottom-6 left-0 w-[2px] rounded-full bg-gradient-to-b from-[#58A8E0] via-[#3B82F6] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+    rail: "hidden",
     glow: "pointer-events-none absolute -right-24 -top-20 z-0 h-64 w-64 rounded-full bg-gradient-to-br from-[#58A8E0]/22 via-[#3B82F6]/14 to-transparent blur-2xl",
-    iconWrapFeatured: "h-12 w-12 rounded-2xl bg-[#3B82F6]/10",
-    iconWrapDefault: "h-10 w-10 rounded-xl bg-[#1E3A5F]/10",
+    iconWrapFeatured: "hidden",
+    iconWrapDefault: "hidden",
     iconFeatured: "h-6 w-6 text-[#3B82F6]",
     iconDefault:
       "h-5 w-5 text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]",
     titleFeatured:
-      "mt-5 text-2xl md:text-3xl font-bold leading-tight tracking-tight text-[#1E3A5F]",
+      "text-2xl md:text-3xl font-bold leading-tight tracking-tight text-[#1E3A5F]",
     titleDefault:
-      "mt-4 text-lg font-semibold tracking-tight text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]",
+      "text-lg font-semibold tracking-tight text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]",
     descFeatured: "mt-3 text-base md:text-lg text-[#475569] leading-relaxed",
     descDefault: "mt-3 text-sm text-[#475569] leading-relaxed line-clamp-3",
     cta: "mt-auto pt-6 flex items-center gap-2 text-[#3B82F6] transition-opacity",
-    ctaHidden: "md:opacity-0 md:group-hover:opacity-100",
+    ctaHidden: "",
     ctaTextFeatured: "text-base font-medium",
     ctaTextDefault: "text-sm font-medium",
     arrowFeatured:

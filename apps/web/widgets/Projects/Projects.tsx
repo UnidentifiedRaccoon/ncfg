@@ -6,12 +6,14 @@ import { cn } from "@/shared/lib/cn";
 const projects = [
   {
     title: "коплю-трачу-помогаю.рф",
+    label: "Социальный проект",
     description:
       "Развитие финансовой культуры с ранних лет. Социальный проект для педагогов, волонтеров и родителей.",
     href: "https://коплю-трачу-помогаю.рф",
   },
   {
     title: "культура-денег.рф",
+    label: "Медиа проект",
     description:
       "Медиа-проект о практиках развития финансового благополучия в корпоративной среде.",
     href: "https://культура-денег.рф",
@@ -49,7 +51,10 @@ export function Projects() {
 
             <div className="relative z-10 flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <h3 className="truncate text-xl font-bold tracking-tight text-[#1E3A5F]">
+                <span className="inline-flex rounded-full border border-[#3B82F6]/20 bg-[#3B82F6]/8 px-2.5 py-1 text-xs font-semibold text-[#1E3A5F]">
+                  {project.label}
+                </span>
+                <h3 className="mt-2 truncate text-xl font-bold tracking-tight text-[#1E3A5F]">
                   {project.title}
                 </h3>
               </div>

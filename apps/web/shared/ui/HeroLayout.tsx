@@ -130,9 +130,14 @@ export function HeroLayout({
         className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/10 to-black/45"
       />
 
-      <Container className="relative z-10">
+      <Container className="relative z-10 lg:max-w-[1320px]">
         <div className="py-14 md:py-20 lg:py-24">
-          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div
+            className={cn(
+              "grid gap-12 lg:grid-cols-[1.2fr_0.8fr]",
+              hasMetricsCard ? "lg:items-start" : "lg:items-center"
+            )}
+          >
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/70 backdrop-blur">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#58A8E0]" />

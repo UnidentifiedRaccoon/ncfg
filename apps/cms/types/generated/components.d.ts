@@ -261,90 +261,6 @@ export interface IndividualsProduct extends Struct.ComponentSchema {
   };
 }
 
-export interface ServiceExpertAgenda extends Struct.ComponentSchema {
-  collectionName: 'components_service_expert_agendas';
-  info: {
-    description: 'Expert role and topics for events';
-    displayName: 'Expert Agenda';
-    icon: 'user';
-  };
-  attributes: {
-    role: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 200;
-      }>;
-    topics: Schema.Attribute.Component<'shared.text-item', true>;
-  };
-}
-
-export interface ServiceMethodologyItem extends Struct.ComponentSchema {
-  collectionName: 'components_service_methodology_items';
-  info: {
-    description: 'Methodology approach item';
-    displayName: 'Methodology Item';
-    icon: 'cog';
-  };
-  attributes: {
-    description: Schema.Attribute.Text;
-    itemId: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 200;
-      }>;
-  };
-}
-
-export interface ServicePracticeBlock extends Struct.ComponentSchema {
-  collectionName: 'components_service_practice_blocks';
-  info: {
-    description: 'Practice block for challenges/marathons';
-    displayName: 'Practice Block';
-    icon: 'apps';
-  };
-  attributes: {
-    method: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    notes: Schema.Attribute.Text;
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 200;
-      }>;
-  };
-}
-
-export interface ServiceProductItem extends Struct.ComponentSchema {
-  collectionName: 'components_service_product_items';
-  info: {
-    description: 'Product offering within a service';
-    displayName: 'Product Item';
-    icon: 'shoppingCart';
-  };
-  attributes: {
-    notes: Schema.Attribute.Text;
-    pricingOptions: Schema.Attribute.Component<'shared.text-item', true>;
-    productId: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    type: Schema.Attribute.Enumeration<
-      ['online_school', 'subscription_club', 'custom_project', 'other']
-    >;
-  };
-}
-
 export interface ServiceServiceExample extends Struct.ComponentSchema {
   collectionName: 'components_service_service_examples';
   info: {
@@ -530,10 +446,6 @@ declare module '@strapi/strapi' {
       'home.testimonials': HomeTestimonials;
       'home.testimonials-more': HomeTestimonialsMore;
       'individuals.product': IndividualsProduct;
-      'service.expert-agenda': ServiceExpertAgenda;
-      'service.methodology-item': ServiceMethodologyItem;
-      'service.practice-block': ServicePracticeBlock;
-      'service.product-item': ServiceProductItem;
       'service.service-example': ServiceServiceExample;
       'shared.call-to-action': SharedCallToAction;
       'shared.faq-item': SharedFaqItem;

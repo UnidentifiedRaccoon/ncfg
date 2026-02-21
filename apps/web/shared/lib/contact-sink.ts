@@ -29,10 +29,16 @@ const RECIPIENT_EMAIL =
 
 type GetCourseUserPayload = {
   email: string;
-  first_name?: string;
-  last_name?: string;
+  name: string;
   phone?: string;
-  group_name?: string;
+};
+
+type GetCourseDealPayload = {
+  deal_number: string;
+  deal_status: string;
+  product_title: string;
+  cost: number;
+  deal_comment?: string;
   addfields?: Record<string, string>;
 };
 
@@ -46,9 +52,13 @@ type GetCourseApiResponse = {
 type GetCourseConfig = {
   baseUrl: string;
   apiKey: string;
-  leadGroupName?: string;
-  questionGroupName?: string;
   sourceValue: string;
+  deal: {
+    productTitleLead: string;
+    productTitleQuestion: string;
+    cost: number;
+    status: string;
+  };
   fields: {
     source?: string;
     company?: string;
@@ -56,6 +66,7 @@ type GetCourseConfig = {
     question?: string;
     postTitle?: string;
     requestId?: string;
+    formType?: string;
   };
 };
 
@@ -90,21 +101,26 @@ class GetCourseContactSink implements ContactSink {
   constructor(private readonly config: GetCourseConfig) {}
 
   async submitLead(data: LeadSubmission, ctx: ContactSinkContext) {
-    const { firstName, lastName } = splitName(data.name);
     const addfields = this.buildAddFields([
       [this.config.fields.source, this.config.sourceValue],
       [this.config.fields.requestId, ctx.requestId],
+      [this.config.fields.formType, "lead"],
       [this.config.fields.company, data.company],
       [this.config.fields.message, data.message],
     ]);
 
-    await this.submitUser(
+    await this.submitDeal(
       {
         email: data.email,
+        name: data.name,
         phone: data.phone,
-        first_name: firstName,
-        last_name: lastName,
-        group_name: this.config.leadGroupName,
+      },
+      {
+        deal_number: ctx.requestId,
+        deal_status: this.config.deal.status,
+        product_title: this.config.deal.productTitleLead,
+        cost: this.config.deal.cost,
+        deal_comment: this.buildLeadComment(data, ctx),
         addfields,
       },
       ctx
@@ -112,32 +128,39 @@ class GetCourseContactSink implements ContactSink {
   }
 
   async submitQuestion(data: QuestionSubmission, ctx: ContactSinkContext) {
-    const { firstName, lastName } = splitName(data.name);
     const addfields = this.buildAddFields([
       [this.config.fields.source, this.config.sourceValue],
       [this.config.fields.requestId, ctx.requestId],
+      [this.config.fields.formType, "question"],
       [this.config.fields.question, data.question],
       [this.config.fields.postTitle, data.postTitle],
     ]);
 
-    await this.submitUser(
+    await this.submitDeal(
       {
         email: data.email,
-        first_name: firstName,
-        last_name: lastName,
-        group_name: this.config.questionGroupName,
+        name: data.name,
+      },
+      {
+        deal_number: ctx.requestId,
+        deal_status: this.config.deal.status,
+        product_title: this.config.deal.productTitleQuestion,
+        cost: this.config.deal.cost,
+        deal_comment: this.buildQuestionComment(data, ctx),
         addfields,
       },
       ctx
     );
   }
 
-  private async submitUser(user: GetCourseUserPayload, ctx: ContactSinkContext) {
+  private async submitDeal(
+    user: GetCourseUserPayload,
+    deal: GetCourseDealPayload,
+    ctx: ContactSinkContext
+  ) {
     const payload = {
       user,
-      system: {
-        refresh_if_exists: 1 as const,
-      },
+      deal,
     };
 
     const body = new URLSearchParams({
@@ -146,7 +169,7 @@ class GetCourseContactSink implements ContactSink {
       params: Buffer.from(JSON.stringify(payload), "utf8").toString("base64"),
     });
 
-    const response = await fetch(`${this.config.baseUrl}/pl/api/users`, {
+    const response = await fetch(`${this.config.baseUrl}/pl/api/deals`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
@@ -173,7 +196,7 @@ class GetCourseContactSink implements ContactSink {
       throw new Error(parsedResponse.message || "GetCourse returned unsuccessful status");
     }
 
-    console.log(`[${ctx.requestId}] GetCourse contact synced for ${user.email}`);
+    console.log(`[${ctx.requestId}] GetCourse deal synced for ${user.email}`);
   }
 
   private buildAddFields(entries: Array<[string | undefined, string | undefined]>) {
@@ -186,17 +209,31 @@ class GetCourseContactSink implements ContactSink {
 
     return Object.keys(addfields).length ? addfields : undefined;
   }
-}
 
-function splitName(fullName: string) {
-  const parts = fullName.trim().split(/\s+/);
-  const firstName = parts.shift() || fullName;
-  const lastName = parts.join(" ").trim();
+  private buildLeadComment(data: LeadSubmission, ctx: ContactSinkContext) {
+    return [
+      "Форма: Заявка с сайта",
+      `Имя: ${data.name}`,
+      `Email: ${data.email}`,
+      `Телефон: ${data.phone || "не указан"}`,
+      `Компания: ${data.company || "не указана"}`,
+      `Сообщение: ${data.message || "не указано"}`,
+      `Источник: ${this.config.sourceValue}`,
+      `Request ID: ${ctx.requestId}`,
+    ].join("\n");
+  }
 
-  return {
-    firstName,
-    lastName: lastName || undefined,
-  };
+  private buildQuestionComment(data: QuestionSubmission, ctx: ContactSinkContext) {
+    return [
+      "Форма: Вопрос по статье",
+      `Статья: ${data.postTitle || "не указана"}`,
+      `Имя: ${data.name}`,
+      `Email: ${data.email}`,
+      `Вопрос: ${data.question}`,
+      `Источник: ${this.config.sourceValue}`,
+      `Request ID: ${ctx.requestId}`,
+    ].join("\n");
+  }
 }
 
 function parseGetCourseResponse(rawResponse: string): GetCourseApiResponse | null {
@@ -229,6 +266,16 @@ function asOptionalEnv(value: string | undefined) {
   return trimmed && trimmed.length ? trimmed : undefined;
 }
 
+function asOptionalNonNegativeNumber(value: string | undefined) {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed < 0) return undefined;
+
+  return parsed;
+}
+
 function normalizeBaseUrl(value: string) {
   const trimmed = value.trim().replace(/\/+$/, "");
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
@@ -255,20 +302,29 @@ function createContactSink(): ContactSink {
   const sourceValue =
     asOptionalEnv(process.env.GETCOURSE_SOURCE_VALUE) ||
     hostFromUrl(normalizedBaseUrl);
+  const dealCost = asOptionalNonNegativeNumber(process.env.GETCOURSE_DEAL_COST) ?? 0;
 
   return new GetCourseContactSink({
     baseUrl: normalizedBaseUrl,
     apiKey: getCourseApiKey,
-    leadGroupName: asOptionalEnv(process.env.GETCOURSE_LEAD_GROUP_NAME),
-    questionGroupName: asOptionalEnv(process.env.GETCOURSE_QUESTION_GROUP_NAME),
     sourceValue,
+    deal: {
+      productTitleLead:
+        asOptionalEnv(process.env.GETCOURSE_DEAL_PRODUCT_TITLE_LEAD) || "Website Lead",
+      productTitleQuestion:
+        asOptionalEnv(process.env.GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION) ||
+        "Website Question",
+      cost: dealCost,
+      status: asOptionalEnv(process.env.GETCOURSE_DEAL_STATUS) || "new",
+    },
     fields: {
-      source: asOptionalEnv(process.env.GETCOURSE_FIELD_SOURCE),
-      company: asOptionalEnv(process.env.GETCOURSE_FIELD_COMPANY),
-      message: asOptionalEnv(process.env.GETCOURSE_FIELD_MESSAGE),
-      question: asOptionalEnv(process.env.GETCOURSE_FIELD_QUESTION),
-      postTitle: asOptionalEnv(process.env.GETCOURSE_FIELD_POST_TITLE),
-      requestId: asOptionalEnv(process.env.GETCOURSE_FIELD_REQUEST_ID),
+      source: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_SOURCE),
+      company: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_COMPANY),
+      message: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_MESSAGE),
+      question: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_QUESTION),
+      postTitle: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_POST_TITLE),
+      requestId: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_REQUEST_ID),
+      formType: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_FORM_TYPE),
     },
   });
 }

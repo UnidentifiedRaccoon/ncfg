@@ -29,20 +29,6 @@ function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
 
-function DecorativeBackground() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-      aria-hidden="true"
-    >
-      <div className="absolute -top-24 left-1/2 h-72 w-[560px] -translate-x-1/2 rounded-full bg-[#58A8E0]/12 blur-3xl" />
-      <div className="absolute -bottom-24 left-1/3 h-72 w-[560px] -translate-x-1/2 rounded-full bg-[#3B82F6]/10 blur-3xl" />
-
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.35]" />
-    </div>
-  );
-}
-
 function Rail({
   align,
   prefersReducedMotion,
@@ -76,10 +62,13 @@ export function HowWeWork({ title, lead, steps }: HowWeWorkProps) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <Section id="how-we-work" title={title} lead={lead} background="gray">
+    <Section
+      id="how-we-work"
+      title={title}
+      lead={lead}
+      className="bg-[radial-gradient(circle_at_24%_42%,rgba(88,168,224,0.10),transparent_52%),radial-gradient(circle_at_76%_58%,rgba(59,130,246,0.07),transparent_50%),linear-gradient(180deg,#FFFFFF_0%,#FFFFFF_14%,#F8FBFF_30%,#F4F9FF_70%,#FFFFFF_86%,#FFFFFF_100%)]"
+    >
       <div className="relative">
-        <DecorativeBackground />
-
         <div className="relative z-10">
           {/* Desktop rail (center) */}
           <div className="hidden md:block">
@@ -92,7 +81,7 @@ export function HowWeWork({ title, lead, steps }: HowWeWorkProps) {
           </div>
 
           {/* Steps as ordered list for accessibility */}
-          <ol className="relative z-10 space-y-8 md:space-y-0 list-none m-0 p-0">
+          <ol className="relative z-10 list-none space-y-8 m-0 p-0 md:space-y-0">
             {steps.map((step, index) => (
               <TimelineItem
                 key={step.id}

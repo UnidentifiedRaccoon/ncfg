@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "STRAPI_SOURCE=local next dev",
+    "dev:local": "STRAPI_SOURCE=local next dev",
+    "dev:prod": "STRAPI_SOURCE=prod next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

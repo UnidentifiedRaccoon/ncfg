@@ -32,7 +32,7 @@ const products: Product[] = [
   {
     title: "Клуб «ФинЗдоровье»",
     description:
-      "Сообщество для взрослых, где участники учатся управлять личными финансами, планировать бюджет и достигать финансовых целей.",
+      "Образовательное онлайн пространство для взрослых, где участники учатся управлять личными финансами, планировать бюджет и достигать финансовых целей.",
     href: "https://fgrm.ncfg.ru/wellf_club",
     id: "finzdorovie_club",
     audience: "Взрослые",
@@ -42,7 +42,7 @@ const products: Product[] = [
     id: "dengins_school",
     title: "Школа «Деньгин's» и клуб «Дети в Деле»",
     description:
-      "Финансовое воспитание для детей и подростков. Интерактивные программы, которые учат ребёнка управлять деньгами с ранних лет.",
+      "Финансовое развитие детей и подростков с 6 до 17 лет. Интерактивные онлайн программы с наставниками: грамотное управление деньгами и гибкие навыки с детства.",
     href: "https://dengins.ru/",
     audience: "Дети",
     icon: "graduation-cap",
@@ -51,7 +51,7 @@ const products: Product[] = [
     id: "fin_habit_day",
     title: "День «ФинПривычки»",
     description:
-      "Однодневная интенсивная программа для формирования здоровых финансовых привычек. Практические инструменты и техники.",
+      "Регулярная практика развития здоровых финансовых привычек у взрослых и детей: накопления, инвестиции, разумные траты и другие активности.",
     href: "http://finhabit52.ru/",
     audience: "Все",
     icon: "zap",
@@ -131,7 +131,7 @@ function ProductTile({
       )}
     >
       <div
-        className="pointer-events-none absolute -right-24 -top-20 z-0 h-64 w-64 rounded-full bg-gradient-to-br from-[#58A8E0]/26 via-[#3B82F6]/16 to-transparent blur-2xl"
+        className="pointer-events-none absolute -right-24 -top-20 z-0 hidden h-64 w-64 rounded-full bg-gradient-to-br from-[#58A8E0]/26 via-[#3B82F6]/16 to-transparent blur-2xl md:block"
         aria-hidden="true"
       />
 

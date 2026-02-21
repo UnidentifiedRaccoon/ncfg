@@ -4,36 +4,26 @@
  * Provides typed fetch functions for interacting with Strapi CMS.
  */
 
-const STRAPI_REQUIRED_MESSAGE =
-  'Strapi is required. Set STRAPI_URL and STRAPI_API_TOKEN (see apps/web/.env.local.example).';
+import { getResolvedStrapiConfigOrThrow } from './strapi-config';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function normalizeStrapiToken(value: string | undefined): string | undefined {
-  if (!value) return undefined;
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-
-  // Allow passing either raw token or "Bearer <token>" (common in CI/secrets).
-  return trimmed.replace(/^Bearer\s+/i, '');
-}
-
-function normalizeBaseUrl(value: string): string {
+function normalizeBaseUrl(value: string, envName: string): string {
   const normalized = value.replace(/\/+$/, '');
   let parsed: URL;
   try {
     parsed = new URL(normalized);
   } catch {
     throw new Error(
-      `Invalid STRAPI_URL. Expected an absolute http(s) URL, got: "${normalized}".`
+      `Invalid ${envName}. Expected an absolute http(s) URL, got: "${normalized}".`
     );
   }
 
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
     throw new Error(
-      `Invalid STRAPI_URL protocol "${parsed.protocol}". Expected http: or https:.`
+      `Invalid ${envName} protocol "${parsed.protocol}". Expected http: or https:.`
     );
   }
 
@@ -41,14 +31,9 @@ function normalizeBaseUrl(value: string): string {
 }
 
 function getStrapiConfigOrThrow(): { url: string; token: string } {
-  const urlRaw = process.env.STRAPI_URL?.trim();
-  const token = normalizeStrapiToken(process.env.STRAPI_API_TOKEN);
+  const { url: urlRaw, token, urlEnv } = getResolvedStrapiConfigOrThrow();
 
-  if (!urlRaw || !token) {
-    throw new Error(STRAPI_REQUIRED_MESSAGE);
-  }
-
-  return { url: normalizeBaseUrl(urlRaw), token };
+  return { url: normalizeBaseUrl(urlRaw, urlEnv), token };
 }
 
 // ==================
@@ -124,11 +109,11 @@ function getFetchFailureHint(errorMessage: string, requestUrl: string): string |
   }
 
   if (normalized.includes('enotfound') || normalized.includes('getaddrinfo')) {
-    return "Hint: STRAPI_URL hostname can't be resolved (DNS). Check STRAPI_URL.";
+    return "Hint: selected Strapi hostname can't be resolved (DNS). Check active STRAPI_*_URL variable.";
   }
 
   if (normalized.includes('certificate') || normalized.includes('self signed') || normalized.includes('tls')) {
-    return 'Hint: TLS/certificate issue. Check STRAPI_URL protocol (http vs https) and certs.';
+    return 'Hint: TLS/certificate issue. Check active STRAPI_*_URL protocol (http vs https) and certs.';
   }
 
   return null;

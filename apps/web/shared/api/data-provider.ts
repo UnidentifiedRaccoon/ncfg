@@ -462,7 +462,7 @@ export async function fetchAboutPageData(): Promise<StrapiAboutPage> {
   return {
     id: 1,
     documentId: 'json-about-page',
-    heroHeadline: 'Лидер в сфере финансового просвещения с 2005 года',
+    heroHeadline: 'Лидер финансового просвещения с 2005 года',
     heroCta: { id: 1, label: 'Наши проекты', href: '/companies' },
     howWeWorkTitle: howWeWork.title ?? 'Как мы работаем',
     howWeWorkLead: howWeWork.description ?? null,

@@ -28,6 +28,10 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 60; // Revalidate every 60 seconds
+const ABOUT_TEAM_REQUIRED_ERROR =
+  "About page requires at least one team member in Strapi people.teamGroup";
+const ABOUT_HERO_LEAD =
+  "Проектируем и внедряем программы финансовой грамотности для регионов, бизнеса и образовательных команд. Помогаем людям и организациям принимать взвешенные финансовые решения.";
 
 function pickHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) {
   const byKey = new Map(metrics.map((m) => [m.key, m.displayValue]));
@@ -48,6 +52,10 @@ export default async function AboutPage() {
   ]);
 
   const { people } = peopleData;
+  const teamMembers = people.filter((person) => person.isTeam);
+  if (teamMembers.length === 0) {
+    throw new Error(ABOUT_TEAM_REQUIRED_ERROR);
+  }
 
   const howWeWorkSteps = [...aboutPage.howWeWorkSteps]
     .sort((a, b) => a.order - b.order)
@@ -77,6 +85,7 @@ export default async function AboutPage() {
       <main>
         <Hero
           headline={aboutPage.heroHeadline ?? ""}
+          lead={ABOUT_HERO_LEAD}
           primaryCta={
             aboutPage.heroCta
               ? { label: aboutPage.heroCta.label, href: aboutPage.heroCta.href }
@@ -94,7 +103,7 @@ export default async function AboutPage() {
           lead={aboutPage.principlesLead ?? undefined}
           principles={principles}
         />
-        <Team title="Наша команда" members={people} />
+        <Team title="Наша команда" members={teamMembers} />
         <Experts title="Наши эксперты" experts={people} />
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />

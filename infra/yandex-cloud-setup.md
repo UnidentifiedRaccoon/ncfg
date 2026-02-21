@@ -142,21 +142,44 @@ Add the following secrets to your GitHub repository:
 | `NEXT_PUBLIC_SITE_URL` | `https://<web-container-id>.containers.yandexcloud.net` | Public site URL |
 | `NEXT_PUBLIC_YANDEX_METRIKA_ID` | `106842784` | Yandex.Metrika counter ID |
 | `GETCOURSE_BASE_URL` | `https://fgrm.ncfg.ru` | GetCourse account URL |
-| `GETCOURSE_API_KEY` | API key from GetCourse | Lead/question sync key |
+| `GETCOURSE_API_KEY` | API key from GetCourse | Lead/question order sync key |
 
 Optional secrets for extended GetCourse mapping:
 
 | Secret | Value | Description |
 |--------|-------|-------------|
-| `GETCOURSE_LEAD_GROUP_NAME` | e.g. `Website Leads` | Group for lead form submissions |
-| `GETCOURSE_QUESTION_GROUP_NAME` | e.g. `Website Questions` | Group for question form submissions |
 | `GETCOURSE_SOURCE_VALUE` | e.g. `fgrm.ncfg.ru` | Source marker stored in GetCourse |
-| `GETCOURSE_FIELD_SOURCE` | code of custom field in GetCourse | Save source into custom field |
-| `GETCOURSE_FIELD_COMPANY` | code of custom field in GetCourse | Save company into custom field |
-| `GETCOURSE_FIELD_MESSAGE` | code of custom field in GetCourse | Save lead message into custom field |
-| `GETCOURSE_FIELD_QUESTION` | code of custom field in GetCourse | Save question text into custom field |
-| `GETCOURSE_FIELD_POST_TITLE` | code of custom field in GetCourse | Save post title into custom field |
-| `GETCOURSE_FIELD_REQUEST_ID` | code of custom field in GetCourse | Save request ID for tracing |
+| `GETCOURSE_DEAL_PRODUCT_TITLE_LEAD` | default `Website Lead` | Product title for lead form orders |
+| `GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION` | default `Website Question` | Product title for question form orders |
+| `GETCOURSE_DEAL_COST` | default `0` | Cost for imported orders |
+| `GETCOURSE_DEAL_STATUS` | default `new` | Initial status for imported orders |
+| `GETCOURSE_DEAL_FIELD_SOURCE` | code of deal custom field in GetCourse | Save source into deal custom field |
+| `GETCOURSE_DEAL_FIELD_COMPANY` | code of deal custom field in GetCourse | Save company into deal custom field |
+| `GETCOURSE_DEAL_FIELD_MESSAGE` | code of deal custom field in GetCourse | Save lead message into deal custom field |
+| `GETCOURSE_DEAL_FIELD_QUESTION` | code of deal custom field in GetCourse | Save question text into deal custom field |
+| `GETCOURSE_DEAL_FIELD_POST_TITLE` | code of deal custom field in GetCourse | Save post title into deal custom field |
+| `GETCOURSE_DEAL_FIELD_REQUEST_ID` | code of deal custom field in GetCourse | Save request ID for tracing |
+| `GETCOURSE_DEAL_FIELD_FORM_TYPE` | code of deal custom field in GetCourse | Save form type (`lead` / `question`) |
+
+To route every form submission into GetCourse tasks (`/pl/tasks/resp`) with full text, set at least:
+- `GETCOURSE_DEAL_FIELD_MESSAGE`
+- `GETCOURSE_DEAL_FIELD_QUESTION`
+- `GETCOURSE_DEAL_FIELD_REQUEST_ID`
+- `GETCOURSE_DEAL_FIELD_FORM_TYPE`
+
+### 2.1 GetCourse task flow (manual setup in GetCourse UI)
+
+Detailed checklist: `infra/getcourse-orders-intake.md`
+
+1. Create **deal custom fields** in GetCourse and use their codes in `GETCOURSE_DEAL_FIELD_*` secrets.
+2. Configure process on object **Orders** (`Заказы`) with launch type **Periodic check** (`Периодическая проверка`).
+3. Add process filters:
+   - `request_id` is set
+   - `deal_status` is `new` (or value from `GETCOURSE_DEAL_STATUS`)
+4. Add `Create task` action and include message/question/source/request_id in the task body.
+5. Add 2 branches by `form_type`:
+   - `lead`: focus on `message`
+   - `question`: focus on `question` + `post_title`
 
 ## 3. Get Container URLs
 

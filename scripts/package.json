@@ -4,12 +4,6 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "migrate": "node migrate-to-strapi.mjs",
-    "migrate:tags": "node migrate-to-strapi.mjs --only=tags",
-    "migrate:news": "node migrate-to-strapi.mjs --only=news",
-    "migrate:categories": "node migrate-to-strapi.mjs --only=categories",
-    "migrate:services": "node migrate-to-strapi.mjs --only=services",
-    "migrate:people": "node migrate-to-strapi.mjs --only=people",
     "media:check": "node check-and-repair-media.mjs",
     "media:fix": "node check-and-repair-media.mjs --fix",
     "media:fix:dry-run": "node check-and-repair-media.mjs --fix --dry-run"

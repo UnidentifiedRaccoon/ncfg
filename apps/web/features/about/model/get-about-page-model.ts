@@ -7,12 +7,19 @@ import { mapOrderedFaqItems } from "@/shared/lib/faq";
 import { makeFooterData } from "@/shared/lib/footer-data";
 import { makeHeroMetrics } from "@/shared/lib/hero-metrics";
 
+const ABOUT_TEAM_REQUIRED_ERROR =
+  "About page requires at least one team member in Strapi people.teamGroup";
+
 export async function getAboutPageModel() {
   const [siteSetting, aboutPage, peopleData] = await Promise.all([
     fetchSiteSettings(),
     fetchAboutPageData(),
     fetchPeopleData(),
   ]);
+  const teamMembers = peopleData.people.filter((person) => person.isTeam);
+  if (teamMembers.length === 0) {
+    throw new Error(ABOUT_TEAM_REQUIRED_ERROR);
+  }
 
   const howWeWorkSteps = [...aboutPage.howWeWorkSteps]
     .sort((a, b) => a.order - b.order)
@@ -57,4 +64,3 @@ export async function getAboutPageModel() {
     footerData: makeFooterData(siteSetting),
   };
 }
-

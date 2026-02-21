@@ -288,7 +288,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
 
             <Link
               href="/"
-              className="relative z-10 flex shrink-0 items-center gap-3 pl-3 pr-1"
+              className="relative z-10 flex shrink-0 items-center gap-1 pl-3 pr-1"
               aria-label="НЦФГ — на главную"
             >
               <Image
@@ -305,7 +305,7 @@ export function Header({ variant }: { variant?: HeaderVariant }) {
               />
               <span
                 className={cn(
-                  "text-base font-black tracking-[0.14em] leading-none sm:text-lg lg:text-xl lg:tracking-[0.18em]",
+                  "text-base font-semibold tracking-[0.11em] leading-none sm:text-xl lg:text-xl lg:tracking-[0.14em]",
                   isHeroTone ? "text-white" : "text-[#1E3A5F]"
                 )}
               >

@@ -112,15 +112,6 @@ export interface StrapiServiceExample {
   durationMinutes: string | null;
 }
 
-export interface StrapiProductItem {
-  id: number;
-  productId: string | null;
-  title: string;
-  type: 'online_school' | 'subscription_club' | 'custom_project' | 'other' | null;
-  notes: string | null;
-  pricingOptions: StrapiTextItem[];
-}
-
 export interface StrapiCallToAction {
   id: number;
   label: string;

@@ -345,34 +345,40 @@ background: rgba(59, 130, 246, 0.05);
 }
 ```
 
-### Experts (Glass Cards)
+### Experts (Capital Desk)
 
-Блок «Наши эксперты» — витрина **внешних** экспертов (без дублей с «Наша команда»). По умолчанию карточки статичные: только hover-эффекты, без клика/модалов.
+Блок «Наши эксперты» — витрина **внешних** экспертов (без дублей с «Наша команда»). Выбран паттерн `Capital Desk`: одна ведущая карточка + компактная сетка. Карточки статичные: только hover-эффекты, без клика/модалов.
 
 **Stage (canvas):**
-- Outer: `rounded-2xl ... p-px` (градиентная “1px” окантовка)
-- Inner: `rounded-2xl bg-[#F8FAFC] p-4 md:p-6 overflow-hidden`
-- Atmosphere: 1 радиальный акцент `rgba(88,168,224,0.22)` с низкой непрозрачностью
+- Outer: `rounded-2xl ... p-px` (мягкая градиентная окантовка)
+- Inner: `relative rounded-2xl bg-[#F8FAFC] p-4 md:p-6 overflow-hidden`
+- Atmosphere: лёгкий grid-слой (`opacity ~0.05`) + один glow `rgba(88,168,224,0.25)`
 
 **Layout:**
-- Mobile: горизонтальный скролл со snap, карточки `min-w-[280px]`, fade-края слева/справа
-- `md+`: `md:grid md:grid-cols-2 lg:grid-cols-4`, без `overflow-x`
+- Mobile: горизонтальный скролл со snap, первая карточка `min-w-[320px]` (featured), остальные `min-w-[280px]`, fade-края слева/справа
+- `md+`:
+  - `1` эксперт: только `FeaturedExpertCard` по центру (`max-w-3xl`)
+  - `2+` эксперта: split `grid-cols-[1.08fr_0.92fr]` (слева featured, справа compact grid)
 
-**Card (Glass):**
-- Base: `rounded-xl border border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm p-5 shadow-sm`
-- Detail: hairline highlight (top) + accent rail (left) на hover (градиент `#58A8E0 → #3B82F6`)
-- Hover: `hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25`
+**Cards:**
+- `FeaturedExpertCard`: `rounded-2xl`, крупный аватар `80px`, top accent line + постоянный left rail, усиленная тень
+- `CompactExpertCard`: `rounded-xl`, glass-основа (`bg-white/85`), hairline сверху + left rail на hover
+- Hover: `hover:-translate-y-1`, акцент через `border-[#3B82F6]/25..30`
 
-**Правило по акценту:** `#58A8E0` — только как тонкий декоративный акцент (градиенты/рейлы), не как основной цвет текста внутри карточек.
+**Правило по акценту:** `#58A8E0` используется только декоративно (градиенты/рейлы), не как основной цвет текста внутри карточек.
 
 ```tsx
-/* Stage */
-<div className="rounded-2xl bg-gradient-to-br from-[#58A8E0]/35 via-[#3B82F6]/15 to-[#1E3A5F]/10 p-px">
-  <div className="relative rounded-2xl bg-[#F8FAFC] p-4 md:p-6 overflow-hidden">...</div>
+/* Desktop split */
+<div className="grid gap-4 md:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+  <FeaturedExpertCard expert={featuredExpert} />
+  <ul className="grid auto-rows-fr gap-4 sm:grid-cols-2">...</ul>
 </div>
 
-/* Card */
-<article className="rounded-xl border border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25" />
+/* Mobile scroll */
+<ul className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory md:hidden">
+  <li className="min-w-[320px] snap-start"><FeaturedExpertCard ... /></li>
+  <li className="min-w-[280px] snap-start"><CompactExpertCard ... /></li>
+</ul>
 ```
 
 ### FAQ (Частые вопросы)
