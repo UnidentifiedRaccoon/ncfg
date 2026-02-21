@@ -4,9 +4,6 @@ import { TeamShowcase } from "@/widgets/TeamShowcase";
 import { fetchPeopleData, fetchSiteSettings } from "@/shared/api/data-provider";
 import { makeFooterData } from "@/shared/lib/footer-data";
 
-const ABOUT_TEAM_REQUIRED_ERROR =
-  "About page requires at least one team member in Strapi people.teamGroup";
-
 export const metadata: Metadata = {
   title: "Демо: Наша команда — 3 варианта | НЦФГ",
   description:
@@ -24,9 +21,6 @@ export default async function TeamShowcasePage() {
   ]);
 
   const teamMembers = peopleData.people.filter((person) => person.isTeam);
-  if (teamMembers.length === 0) {
-    throw new Error(ABOUT_TEAM_REQUIRED_ERROR);
-  }
 
   return (
     <>
