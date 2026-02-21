@@ -300,19 +300,29 @@ jobs:
       - name: Check web health
         if: needs.deploy-web.result == 'success'
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.NEXT_PUBLIC_SITE_URL }}/api/health" || echo "000")
-          if [ "$response" != "200" ]; then
-            echo "Web health check failed with status: $response"
-            exit 1
-          fi
-          echo "Web health check passed"
+          for i in $(seq 1 10); do
+            response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.NEXT_PUBLIC_SITE_URL }}/api/health" || echo "000")
+            if [ "$response" = "200" ]; then
+              echo "Web health check passed"
+              exit 0
+            fi
+            echo "Web health check attempt $i/10 failed with status: $response"
+            sleep 5
+          done
+          echo "Web health check failed after retries"
+          exit 1
 
       - name: Check CMS health
         if: needs.deploy-cms.result == 'success'
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.STRAPI_URL }}/_health" || echo "000")
-          if [ "$response" != "204" ]; then
-            echo "CMS health check failed with status: $response"
-            exit 1
-          fi
-          echo "CMS health check passed"
+          for i in $(seq 1 15); do
+            response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.STRAPI_URL }}/_health" || echo "000")
+            if [ "$response" = "204" ]; then
+              echo "CMS health check passed"
+              exit 0
+            fi
+            echo "CMS health check attempt $i/15 failed with status: $response"
+            sleep 8
+          done
+          echo "CMS health check failed after retries"
+          exit 1
