@@ -84,6 +84,7 @@ COPY --from=builder --chown=strapi:strapi /app/node_modules ./node_modules
 COPY --from=builder --chown=strapi:strapi /app/package.json ./
 COPY --from=builder --chown=strapi:strapi /app/tsconfig.json ./tsconfig.json
 COPY --from=builder --chown=strapi:strapi /app/config ./config
+COPY --from=builder --chown=strapi:strapi /app/scripts ./scripts
 COPY --from=builder --chown=strapi:strapi /app/src ./src
 COPY --from=builder --chown=strapi:strapi /app/public ./public
 COPY --from=builder --chown=strapi:strapi /app/favicon.png ./favicon.png
