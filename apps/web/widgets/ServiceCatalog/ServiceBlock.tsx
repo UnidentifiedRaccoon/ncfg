@@ -1,5 +1,4 @@
 import { cn } from "@/shared/lib/cn";
-import type { ServiceCatalogVariant } from "./ServiceCatalog";
 import { BentoCard } from "./BentoCard";
 
 interface ServiceItem {
@@ -17,7 +16,6 @@ interface ServiceBlockProps {
   title: string;
   description: string;
   items: ServiceItem[];
-  variant: ServiceCatalogVariant;
   idBase: string;
 }
 
@@ -47,7 +45,6 @@ export function ServiceBlock({
   title,
   description,
   items,
-  variant,
   idBase,
 }: ServiceBlockProps) {
   const anchorId = `${idBase}-${id}`;
@@ -62,7 +59,7 @@ export function ServiceBlock({
         // Light separation between groups without an extra "stage" wrapper.
         index > 0 && "border-t border-[#E2E8F0] pt-10 md:pt-12"
       )}
-      >
+    >
       <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="max-w-3xl">
           {showBadges && (
@@ -92,26 +89,25 @@ export function ServiceBlock({
         )}
       </header>
 
-      <div className="mt-6 md:mt-8">{renderGrid(items, variant)}</div>
+      <div className="mt-6 md:mt-8">{renderGrid(items)}</div>
     </section>
   );
 }
 
-function renderGrid(items: ServiceItem[], variant: ServiceCatalogVariant) {
+function renderGrid(items: ServiceItem[]) {
   if (items.length === 6) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-5 lg:gap-6">
         <BentoCard
           {...items[0]}
           featured
-          variant={variant}
           className="md:col-span-7 md:row-span-2"
         />
-        <BentoCard {...items[1]} variant={variant} className="md:col-span-5" />
-        <BentoCard {...items[2]} variant={variant} className="md:col-span-5" />
-        <BentoCard {...items[3]} variant={variant} className="md:col-span-4" />
-        <BentoCard {...items[4]} variant={variant} className="md:col-span-4" />
-        <BentoCard {...items[5]} variant={variant} className="md:col-span-4" />
+        <BentoCard {...items[1]} className="md:col-span-5" />
+        <BentoCard {...items[2]} className="md:col-span-5" />
+        <BentoCard {...items[3]} className="md:col-span-4" />
+        <BentoCard {...items[4]} className="md:col-span-4" />
+        <BentoCard {...items[5]} className="md:col-span-4" />
       </div>
     );
   }
@@ -120,16 +116,11 @@ function renderGrid(items: ServiceItem[], variant: ServiceCatalogVariant) {
   if (items.length === 5) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5 lg:gap-6">
-        <BentoCard
-          {...items[0]}
-          featured
-          variant={variant}
-          className="md:col-span-2"
-        />
-        <BentoCard {...items[1]} variant={variant} />
-        <BentoCard {...items[2]} variant={variant} />
-        <BentoCard {...items[3]} variant={variant} />
-        <BentoCard {...items[4]} variant={variant} />
+        <BentoCard {...items[0]} featured className="md:col-span-2" />
+        <BentoCard {...items[1]} />
+        <BentoCard {...items[2]} />
+        <BentoCard {...items[3]} />
+        <BentoCard {...items[4]} />
       </div>
     );
   }
@@ -141,11 +132,10 @@ function renderGrid(items: ServiceItem[], variant: ServiceCatalogVariant) {
         <BentoCard
           {...items[0]}
           featured
-          variant={variant}
           className="md:col-span-2 md:row-span-2"
         />
-        <BentoCard {...items[1]} variant={variant} />
-        <BentoCard {...items[2]} variant={variant} />
+        <BentoCard {...items[1]} />
+        <BentoCard {...items[2]} />
       </div>
     );
   }
@@ -154,13 +144,8 @@ function renderGrid(items: ServiceItem[], variant: ServiceCatalogVariant) {
   if (items.length === 2) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-5 md:gap-5 lg:gap-6">
-        <BentoCard
-          {...items[0]}
-          featured
-          variant={variant}
-          className="md:col-span-3"
-        />
-        <BentoCard {...items[1]} variant={variant} className="md:col-span-2" />
+        <BentoCard {...items[0]} featured className="md:col-span-3" />
+        <BentoCard {...items[1]} className="md:col-span-2" />
       </div>
     );
   }
@@ -169,7 +154,7 @@ function renderGrid(items: ServiceItem[], variant: ServiceCatalogVariant) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
       {items.map((item) => (
-        <BentoCard key={item.href} {...item} variant={variant} />
+        <BentoCard key={item.href} {...item} />
       ))}
     </div>
   );

@@ -1,25 +1,3 @@
-export type ApiErrorCode =
-  | "INVALID_JSON"
-  | "VALIDATION_ERROR"
-  | "RATE_LIMITED"
-  | "INTERNAL_ERROR";
-
-export type RateLimitInfo = {
-  limit: number;
-  remaining: number;
-  resetAtMs: number;
-};
-
-export type RateLimitCheckResult = RateLimitInfo & { allowed: boolean };
-
-type RateLimitStoreEntry = {
-  count: number;
-  resetAtMs: number;
-};
-
-const rateLimitStore = new Map<string, RateLimitStoreEntry>();
-let lastPruneAtMs = 0;
-
 export function getOrCreateRequestId(request: Request) {
   const headerValue = request.headers.get("x-request-id");
   if (headerValue && headerValue.length <= 128) return headerValue;
@@ -43,51 +21,6 @@ export function getClientIp(request: Request) {
   if (cfConnectingIp) return cfConnectingIp.trim();
 
   return "unknown";
-}
-
-export function checkRateLimit(
-  key: string,
-  opts: { windowMs: number; max: number }
-): RateLimitCheckResult {
-  const now = Date.now();
-
-  if (now - lastPruneAtMs > opts.windowMs) {
-    for (const [storeKey, entry] of rateLimitStore) {
-      if (entry.resetAtMs <= now) rateLimitStore.delete(storeKey);
-    }
-    lastPruneAtMs = now;
-  }
-
-  const existing = rateLimitStore.get(key);
-  if (!existing || existing.resetAtMs <= now) {
-    const resetAtMs = now + opts.windowMs;
-    rateLimitStore.set(key, { count: 1, resetAtMs });
-    return {
-      allowed: true,
-      limit: opts.max,
-      remaining: Math.max(0, opts.max - 1),
-      resetAtMs,
-    };
-  }
-
-  if (existing.count >= opts.max) {
-    return {
-      allowed: false,
-      limit: opts.max,
-      remaining: 0,
-      resetAtMs: existing.resetAtMs,
-    };
-  }
-
-  existing.count += 1;
-  rateLimitStore.set(key, existing);
-
-  return {
-    allowed: true,
-    limit: opts.max,
-    remaining: Math.max(0, opts.max - existing.count),
-    resetAtMs: existing.resetAtMs,
-  };
 }
 
 export async function readJsonSafe(request: Request) {

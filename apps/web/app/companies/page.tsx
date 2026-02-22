@@ -64,7 +64,7 @@ export default async function CompaniesPage() {
               : undefined
           }
         />
-        <ServiceCatalog services={serviceBlocks} variant="glass" showBadges={false} />
+        <ServiceCatalog services={serviceBlocks} showBadges={false} />
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />
       </main>

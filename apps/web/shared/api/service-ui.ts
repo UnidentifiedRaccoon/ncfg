@@ -7,7 +7,7 @@
 import { buildQueryString, fetchAPI, type StrapiResponse } from '../lib/strapi';
 import type { StrapiServiceUi } from './types/strapi';
 
-export async function getServiceUis(): Promise<StrapiServiceUi[]> {
+async function getServiceUis(): Promise<StrapiServiceUi[]> {
   const query = buildQueryString({
     populate: ['service'],
     sort: 'updatedAt:desc',
@@ -34,4 +34,3 @@ export async function getServiceUiIconMap(): Promise<Record<string, string>> {
 
   return map;
 }
-

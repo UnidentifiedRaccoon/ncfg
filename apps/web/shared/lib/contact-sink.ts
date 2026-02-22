@@ -1,3 +1,5 @@
+import nodemailer from "nodemailer";
+
 export type LeadSubmission = {
   name: string;
   email: string;
@@ -24,8 +26,10 @@ export interface ContactSink {
   submitQuestion(data: QuestionSubmission, ctx: ContactSinkContext): Promise<void>;
 }
 
-const RECIPIENT_EMAIL =
-  process.env.LEADS_RECIPIENT_EMAIL || "yura.posledov@yandex.ru";
+const DEFAULT_RECIPIENT_EMAILS = [
+  "aedengina@ncfg.ru",
+  "yura.posledov@yandex.ru",
+];
 
 type GetCourseUserPayload = {
   email: string;
@@ -70,10 +74,22 @@ type GetCourseConfig = {
   };
 };
 
+type PostboxConfig = {
+  host: string;
+  port: number;
+  secure: boolean;
+  apiKeyId: string;
+  apiKeySecret: string;
+  fromEmail: string;
+  recipients: string[];
+};
+
 class ConsoleContactSink implements ContactSink {
+  constructor(private readonly recipients: string[]) {}
+
   async submitLead(data: LeadSubmission, ctx: ContactSinkContext) {
     console.log(`[${ctx.requestId}] === Новая заявка с сайта НЦФГ ===`);
-    console.log(`Получатель: ${RECIPIENT_EMAIL}`);
+    console.log(`Получатели: ${this.recipients.join(", ")}`);
     console.log(`IP: ${ctx.clientIp}`);
     if (ctx.userAgent) console.log(`UA: ${ctx.userAgent}`);
     console.log(`Имя: ${data.name}`);
@@ -86,7 +102,7 @@ class ConsoleContactSink implements ContactSink {
 
   async submitQuestion(data: QuestionSubmission, ctx: ContactSinkContext) {
     console.log(`[${ctx.requestId}] === Новый вопрос с сайта НЦФГ ===`);
-    console.log(`Получатель: ${RECIPIENT_EMAIL}`);
+    console.log(`Получатели: ${this.recipients.join(", ")}`);
     console.log(`IP: ${ctx.clientIp}`);
     if (ctx.userAgent) console.log(`UA: ${ctx.userAgent}`);
     console.log(`Статья: ${data.postTitle || "не указана"}`);
@@ -94,6 +110,83 @@ class ConsoleContactSink implements ContactSink {
     console.log(`Email: ${data.email}`);
     console.log(`Вопрос: ${data.question}`);
     console.log("================================");
+  }
+}
+
+class PostboxEmailContactSink implements ContactSink {
+  private readonly transporter: nodemailer.Transporter;
+
+  constructor(private readonly config: PostboxConfig) {
+    this.transporter = nodemailer.createTransport({
+      host: config.host,
+      port: config.port,
+      secure: config.secure,
+      auth: {
+        user: config.apiKeyId,
+        pass: config.apiKeySecret,
+      },
+    });
+  }
+
+  async submitLead(data: LeadSubmission, ctx: ContactSinkContext) {
+    await this.sendEmail({
+      subject: `[NCFG][Lead] Новая заявка (${ctx.requestId})`,
+      replyTo: data.email,
+      text: [
+        "Форма: Заявка с сайта",
+        "",
+        `Имя: ${data.name}`,
+        `Email: ${data.email}`,
+        `Телефон: ${data.phone || "не указан"}`,
+        `Компания: ${data.company || "не указана"}`,
+        `Сообщение: ${data.message || "не указано"}`,
+        "",
+        `Request ID: ${ctx.requestId}`,
+        `IP: ${ctx.clientIp}`,
+        `User-Agent: ${ctx.userAgent || "не указан"}`,
+      ].join("\n"),
+    });
+
+    console.log(`[${ctx.requestId}] Postbox lead email sent for ${data.email}`);
+  }
+
+  async submitQuestion(data: QuestionSubmission, ctx: ContactSinkContext) {
+    await this.sendEmail({
+      subject: `[NCFG][Question] Новый вопрос (${ctx.requestId})`,
+      replyTo: data.email,
+      text: [
+        "Форма: Вопрос по статье",
+        "",
+        `Статья: ${data.postTitle || "не указана"}`,
+        `Имя: ${data.name}`,
+        `Email: ${data.email}`,
+        `Вопрос: ${data.question}`,
+        "",
+        `Request ID: ${ctx.requestId}`,
+        `IP: ${ctx.clientIp}`,
+        `User-Agent: ${ctx.userAgent || "не указан"}`,
+      ].join("\n"),
+    });
+
+    console.log(`[${ctx.requestId}] Postbox question email sent for ${data.email}`);
+  }
+
+  private async sendEmail({
+    subject,
+    replyTo,
+    text,
+  }: {
+    subject: string;
+    replyTo: string;
+    text: string;
+  }) {
+    await this.transporter.sendMail({
+      from: this.config.fromEmail,
+      to: this.config.recipients,
+      subject,
+      text,
+      replyTo,
+    });
   }
 }
 
@@ -276,6 +369,16 @@ function asOptionalNonNegativeNumber(value: string | undefined) {
   return parsed;
 }
 
+function asOptionalPositiveInteger(value: string | undefined) {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+
+  const parsed = Number(trimmed);
+  if (!Number.isInteger(parsed) || parsed <= 0) return undefined;
+
+  return parsed;
+}
+
 function normalizeBaseUrl(value: string) {
   const trimmed = value.trim().replace(/\/+$/, "");
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
@@ -290,12 +393,63 @@ function hostFromUrl(value: string) {
   }
 }
 
+function parseRecipientEmails(value: string | undefined) {
+  if (!value) return [];
+
+  const dedupMap = new Map<string, string>();
+  for (const rawEmail of value.split(",")) {
+    const normalized = rawEmail.trim();
+    if (!normalized) continue;
+    const key = normalized.toLowerCase();
+    if (!dedupMap.has(key)) dedupMap.set(key, normalized);
+  }
+
+  return Array.from(dedupMap.values());
+}
+
+function resolveRecipientEmails() {
+  const recipientsFromList = parseRecipientEmails(
+    asOptionalEnv(process.env.LEADS_RECIPIENT_EMAILS)
+  );
+  if (recipientsFromList.length > 0) {
+    return recipientsFromList;
+  }
+
+  const fallbackRecipient = asOptionalEnv(process.env.LEADS_RECIPIENT_EMAIL);
+  if (fallbackRecipient) {
+    return [fallbackRecipient];
+  }
+
+  return DEFAULT_RECIPIENT_EMAILS;
+}
+
 function createContactSink(): ContactSink {
+  const recipientEmails = resolveRecipientEmails();
+  const postboxApiKeyId = asOptionalEnv(process.env.POSTBOX_API_KEY_ID);
+  const postboxApiKeySecret = asOptionalEnv(process.env.POSTBOX_API_KEY_SECRET);
+  const postboxFromEmail = asOptionalEnv(process.env.POSTBOX_FROM_EMAIL);
+
+  if (postboxApiKeyId && postboxApiKeySecret && postboxFromEmail) {
+    const postboxHost =
+      asOptionalEnv(process.env.POSTBOX_SMTP_HOST) || "postbox.cloud.yandex.net";
+    const postboxPort = asOptionalPositiveInteger(process.env.POSTBOX_SMTP_PORT) ?? 465;
+
+    return new PostboxEmailContactSink({
+      host: postboxHost,
+      port: postboxPort,
+      secure: postboxPort === 465,
+      apiKeyId: postboxApiKeyId,
+      apiKeySecret: postboxApiKeySecret,
+      fromEmail: postboxFromEmail,
+      recipients: recipientEmails,
+    });
+  }
+
   const getCourseApiKey = asOptionalEnv(process.env.GETCOURSE_API_KEY);
   const getCourseBaseUrl = asOptionalEnv(process.env.GETCOURSE_BASE_URL);
 
   if (!getCourseApiKey || !getCourseBaseUrl) {
-    return new ConsoleContactSink();
+    return new ConsoleContactSink(recipientEmails);
   }
 
   const normalizedBaseUrl = normalizeBaseUrl(getCourseBaseUrl);

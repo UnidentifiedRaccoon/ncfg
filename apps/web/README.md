@@ -57,10 +57,19 @@ Required GitHub Actions secrets:
 - `STRAPI_URL` = `https://admin.ncfg.ru`
 - `STRAPI_API_TOKEN` = your read-only token
 - `NEXT_PUBLIC_SITE_URL` = public site URL (used for health-checks and metadata)
+- `POSTBOX_API_KEY_ID` = Postbox API key ID
+- `POSTBOX_API_KEY_SECRET` = Postbox API key secret
+- `POSTBOX_FROM_EMAIL` = verified sender email (recommended: `no-reply@ncfg.ru`)
+- `LEADS_RECIPIENT_EMAILS` = `aedengina@ncfg.ru,yura.posledov@yandex.ru`
+
+Optional GitHub Actions secrets (Postbox):
+- `POSTBOX_SMTP_HOST` (default: `postbox.cloud.yandex.net`)
+- `POSTBOX_SMTP_PORT` (default: `465`)
+- `LEADS_RECIPIENT_EMAIL` (legacy single-recipient fallback)
+
+Optional GitHub Actions secrets (GetCourse fallback/enrichment):
 - `GETCOURSE_BASE_URL` = `https://fgrm.ncfg.ru`
 - `GETCOURSE_API_KEY` = API key from GetCourse account
-
-Optional GitHub Actions secrets (GetCourse enrichment):
 - `GETCOURSE_SOURCE_VALUE` (example: `fgrm.ncfg.ru`)
 - `GETCOURSE_DEAL_PRODUCT_TITLE_LEAD` (default: `Website Lead`)
 - `GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION` (default: `Website Question`)
@@ -73,6 +82,20 @@ Optional GitHub Actions secrets (GetCourse enrichment):
 - `GETCOURSE_DEAL_FIELD_POST_TITLE`
 - `GETCOURSE_DEAL_FIELD_REQUEST_ID`
 - `GETCOURSE_DEAL_FIELD_FORM_TYPE`
+
+### Postbox runbook (temporary lead intake)
+
+1. In Yandex Cloud Postbox, verify sender/domain for `POSTBOX_FROM_EMAIL` (for example `no-reply@ncfg.ru`).
+2. Create API key with permission to send Postbox emails and save:
+   - `POSTBOX_API_KEY_ID`
+   - `POSTBOX_API_KEY_SECRET`
+3. Add/update GitHub Actions secrets listed above.
+4. Deploy `main` and submit:
+   - one `lead` form (`/api/lead`)
+   - one `question` form (`/api/question`)
+5. Confirm both emails are delivered to:
+   - `aedengina@ncfg.ru`
+   - `yura.posledov@yandex.ru`
 
 For task-oriented intake in GetCourse (`/pl/tasks/resp`), configure at least:
 - `GETCOURSE_DEAL_FIELD_MESSAGE`

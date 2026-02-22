@@ -298,16 +298,10 @@ background: rgba(59, 130, 246, 0.05);
 - CTA: `#lead-form` (на страницах блога — `/#lead-form`)
 - Mobile: burger + dropdown panel
 
-**Варианты дизайна (переключаемые):**
-- `dock` (по умолчанию): стеклянная капсула‑dock, без внешнего grid‑фона; CTA в pill‑форме (`rounded-full`).
+**Текущая реализация (фиксированная):**
+- `dock`: стеклянная капсула‑dock, без внешнего grid‑фона; CTA в pill‑форме (`rounded-full`).
   - Авто-инверсия на границе Hero: пока Hero “под” хедером — тёмный glass (hero-tone), после — светлый glass (surface-tone).
   - Граница определяется sentinel-элементом `data-header-hero-end` внутри `HeroLayout`.
-- `rail`: строгая “рейка” с underline‑индикатором активной страницы.
-- `pills`: центрированный pill‑nav (акцент на навигации).
-
-**Как переключать:**
-- через env: `NEXT_PUBLIC_HEADER_VARIANT=dock|rail|pills`
-- или пропсом компонента: `<Header variant="dock" />`
 
 ### Footer
 
@@ -318,14 +312,8 @@ background: rgba(59, 130, 246, 0.05);
 - Колонки: бренд/контакты, навигация, соцсети + юр. ссылки, юр. документы (если есть).
 - Нижняя полоса: `© {years} {shortName}.` + 1–2 строки юридического текста.
 
-**Варианты (переключаемые):**
-- `hero` (default): фон как `HeroLayout` (`#050B16` + glow + grid), панель цельная `bg-[#0B1324]` (без blur).
-- `navy`: строгий `Deep Navy #1E3A5F`, без glow; hairline‑линия сверху; панель более спокойная `bg-white/[0.04]`.
-- `light`: `Gray 50 #F8FAFC` + очень лёгкие glow + grid; панель `bg-white/80 border-[#E2E8F0]/70`.
-
-**Как переключать:**
-- через env: `NEXT_PUBLIC_FOOTER_VARIANT=hero|navy|light`
-- или пропсом компонента: `<Footer variant="hero" />` (проп имеет приоритет)
+**Текущая реализация (фиксированная):**
+- `hero`: фон как `HeroLayout` (`#050B16` + glow + grid), панель цельная `bg-[#0B1324]` (без blur).
 
 ### Cards
 
@@ -389,7 +377,7 @@ background: rgba(59, 130, 246, 0.05);
 - Секция: белый фон, стандартный `Section` заголовок (H2) + опциональный lead.
 - Контейнер: **одна** основная карточка (аккордеон) без внешней рамки-обёртки, чтобы не было эффекта “карточка в карточке”.
 - Атмосфера: деликатный grid + 1–2 glow размещаем **внутри** карточки (через абсолютный overlay) или за ней, но без видимого внешнего контура.
-- Внутри: либо аккордеон-список, либо сетка карточек (для быстрого сканирования).
+- Внутри: аккордеон-список в одном stage-контейнере.
 
 **Вариант A — Stage Accordion (рекомендуем):**
 - Accordion card (единый контейнер, без внешнего “stage”):
@@ -400,16 +388,6 @@ background: rgba(59, 130, 246, 0.05);
   - Open-state: лёгкая подложка + hairline highlight сверху + акцентный rail слева (градиент `#58A8E0 → #3B82F6`)
   - Toggle icon: chevron (rotate 180 на open)
 - Footer CTA: строка внутри карточки, отделена `border-t`, кнопка `secondary` на `#lead-form`
-
-**Вариант B — Split + Support (для длинных страниц/продуктов):**
-- Layout: `grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start`
-- Left: support-card (glass) + 2–3 буллета ценности + secondary CTA на `#lead-form`
-- Right: тот же Stage Accordion
-
-**Вариант C — Cards Grid (для “быстрого FAQ”):**
-- Grid: `grid gap-4 md:grid-cols-2`
-- Card: glass card, внутри `<details><summary>`
-- Toggle icon: plus (rotate 45 на open)
 
 **Правила текста:**
 - Вопрос: 1 строка (макс 2), без вводных слов (“подскажите”, “скажите пожалуйста”).
@@ -422,9 +400,7 @@ background: rgba(59, 130, 246, 0.05);
 
 **API (widgets/FAQ):**
 ```tsx
-<FAQ title="Частые вопросы" items={faqItems} variant="stage" />
-<FAQ title="Частые вопросы" items={faqItems} variant="split" />
-<FAQ title="Частые вопросы" items={faqItems} variant="cards" />
+<FAQ title="Частые вопросы" items={faqItems} />
 ```
 
 ### Form Inputs
@@ -670,9 +646,8 @@ md+ (row split):
 
 **Отображение в UI:**
 - На карточке и в статье показываем **одну** рубрику (chip/pill) + дата.
-- Для списка `/blog` поддерживаем 2 layout-варианта (A/B) через URL:
-  - `layout=rail` (default): на `lg+` появляется левый rubrics-rail (sticky), на mobile остаются sticky-pills.
-  - `layout=pills`: горизонтальные banking-pills под заголовком (скролл на mobile).
+- Для списка `/blog` используется единый layout:
+  - `rail`: на `lg+` появляется левый rubrics-rail (sticky), на mobile остаются sticky-pills.
 ```
 
 ### Grid System

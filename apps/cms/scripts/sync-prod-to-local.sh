@@ -10,7 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CMS_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-LOCKBOX_SECRET_ID="${YC_LOCKBOX_SECRET_ID:-e6qq55t01lh3c7i12ftk}"
+LOCKBOX_SECRET_ID="${YC_LOCKBOX_SECRET_ID:-e6qdhpk7sa19oiqk8m6s}"
 LOCKBOX_VERSION_ID="${YC_LOCKBOX_VERSION_ID:-}"
 TMP_DIR="${SYNC_TMP_DIR:-/tmp}"
 

@@ -11,14 +11,3 @@ export type BlogRubricSlug = (typeof BLOG_RUBRICS)[number]["slug"];
 export function isBlogRubricSlug(value: unknown): value is BlogRubricSlug {
   return BLOG_RUBRICS.some((r) => r.slug === value);
 }
-
-export type BlogLayoutVariant = "pills" | "rail";
-
-export function isBlogLayoutVariant(value: unknown): value is BlogLayoutVariant {
-  return value === "pills" || value === "rail";
-}
-
-export function getBlogRubricTitle(slug: BlogRubricSlug): string {
-  return BLOG_RUBRICS.find((r) => r.slug === slug)?.title ?? slug;
-}
-

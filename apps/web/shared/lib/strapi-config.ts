@@ -86,12 +86,3 @@ export function getResolvedStrapiConfigOrThrow(): ResolvedStrapiConfig {
 
   return { source, url, token, urlEnv, tokenEnv };
 }
-
-export function hasResolvedStrapiConfig(): boolean {
-  try {
-    getResolvedStrapiConfigOrThrow();
-    return true;
-  } catch {
-    return false;
-  }
-}

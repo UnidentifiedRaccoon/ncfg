@@ -4,7 +4,7 @@ import { Section } from "@/shared/ui/Section";
 import { PostCard, type PostCardPost } from "@/entities/Post";
 import { Button } from "@/shared/ui/Button";
 
-import { BLOG_RUBRICS, type BlogLayoutVariant, type BlogRubricSlug } from "@/shared/lib/blog-rubrics";
+import { BLOG_RUBRICS, type BlogRubricSlug } from "@/shared/lib/blog-rubrics";
 import { cn } from "@/shared/lib/cn";
 import { makeExcerpt, stripHtmlToText } from "@/shared/lib/excerpt";
 
@@ -17,18 +17,14 @@ interface BlogPostsProps {
   lead?: string;
   posts: BlogPost[];
   selectedCategory?: BlogRubricSlug;
-  layout?: BlogLayoutVariant;
 }
 
 function buildBlogHref(options: {
   category?: BlogRubricSlug;
-  layout?: BlogLayoutVariant;
 }): string {
   const params = new URLSearchParams();
 
   if (options.category) params.set("category", options.category);
-  // Keep URLs clean: `rail` is the default layout, so we only persist `layout=pills`.
-  if (options.layout === "pills") params.set("layout", "pills");
 
   const qs = params.toString();
   return qs ? `/blog?${qs}` : "/blog";
@@ -36,11 +32,9 @@ function buildBlogHref(options: {
 
 function PillsNav({
   active,
-  layout,
   className,
 }: {
   active?: BlogRubricSlug;
-  layout?: BlogLayoutVariant;
   className?: string;
 }) {
   const items: Array<{ title: string; slug?: BlogRubricSlug }> = [
@@ -60,7 +54,6 @@ function PillsNav({
           "relative overflow-hidden rounded-none border border-[#E2E8F0]/70 bg-white/80 backdrop-blur-sm shadow-sm lg:rounded-2xl"
         )}
       >
-        {/* Glass sheen */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/70 to-transparent"
@@ -68,7 +61,7 @@ function PillsNav({
         <div className="flex gap-2 overflow-x-auto px-3 py-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {items.map((item) => {
             const isActive = item.slug ? item.slug === active : !active;
-            const href = buildBlogHref({ category: item.slug, layout });
+            const href = buildBlogHref({ category: item.slug });
 
             return (
               <Link
@@ -95,10 +88,8 @@ function PillsNav({
 
 function RailNav({
   active,
-  layout,
 }: {
   active?: BlogRubricSlug;
-  layout?: BlogLayoutVariant;
 }) {
   const items: Array<{ title: string; slug?: BlogRubricSlug; order: number }> = [
     { title: "Все", order: 0 },
@@ -110,7 +101,7 @@ function RailNav({
       <div className="flex flex-col gap-3 pl-1">
         {items.map((item) => {
           const isActive = item.slug ? item.slug === active : !active;
-          const href = buildBlogHref({ category: item.slug, layout });
+          const href = buildBlogHref({ category: item.slug });
 
           return (
             <Link
@@ -137,10 +128,7 @@ export function BlogPosts({
   lead,
   posts,
   selectedCategory,
-  layout = "rail",
 }: BlogPostsProps) {
-  const isRailLayout = layout === "rail";
-
   return (
     <Section
       id="blog"
@@ -155,101 +143,56 @@ export function BlogPosts({
         className="pointer-events-none absolute inset-x-0 top-0 h-[340px] content-[''] [background-image:radial-gradient(640px_circle_at_12%_22%,rgba(88,168,224,0.18),transparent_55%),radial-gradient(560px_circle_at_88%_10%,rgba(59,130,246,0.14),transparent_60%),radial-gradient(760px_circle_at_55%_-10%,rgba(30,58,95,0.10),transparent_65%)] [mask-image:linear-gradient(to_bottom,black,transparent_92%)] -z-10"
       />
 
-      {!isRailLayout && (
-        <PillsNav active={selectedCategory} layout={layout} className="mb-6" />
-      )}
+      <div className="lg:hidden sticky top-[72px] z-40 mb-6">
+        <PillsNav active={selectedCategory} />
+      </div>
 
-      {isRailLayout ? (
-        <>
-          <div className="lg:hidden sticky top-[72px] z-40 mb-6">
-            <PillsNav active={selectedCategory} layout={layout} />
-          </div>
+      <div className="grid gap-6 lg:grid-cols-12 lg:gap-8">
+        <div className="hidden lg:block lg:col-span-4">
+          <RailNav active={selectedCategory} />
+        </div>
 
-          <div className="grid gap-6 lg:grid-cols-12 lg:gap-8">
-            <div className="hidden lg:block lg:col-span-4">
-              <RailNav active={selectedCategory} layout={layout} />
-            </div>
-
-            <div className="lg:col-span-8">
-            {posts.length === 0 ? (
-              <div className="mx-auto w-full max-w-[760px] overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white/80 backdrop-blur-sm shadow-sm">
-                <div className="p-6 md:p-8">
-                  <p className="text-base md:text-lg font-semibold text-[#1E3A5F]">
-                    В этой рубрике пока нет материалов.
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-[#475569]">
-                    Попробуйте выбрать другую рубрику или вернитесь ко всем публикациям.
-                  </p>
-                  <div className="mt-6">
-                    <Button href={buildBlogHref({ layout })} variant="secondary" className="w-full">
-                      Показать все
-                    </Button>
-                  </div>
+        <div className="lg:col-span-8">
+          {posts.length === 0 ? (
+            <div className="mx-auto w-full max-w-[760px] overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white/80 backdrop-blur-sm shadow-sm">
+              <div className="p-6 md:p-8">
+                <p className="text-base md:text-lg font-semibold text-[#1E3A5F]">
+                  В этой рубрике пока нет материалов.
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-[#475569]">
+                  Попробуйте выбрать другую рубрику или вернитесь ко всем публикациям.
+                </p>
+                <div className="mt-6">
+                  <Button href="/blog" variant="secondary" className="w-full">
+                    Показать все
+                  </Button>
                 </div>
               </div>
-            ) : (
-              <div className="flex flex-col items-center gap-6">
-                {posts.map((post) => {
-                  const excerpt = makeExcerpt(stripHtmlToText(post.body), 170);
-
-                  return (
-                    <PostCard
-                      key={post.id}
-                      post={{
-                        id: post.id,
-                        title: post.title,
-                        category: post.category,
-                        slug: post.slug,
-                        anonsImage: post.anonsImage,
-                        createdAt: post.createdAt,
-                        excerpt,
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-        </>
-      ) : posts.length === 0 ? (
-        <div className="mx-auto w-full max-w-[760px] overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white/80 backdrop-blur-sm shadow-sm">
-          <div className="p-6 md:p-8 text-center">
-            <p className="text-base md:text-lg font-semibold text-[#1E3A5F]">
-              В этой рубрике пока нет материалов.
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-[#475569]">
-              Попробуйте выбрать другую рубрику или вернитесь ко всем публикациям.
-            </p>
-            <div className="mt-6">
-              <Button href={buildBlogHref({ layout })} variant="secondary" className="w-full">
-                Показать все
-              </Button>
             </div>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-6">
-          {posts.map((post) => {
-            const excerpt = makeExcerpt(stripHtmlToText(post.body), 170);
+          ) : (
+            <div className="flex flex-col items-center gap-6">
+              {posts.map((post) => {
+                const excerpt = makeExcerpt(stripHtmlToText(post.body), 170);
 
-            return (
-              <PostCard
-                key={post.id}
-                post={{
-                  id: post.id,
-                  title: post.title,
-                  category: post.category,
-                  slug: post.slug,
-                  anonsImage: post.anonsImage,
-                  createdAt: post.createdAt,
-                  excerpt,
-                }}
-              />
-            );
-          })}
+                return (
+                  <PostCard
+                    key={post.id}
+                    post={{
+                      id: post.id,
+                      title: post.title,
+                      category: post.category,
+                      slug: post.slug,
+                      anonsImage: post.anonsImage,
+                      createdAt: post.createdAt,
+                      excerpt,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </Section>
   );
 }

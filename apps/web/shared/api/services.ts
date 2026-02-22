@@ -11,7 +11,7 @@ import type { StrapiService, StrapiServiceCategory, StrapiTextItem } from './typ
 // Service Categories
 // ==================
 
-export async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
+async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
   const query = buildQueryString({
     populate: {
       services: {
@@ -31,95 +31,6 @@ export async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
   return response.data;
 }
 
-export async function getServiceCategoriesSummary(): Promise<StrapiServiceCategory[]> {
-  const query = buildQueryString({
-    sort: 'order:asc',
-    pagination: { limit: 100 },
-  });
-
-  const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
-    `/service-categories${query}`,
-    { tags: ['services'] }
-  );
-
-  return response.data;
-}
-
-export async function getServiceCategory(slug: string): Promise<StrapiServiceCategory | null> {
-  const query = buildQueryString({
-    populate: {
-      services: {
-        populate: '*',
-        sort: ['order:asc'],
-      },
-    },
-    filters: {
-      slug: { $eq: slug },
-    },
-    publicationState: 'live',
-  });
-
-  const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
-    `/service-categories${query}`,
-    { tags: ['services', `service-category-${slug}`] }
-  );
-
-  return response.data[0] || null;
-}
-
-// ==================
-// Services
-// ==================
-
-export async function getServices(): Promise<StrapiService[]> {
-  const query = buildQueryString({
-    populate: '*',
-    sort: 'order:asc',
-    pagination: { limit: 100 },
-    publicationState: 'live',
-  });
-
-  const response = await fetchAPI<StrapiResponse<StrapiService[]>>(
-    `/services${query}`,
-    { tags: ['services'] }
-  );
-
-  return response.data;
-}
-
-export async function getService(slug: string): Promise<StrapiService | null> {
-  const query = buildQueryString({
-    populate: '*',
-    filters: {
-      slug: { $eq: slug },
-    },
-    publicationState: 'live',
-  });
-
-  const response = await fetchAPI<StrapiResponse<StrapiService[]>>(
-    `/services${query}`,
-    { tags: ['services', `service-${slug}`] }
-  );
-
-  return response.data[0] || null;
-}
-
-export async function getPublishedServices(): Promise<StrapiService[]> {
-  const query = buildQueryString({
-    populate: '*',
-    sort: 'order:asc',
-    pagination: { limit: 100 },
-    publicationState: 'live',
-  });
-
-  const response = await fetchAPI<StrapiResponse<StrapiService[]>>(
-    `/services${query}`,
-    { tags: ['services'] }
-  );
-
-  return response.data;
-}
-
 // ==================
 // Helper: Transform to legacy format
 // ==================
@@ -131,7 +42,7 @@ function extractTextItems(items: StrapiTextItem[] | null | undefined): string[] 
   return items.map(item => item.text);
 }
 
-export function transformToLegacyService(service: StrapiService): Service {
+function transformToLegacyService(service: StrapiService): Service {
   const examples: ServiceExample[] | undefined = service.examples?.length ?
     service.examples.map(ex => ({
       id: ex.exampleId || ex.id,
@@ -162,7 +73,7 @@ export function transformToLegacyService(service: StrapiService): Service {
   };
 }
 
-export function transformToLegacyCategory(category: StrapiServiceCategory): ServiceCategory {
+function transformToLegacyCategory(category: StrapiServiceCategory): ServiceCategory {
   return {
     id: category.slug,
     order: category.order,

@@ -531,13 +531,3 @@ export async function fetchPeopleData(): Promise<PeopleData> {
     expertPeopleIds: legacyPeople.filter((p) => p.isExpert).map((p) => p.id),
   };
 }
-
-export async function fetchTeamMembers(): Promise<LegacyPerson[]> {
-  const data = await fetchPeopleData();
-  return data.people.filter((p) => p.isTeam);
-}
-
-export async function fetchExperts(): Promise<LegacyPerson[]> {
-  const data = await fetchPeopleData();
-  return data.people.filter((p) => p.isExpert);
-}

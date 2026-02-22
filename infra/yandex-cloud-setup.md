@@ -141,13 +141,25 @@ Add the following secrets to your GitHub repository:
 | `STRAPI_API_TOKEN` | Strapi read-only Content API token | Token for web -> Strapi API |
 | `NEXT_PUBLIC_SITE_URL` | `https://<web-container-id>.containers.yandexcloud.net` | Public site URL |
 | `NEXT_PUBLIC_YANDEX_METRIKA_ID` | `106842784` | Yandex.Metrika counter ID |
-| `GETCOURSE_BASE_URL` | `https://fgrm.ncfg.ru` | GetCourse account URL |
-| `GETCOURSE_API_KEY` | API key from GetCourse | Lead/question order sync key |
+| `POSTBOX_API_KEY_ID` | `<postbox_api_key_id>` | Postbox SMTP auth user |
+| `POSTBOX_API_KEY_SECRET` | `<postbox_api_key_secret>` | Postbox SMTP auth password |
+| `POSTBOX_FROM_EMAIL` | `no-reply@ncfg.ru` | Verified sender email in Postbox |
+| `LEADS_RECIPIENT_EMAILS` | `aedengina@ncfg.ru,yura.posledov@yandex.ru` | Intake recipients for lead/question forms |
 
-Optional secrets for extended GetCourse mapping:
+Optional secrets for Postbox:
 
 | Secret | Value | Description |
 |--------|-------|-------------|
+| `POSTBOX_SMTP_HOST` | default `postbox.cloud.yandex.net` | Postbox SMTP host |
+| `POSTBOX_SMTP_PORT` | default `465` | Postbox SMTP port |
+| `LEADS_RECIPIENT_EMAIL` | optional single email | Legacy recipient fallback when CSV list is empty |
+
+Optional secrets for extended GetCourse mapping (fallback path):
+
+| Secret | Value | Description |
+|--------|-------|-------------|
+| `GETCOURSE_BASE_URL` | `https://fgrm.ncfg.ru` | GetCourse account URL |
+| `GETCOURSE_API_KEY` | API key from GetCourse | Lead/question order sync key |
 | `GETCOURSE_SOURCE_VALUE` | e.g. `fgrm.ncfg.ru` | Source marker stored in GetCourse |
 | `GETCOURSE_DEAL_PRODUCT_TITLE_LEAD` | default `Website Lead` | Product title for lead form orders |
 | `GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION` | default `Website Question` | Product title for question form orders |
@@ -180,6 +192,20 @@ Detailed checklist: `infra/getcourse-orders-intake.md`
 5. Add 2 branches by `form_type`:
    - `lead`: focus on `message`
    - `question`: focus on `question` + `post_title`
+
+### 2.2 Postbox runbook (email-first temporary intake)
+
+1. Open Yandex Cloud Postbox and verify sender/domain for `POSTBOX_FROM_EMAIL` (recommended `no-reply@ncfg.ru`).
+2. Create an API key with Postbox send permissions and save it as:
+   - `POSTBOX_API_KEY_ID`
+   - `POSTBOX_API_KEY_SECRET`
+3. Add required and optional Postbox secrets in GitHub repository settings.
+4. Deploy web (`main`) and send two smoke submissions:
+   - `POST /api/lead`
+   - `POST /api/question`
+5. Confirm delivery to:
+   - `aedengina@ncfg.ru`
+   - `yura.posledov@yandex.ru`
 
 ## 3. Get Container URLs
 

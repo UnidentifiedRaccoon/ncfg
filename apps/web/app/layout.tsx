@@ -74,7 +74,7 @@ ym(${ymCounterId}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"d
           </>
         ) : null}
         <SmoothAnchor />
-        <Header variant="dock" />
+        <Header />
         {children}
       </body>
     </html>

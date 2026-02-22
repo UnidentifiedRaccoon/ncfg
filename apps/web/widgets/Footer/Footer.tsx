@@ -41,12 +41,8 @@ interface FooterData {
   };
 }
 
-export type FooterVariant = "hero" | "navy" | "light";
-const FOOTER_VARIANTS = ["hero", "navy", "light"] as const;
-
 interface FooterProps {
   data: FooterData;
-  variant?: FooterVariant;
 }
 
 const navigation = [
@@ -55,8 +51,6 @@ const navigation = [
   { label: "О центре", href: "/about" },
   { label: "Блог", href: "/blog" },
 ] as const;
-
-type FooterTone = "dark" | "light";
 
 function normalizeCopyrightLine(value: string): string {
   return value
@@ -67,55 +61,7 @@ function normalizeCopyrightLine(value: string): string {
     .toLowerCase();
 }
 
-function isFooterVariant(value: unknown): value is FooterVariant {
-  return (
-    typeof value === "string" &&
-    (FOOTER_VARIANTS as readonly string[]).includes(value)
-  );
-}
-
-function resolveVariant(explicitVariant?: FooterVariant): FooterVariant {
-  if (explicitVariant) return explicitVariant;
-  const env = process.env.NEXT_PUBLIC_FOOTER_VARIANT;
-  if (isFooterVariant(env)) return env;
-  return "hero";
-}
-
-function FooterBackdrop({ variant }: { variant: FooterVariant }) {
-  if (variant === "navy") {
-    return (
-      <div aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-    );
-  }
-
-  if (variant === "light") {
-    return (
-      <>
-        <div aria-hidden="true" className="absolute inset-0 bg-[#F8FAFC]" />
-        <div
-          aria-hidden="true"
-          className="absolute -top-56 -left-56 h-[720px] w-[720px] rounded-full bg-[#3B82F6]/12 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute -bottom-72 left-1/3 h-[820px] w-[820px] rounded-full bg-[#58A8E0]/10 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute -top-72 -right-56 h-[760px] w-[760px] rounded-full bg-[#1E3A5F]/[0.07] blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-[0.06] bg-[linear-gradient(to_right,rgba(30,58,95,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.12)_1px,transparent_1px)] bg-[size:56px_56px]"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/0 to-white/70"
-        />
-      </>
-    );
-  }
-
+function FooterBackdrop() {
   return (
     <>
       <div aria-hidden="true" className="absolute inset-0 bg-[#050B16]" />
@@ -177,47 +123,29 @@ function FooterLink({
   );
 }
 
-export function Footer({ data, variant }: FooterProps) {
-  const resolvedVariant = resolveVariant(variant);
-  const tone: FooterTone = resolvedVariant === "light" ? "light" : "dark";
-
+export function Footer({ data }: FooterProps) {
   const hasLegalDocuments =
     Boolean(data.legalDocuments) && data.legalDocuments.items.length > 0;
 
   const panelClassName =
-    resolvedVariant === "light"
-      ? "rounded-2xl border border-[#E2E8F0]/70 bg-white/80 shadow-sm backdrop-blur-sm overflow-hidden"
-      : resolvedVariant === "navy"
-        ? "rounded-2xl border border-white/12 bg-white/[0.04] shadow-[0_24px_70px_rgba(0,0,0,0.35)] overflow-hidden"
-        : "rounded-2xl border border-white/12 bg-[#0B1324] shadow-[0_28px_90px_rgba(0,0,0,0.55)] overflow-hidden";
+    "rounded-2xl border border-white/12 bg-[#0B1324] shadow-[0_28px_90px_rgba(0,0,0,0.55)] overflow-hidden";
 
-  const dividerClassName = tone === "light" ? "border-[#E2E8F0]/70" : "border-white/10";
+  const dividerClassName = "border-white/10";
 
-  const sectionTitleClassName =
-    tone === "light"
-      ? "text-sm font-semibold text-[#1E3A5F]"
-      : "text-sm font-semibold text-white";
+  const sectionTitleClassName = "text-sm font-semibold text-white";
 
   const linkClassName =
-    tone === "light"
-      ? "text-sm text-[#475569] hover:text-[#1E3A5F] transition-colors hover:underline underline-offset-4 decoration-[#3B82F6]/30"
-      : "text-sm text-white/65 hover:text-white transition-colors hover:underline underline-offset-4 decoration-white/25";
+    "text-sm text-white/65 hover:text-white transition-colors hover:underline underline-offset-4 decoration-white/25";
 
-  const mutedTextClassName =
-    tone === "light" ? "text-sm text-[#475569]" : "text-sm text-white/65";
+  const mutedTextClassName = "text-sm text-white/65";
 
-  const iconAccentClassName =
-    tone === "light" ? "text-[#3B82F6]" : "text-[#58A8E0]";
+  const iconAccentClassName = "text-[#58A8E0]";
 
   const badgeClassName =
-    tone === "light"
-      ? "rounded-full border border-[#E2E8F0]/70 bg-[#F8FAFC] px-2 py-0.5 text-[10px] font-semibold text-[#475569]"
-      : "rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-white/60";
+    "rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-white/60";
 
   const ctaButtonClassName =
-    tone === "light"
-      ? "rounded-full"
-      : "rounded-full !bg-white/10 !text-white border border-white/20 hover:!bg-white/15 hover:shadow-[0_16px_44px_rgba(88,168,224,0.16)]";
+    "rounded-full !bg-white/10 !text-white border border-white/20 hover:!bg-white/15 hover:shadow-[0_16px_44px_rgba(88,168,224,0.16)]";
 
   const phoneSanitized = data.contacts.phone.replace(/\s/g, "");
   const ctaHref = "/#lead-form";
@@ -232,18 +160,8 @@ export function Footer({ data, variant }: FooterProps) {
       normalizeCopyrightLine(copyrightTitle);
 
   return (
-    <footer
-      id="contacts"
-      className={cn(
-        "relative overflow-hidden",
-        resolvedVariant === "light"
-          ? "bg-[#F8FAFC] text-[#0F172A]"
-          : resolvedVariant === "navy"
-            ? "bg-[#1E3A5F] text-white"
-            : "bg-[#050B16] text-white"
-      )}
-    >
-      <FooterBackdrop variant={resolvedVariant} />
+    <footer id="contacts" className="relative overflow-hidden bg-[#050B16] text-white">
+      <FooterBackdrop />
 
       <Container className="relative z-10">
         <div className="py-12 md:py-16">
@@ -252,9 +170,7 @@ export function Footer({ data, variant }: FooterProps) {
               aria-hidden="true"
               className={cn(
                 "pointer-events-none absolute inset-x-0 top-0 h-12",
-                tone === "light"
-                  ? "bg-gradient-to-b from-white/80 to-transparent"
-                  : "bg-gradient-to-b from-white/[0.06] to-transparent"
+                "bg-gradient-to-b from-white/[0.06] to-transparent"
               )}
             />
 
@@ -267,26 +183,17 @@ export function Footer({ data, variant }: FooterProps) {
             >
               <div className="min-w-0">
                 <div
-                  className={cn(
-                    "text-xs font-semibold",
-                    tone === "light" ? "text-[#475569]" : "text-white/60"
-                  )}
+                  className="text-xs font-semibold text-white/60"
                 >
                   Консультация бесплатно
                 </div>
                 <div
-                  className={cn(
-                    "mt-1 text-lg md:text-xl font-semibold tracking-tight",
-                    tone === "light" ? "text-[#1E3A5F]" : "text-white"
-                  )}
+                  className="mt-1 text-lg md:text-xl font-semibold tracking-tight text-white"
                 >
                   Поможем выбрать формат программы
                 </div>
                 <div
-                  className={cn(
-                    "mt-1 text-sm",
-                    tone === "light" ? "text-[#475569]" : "text-white/65"
-                  )}
+                  className="mt-1 text-sm text-white/65"
                 >
                   Ответим в течение 1 дня
                 </div>
@@ -310,9 +217,7 @@ export function Footer({ data, variant }: FooterProps) {
                   href={`tel:${phoneSanitized}`}
                   className={cn(
                     "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
-                    tone === "light"
-                      ? "border-[#E2E8F0]/70 bg-white/70 text-[#1E3A5F] hover:bg-white"
-                      : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
+                    "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
                   )}
                 >
                   <Phone size={14} className={iconAccentClassName} />
@@ -323,9 +228,7 @@ export function Footer({ data, variant }: FooterProps) {
                   href={`mailto:${data.contacts.email}`}
                   className={cn(
                     "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
-                    tone === "light"
-                      ? "border-[#E2E8F0]/70 bg-white/70 text-[#1E3A5F] hover:bg-white"
-                      : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
+                    "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
                   )}
                 >
                   <Mail size={14} className={iconAccentClassName} />
@@ -353,16 +256,10 @@ export function Footer({ data, variant }: FooterProps) {
                     alt="НЦФГ"
                     width={40}
                     height={40}
-                    className={cn(
-                      "h-10 w-10",
-                      tone === "light" ? "" : "brightness-0 invert"
-                    )}
+                    className="h-10 w-10 brightness-0 invert"
                   />
                   <span
-                    className={cn(
-                      "text-base sm:text-lg font-black tracking-[0.14em] leading-none",
-                      tone === "light" ? "text-[#1E3A5F]" : "text-white"
-                    )}
+                    className="text-base sm:text-lg font-black tracking-[0.14em] leading-none text-white"
                   >
                     {data.organization.shortName}
                   </span>
@@ -377,9 +274,7 @@ export function Footer({ data, variant }: FooterProps) {
                     href={`tel:${phoneSanitized}`}
                     className={cn(
                       "flex items-center gap-2 transition-colors",
-                      tone === "light"
-                        ? "text-[#475569] hover:text-[#1E3A5F]"
-                        : "text-white/70 hover:text-white"
+                      "text-white/70 hover:text-white"
                     )}
                   >
                     <Phone size={14} className={iconAccentClassName} />
@@ -389,19 +284,14 @@ export function Footer({ data, variant }: FooterProps) {
                     href={`mailto:${data.contacts.email}`}
                     className={cn(
                       "flex items-center gap-2 transition-colors",
-                      tone === "light"
-                        ? "text-[#475569] hover:text-[#1E3A5F]"
-                        : "text-white/70 hover:text-white"
+                      "text-white/70 hover:text-white"
                     )}
                   >
                     <Mail size={14} className={iconAccentClassName} />
                     {data.contacts.email}
                   </a>
                   <div
-                    className={cn(
-                      "flex items-start gap-2",
-                      tone === "light" ? "text-[#475569]" : "text-white/70"
-                    )}
+                    className="flex items-start gap-2 text-white/70"
                   >
                     <MapPin
                       size={14}
@@ -513,10 +403,7 @@ export function Footer({ data, variant }: FooterProps) {
 
             <div className={cn("px-6 py-5 md:px-8 md:py-6 border-t", dividerClassName)}>
               <div
-                className={cn(
-                  "flex flex-col gap-1 text-sm",
-                  tone === "light" ? "text-[#475569]" : "text-white/50"
-                )}
+                className="flex flex-col gap-1 text-sm text-white/50"
               >
                 <p>{copyrightTitle}</p>
                 {showCopyrightText && <p>{data.copyright.text}</p>}

@@ -4,7 +4,7 @@ import {
   fetchNewsArticles,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
-import { isBlogLayoutVariant, isBlogRubricSlug } from "@/shared/lib/blog-rubrics";
+import { isBlogRubricSlug } from "@/shared/lib/blog-rubrics";
 
 export const metadata = {
   title: "Блог — НЦФГ",
@@ -22,13 +22,9 @@ interface PageProps {
 export default async function BlogPage({ searchParams }: PageProps) {
   const sp = await Promise.resolve(searchParams ?? {});
   const rawCategory = sp.category;
-  const rawLayout = sp.layout;
 
   const selectedCategory =
     typeof rawCategory === "string" && isBlogRubricSlug(rawCategory) ? rawCategory : undefined;
-
-  const layout =
-    typeof rawLayout === "string" && isBlogLayoutVariant(rawLayout) ? rawLayout : "rail";
 
   const [siteSetting, blogPage, posts] = await Promise.all([
     fetchSiteSettings(),
@@ -45,7 +41,6 @@ export default async function BlogPage({ searchParams }: PageProps) {
           lead={blogPage?.lead ?? undefined}
           posts={posts}
           selectedCategory={selectedCategory}
-          layout={layout}
         />
       </main>
       <Footer

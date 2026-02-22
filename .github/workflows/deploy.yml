@@ -226,6 +226,12 @@ jobs:
             STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.NEXT_PUBLIC_YANDEX_METRIKA_ID }}
+            POSTBOX_SMTP_HOST=${{ secrets.POSTBOX_SMTP_HOST || 'postbox.cloud.yandex.net' }}
+            POSTBOX_SMTP_PORT=${{ secrets.POSTBOX_SMTP_PORT || '465' }}
+            POSTBOX_API_KEY_ID=${{ secrets.POSTBOX_API_KEY_ID }}
+            POSTBOX_API_KEY_SECRET=${{ secrets.POSTBOX_API_KEY_SECRET }}
+            POSTBOX_FROM_EMAIL=${{ secrets.POSTBOX_FROM_EMAIL || 'no-reply@ncfg.ru' }}
+            LEADS_RECIPIENT_EMAILS=${{ secrets.LEADS_RECIPIENT_EMAILS || 'aedengina@ncfg.ru,yura.posledov@yandex.ru' }}
             GETCOURSE_BASE_URL=${{ secrets.GETCOURSE_BASE_URL }}
             GETCOURSE_API_KEY=${{ secrets.GETCOURSE_API_KEY }}
             GETCOURSE_SOURCE_VALUE=${{ secrets.GETCOURSE_SOURCE_VALUE }}

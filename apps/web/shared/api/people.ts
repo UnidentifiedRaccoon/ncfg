@@ -26,66 +26,6 @@ export async function getPeople(): Promise<StrapiPerson[]> {
   return response.data;
 }
 
-export async function getPerson(documentId: string): Promise<StrapiPerson | null> {
-  const query = buildQueryString({
-    populate: ['photo', 'teamGroup', 'expertGroup'],
-    filters: {
-      documentId: { $eq: documentId },
-    },
-  });
-
-  const response = await fetchAPI<StrapiResponse<StrapiPerson[]>>(
-    `/people${query}`,
-    { tags: ['people', `person-${documentId}`] }
-  );
-
-  return response.data[0] || null;
-}
-
-// ==================
-// Team Members
-// ==================
-
-export async function getTeamMembers(): Promise<StrapiPerson[]> {
-  const query = buildQueryString({
-    populate: ['photo', 'teamGroup', 'expertGroup'],
-    filters: {
-      teamGroup: { id: { $notNull: true } },
-    },
-    sort: 'order:asc',
-    pagination: { limit: 100 },
-  });
-
-  const response = await fetchAPI<StrapiResponse<StrapiPerson[]>>(
-    `/people${query}`,
-    { tags: ['people', 'team'] }
-  );
-
-  return response.data;
-}
-
-// ==================
-// Experts
-// ==================
-
-export async function getExperts(): Promise<StrapiPerson[]> {
-  const query = buildQueryString({
-    populate: ['photo', 'teamGroup', 'expertGroup'],
-    filters: {
-      expertGroup: { id: { $notNull: true } },
-    },
-    sort: 'order:asc',
-    pagination: { limit: 100 },
-  });
-
-  const response = await fetchAPI<StrapiResponse<StrapiPerson[]>>(
-    `/people${query}`,
-    { tags: ['people', 'experts'] }
-  );
-
-  return response.data;
-}
-
 // ==================
 // Helper: Transform to legacy format
 // ==================
@@ -111,20 +51,5 @@ export function transformToLegacyPerson(person: StrapiPerson): LegacyPerson {
     experienceYears: person.experienceYears,
     isTeam: person.teamGroup !== null,
     isExpert: person.expertGroup !== null,
-  };
-}
-
-export async function getPeopleDataLegacy(): Promise<{
-  people: LegacyPerson[];
-  teamPeopleIds: string[];
-  expertPeopleIds: string[];
-}> {
-  const people = await getPeople();
-  const legacyPeople = people.map(transformToLegacyPerson);
-
-  return {
-    people: legacyPeople,
-    teamPeopleIds: legacyPeople.filter(p => p.isTeam).map(p => p.id),
-    expertPeopleIds: legacyPeople.filter(p => p.isExpert).map(p => p.id),
   };
 }

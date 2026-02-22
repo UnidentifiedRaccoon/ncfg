@@ -1,8 +1,6 @@
 import { Section } from "@/shared/ui/Section";
 import { ServiceBlock } from "./ServiceBlock";
 
-export type ServiceCatalogVariant = "glass" | "dark" | "editorial";
-
 interface ServiceItem {
   title: string;
   description: string;
@@ -19,7 +17,6 @@ interface Service {
 
 interface ServiceCatalogProps {
   services: Service[];
-  variant?: ServiceCatalogVariant;
   /**
    * Base for section id and in-page anchors.
    * Default keeps backward-compatible anchors: `#services-{categoryId}`.
@@ -30,7 +27,6 @@ interface ServiceCatalogProps {
 
 export function ServiceCatalog({
   services,
-  variant = "glass",
   idBase = "services",
   showBadges = true,
 }: ServiceCatalogProps) {
@@ -52,7 +48,6 @@ export function ServiceCatalog({
               title={service.title}
               description={service.description}
               items={service.items}
-              variant={variant}
               idBase={idBase}
             />
           ))}
