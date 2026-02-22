@@ -1,26 +1,87 @@
-# Onboarding: от clone до PR (Web)
+# Onboarding: от clone до PR (Web-only)
 
-Это пошаговое руководство для нового разработчика.  
-Цель: пройти полный цикл работы с `apps/web` от клонирования репозитория до создания Pull Request.
+Это пошаговое руководство для нового разработчика.
+Цель: пройти полный цикл работы с `apps/web` от клонирования репозитория до создания Pull Request без локальной настройки CMS.
 
 ## Что вы получите после прохождения
 
 После этого гайда вы сможете:
 - клонировать репозиторий;
-- установить зависимости;
-- создать отдельную feature-ветку по правилам проекта;
-- запустить web c подключением к продовому Strapi (`STRAPI_SOURCE=prod`);
+- установить зависимости для `apps/web`;
+- авторизоваться в Yandex Cloud и получить ключ Strapi из Lockbox;
+- запустить web с подключением к продовому Strapi (`STRAPI_SOURCE=prod`);
 - внести изменения, проверить их локально;
 - сделать commit, push и создать PR.
+
+## Важно для владельцев инфраструктуры (до мержа этого онбординга)
+
+В секрете `ncfg-dev-secrets` должен существовать ключ `STRAPI_PROD_API_TOKEN`.
+
+Минимальная проверка:
+1. Ключ `STRAPI_PROD_API_TOKEN` добавлен в `ncfg-dev-secrets`.
+2. Группа `developers` имеет роль `lockbox.payloadViewer` на `ncfg-dev-secrets`.
+3. Новый аккаунт разработчика из группы `developers` может прочитать этот ключ через `yc lockbox payload get`.
 
 ## 1. Предварительные требования
 
 Нужно заранее иметь:
 - `git`;
 - `node` версии `20-22` и `npm` версии `10+`;
+- установленный `yc` CLI;
 - доступ к репозиторию `git@github.com:UnidentifiedRaccoon/ncfg.git`;
-- read-only токен Strapi для прода (`STRAPI_PROD_API_TOKEN`);
+- доступ к Yandex Cloud с аккаунтом, который входит в группу `developers`;
 - опционально: `gh` (GitHub CLI) для создания PR из терминала.
+
+### 1.1 Установка `git`
+
+macOS (любой один вариант):
+
+```bash
+xcode-select --install
+```
+
+```bash
+brew install git
+```
+
+Ubuntu / Debian:
+
+```bash
+sudo apt update
+sudo apt install -y git
+```
+
+### 1.2 Установка `node` и `npm` (через `nvm`)
+
+Рекомендуемый путь для macOS и Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+nvm install 22
+nvm alias default 22
+```
+
+Если shell уже был открыт до установки `nvm`, перезапустите терминал или загрузите профиль вручную.
+
+### 1.3 Установка `yc` CLI
+
+macOS (через Homebrew):
+
+```bash
+brew install --cask yandex-cloud-cli
+```
+
+macOS / Linux (официальный установщик):
+
+```bash
+curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+```
+
+После установки перезапустите терминал.
 
 Проверка версий:
 
@@ -28,6 +89,7 @@
 node -v
 npm -v
 git --version
+yc --version
 ```
 
 ## 2. Клонирование репозитория
@@ -46,51 +108,68 @@ git clone https://github.com/UnidentifiedRaccoon/ncfg.git
 cd ncfg
 ```
 
-## 3. Установка зависимостей
-
-Основной путь для работы с web:
+## 3. Установка зависимостей web
 
 ```bash
-cd /Users/yura-posledov/cursor/ncfg/apps/web
+cd apps/web
 npm ci
+cd ../..
 ```
 
-Опционально, если будете менять CMS или служебные скрипты:
+## 4. Авторизация в Yandex Cloud и доступ к секретам
+
+Выполните первичную авторизацию (если профиль еще не настроен):
 
 ```bash
-cd /Users/yura-posledov/cursor/ncfg/apps/cms
-npm ci
-
-cd /Users/yura-posledov/cursor/ncfg/scripts
-npm ci
+yc init
 ```
 
-## 4. Настройка web для подключения к продовому Strapi
-
-Скрипт `npm run dev:prod` запускает web c `STRAPI_SOURCE=prod`.  
-Создайте локальный env-файл на основе примера:
+Проверьте, что CLI видит ваш аккаунт:
 
 ```bash
-cd /Users/yura-posledov/cursor/ncfg/apps/web
-cp .env.local.example .env.local
+yc iam whoami
 ```
 
-Заполните в `apps/web/.env.local` обязательные переменные:
+Проверьте доступ к секрету разработчиков:
 
-```env
+```bash
+yc lockbox secret get --name ncfg-dev-secrets --format json
+```
+
+Что проверить в ответе:
+- `status` должен быть `ACTIVE`;
+- в `current_version.payload_entry_keys` должен быть `STRAPI_PROD_API_TOKEN`.
+
+Если `STRAPI_PROD_API_TOKEN` нет в ключах секрета, это инфраструктурная проблема. Новый разработчик не должен запрашивать токен вручную у других людей.
+
+## 5. Настройка `apps/web/.env.local` (prod Strapi)
+
+`npm run dev:prod` запускает web с `STRAPI_SOURCE=prod`.
+
+Создайте локальный env-файл и подставьте токен из Lockbox:
+
+```bash
+cp apps/web/.env.local.example apps/web/.env.local
+
+STRAPI_PROD_API_TOKEN="$(yc lockbox payload get --name ncfg-dev-secrets --key STRAPI_PROD_API_TOKEN)"
+
+cat > apps/web/.env.local <<ENV
 STRAPI_PROD_URL=https://admin.ncfg.ru
-STRAPI_PROD_API_TOKEN=<read-only token>
+STRAPI_PROD_API_TOKEN=${STRAPI_PROD_API_TOKEN}
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ENV
+
+unset STRAPI_PROD_API_TOKEN
 ```
 
 Важно по безопасности:
-- не коммитьте `.env.local`;
+- не коммитьте `apps/web/.env.local`;
 - не передавайте токен в PR, issue, чатах и логах.
 
-## 5. Запуск web в режиме prod-source
+## 6. Запуск web в режиме prod-source
 
 ```bash
-cd /Users/yura-posledov/cursor/ncfg/apps/web
+cd apps/web
 npm run dev:prod
 ```
 
@@ -104,12 +183,11 @@ curl http://localhost:3000/api/health
 
 Ожидаемый результат: JSON со `status: "ok"`.
 
-## 6. Создание feature-ветки по правилам проекта
+## 7. Создание feature-ветки по правилам проекта
 
 Перед началом работы обновите `main`:
 
 ```bash
-cd /Users/yura-posledov/cursor/ncfg
 git checkout main
 git pull
 ```
@@ -132,12 +210,12 @@ git checkout -b <type>/<ticket>-<short-kebab-case>
 
 Допустимые `type`: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `style`, `build`, `ci`, `chore`.
 
-## 7. Внесение изменений и локальная проверка
+## 8. Внесение изменений и локальная проверка
 
 Сделайте изменения в `apps/web`, затем выполните минимум:
 
 ```bash
-cd /Users/yura-posledov/cursor/ncfg/apps/web
+cd apps/web
 npm run lint
 ```
 
@@ -147,12 +225,11 @@ npm run lint
 npm run build
 ```
 
-## 8. Коммит (Conventional Commits)
+## 9. Коммит (Conventional Commits)
 
 Добавьте изменения:
 
 ```bash
-cd /Users/yura-posledov/cursor/ncfg
 git add <измененные_файлы>
 ```
 
@@ -174,12 +251,11 @@ git commit -m "<type>(scope): <description>"
 git commit -m "feat(ui): add onboarding callout section"
 ```
 
-## 9. Push и создание PR
+## 10. Push и создание PR
 
 Отправьте ветку:
 
 ```bash
-cd /Users/yura-posledov/cursor/ncfg
 git push -u origin HEAD
 ```
 
@@ -196,9 +272,23 @@ gh pr create --base main
 - тело по шаблону: `.github/pull_request_template.md`;
 - один PR = одна логическая задача.
 
-## 10. Финальный чеклист перед отправкой PR
+## 11. Troubleshooting (YC / Lockbox)
+
+`PermissionDenied` при `yc lockbox payload get`:
+- проверьте, что ваш аккаунт добавлен в группу `developers`;
+- проверьте, что у `developers` есть `lockbox.payloadViewer` на `ncfg-dev-secrets`.
+
+`key not found` для `STRAPI_PROD_API_TOKEN`:
+- ключ не добавлен в `ncfg-dev-secrets`;
+- передайте задачу владельцу инфраструктуры добавить ключ.
+
+Если секрет использует кастомный KMS-ключ, дополнительно может понадобиться роль `kms.keys.encrypterDecrypter`.
+
+## 12. Финальный чеклист перед отправкой PR
 
 - [ ] Ветка названа по правилам (`<type>/<short-kebab-case>`).
+- [ ] Пройден доступ к Lockbox (`ncfg-dev-secrets`) через `yc`.
+- [ ] В `payload_entry_keys` есть `STRAPI_PROD_API_TOKEN`.
 - [ ] Web запускается через `npm run dev:prod`.
 - [ ] Локально пройдено `npm run lint`.
 - [ ] При необходимости пройдено `npm run build`.
@@ -209,28 +299,43 @@ gh pr create --base main
 
 ```bash
 # 1) Подготовка
+node -v && npm -v && git --version && yc --version
 git clone git@github.com:UnidentifiedRaccoon/ncfg.git
 cd ncfg
 cd apps/web && npm ci
-cp .env.local.example .env.local
+cd ../..
 
-# 2) Старт web с продовым Strapi
-npm run dev:prod
+# 2) YC авторизация + проверка секрета
+yc init
+yc iam whoami
+yc lockbox secret get --name ncfg-dev-secrets --format json
 
-# 3) Работа в отдельной ветке
-cd /Users/yura-posledov/cursor/ncfg
+# 3) Получение токена и настройка .env.local
+STRAPI_PROD_API_TOKEN="$(yc lockbox payload get --name ncfg-dev-secrets --key STRAPI_PROD_API_TOKEN)"
+cat > apps/web/.env.local <<ENV
+STRAPI_PROD_URL=https://admin.ncfg.ru
+STRAPI_PROD_API_TOKEN=${STRAPI_PROD_API_TOKEN}
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ENV
+unset STRAPI_PROD_API_TOKEN
+
+# 4) Старт web с продовым Strapi
+cd apps/web && npm run dev:prod
+
+# 5) Работа в отдельной ветке
+cd ../..
 git checkout main && git pull
 git checkout -b feat/my-change
 
 # ... изменить код ...
 
-# 4) Проверка + commit + push
+# 6) Проверка + commit + push
 cd apps/web && npm run lint
-cd /Users/yura-posledov/cursor/ncfg
+cd ../..
 git add <files>
 git commit -m "feat(ui): describe change"
 git push -u origin HEAD
 
-# 5) PR
+# 7) PR
 gh pr create --base main
 ```
