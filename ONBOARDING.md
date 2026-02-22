@@ -83,6 +83,23 @@ curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
 
 После установки перезапустите терминал.
 
+### 1.4 Установка на Windows (`winget` + PowerShell)
+
+Установите `git` и `node` через `winget`:
+
+```powershell
+winget install --id Git.Git -e
+winget install --id OpenJS.NodeJS.LTS -e
+```
+
+Установите `yc` через официальный PowerShell-скрипт Yandex Cloud:
+
+```powershell
+iex (New-Object System.Net.WebClient).DownloadString('https://storage.yandexcloud.net/yandexcloud-yc/install.ps1')
+```
+
+После установки закройте и снова откройте терминал.
+
 Проверка версий:
 
 ```bash
