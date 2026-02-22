@@ -104,7 +104,7 @@ export async function getLatestNews(
 // Helper: Transform to legacy format
 // ==================
 
-export interface LegacyNewsArticle {
+interface LegacyNewsArticle {
   id: string;
   title: string;
   category: { slug: string; title: string } | null;

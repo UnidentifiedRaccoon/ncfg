@@ -31,7 +31,7 @@ export interface StrapiImage {
   provider: string;
 }
 
-export interface StrapiImageFormat {
+interface StrapiImageFormat {
   name: string;
   hash: string;
   ext: string;
@@ -231,21 +231,21 @@ export interface StrapiHomeProofPoint {
   links: StrapiLink[];
 }
 
-export interface StrapiHomeAward {
+interface StrapiHomeAward {
   id: number;
   title: string;
   year: number | null;
   imgPath: string | null;
 }
 
-export interface StrapiHomeLogo {
+interface StrapiHomeLogo {
   id: number;
   title: string;
   href: string | null;
   imgPath: string | null;
 }
 
-export interface StrapiHomeClientsCategory {
+interface StrapiHomeClientsCategory {
   id: number;
   key: string;
   name: string;
@@ -255,28 +255,28 @@ export interface StrapiHomeClientsCategory {
   moreUnit: string | null;
 }
 
-export interface StrapiHomeClientsCarousel {
+interface StrapiHomeClientsCarousel {
   id: number;
   title: string;
   archiveCta: StrapiLink | null;
   categories: StrapiHomeClientsCategory[];
 }
 
-export interface StrapiHomeTestimonial {
+interface StrapiHomeTestimonial {
   id: number;
   company: string;
   logoImgPath: string | null;
   quote: string;
 }
 
-export interface StrapiHomeTestimonialsMore {
+interface StrapiHomeTestimonialsMore {
   id: number;
   labelTop: string;
   labelBottom: string;
   href: string;
 }
 
-export interface StrapiHomeTestimonialsBlock {
+interface StrapiHomeTestimonialsBlock {
   id: number;
   title: string;
   items: StrapiHomeTestimonial[];

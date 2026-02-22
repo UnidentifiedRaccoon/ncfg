@@ -54,14 +54,6 @@ export interface StrapiResponse<T> {
   meta: StrapiMeta;
 }
 
-export interface StrapiDataItem<T> {
-  id: number;
-  documentId: string;
-  attributes?: T;
-  // Strapi 5 flat response structure
-  [key: string]: unknown;
-}
-
 // ==================
 // Base Client
 // ==================

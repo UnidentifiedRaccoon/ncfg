@@ -1,4 +1,4 @@
-export type StrapiSource = 'default' | 'local' | 'prod';
+type StrapiSource = 'default' | 'local' | 'prod';
 
 interface StrapiSourceConfig {
   urlEnv: string;

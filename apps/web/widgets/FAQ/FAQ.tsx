@@ -3,7 +3,7 @@ import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
 
-export interface FAQItem {
+interface FAQItem {
   question: string;
   answer: string;
 }

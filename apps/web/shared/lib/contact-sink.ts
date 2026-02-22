@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export type LeadSubmission = {
+type LeadSubmission = {
   name: string;
   email: string;
   phone?: string;
@@ -8,20 +8,20 @@ export type LeadSubmission = {
   message?: string;
 };
 
-export type QuestionSubmission = {
+type QuestionSubmission = {
   question: string;
   name: string;
   email: string;
   postTitle?: string;
 };
 
-export type ContactSinkContext = {
+type ContactSinkContext = {
   requestId: string;
   clientIp: string;
   userAgent?: string;
 };
 
-export interface ContactSink {
+interface ContactSink {
   submitLead(data: LeadSubmission, ctx: ContactSinkContext): Promise<void>;
   submitQuestion(data: QuestionSubmission, ctx: ContactSinkContext): Promise<void>;
 }

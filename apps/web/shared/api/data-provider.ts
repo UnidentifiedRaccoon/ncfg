@@ -515,7 +515,7 @@ export async function fetchServiceUiIconMap(): Promise<Record<string, string>> {
 // People
 // ==================
 
-export interface PeopleData {
+interface PeopleData {
   people: LegacyPerson[];
   teamPeopleIds: string[];
   expertPeopleIds: string[];
