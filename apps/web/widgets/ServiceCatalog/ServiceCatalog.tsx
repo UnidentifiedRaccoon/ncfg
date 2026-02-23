@@ -5,7 +5,6 @@ interface ServiceItem {
   title: string;
   description: string;
   href: string;
-  icon: string;
 }
 
 interface Service {

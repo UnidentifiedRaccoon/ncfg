@@ -8,7 +8,6 @@ import {
 } from "@/widgets";
 import {
   fetchCompaniesPageData,
-  fetchServiceUiIconMap,
   fetchServicesData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
@@ -26,11 +25,10 @@ export const metadata: Metadata = {
 };
 
 export default async function CompaniesPage() {
-  const [siteSetting, companiesPage, servicesData, serviceIconMap] = await Promise.all([
+  const [siteSetting, companiesPage, servicesData] = await Promise.all([
     fetchSiteSettings(),
     fetchCompaniesPageData(),
     fetchServicesData(),
-    fetchServiceUiIconMap(),
   ]);
 
   const hero = companiesPage.hero;
@@ -44,7 +42,6 @@ export default async function CompaniesPage() {
         title: service.title,
         description: service.shortDescription,
         href: `/companies/${service.id}`,
-        icon: serviceIconMap[service.id] ?? "target",
       })),
   }));
 

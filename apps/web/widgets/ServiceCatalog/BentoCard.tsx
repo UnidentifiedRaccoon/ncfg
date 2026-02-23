@@ -1,46 +1,11 @@
 import Link from "next/link";
-import {
-  ClipboardCheck,
-  Target,
-  PlayCircle,
-  Video,
-  Users,
-  Phone,
-  UserCheck,
-  ArrowRight,
-  Layers,
-  Trophy,
-  BookOpen,
-  FileText,
-  PenTool,
-  CalendarDays,
-  Mic,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
-
-const iconMap: Record<string, LucideIcon> = {
-  "clipboard-check": ClipboardCheck,
-  target: Target,
-  "play-circle": PlayCircle,
-  video: Video,
-  users: Users,
-  phone: Phone,
-  "user-check": UserCheck,
-  layers: Layers,
-  trophy: Trophy,
-  "book-open": BookOpen,
-  "file-text": FileText,
-  "pen-tool": PenTool,
-  "calendar-days": CalendarDays,
-  mic: Mic,
-};
 
 interface BentoCardProps {
   title: string;
   description: string;
   href: string;
-  icon: string;
   featured?: boolean;
   className?: string;
 }
@@ -49,12 +14,9 @@ export function BentoCard({
   title,
   description,
   href,
-  icon,
   featured = false,
   className,
 }: BentoCardProps) {
-  const Icon = iconMap[icon] || Target;
-
   return (
     <Link
       href={href}
@@ -80,21 +42,11 @@ export function BentoCard({
       />
 
       <div className="relative z-10 flex h-full flex-col">
-        <div className="flex items-center justify-center" aria-hidden="true">
-          <Icon
-            className={cn(
-              featured ? "h-6 w-6" : "h-5 w-5",
-              "text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]"
-            )}
-          />
-        </div>
-
         <h4
           className={cn(
             featured
               ? "text-2xl md:text-3xl font-bold leading-tight tracking-tight text-[#1E3A5F]"
               : "text-lg font-semibold tracking-tight text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]",
-            "mt-4"
           )}
         >
           {title}
