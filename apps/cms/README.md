@@ -71,40 +71,44 @@ bash scripts/sync-prod-to-local.sh --help
 
 ### Collection Types
 
-- **Tag** - теги для новостей
+- **Blog Category** - рубрики/категории для новостей
 - **News Article** - новостные статьи
 - **Service Category** - категории услуг
 - **Service** - услуги
+- **Service UI** - UI-метаданные услуг (например, `iconKey`)
 - **Person** - команда и эксперты
+
+### Single Types
+
+- **Team Configuration** - конфигурация связи команды (`team-config`)
+- **Experts Configuration** - конфигурация связи экспертов (`expert-config`)
+
+Legacy single types для страниц/настроек (`about-page`, `blog-page`, `companies-page`, `home-page`, `individuals-page`, `site-setting`) удалены из CMS.
+Страницы и site settings на фронтенде берутся из JSON-источников в `apps/web`.
 
 ### Компоненты
 
 **Shared:**
 - `text-item` - текстовый элемент для списков
-- `call-to-action` - CTA кнопка
+- `call-to-action` - CTA-кнопка
 
 **Service:**
-- `service-facts` - факты об услуге
-- `methodology-item` - элемент методологии
 - `service-example` - пример услуги
-- `product-item` - продукт в рамках услуги
-
-**Person:**
-- `team-info` - информация о позиции в команде
-- `expert-profile` - профиль эксперта
-- `expert-metrics` - метрики эксперта
 
 ## API Endpoints
 
 После настройки прав доступа:
 
-```
-GET /api/tags
+``` 
+GET /api/blog-categories
 GET /api/news-articles
 GET /api/news-articles/:documentId
 GET /api/service-categories?populate=services
 GET /api/services
 GET /api/people
+GET /api/service-uis
+GET /api/team-config
+GET /api/expert-config
 ```
 
 ## Переменные окружения
