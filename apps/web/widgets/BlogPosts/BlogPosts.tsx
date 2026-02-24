@@ -7,6 +7,7 @@ import { Button } from "@/shared/ui/Button";
 import { BLOG_RUBRICS, type BlogRubricSlug } from "@/shared/lib/blog-rubrics";
 import { cn } from "@/shared/lib/cn";
 import { makeExcerpt, stripHtmlToText } from "@/shared/lib/excerpt";
+import { EXCERPT_MAX_LENGTH } from "@/shared/config/constants";
 
 interface BlogPost extends PostCardPost {
   body: string;
@@ -172,7 +173,7 @@ export function BlogPosts({
           ) : (
             <div className="flex flex-col items-center gap-6">
               {posts.map((post) => {
-                const excerpt = makeExcerpt(stripHtmlToText(post.body), 170);
+                const excerpt = makeExcerpt(stripHtmlToText(post.body), EXCERPT_MAX_LENGTH);
 
                 return (
                   <PostCard

@@ -6,6 +6,8 @@ import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
 import { makeExcerpt, stripHtmlToText } from "@/shared/lib/excerpt";
+import { EXCERPT_MAX_LENGTH } from "@/shared/config/constants";
+import { getPostCoverVariant } from "@/entities/Post";
 
 import type { NewsArticleData } from "@/shared/api/data-provider";
 
@@ -26,24 +28,8 @@ function formatDate(dateStr: string): string {
   });
 }
 
-const COVER_VARIANTS = [
-  "bg-gradient-to-br from-[#0E1838] via-[#243C7A] to-[#5B8DFF]",
-  "bg-gradient-to-br from-[#0D142E] via-[#25366F] to-[#30D7FF]",
-  "bg-gradient-to-tr from-[#111E42] via-[#5B8DFF] to-[#8A5CFF]",
-  "bg-gradient-to-br from-[#0D1B3E] via-[#1A2B5E] to-[#6C95FF]",
-  "bg-gradient-to-r from-[#111F45] via-[#4C7AEB] to-[#1A2B5E]",
-] as const;
-
-function hashString(input: string): number {
-  let hash = 0;
-  for (let i = 0; i < input.length; i += 1) {
-    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
-
 function BrandedCover({ slug, categoryTitle }: { slug: string; categoryTitle?: string }) {
-  const variant = COVER_VARIANTS[hashString(slug) % COVER_VARIANTS.length];
+  const variant = getPostCoverVariant(slug);
   const label = categoryTitle?.trim();
 
   return (
@@ -122,7 +108,7 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
   const featured = posts[0];
   const compact = posts.slice(1, 4);
   const featuredCategoryTitle = featured.category?.title;
-  const featuredExcerpt = makeExcerpt(stripHtmlToText(featured.body), 170);
+  const featuredExcerpt = makeExcerpt(stripHtmlToText(featured.body), EXCERPT_MAX_LENGTH);
 
   return (
     <Section

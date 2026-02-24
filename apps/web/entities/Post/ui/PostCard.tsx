@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn";
+import { getPostCoverVariant } from "../model/postCover";
 
 export interface PostCardPost {
   id: string | number;
@@ -28,25 +29,8 @@ function formatDate(dateStr: string): string {
   });
 }
 
-const COVER_VARIANTS = [
-  "bg-gradient-to-br from-[#132B4A] via-[#24509A] to-[#3B82F6]",
-  "bg-gradient-to-br from-[#0F172A] via-[#183763] to-[#4FC3F7]",
-  "bg-gradient-to-tr from-[#132B4A] via-[#3B82F6] to-[#7C3AED]",
-  "bg-gradient-to-br from-[#132B4A] via-[#0F172A] to-[#3B82F6]",
-  "bg-gradient-to-r from-[#132B4A] via-[#3B82F6] to-[#7C3AED]",
-] as const;
-
-function hashString(input: string): number {
-  // Deterministic, fast, good enough for picking a cover variant.
-  let hash = 0;
-  for (let i = 0; i < input.length; i += 1) {
-    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
-
 function BrandedCover({ slug, categoryTitle }: { slug: string; categoryTitle?: string }) {
-  const variant = COVER_VARIANTS[hashString(slug) % COVER_VARIANTS.length];
+  const variant = getPostCoverVariant(slug);
   const label = categoryTitle?.trim();
 
   return (
@@ -97,7 +81,6 @@ export function PostCard({ post }: PostCardProps) {
                   sizes="(min-width: 1024px) 280px, (min-width: 768px) 240px, 100vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 />
-                {/* Normalize covers from different sources: subtle tint + inner frame */}
                 <div
                   className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#58A8E0]/12 via-transparent to-[#3B82F6]/10"
                   aria-hidden="true"

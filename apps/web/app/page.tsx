@@ -17,6 +17,16 @@ import {
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
 
+const DEFAULT_CLIENTS_ARCHIVE_CTA = {
+  label: "Все клиенты",
+  href: "/companies",
+} as const;
+
+const TESTIMONIALS_MORE_LABELS = {
+  top: "Все",
+  bottom: "рекомендации",
+} as const;
+
 function makeHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) {
   const byKey = new Map(metrics.map((m) => [m.key, m.displayValue]));
 
@@ -72,12 +82,12 @@ export default async function Home() {
               label: clientsCarousel.archiveCta.label,
               href: clientsCarousel.archiveCta.href,
             }
-          : { label: "Все клиенты", href: "/companies" },
+          : DEFAULT_CLIENTS_ARCHIVE_CTA,
       }
     : {
         title: "",
         categories: [],
-        archiveCta: { label: "Все клиенты", href: "/companies" },
+        archiveCta: DEFAULT_CLIENTS_ARCHIVE_CTA,
       };
 
   const mappedTestimonials = {
@@ -91,8 +101,8 @@ export default async function Home() {
         quote: item.quote,
       })),
     more: {
-      labelTop: "Все",
-      labelBottom: "рекомендации",
+      labelTop: TESTIMONIALS_MORE_LABELS.top,
+      labelBottom: TESTIMONIALS_MORE_LABELS.bottom,
       href: "/rekomendacii",
       value: recommendations.length,
     },

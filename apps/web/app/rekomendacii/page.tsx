@@ -4,6 +4,7 @@ import { Footer } from "@/widgets";
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { fetchSiteSettings } from "@/shared/api/data-provider";
+import { REVALIDATE_SECONDS } from "@/shared/config/constants";
 import { TestimonialCard } from "./TestimonialCard";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 60;
+export const revalidate = REVALIDATE_SECONDS;
 
 const MOCK_TESTIMONIALS = [
   {

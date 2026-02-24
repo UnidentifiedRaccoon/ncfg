@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/shared/lib/cn";
 import { Container } from "@/shared/ui/Container";
 import { Button } from "@/shared/ui/Button";
+import { DEFAULT_TRUST_CHIPS } from "@/shared/config/constants";
 
 interface HeroAction {
   label: string;
@@ -31,19 +32,18 @@ interface HeroLayoutProps {
   primaryAction: HeroAction;
   secondaryAction?: HeroAction;
   eyebrow?: string;
-  trustChips?: string[];
+  trustChips?: readonly string[];
   imageSrc: string;
   imageAlt?: string;
   metricsCard?: HeroMetricsCard;
 }
 
 const DEFAULT_EYEBROW = "С 2005 года. Проекты по всей России";
-const DEFAULT_TRUST_CHIPS = ["Минфин России", "Сбербанк", "Почта Банк", "Мир"];
 
 interface HeroActionsAndTrustProps {
   primaryAction: HeroAction;
   secondaryAction?: HeroAction;
-  trustChips: string[];
+  trustChips: readonly string[];
   className?: string;
 }
 
