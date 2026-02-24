@@ -54,34 +54,30 @@ function FAQAccordionItem({
   return (
     <details
       className={cn(
-        "group relative border-b border-[#E2E8F0]/70 last:border-b-0",
-        "open:bg-white/70"
+        "group relative border-b border-[#D4E3FF]/80 last:border-b-0",
+        "open:bg-[linear-gradient(120deg,rgba(255,255,255,0.95),rgba(241,247,255,0.95))]"
       )}
       open={defaultOpen ? true : undefined}
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-0 transition-opacity duration-200 group-open:opacity-60"
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute top-6 bottom-6 left-0 w-[2px] rounded-full bg-gradient-to-b from-[#58A8E0] via-[#3B82F6] to-transparent opacity-0 transition-opacity duration-200 group-open:opacity-100"
+        className="pointer-events-none absolute top-6 bottom-6 left-0 w-[2px] rounded-full bg-gradient-to-b from-[#30D7FF] via-[#5B8DFF] to-transparent opacity-0 transition-opacity duration-200 group-open:opacity-100"
       />
 
       <summary className="faq-summary flex cursor-pointer select-none items-start justify-between gap-4 px-5 py-5 text-left md:px-6">
-        <span className="text-[15px] font-semibold leading-snug text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6] md:text-lg">
+        <span className="text-[15px] font-bold leading-snug text-[#122848] transition-colors group-hover:text-[#3B82F6] md:text-lg">
           {item.question}
         </span>
         <ChevronDown
           size={20}
-          className="mt-1 shrink-0 text-[#94A3B8] transition-transform duration-200 group-open:rotate-180"
+          className="mt-1 shrink-0 text-[#7E96B9] transition-transform duration-200 group-open:rotate-180"
           aria-hidden="true"
         />
       </summary>
 
       <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-open:grid-rows-[1fr]">
         <div className="overflow-hidden">
-          <div className="px-5 pb-5 pr-10 text-sm leading-relaxed text-[#475569] opacity-0 translate-y-1 transition duration-200 ease-out group-open:translate-y-0 group-open:opacity-100 md:px-6 md:text-base">
+          <div className="px-5 pb-5 pr-10 text-sm leading-relaxed text-[#39557B] opacity-0 translate-y-1 transition duration-200 ease-out group-open:translate-y-0 group-open:opacity-100 md:px-6 md:text-base">
             {item.answer}
           </div>
         </div>
@@ -100,9 +96,8 @@ function FAQAccordion({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white/80 shadow-sm backdrop-blur-sm">
+    <div className="relative overflow-hidden rounded-3xl border border-[#CFE0FF]/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.95),rgba(242,247,255,0.95))] shadow-[0_18px_42px_rgba(27,68,141,0.12)] backdrop-blur-sm">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:64px_64px]" />
         <div className="absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/10 blur-3xl" />
         <div className="absolute -bottom-44 left-1/4 h-[560px] w-[560px] rounded-full bg-[#58A8E0]/8 blur-3xl" />
       </div>
@@ -116,7 +111,7 @@ function FAQAccordion({
           />
         ))}
         {footer && (
-          <div className="border-t border-[#E2E8F0]/70 px-5 py-4 text-sm text-[#475569] md:px-6">
+          <div className="px-5 py-4 text-sm text-[#475569] md:px-6">
             {footer}
           </div>
         )}

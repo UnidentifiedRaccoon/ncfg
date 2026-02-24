@@ -137,8 +137,6 @@ function TimelineItem({
             className={`relative max-w-md rounded-xl bg-white/90 backdrop-blur-sm p-6
                         border shadow-sm shadow-[#0F172A]/5 transition-colors transition-shadow duration-300
                         hover:shadow-lg hover:shadow-[#0F172A]/10 hover:border-[#3B82F6]/30
-                        before:absolute before:inset-x-6 before:top-0 before:h-px
-                        before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent
                         after:pointer-events-none after:absolute after:inset-0 after:rounded-xl
                         after:bg-[linear-gradient(110deg,transparent,rgba(88,168,224,0.10),transparent)]
                         after:opacity-0 after:translate-x-[-20%] after:transition after:duration-700
@@ -176,7 +174,7 @@ function TimelineItem({
               <span className="inline-flex items-center rounded-full bg-[#3B82F6]/10 px-3 py-1 text-xs font-mono font-semibold tracking-wide text-[#1E3A5F]">
                 {stepCode}
               </span>
-              <div className="h-px flex-1 bg-gradient-to-r from-[#E2E8F0] via-[#E2E8F0]/60 to-transparent" />
+              <div className="flex-1" />
             </div>
 
             <h3 className="mt-3 text-lg font-semibold text-[#1E3A5F] leading-snug">
@@ -192,29 +190,6 @@ function TimelineItem({
             )}
           </motion.div>
 
-          {/* Connector line from card to marker */}
-          <motion.div
-            className={`absolute top-[56px] h-px w-14
-                       ${isLeft ? "right-[calc(50%-60px)]" : "left-[calc(50%-60px)]"}`}
-            style={{
-              transformOrigin: isLeft ? "100% 50%" : "0% 50%",
-              background: isLeft
-                ? "linear-gradient(to left, rgba(59,130,246,0.55), transparent)"
-                : "linear-gradient(to right, rgba(59,130,246,0.55), transparent)",
-            }}
-            initial={
-              shouldAnimate
-                ? { scaleX: 0, opacity: 0 }
-                : { scaleX: 1, opacity: 1 }
-            }
-            animate={isInView ? { scaleX: 1, opacity: 1 } : {}}
-            transition={
-              shouldAnimate
-                ? { duration: 0.55, ease: EASE_OUT, delay: 0.06 }
-                : { duration: 0 }
-            }
-            aria-hidden="true"
-          />
         </div>
 
         {/* Marker dot on the rail */}
@@ -266,8 +241,6 @@ function TimelineItem({
           className={`relative rounded-xl bg-white/90 backdrop-blur-sm p-5
                       border shadow-sm shadow-[#0F172A]/5 transition-colors transition-shadow duration-300
                       hover:shadow-lg hover:shadow-[#0F172A]/10 hover:border-[#3B82F6]/30
-                      before:absolute before:inset-x-6 before:top-0 before:h-px
-                      before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent
                       after:pointer-events-none after:absolute after:inset-0 after:rounded-xl
                       after:bg-[linear-gradient(110deg,transparent,rgba(88,168,224,0.10),transparent)]
                       after:opacity-0 after:translate-x-[-20%] after:transition after:duration-700
@@ -294,7 +267,7 @@ function TimelineItem({
             <span className="inline-flex items-center rounded-full bg-[#3B82F6]/10 px-3 py-1 text-xs font-mono font-semibold tracking-wide text-[#1E3A5F]">
               {stepCode}
             </span>
-            <div className="h-px flex-1 bg-gradient-to-r from-[#E2E8F0] via-[#E2E8F0]/60 to-transparent" />
+            <div className="flex-1" />
           </div>
 
           <h3 className="mt-3 text-base font-semibold text-[#1E3A5F] leading-snug">

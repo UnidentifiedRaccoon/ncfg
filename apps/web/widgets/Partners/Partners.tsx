@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -12,12 +12,13 @@ import {
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface Logo {
   id: number;
   title: string;
   href: string | null;
-  img: string | null;
+  img: string;
 }
 
 interface Category {
@@ -43,6 +44,7 @@ interface Testimonial {
   company: string;
   logoImg: string;
   quote: string;
+  sourceLink?: string | null;
 }
 
 interface PartnersProps {
@@ -59,7 +61,10 @@ interface PartnersProps {
     title: string;
     items: Testimonial[];
     more: {
+      labelTop: string;
+      labelBottom: string;
       href: string;
+      value?: number;
     };
   };
 }
@@ -118,31 +123,58 @@ function CategoryTabs({
 }
 
 function LogoTile({ logo }: { logo: Logo }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+
   const isLink = !!logo.href;
+  const showImage = !!logo.img && !imageFailed;
 
   const tileClassName = cn(
-    "group relative aspect-[3/2] rounded-xl border border-[#E2E8F0]/70 bg-white",
-    "shadow-sm shadow-[#0F172A]/[0.03]"
+    "group relative aspect-[3/2] rounded-xl border border-[#DDE6F2] bg-white/92",
+    "shadow-sm shadow-[#0F172A]/[0.06]",
+    // Hover: only a subtle scale + "color comes back" on the content.
+    "transition-[transform,box-shadow,border-color] duration-200 ease-out hover:scale-[1.03] hover:border-[#3B82F6]/45 hover:shadow-[0_14px_28px_rgba(36,80,154,0.14)]"
   );
 
   const content = (
-    <div
+    <motion.div
+      whileHover={prefersReducedMotion ? undefined : { y: -2 }}
       className={cn(
-        "relative h-full w-full rounded-xl",
+        "relative h-full w-full overflow-hidden rounded-xl",
         "flex items-center justify-center p-2 sm:p-3"
       )}
     >
-      <div className="flex h-full w-full items-center justify-center text-center">
-        <div className="relative w-full">
-          <span className="invisible block text-[13px] sm:text-sm font-semibold tracking-tight text-[#64748B] leading-[1.25] line-clamp-2">
-            {logo.title}
-          </span>
-          <span className="absolute inset-0 text-[11px] sm:text-xs font-semibold tracking-tight text-[#64748B] leading-[1.25] line-clamp-2 transition-[font-size] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none group-hover:text-[13px] sm:group-hover:text-sm group-focus-visible:text-[13px] sm:group-focus-visible:text-sm">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-[#4FC3F7]/15 to-[#7C3AED]/10 blur-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      />
+      {showImage ? (
+        <div className="relative h-full w-full">
+          <Image
+            src={logo.img}
+            alt={logo.title}
+            fill
+            sizes="(min-width: 1024px) 150px, (min-width: 640px) 130px, 44vw"
+            className={cn(
+              "object-contain transition-all duration-300",
+              imageLoaded
+                ? "opacity-90 [@media(hover:none)]:opacity-100"
+                : "opacity-0",
+              "group-hover:opacity-100 group-hover:scale-[1.02]"
+            )}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageFailed(true)}
+          />
+        </div>
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-center">
+          <span className="text-[11px] sm:text-xs font-semibold tracking-tight text-[#475569] leading-snug line-clamp-2 transition-colors group-hover:text-[#1E3A5F] group-focus-visible:text-[#1E3A5F]">
             {logo.title}
           </span>
         </div>
-      </div>
-    </div>
+      )}
+    </motion.div>
   );
 
   if (isLink && logo.href) {
@@ -213,15 +245,11 @@ function TestimonialCard({
   if (!current) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm lg:h-[500px]">
+    <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm lg:h-[500px]">
       {/* Decorative background */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.55] bg-[radial-gradient(900px_420px_at_20%_0%,rgba(59,130,246,0.12),transparent_55%),radial-gradient(760px_420px_at_100%_40%,rgba(88,168,224,0.10),transparent_60%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.22] bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:24px_24px]"
       />
 
       <div className="relative z-10 flex flex-col p-4 sm:p-6 md:p-7 lg:h-full">
@@ -323,11 +351,7 @@ function AwardsStrip({ awards }: { awards: AwardItem[] }) {
   if (!awards || awards.length === 0) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC]">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.22] bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:24px_24px]"
-      />
+    <div className="relative overflow-hidden rounded-2xl bg-[#F8FAFC]">
       <div className="relative z-10 p-6 md:p-7">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -380,7 +404,7 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
   const [activeCategory, setActiveCategory] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  const tabsBaseId = useId();
+  const tabsBaseId = "partners-tabs";
   const panelId = `${tabsBaseId}-panel`;
 
   const categories = clientsCarousel.categories ?? [];
@@ -398,15 +422,11 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
     <Section id="partners" title={clientsCarousel.title}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="min-w-0 lg:col-span-8">
-          <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm lg:h-[500px]">
+          <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm lg:h-[500px]">
             {/* Decorative background */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-[0.55] bg-[radial-gradient(920px_460px_at_0%_0%,rgba(59,130,246,0.12),transparent_58%),radial-gradient(760px_420px_at_100%_45%,rgba(88,168,224,0.10),transparent_62%)]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 opacity-[0.18] bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:24px_24px]"
             />
 
             <div className="relative z-10 flex min-w-0 flex-col p-4 sm:p-6 md:p-7 lg:h-full">

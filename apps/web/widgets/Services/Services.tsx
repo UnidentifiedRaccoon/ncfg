@@ -51,11 +51,11 @@ function OtherServicesCard({
     <Link
       href={href}
       className={cn(
-        "group relative isolate overflow-hidden rounded-xl border shadow-sm transition-all duration-300",
+        "group relative isolate overflow-hidden rounded-3xl border shadow-sm transition-all duration-300",
         "min-h-[260px]",
-        "border-white/10",
-        "bg-gradient-to-br from-[#0B1A33] via-[#1E3A5F] to-[#3B82F6]",
-        "hover:-translate-y-1 hover:shadow-[0_18px_60px_rgba(59,130,246,0.25)]",
+        "border-[#6B94FF]/35",
+        "bg-[linear-gradient(145deg,#0A1330_0%,#1B2F66_48%,#2E67D7_100%)]",
+        "hover:-translate-y-1.5 hover:shadow-[0_22px_66px_rgba(61,124,255,0.35)]",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
         className
       )}
@@ -63,16 +63,11 @@ function OtherServicesCard({
     >
       <div
         aria-hidden="true"
-        className="absolute inset-0 opacity-[0.08] bg-[linear-gradient(to_right,rgba(255,255,255,0.28)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.28)_1px,transparent_1px)] bg-[size:44px_44px]"
-      />
-
-      <div
-        aria-hidden="true"
-        className="absolute -top-36 -right-40 h-[560px] w-[560px] rounded-full bg-[#58A8E0]/25 blur-3xl"
+        className="absolute -top-36 -right-40 h-[560px] w-[560px] rounded-full bg-[#30D7FF]/28 blur-3xl"
       />
       <div
         aria-hidden="true"
-        className="absolute -bottom-44 -left-28 h-[560px] w-[560px] rounded-full bg-[#3B82F6]/25 blur-3xl"
+        className="absolute -bottom-44 -left-28 h-[560px] w-[560px] rounded-full bg-[#8A5CFF]/24 blur-3xl"
       />
 
       <div
@@ -123,23 +118,20 @@ function ServiceTile({
       href={service.href}
       className={cn(
         "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out [will-change:transform]",
-        "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",
+        "hover:-translate-y-1.5 hover:shadow-[0_26px_48px_rgba(36,80,154,0.2)] hover:border-[#3B82F6]/45 hover:z-10",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
         featured
-          ? "bg-[#F0F7FF] border-[#E2E8F0] p-6 md:p-8"
-          : "bg-white border-[#F1F5F9] p-5 md:p-6",
-        "before:pointer-events-none before:absolute before:inset-x-6 before:top-0 before:z-0 before:h-px before:content-['']",
-        "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
-        "before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100",
+          ? "bg-[linear-gradient(155deg,#F7FBFF,#EDF3FF)] border-[#CFE0FF] p-6 md:p-8"
+          : "bg-[linear-gradient(155deg,#FFFFFF,#F4F8FF)] border-[#D8E4FF] p-5 md:p-6",
         "after:pointer-events-none after:absolute after:inset-0 after:z-0 after:rounded-2xl after:content-['']",
-        "after:bg-[radial-gradient(circle_at_18%_12%,rgba(88,168,224,0.16),transparent_60%)]",
+        "after:bg-[radial-gradient(circle_at_18%_12%,rgba(48,215,255,0.2),transparent_60%)]",
         "after:opacity-0 after:transition-opacity after:duration-300 hover:after:opacity-100",
         className
       )}
       aria-label={service.title}
     >
       <div
-        className="pointer-events-none absolute -right-24 -top-20 z-0 h-64 w-64 rounded-full bg-gradient-to-br from-[#58A8E0]/26 via-[#3B82F6]/16 to-transparent blur-2xl"
+        className="pointer-events-none absolute -right-24 -top-20 z-0 h-64 w-64 rounded-full bg-gradient-to-br from-[#30D7FF]/28 via-[#5B8DFF]/18 to-transparent blur-2xl"
         aria-hidden="true"
       />
 
@@ -166,8 +158,8 @@ function ServiceTile({
 
       <h3
         className={cn(
-          "relative z-10 mt-4 leading-tight tracking-tight text-[#1E3A5F]",
-          featured ? "text-2xl md:text-3xl font-bold" : "text-lg font-semibold"
+          "relative z-10 mt-4 leading-tight tracking-tight text-[#122848]",
+          featured ? "text-2xl md:text-3xl font-extrabold" : "text-lg font-bold"
         )}
       >
         {service.title}
@@ -175,7 +167,7 @@ function ServiceTile({
 
       <p
         className={cn(
-          "relative z-10 mt-3 text-[#475569] leading-relaxed",
+          "relative z-10 mt-3 text-[#39557B] leading-relaxed",
           featured ? "text-base md:text-lg" : "text-sm line-clamp-3"
         )}
       >
@@ -210,9 +202,7 @@ export function Services({ title, services }: ServicesProps) {
         "relative isolate overflow-hidden",
         "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-[380px] before:content-['']",
         "before:[background-image:radial-gradient(640px_circle_at_12%_20%,rgba(88,168,224,0.18),transparent_55%),radial-gradient(560px_circle_at_88%_12%,rgba(59,130,246,0.14),transparent_60%),radial-gradient(760px_circle_at_50%_-10%,rgba(30,58,95,0.10),transparent_65%)]",
-        "before:[mask-image:linear-gradient(to_bottom,black,transparent_92%)] before:-z-10",
-        "after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:opacity-[0.18] after:content-['']",
-        "after:[background-image:linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] after:[background-size:32px_32px]"
+        "before:[mask-image:linear-gradient(to_bottom,black,transparent_92%)] before:-z-10"
       )}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6">

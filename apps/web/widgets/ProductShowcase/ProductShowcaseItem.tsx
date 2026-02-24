@@ -116,12 +116,6 @@ function MediaCover({
                 "bg-[radial-gradient(circle_at_24%_28%,rgba(88,168,224,0.65),transparent_58%)]"
               )}
             />
-            <div
-              className={cn(
-                "absolute inset-0 opacity-[0.10]",
-                "bg-[linear-gradient(to_right,rgba(255,255,255,0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.18)_1px,transparent_1px)] bg-[size:56px_56px]"
-              )}
-            />
             <div className="absolute inset-0 flex items-center justify-center">
               {Icon ? (
                 <Icon className="h-20 w-20 text-white/30" />
@@ -182,9 +176,6 @@ export function ProductShowcaseItem({
         "border-[#E2E8F0]/70 bg-white/75 shadow-sm backdrop-blur-sm",
         "hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:border-[#3B82F6]/25",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
-        "before:pointer-events-none before:absolute before:inset-x-10 before:top-0 before:z-0 before:h-px before:content-['']",
-        "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
-        "before:opacity-0 before:transition-opacity before:duration-300 group-hover:before:opacity-100",
         "after:pointer-events-none after:absolute after:inset-0 after:z-0 after:rounded-3xl after:content-['']",
         "after:bg-[radial-gradient(circle_at_18%_12%,rgba(88,168,224,0.18),transparent_60%)]",
         "after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100"

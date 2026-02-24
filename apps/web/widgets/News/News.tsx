@@ -27,11 +27,11 @@ function formatDate(dateStr: string): string {
 }
 
 const COVER_VARIANTS = [
-  "bg-gradient-to-br from-[#1E3A5F] via-[#1E3A5F] to-[#3B82F6]",
-  "bg-gradient-to-br from-[#0F172A] via-[#1E3A5F] to-[#58A8E0]",
-  "bg-gradient-to-tr from-[#1E3A5F] via-[#3B82F6] to-[#58A8E0]",
-  "bg-gradient-to-br from-[#1E3A5F] via-[#0F172A] to-[#3B82F6]",
-  "bg-gradient-to-r from-[#1E3A5F] via-[#3B82F6] to-[#1E3A5F]",
+  "bg-gradient-to-br from-[#0E1838] via-[#243C7A] to-[#5B8DFF]",
+  "bg-gradient-to-br from-[#0D142E] via-[#25366F] to-[#30D7FF]",
+  "bg-gradient-to-tr from-[#111E42] via-[#5B8DFF] to-[#8A5CFF]",
+  "bg-gradient-to-br from-[#0D1B3E] via-[#1A2B5E] to-[#6C95FF]",
+  "bg-gradient-to-r from-[#111F45] via-[#4C7AEB] to-[#1A2B5E]",
 ] as const;
 
 function hashString(input: string): number {
@@ -129,15 +129,14 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
       id="news"
       title={title}
       lead={lead}
-      background="gray"
-      className="relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-[360px] before:content-[''] before:[background-image:radial-gradient(640px_circle_at_12%_20%,rgba(88,168,224,0.18),transparent_55%),radial-gradient(560px_circle_at_88%_12%,rgba(59,130,246,0.14),transparent_60%),radial-gradient(760px_circle_at_50%_-10%,rgba(30,58,95,0.10),transparent_65%)] before:[mask-image:linear-gradient(to_bottom,black,transparent_92%)] before:-z-10"
+      panel={false}
     >
       <div className="grid gap-4 md:gap-5 lg:grid-cols-12 lg:gap-6">
         <Link
           href={`/blog/${featured.slug}`}
           className={cn(
-            "group relative overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white shadow-sm",
-            "transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25",
+            "group relative overflow-hidden rounded-3xl border border-[#CFE0FF]/80 bg-[linear-gradient(145deg,#FFFFFF,#F5F9FF)] shadow-sm",
+            "transition-all duration-200 hover:-translate-y-1.5 hover:shadow-[0_24px_58px_rgba(42,92,182,0.22)] hover:border-[#3B82F6]/45",
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
             "lg:col-span-7"
           )}
@@ -152,8 +151,8 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
             <div className="absolute inset-x-0 bottom-0 p-4 md:p-5 lg:p-6">
               <div
                 className={cn(
-                  "rounded-2xl border border-white/40 bg-white/90 backdrop-blur-sm",
-                  "shadow-[0_18px_60px_rgba(15,23,42,0.18)]",
+                  "rounded-2xl border border-white/55 bg-white/92 backdrop-blur-sm",
+                  "shadow-[0_18px_60px_rgba(25,57,114,0.22)]",
                   "px-5 py-5 md:px-6 md:py-6"
                 )}
               >
@@ -191,10 +190,6 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
             </div>
           </div>
 
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[#58A8E0]/70 via-[#3B82F6]/45 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-          />
         </Link>
 
         <div className="lg:col-span-5 flex flex-col gap-4 md:gap-5 lg:h-full lg:justify-between">
@@ -206,9 +201,9 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
                 key={post.id}
                 href={`/blog/${post.slug}`}
                 className={cn(
-                  "group relative flex items-stretch gap-4 overflow-hidden rounded-xl border",
-                  "border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm shadow-sm",
-                  "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-[#3B82F6]/25",
+                  "group relative flex items-stretch gap-4 overflow-hidden rounded-2xl border",
+                  "border-[#CFE0FF]/80 bg-[linear-gradient(145deg,#FFFFFF,#F4F9FF)] backdrop-blur-sm shadow-sm",
+                  "transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(42,92,182,0.18)] hover:border-[#3B82F6]/45",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
                 )}
                 aria-label={post.title}
@@ -247,10 +242,6 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
                   </div>
                 </div>
 
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[#58A8E0]/55 via-[#3B82F6]/35 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                />
               </Link>
             );
           })}

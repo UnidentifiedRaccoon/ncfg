@@ -29,11 +29,11 @@ function formatDate(dateStr: string): string {
 }
 
 const COVER_VARIANTS = [
-  "bg-gradient-to-br from-[#1E3A5F] via-[#1E3A5F] to-[#3B82F6]",
-  "bg-gradient-to-br from-[#0F172A] via-[#1E3A5F] to-[#58A8E0]",
-  "bg-gradient-to-tr from-[#1E3A5F] via-[#3B82F6] to-[#58A8E0]",
-  "bg-gradient-to-br from-[#1E3A5F] via-[#0F172A] to-[#3B82F6]",
-  "bg-gradient-to-r from-[#1E3A5F] via-[#3B82F6] to-[#1E3A5F]",
+  "bg-gradient-to-br from-[#132B4A] via-[#24509A] to-[#3B82F6]",
+  "bg-gradient-to-br from-[#0F172A] via-[#183763] to-[#4FC3F7]",
+  "bg-gradient-to-tr from-[#132B4A] via-[#3B82F6] to-[#7C3AED]",
+  "bg-gradient-to-br from-[#132B4A] via-[#0F172A] to-[#3B82F6]",
+  "bg-gradient-to-r from-[#132B4A] via-[#3B82F6] to-[#7C3AED]",
 ] as const;
 
 function hashString(input: string): number {
@@ -84,10 +84,10 @@ export function PostCard({ post }: PostCardProps) {
   const hasExcerpt = Boolean(post.excerpt && post.excerpt.trim().length > 0);
 
   return (
-    <article className="group relative w-full max-w-[624px] overflow-hidden rounded-xl border border-[#E2E8F0]/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#3B82F6]/25 hover:shadow-md lg:max-w-[760px] after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-[#58A8E0]/70 after:via-[#3B82F6]/45 after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 group-hover:after:opacity-100">
+    <article className="group relative w-full max-w-[624px] overflow-hidden rounded-2xl border border-[#DDE6F2] bg-white/92 shadow-[0_16px_34px_rgba(15,23,42,0.09)] transition-all duration-300 hover:-translate-y-1 hover:border-[#3B82F6]/45 hover:shadow-[0_26px_52px_rgba(36,80,154,0.2)] lg:max-w-[760px]">
       <Link href={`/blog/${post.slug}`} className="block">
         <div className="flex flex-col md:flex-row">
-          <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F8FAFC] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/70 lg:w-[280px]">
+          <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F7FAFF] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/80 lg:w-[280px]">
             {hasImage ? (
               <>
                 <Image

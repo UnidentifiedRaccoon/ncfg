@@ -31,40 +31,37 @@ export function Projects() {
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-              "group relative isolate overflow-hidden rounded-2xl border border-[#E2E8F0]/80 bg-white p-6 shadow-sm",
+              "group relative isolate overflow-hidden rounded-3xl border border-[#CFE0FF]/90 bg-[linear-gradient(155deg,#FFFFFF,#F4F8FF)] p-6 shadow-sm",
               "transition-all duration-300 ease-out [will-change:transform]",
-              "hover:-translate-y-1 hover:border-[#3B82F6]/25 hover:shadow-lg hover:shadow-blue-500/10",
+              "hover:-translate-y-1.5 hover:border-[#3B82F6]/45 hover:shadow-[0_24px_54px_rgba(42,92,182,0.22)]",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
               "before:pointer-events-none before:absolute before:inset-0 before:opacity-0 before:content-['']",
-              "before:[background-image:radial-gradient(720px_circle_at_18%_12%,rgba(88,168,224,0.16),transparent_60%),radial-gradient(640px_circle_at_90%_45%,rgba(59,130,246,0.12),transparent_62%)]",
-              "before:transition-opacity before:duration-300 hover:before:opacity-100",
-              "after:pointer-events-none after:absolute after:inset-x-6 after:top-0 after:h-px after:opacity-0 after:content-['']",
-              "after:bg-gradient-to-r after:from-transparent after:via-[#58A8E0]/70 after:to-transparent",
-              "after:transition-opacity after:duration-300 hover:after:opacity-100"
+              "before:[background-image:radial-gradient(720px_circle_at_18%_12%,rgba(48,215,255,0.18),transparent_60%),radial-gradient(640px_circle_at_90%_45%,rgba(138,92,255,0.14),transparent_62%)]",
+              "before:transition-opacity before:duration-300 hover:before:opacity-100"
             )}
             aria-label={`Открыть проект ${project.title}`}
           >
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[#3B82F6]/10 blur-3xl transition-opacity duration-300 group-hover:opacity-80"
+              className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[#5B8DFF]/14 blur-3xl transition-opacity duration-300 group-hover:opacity-90"
             />
 
             <div className="relative z-10 flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <span className="inline-flex rounded-full border border-[#3B82F6]/20 bg-[#3B82F6]/8 px-2.5 py-1 text-xs font-semibold text-[#1E3A5F]">
+                <span className="inline-flex rounded-full border border-[#5B8DFF]/35 bg-[#5B8DFF]/10 px-2.5 py-1 text-xs font-semibold text-[#18345A]">
                   {project.label}
                 </span>
-                <h3 className="mt-2 truncate text-xl font-bold tracking-tight text-[#1E3A5F]">
+                <h3 className="mt-2 truncate text-xl font-extrabold tracking-tight text-[#122848]">
                   {project.title}
                 </h3>
               </div>
 
-              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-white/80 text-[#475569] transition-colors group-hover:border-[#3B82F6]/35 group-hover:text-[#3B82F6]">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#CFE0FF] bg-white/90 text-[#3A5378] transition-colors group-hover:border-[#5B8DFF]/45 group-hover:text-[#3B82F6]">
                 <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </span>
             </div>
 
-            <p className="relative z-10 mt-4 text-sm leading-relaxed text-[#475569]">
+            <p className="relative z-10 mt-4 text-sm leading-relaxed text-[#39557B]">
               {project.description}
             </p>
 

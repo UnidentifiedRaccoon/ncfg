@@ -55,8 +55,7 @@ export function ServiceBlock({
       id={anchorId}
       className={cn(
         "scroll-mt-24",
-        // Light separation between groups without an extra "stage" wrapper.
-        index > 0 && "border-t border-[#E2E8F0] pt-10 md:pt-12"
+        index > 0 && "pt-10 md:pt-12"
       )}
     >
       <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

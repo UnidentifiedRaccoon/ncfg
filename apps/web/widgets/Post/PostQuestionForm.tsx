@@ -215,7 +215,7 @@ export function PostQuestionForm({ postTitle }: PostQuestionFormProps) {
                 </Button>
               </div>
 
-              <div className="pt-4 border-t border-[#E2E8F0]">
+              <div className="pt-4">
                 <p className="text-sm text-[#94A3B8] mb-2">
                   Или свяжитесь с нами напрямую:
                 </p>
