@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -12,7 +12,7 @@ import {
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 interface Logo {
   id: number;
@@ -69,6 +69,8 @@ interface PartnersProps {
   };
 }
 
+const PARTNERS_CATEGORY_AUTOPLAY_DELAY_MS = 6400;
+
 const CategoryTabs = memo(function CategoryTabs({
   categories,
   activeIndex,
@@ -87,7 +89,7 @@ const CategoryTabs = memo(function CategoryTabs({
       role="tablist"
       aria-label="Категории партнеров"
       className={cn(
-        "flex w-full min-w-0 max-w-full items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] p-1",
+        "flex w-full min-w-0 max-w-full items-center gap-1 rounded-full bg-[#F1F5F9] p-1",
         "overflow-x-auto snap-x snap-mandatory"
       )}
     >
@@ -105,12 +107,12 @@ const CategoryTabs = memo(function CategoryTabs({
             aria-controls={panelId}
             onClick={() => onChange(index)}
             className={cn(
-              "snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full border border-transparent",
-              "transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
+              "snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full",
+              "transition-[color,background-color,box-shadow] duration-200 ease-out",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
               isActive
-                ? "bg-white text-[#1E3A5F] shadow-sm border-[#E2E8F0]"
-                : "text-[#475569] hover:text-[#1E3A5F] hover:bg-white/60 hover:border-[#E2E8F0]/60"
+                ? "bg-white text-[#1E3A5F] shadow-sm"
+                : "text-[#475569] hover:text-[#1E3A5F] hover:bg-white/60"
             )}
           >
             {category.name}
@@ -131,10 +133,9 @@ const LogoTile = memo(function LogoTile({ logo }: { logo: Logo }) {
   const showImage = !!logo.img && !imageFailed;
 
   const tileClassName = cn(
-    "group relative aspect-[3/2] rounded-xl border border-[#DDE6F2] bg-white/92",
+    "group relative aspect-[3/2] rounded-xl bg-white/92",
     "shadow-sm shadow-[#0F172A]/[0.06]",
-    // Hover: only a subtle scale + "color comes back" on the content.
-    "transition-[transform,box-shadow,border-color] duration-200 ease-out hover:scale-[1.03] hover:border-[#3B82F6]/45 hover:shadow-[0_14px_28px_rgba(36,80,154,0.14)]"
+    "transition-[transform,box-shadow] duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_14px_28px_rgba(36,80,154,0.14)]"
   );
 
   const content = (
@@ -245,7 +246,7 @@ function TestimonialCard({
   if (!current) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm lg:h-[500px]">
+    <div className="relative overflow-hidden rounded-2xl lg:h-[500px]">
       {/* Decorative background */}
       <div
         aria-hidden="true"
@@ -312,8 +313,8 @@ function TestimonialCard({
                 onClick={onPrev}
                 className={cn(
                   "h-10 w-10 inline-flex items-center justify-center rounded-full",
-                  "border border-[#E2E8F0] bg-white/80 backdrop-blur-sm",
-                  "text-[#475569] hover:text-[#3B82F6] hover:border-[#3B82F6]/35",
+                  "bg-white/80 backdrop-blur-sm",
+                  "text-[#475569] hover:text-[#3B82F6]",
                   "transition-colors"
                 )}
                 aria-label="Предыдущая рекомендация"
@@ -325,8 +326,8 @@ function TestimonialCard({
                 onClick={onNext}
                 className={cn(
                   "h-10 w-10 inline-flex items-center justify-center rounded-full",
-                  "border border-[#E2E8F0] bg-white/80 backdrop-blur-sm",
-                  "text-[#475569] hover:text-[#3B82F6] hover:border-[#3B82F6]/35",
+                  "bg-white/80 backdrop-blur-sm",
+                  "text-[#475569] hover:text-[#3B82F6]",
                   "transition-colors"
                 )}
                 aria-label="Следующая рекомендация"
@@ -350,7 +351,7 @@ function AwardsStrip({ awards }: { awards: AwardItem[] }) {
   if (!awards || awards.length === 0) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-[#F8FAFC]">
+    <div className="relative overflow-hidden rounded-2xl">
       <div className="relative z-10 p-6 md:p-7">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -374,8 +375,7 @@ function AwardsStrip({ awards }: { awards: AwardItem[] }) {
               key={award.id}
               className={cn(
                 "snap-start min-w-[260px] sm:min-w-0",
-                "rounded-xl border border-[#E2E8F0] bg-white/70 backdrop-blur-sm p-4",
-                "shadow-sm shadow-[#0F172A]/[0.03]"
+                "rounded-xl bg-white/55 backdrop-blur-sm p-4"
               )}
             >
               <div className="flex items-start justify-between gap-3">
@@ -387,7 +387,7 @@ function AwardsStrip({ awards }: { awards: AwardItem[] }) {
                     {award.title}
                   </div>
                 </div>
-                <div className="h-9 w-9 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-center shrink-0">
+                <div className="h-9 w-9 rounded-full bg-[#F8FAFC] flex items-center justify-center shrink-0">
                   <Award className="h-4 w-4 text-[#58A8E0]" aria-hidden="true" />
                 </div>
               </div>
@@ -402,6 +402,8 @@ function AwardsStrip({ awards }: { awards: AwardItem[] }) {
 export function Partners({ awards, clientsCarousel, testimonials }: PartnersProps) {
   const [activeCategory, setActiveCategory] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const shouldReduceMotion = prefersReducedMotion ?? false;
 
   const tabsBaseId = "partners-tabs";
   const panelId = `${tabsBaseId}-panel`;
@@ -444,11 +446,19 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
 
   const activeTabId = `${tabsBaseId}-tab-${currentCategory?.id ?? "unknown"}`;
 
+  useEffect(() => {
+    if (categories.length <= 1 || shouldReduceMotion) return;
+    const timer = window.setInterval(() => {
+      setActiveCategory((prev) => (prev + 1) % categories.length);
+    }, PARTNERS_CATEGORY_AUTOPLAY_DELAY_MS);
+    return () => window.clearInterval(timer);
+  }, [categories.length, shouldReduceMotion]);
+
   return (
     <Section id="partners" title={clientsCarousel.title}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="min-w-0 lg:col-span-8">
-          <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm lg:h-[500px]">
+          <div className="relative overflow-hidden rounded-2xl lg:h-[500px]">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-[0.55] bg-[radial-gradient(920px_460px_at_0%_0%,rgba(59,130,246,0.12),transparent_58%),radial-gradient(760px_420px_at_100%_45%,rgba(88,168,224,0.10),transparent_62%)]"
@@ -472,31 +482,58 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                   tabsBaseId={tabsBaseId}
                 />
 
-                <div
-                  id={panelId}
-                  role="tabpanel"
-                  aria-label="Партнеры по выбранной категории"
-                  aria-labelledby={activeTabId}
-                  className="mt-1 flex min-w-0 flex-col lg:min-h-0 lg:flex-1"
-                >
-                  <div className="min-w-0 flex-1 overflow-visible lg:min-h-0 lg:overflow-auto lg:pr-1">
-                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-4 md:gap-4">
-                      {visibleLogos.map((logo) => (
-                        <LogoTile key={logo.id} logo={logo} />
-                      ))}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentCategory?.id ?? "empty-category"}
+                    id={panelId}
+                    role="tabpanel"
+                    aria-label="Партнеры по выбранной категории"
+                    aria-labelledby={activeTabId}
+                    className="mt-1 flex min-w-0 flex-col lg:min-h-0 lg:flex-1"
+                    initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 26, scale: 0.99 }}
+                    animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0, scale: 1 }}
+                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -26, scale: 0.99 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                  >
+                    <div className="min-w-0 flex-1 overflow-visible lg:min-h-0 lg:overflow-auto lg:pr-1">
+                      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-4 md:gap-4">
+                        {visibleLogos.map((logo) => (
+                          <LogoTile key={logo.id} logo={logo} />
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mt-6 flex items-center justify-end">
-                    <Button
-                      href={clientsCarousel.archiveCta.href}
-                      variant="ghost"
-                      size="sm"
+                    <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
+                      <Button
+                        href={clientsCarousel.archiveCta.href}
+                        variant="ghost"
+                        size="sm"
+                      >
+                        Все клиенты
+                        <ArrowRight size={16} className="ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  {categories.map((category, index) => (
+                    <button
+                      key={`partners-slide-pill-${category.id}`}
+                      type="button"
+                      onClick={() => handleCategoryChange(index)}
+                      className={cn(
+                        "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+                        index === safeActiveCategory
+                          ? "bg-[#3B82F6]/10 text-[#1E3A5F]"
+                          : "bg-white/85 text-[#5A7297] hover:bg-[#EAF2FF]"
+                      )}
+                      aria-label={`Показать категорию: ${category.name}`}
+                      aria-current={index === safeActiveCategory ? "true" : undefined}
                     >
-                      Все клиенты
-                      <ArrowRight size={16} className="ml-2" />
-                    </Button>
-                  </div>
+                      {category.name}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>

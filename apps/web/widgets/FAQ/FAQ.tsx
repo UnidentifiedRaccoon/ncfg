@@ -1,4 +1,8 @@
-import { ChevronDown } from "lucide-react";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
@@ -12,9 +16,10 @@ interface FAQProps {
   title: string;
   lead?: string;
   items: FAQItem[];
-  /** Open the first item by default (server-rendered). */
   defaultOpenFirst?: boolean;
 }
+
+const FAQ_AUTOPLAY_DELAY_MS = 7000;
 
 const placeholderFAQ: FAQItem[] = [
   {
@@ -44,79 +49,32 @@ const placeholderFAQ: FAQItem[] = [
   },
 ];
 
-function FAQAccordionItem({
+function FAQSlide({
   item,
-  defaultOpen,
 }: {
   item: FAQItem;
-  defaultOpen?: boolean;
 }) {
   return (
-    <details
+    <article
       className={cn(
-        "group relative border-b border-[#D4E3FF]/80 last:border-b-0",
-        "open:bg-[linear-gradient(120deg,rgba(255,255,255,0.95),rgba(241,247,255,0.95))]"
+        "relative overflow-hidden rounded-3xl border border-[#CFE0FF]/80",
+        "bg-[linear-gradient(145deg,rgba(255,255,255,0.95),rgba(242,247,255,0.95))]",
+        "shadow-[0_18px_42px_rgba(27,68,141,0.12)] backdrop-blur-sm"
       )}
-      open={defaultOpen ? true : undefined}
     >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute top-6 bottom-6 left-0 w-[2px] rounded-full bg-gradient-to-b from-[#30D7FF] via-[#5B8DFF] to-transparent opacity-0 transition-opacity duration-200 group-open:opacity-100"
-      />
-
-      <summary className="faq-summary flex cursor-pointer select-none items-start justify-between gap-4 px-5 py-5 text-left md:px-6">
-        <span className="text-[15px] font-bold leading-snug text-[#122848] transition-colors group-hover:text-[#3B82F6] md:text-lg">
-          {item.question}
-        </span>
-        <ChevronDown
-          size={20}
-          className="mt-1 shrink-0 text-[#7E96B9] transition-transform duration-200 group-open:rotate-180"
-          aria-hidden="true"
-        />
-      </summary>
-
-      <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-open:grid-rows-[1fr]">
-        <div className="overflow-hidden">
-          <div className="px-5 pb-5 pr-10 text-sm leading-relaxed text-[#39557B] opacity-0 translate-y-1 transition duration-200 ease-out group-open:translate-y-0 group-open:opacity-100 md:px-6 md:text-base">
-            {item.answer}
-          </div>
-        </div>
-      </div>
-    </details>
-  );
-}
-
-function FAQAccordion({
-  items,
-  defaultOpenFirst = true,
-  footer,
-}: {
-  items: FAQItem[];
-  defaultOpenFirst?: boolean;
-  footer?: React.ReactNode;
-}) {
-  return (
-    <div className="relative overflow-hidden rounded-3xl border border-[#CFE0FF]/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.95),rgba(242,247,255,0.95))] shadow-[0_18px_42px_rgba(27,68,141,0.12)] backdrop-blur-sm">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/10 blur-3xl" />
         <div className="absolute -bottom-44 left-1/4 h-[560px] w-[560px] rounded-full bg-[#58A8E0]/8 blur-3xl" />
       </div>
-
-      <div className="relative">
-        {items.map((item, index) => (
-          <FAQAccordionItem
-            key={`${index}-${item.question}`}
-            item={item}
-            defaultOpen={defaultOpenFirst && index === 0}
-          />
-        ))}
-        {footer && (
-          <div className="px-5 py-4 text-sm text-[#475569] md:px-6">
-            {footer}
-          </div>
-        )}
+      <div className="relative p-6 md:p-8">
+        <h3 className="text-lg font-bold leading-snug text-[#122848] md:text-2xl">
+          {item.question}
+        </h3>
+        <p className="mt-4 text-sm leading-relaxed text-[#39557B] md:text-base">
+          {item.answer}
+        </p>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -124,30 +82,99 @@ export function FAQ({
   title,
   lead,
   items,
-  defaultOpenFirst = true,
 }: FAQProps) {
-  const displayItems = items.length > 0 ? items : placeholderFAQ;
+  const displayItems = useMemo(
+    () => (items.length > 0 ? items : placeholderFAQ),
+    [items]
+  );
   const normalizedTitle = title.trim();
   const displayTitle =
     normalizedTitle.length === 0 || normalizedTitle.toLowerCase() === "faq"
       ? "Частые вопросы"
       : normalizedTitle;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const shouldReduceMotion = prefersReducedMotion ?? false;
+
+  useEffect(() => {
+    if (displayItems.length <= 1) return;
+    if (shouldReduceMotion) return;
+
+    const timer = window.setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % displayItems.length);
+    }, FAQ_AUTOPLAY_DELAY_MS);
+
+    return () => window.clearInterval(timer);
+  }, [displayItems.length, shouldReduceMotion]);
+
+  const activeItem = displayItems[activeIndex];
+
+  if (!activeItem) return null;
 
   return (
     <Section id="faq" title={displayTitle} lead={lead}>
       <div className="max-w-4xl mx-auto">
-        <FAQAccordion
-          items={displayItems}
-          defaultOpenFirst={defaultOpenFirst}
-          footer={
-            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-              <p>Не нашли ответ? Оставьте заявку, и мы свяжемся с вами.</p>
-              <Button variant="secondary" size="sm" href="#lead-form">
-                Оставить заявку
-              </Button>
-            </div>
-          }
-        />
+        <div className="relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`faq-slide-${activeItem.question}`}
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 28 }}
+              animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+              exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -28 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              <FAQSlide item={activeItem} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setActiveIndex((prev) => (prev - 1 + displayItems.length) % displayItems.length)
+              }
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#CFE0FF] bg-white text-[#3B82F6] transition-colors hover:bg-[#EFF6FF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
+              aria-label="Предыдущий вопрос"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveIndex((prev) => (prev + 1) % displayItems.length)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#CFE0FF] bg-white text-[#3B82F6] transition-colors hover:bg-[#EFF6FF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
+              aria-label="Следующий вопрос"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2" aria-label="Пагинация вопросов">
+            {displayItems.map((item, index) => (
+              <button
+                key={`faq-dot-${item.question}-${index}`}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                className={cn(
+                  "h-2.5 rounded-full transition-all",
+                  index === activeIndex
+                    ? "w-7 bg-[#3B82F6]"
+                    : "w-2.5 bg-[#BFDBFE] hover:bg-[#93C5FD]"
+                )}
+                aria-label={`Перейти к вопросу ${index + 1}`}
+                aria-current={index === activeIndex ? "true" : undefined}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col items-start justify-between gap-3 rounded-2xl border border-[#DDEBFF] bg-white/80 px-5 py-4 text-sm text-[#475569] sm:flex-row sm:items-center">
+          <p>Не нашли ответ? Оставьте заявку, и мы свяжемся с вами.</p>
+          <Button variant="secondary" size="sm" href="#lead-form">
+            Оставить заявку
+          </Button>
+        </div>
       </div>
     </Section>
   );
