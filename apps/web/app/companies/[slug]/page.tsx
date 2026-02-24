@@ -38,15 +38,35 @@ function getAllServiceIds(data: ServicesData): string[] {
   return ids;
 }
 
+async function safeFetchServicesData(context: string): Promise<ServicesData | null> {
+  try {
+    return await fetchServicesData();
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+    console.error(`[companies/[slug]] Failed to fetch services data in ${context}: ${details}`);
+    return null;
+  }
+}
+
 export async function generateStaticParams() {
-  const servicesData = await fetchServicesData();
+  const servicesData = await safeFetchServicesData("generateStaticParams");
+  if (!servicesData) {
+    return [];
+  }
+
   const ids = getAllServiceIds(servicesData);
   return ids.map((id) => ({ slug: id }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const servicesData = await fetchServicesData();
+  const servicesData = await safeFetchServicesData("generateMetadata");
+  if (!servicesData) {
+    return {
+      title: "Услуга не найдена — НЦФГ",
+    };
+  }
+
   const service = findServiceById(servicesData, slug);
 
   if (!service) {
@@ -97,9 +117,13 @@ export default async function ServicePage({ params }: PageProps) {
   }
 
   const [servicesData, siteSetting] = await Promise.all([
-    fetchServicesData(),
+    safeFetchServicesData("ServicePage"),
     fetchSiteSettings(),
   ]);
+  if (!servicesData) {
+    notFound();
+  }
+
   const service = findServiceById(servicesData, slug);
 
   if (!service) {
