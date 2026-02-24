@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Mail, Phone, MapPin, FileText } from "lucide-react";
-import type { ReactNode } from "react";
-import { Container } from "@/shared/ui/Container";
+import { ArrowRight } from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/shared/ui/Button";
+import { AnimatedGlyph } from "@/shared/ui/AnimatedGlyph";
 import { cn } from "@/shared/lib/cn";
 
 interface LegalDocument {
@@ -62,37 +65,6 @@ function normalizeCopyrightLine(value: string): string {
     .toLowerCase();
 }
 
-function FooterBackdrop() {
-  return (
-    <>
-      <div aria-hidden="true" className="absolute inset-0 bg-[#050B16]" />
-
-      <div
-        aria-hidden="true"
-        className="absolute -top-48 -left-48 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/25 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -bottom-56 left-1/4 h-[640px] w-[640px] rounded-full bg-[#58A8E0]/20 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -top-56 -right-40 h-[620px] w-[620px] rounded-full bg-[#1E3A5F]/55 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-[0.08] bg-[linear-gradient(to_right,rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.12)_1px,transparent_1px)] bg-[size:48px_48px]"
-      />
-
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/10 to-black/55"
-      />
-    </>
-  );
-}
-
 function FooterLink({
   href,
   className,
@@ -125,31 +97,28 @@ function FooterLink({
 }
 
 export function Footer({ data }: FooterProps) {
-  const hasLegalDocuments =
-    Boolean(data.legalDocuments) && data.legalDocuments.items.length > 0;
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const legalDocuments = data.legalDocuments?.items ?? [];
+  const hasLegalDocuments = legalDocuments.length > 0;
+  const mapId = "footer-address-map";
 
   const panelClassName =
-    "rounded-2xl border border-white/12 bg-[#0B1324] shadow-[0_28px_90px_rgba(0,0,0,0.55)] overflow-hidden";
-
-  const dividerClassName = "border-white/10";
-
-  const sectionTitleClassName = "text-sm font-semibold text-white";
-
-  const linkClassName =
-    "text-sm text-white/65 hover:text-white transition-colors hover:underline underline-offset-4 decoration-white/25";
-
-  const mutedTextClassName = "text-sm text-white/65";
-
-  const iconAccentClassName = "text-[#58A8E0]";
-
-  const badgeClassName =
-    "rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-white/60";
-
+    "overflow-hidden rounded-3xl bg-[linear-gradient(160deg,#08162D_0%,#10274D_52%,#143360_100%)]";
+  const sectionTitleClassName =
+    "text-[11px] font-semibold uppercase tracking-[0.12em] text-white/62";
+  const linkClassName = "text-sm text-white/78 transition-colors hover:text-white";
+  const mutedTextClassName = "text-sm text-white/64";
+  const iconAccentClassName = "text-[#30D7FF]";
   const ctaButtonClassName =
-    "rounded-full !bg-white/10 !text-white border border-white/20 hover:!bg-white/15 hover:shadow-[0_16px_44px_rgba(88,168,224,0.16)]";
+    "h-10 rounded-full !bg-white !text-[#0B1B36] border border-white hover:!bg-white/90";
 
   const phoneSanitized = data.contacts.phone.replace(/\s/g, "");
   const ctaHref = "/#lead-form";
+  const mapSrc = useMemo(() => {
+    const encoded = encodeURIComponent(data.contacts.legalAddress);
+    return `https://yandex.ru/map-widget/v1/?mode=search&text=${encoded}&z=18&l=map`;
+  }, [data.contacts.legalAddress]);
 
   const copyrightTitle = data.copyright.years
     ? `© ${data.copyright.years} ${data.organization.shortName}.`
@@ -161,192 +130,158 @@ export function Footer({ data }: FooterProps) {
       normalizeCopyrightLine(copyrightTitle);
 
   return (
-    <footer id="contacts" className="relative overflow-hidden bg-[#050B16] text-white">
-      <FooterBackdrop />
-
-      <Container className="relative z-10">
-        <div className="py-12 md:py-16">
+    <footer id="contacts" className="relative -mt-px overflow-hidden bg-transparent text-white">
+      <div className="relative z-10 w-full px-4 md:px-6 lg:px-8">
+        <div className="py-0">
           <div className={cn("relative", panelClassName)}>
-            <div
-              aria-hidden="true"
-              className={cn(
-                "pointer-events-none absolute inset-x-0 top-0 h-12",
-                "bg-gradient-to-b from-white/[0.06] to-transparent"
-              )}
-            />
-
-            <div
-              className={cn(
-                "relative flex flex-col gap-4 px-6 py-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-7",
-                "border-b",
-                dividerClassName
-              )}
-            >
-              <div className="min-w-0">
-                <div
-                  className="text-xs font-semibold text-white/60"
-                >
-                  Консультация бесплатно
-                </div>
-                <div
-                  className="mt-1 text-lg md:text-xl font-semibold tracking-tight text-white"
-                >
-                  Поможем выбрать формат программы
-                </div>
-                <div
-                  className="mt-1 text-sm text-white/65"
-                >
-                  Ответим в течение 1 дня
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  href={ctaHref}
-                  variant="secondary"
-                  size="md"
-                  className={ctaButtonClassName}
-                >
-                  Оставить заявку
-                  <ArrowRight
-                    className="ml-2 h-4 w-4 opacity-80"
-                    aria-hidden="true"
-                  />
-                </Button>
-
-                <a
-                  href={`tel:${phoneSanitized}`}
-                  className={cn(
-                    "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
-                    "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
-                  )}
-                >
-                  <Phone size={14} className={iconAccentClassName} />
-                  {data.contacts.phone}
-                </a>
-
-                <a
-                  href={`mailto:${data.contacts.email}`}
-                  className={cn(
-                    "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
-                    "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
-                  )}
-                >
-                  <Mail size={14} className={iconAccentClassName} />
-                  {data.contacts.email}
-                </a>
-              </div>
-            </div>
-
-            <div
-              className={cn(
-                "grid gap-0 md:grid-cols-2",
-                hasLegalDocuments ? "lg:grid-cols-4" : "lg:grid-cols-3",
-                "md:[&>*:nth-child(even)]:border-l lg:[&>*:nth-child(n+2)]:border-l"
-              )}
-            >
-              <div
-                className={cn(
-                  "px-6 py-6 md:px-8 md:py-7 border-t first:border-t-0 md:border-t-0",
-                  dividerClassName
-                )}
-              >
-                <Link href="/" className="flex items-center gap-3">
-                  <Image
-                    src="/logo.svg"
-                    alt="НЦФГ"
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 brightness-0 invert"
-                  />
-                  <span
-                    className="text-base sm:text-lg font-black tracking-[0.14em] leading-none text-white"
+            <div className="relative p-6 md:p-8">
+              <div className="flex flex-col gap-6 pb-6 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0">
+                  <motion.p
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+                    whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="text-xs font-semibold uppercase tracking-[0.1em] text-white/64"
                   >
-                    {data.organization.shortName}
-                  </span>
-                </Link>
+                    Национальный центр финансовой грамотности
+                  </motion.p>
+                  <motion.h2
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+                    whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ duration: 0.45, ease: "easeOut", delay: 0.05 }}
+                    className="mt-1 text-2xl font-semibold leading-tight tracking-tight text-white md:text-3xl"
+                  >
+                    Развиваем финансовую культуру людей и компаний
+                  </motion.h2>
+                </div>
 
-                <p className={cn("mt-4 leading-relaxed", mutedTextClassName)}>
-                  {data.organization.fullName}
-                </p>
-
-                <div className={cn("mt-5 space-y-2", mutedTextClassName)}>
+                <div className="flex shrink-0 flex-wrap items-center gap-2.5">
                   <a
                     href={`tel:${phoneSanitized}`}
-                    className={cn(
-                      "flex items-center gap-2 transition-colors",
-                      "text-white/70 hover:text-white"
-                    )}
+                    className="inline-flex h-10 items-center gap-2 rounded-full border border-white/20 bg-white/8 px-4 text-sm font-medium text-white transition-colors hover:bg-white/15"
                   >
-                    <Phone size={14} className={iconAccentClassName} />
+                    <AnimatedGlyph
+                      icon="phone"
+                      size={14}
+                      className={iconAccentClassName}
+                    />
                     {data.contacts.phone}
                   </a>
-                  <a
-                    href={`mailto:${data.contacts.email}`}
-                    className={cn(
-                      "flex items-center gap-2 transition-colors",
-                      "text-white/70 hover:text-white"
-                    )}
-                  >
-                    <Mail size={14} className={iconAccentClassName} />
-                    {data.contacts.email}
-                  </a>
-                  <div
-                    className="flex items-start gap-2 text-white/70"
-                  >
-                    <MapPin
-                      size={14}
-                      className={cn(iconAccentClassName, "shrink-0 mt-0.5")}
-                    />
-                    <span>{data.contacts.legalAddress}</span>
-                  </div>
+                  <Button href={ctaHref} variant="secondary" size="sm" className={ctaButtonClassName}>
+                    Оставить заявку
+                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                  </Button>
                 </div>
               </div>
 
-              <div
-                className={cn(
-                  "px-6 py-6 md:px-8 md:py-7 border-t first:border-t-0 md:border-t-0",
-                  dividerClassName
-                )}
-              >
-                <h3 className={sectionTitleClassName}>Навигация</h3>
-                <ul className="mt-4 space-y-3">
-                  {navigation.map((item) => (
-                    <li key={item.href}>
-                      <Link href={item.href} className={linkClassName}>
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <div className="mt-6 grid gap-6 md:grid-cols-12">
+                <div className="md:col-span-5">
+                  <Link href="/" className="inline-flex items-center gap-3">
+                    <Image
+                      src="/logo.svg"
+                      alt="НЦФГ"
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 brightness-0 invert"
+                    />
+                    <span className="text-base font-extrabold tracking-[0.14em] text-white">
+                      {data.organization.shortName}
+                    </span>
+                  </Link>
+                  <p className={cn("mt-3 max-w-[56ch] leading-relaxed", mutedTextClassName)}>
+                    {data.organization.fullName}
+                  </p>
+                  <div className="mt-4 space-y-2 text-sm text-white/80">
+                    <a
+                      href={`mailto:${data.contacts.email}`}
+                      className="inline-flex items-center gap-2 transition-colors hover:text-white"
+                    >
+                      <AnimatedGlyph
+                        icon="mail"
+                        size={14}
+                        className={iconAccentClassName}
+                      />
+                      {data.contacts.email}
+                    </a>
+                    <button
+                      type="button"
+                      className="group inline-flex items-start gap-2 text-left text-white/70 transition-colors hover:text-white"
+                      onClick={() => setIsMapOpen((current) => !current)}
+                      aria-expanded={isMapOpen}
+                      aria-controls={mapId}
+                    >
+                      <AnimatedGlyph
+                        icon="map-pin"
+                        size={14}
+                        className={cn(iconAccentClassName, "mt-0.5 shrink-0")}
+                      />
+                      <span>
+                        {data.contacts.legalAddress}
+                        <span className="ml-2 text-xs text-[#8FC5FF] group-hover:text-[#B9DBFF]">
+                          {isMapOpen ? "Скрыть карту" : "Показать карту"}
+                        </span>
+                      </span>
+                    </button>
+                  </div>
 
-              <div
-                className={cn(
-                  "px-6 py-6 md:px-8 md:py-7 border-t first:border-t-0 md:border-t-0",
-                  dividerClassName
-                )}
-              >
-                <h3 className={sectionTitleClassName}>Социальные сети</h3>
-                <ul className="mt-4 space-y-3">
-                  {data.social.map((item) => (
-                    <li key={item.href}>
-                      <a href={item.href} className={linkClassName} target="_blank" rel="noopener noreferrer">
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                  <motion.div
+                    id={mapId}
+                    initial={false}
+                    animate={
+                      isMapOpen
+                        ? { height: "auto", opacity: 1, marginTop: 12 }
+                        : { height: 0, opacity: 0, marginTop: 0 }
+                    }
+                    transition={{ duration: 0.32, ease: "easeOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="relative overflow-hidden rounded-2xl border border-white/16 bg-[#0A1D3A]/70">
+                      <iframe
+                        title={`Карта: ${data.contacts.legalAddress}`}
+                        src={mapSrc}
+                        className="h-[220px] w-full md:h-[250px]"
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                      <div
+                        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full"
+                        aria-hidden="true"
+                      >
+                        <span className="absolute -inset-2 rounded-full bg-[#F97316]/35 blur-sm" />
+                        <span className="relative block h-4 w-4 rounded-full border-2 border-white bg-[#F97316] shadow-[0_0_16px_rgba(249,115,22,0.75)]" />
+                        <span className="absolute left-1/2 top-[12px] h-2.5 w-2.5 -translate-x-1/2 rotate-45 border-r-2 border-b-2 border-white/90 bg-[#F97316]" />
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
 
-                {data.legalLinks.length > 0 && (
-                  <div className="mt-7">
-                    <h4 className={cn(sectionTitleClassName, "text-sm")}>
-                      Юридическая информация
-                    </h4>
-                    <ul className="mt-3 space-y-2">
+                <div className="md:col-span-3">
+                  <h3 className={sectionTitleClassName}>Навигация</h3>
+                  <ul className="mt-3 space-y-2">
+                    {navigation.map((item, index) => (
+                      <motion.li
+                        key={item.href}
+                        initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+                        whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.65 }}
+                        transition={{
+                          duration: 0.28,
+                          ease: "easeOut",
+                          delay: 0.04 * index,
+                        }}
+                      >
+                        <Link href={item.href} className={cn(linkClassName, "hover:translate-x-0.5 inline-block transition-transform")}>
+                          {item.label}
+                        </Link>
+                      </motion.li>
+                    ))}
+                  </ul>
+                  {data.legalLinks.length > 0 && (
+                    <ul className="mt-4 space-y-2">
                       {data.legalLinks.map((item) => {
                         const isInternal = item.href.startsWith("/");
-
                         return (
                           <li key={item.href}>
                             <FooterLink
@@ -360,60 +295,73 @@ export function Footer({ data }: FooterProps) {
                         );
                       })}
                     </ul>
-                  </div>
-                )}
+                  )}
+                </div>
+
+                <div className="md:col-span-4">
+                  <h3 className={sectionTitleClassName}>Ресурсы</h3>
+                  <ul className="mt-3 space-y-2">
+                    {data.social.map((item, index) => (
+                      <motion.li
+                        key={item.href}
+                        initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+                        whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.65 }}
+                        transition={{
+                          duration: 0.28,
+                          ease: "easeOut",
+                          delay: 0.04 * index,
+                        }}
+                      >
+                        <a
+                          href={item.href}
+                          className={linkClassName}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {item.label}
+                        </a>
+                      </motion.li>
+                    ))}
+                  </ul>
+                  {hasLegalDocuments && (
+                    <>
+                      <h4 className={cn(sectionTitleClassName, "mt-4")}>
+                        {data.legalDocuments.title}
+                      </h4>
+                      <ul className="mt-3 space-y-2">
+                        {legalDocuments.map((doc) => (
+                          <li key={doc.href}>
+                            <a
+                              href={doc.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={cn("inline-flex items-center gap-2", linkClassName)}
+                            >
+                              <AnimatedGlyph
+                                icon="file-text"
+                                size={14}
+                                className={iconAccentClassName}
+                              />
+                              <span>{doc.label}</span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
               </div>
 
-              {hasLegalDocuments && (
-                <div
-                  className={cn(
-                    "px-6 py-6 md:px-8 md:py-7 border-t first:border-t-0 md:border-t-0",
-                    dividerClassName
-                  )}
-                >
-                  <h3 className={sectionTitleClassName}>{data.legalDocuments.title}</h3>
-                  <ul className="mt-4 space-y-3">
-                    {data.legalDocuments.items.map((doc) => {
-                      const badge =
-                        doc.type === "pdf" || doc.type === "docx"
-                          ? doc.type.toUpperCase()
-                          : null;
-
-                      return (
-                        <li key={doc.href} className="flex items-start gap-3">
-                          <FileText
-                            size={16}
-                            className={cn(iconAccentClassName, "shrink-0 mt-0.5")}
-                          />
-                          <a
-                            href={doc.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={cn(linkClassName, "flex-1")}
-                          >
-                            {doc.label}
-                          </a>
-                          {badge && <span className={badgeClassName}>{badge}</span>}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className={cn("px-6 py-5 md:px-8 md:py-6 border-t", dividerClassName)}>
-              <div
-                className="flex flex-col gap-1 text-sm text-white/50"
-              >
+              <div className="mt-6 pt-4 text-xs text-white/52 md:flex md:flex-wrap md:items-center md:gap-x-5">
                 <p>{copyrightTitle}</p>
-                {showCopyrightText && <p>{data.copyright.text}</p>}
-                {data.copyright.notice && <p>{data.copyright.notice}</p>}
+                {showCopyrightText && <p className="mt-1 md:mt-0">{data.copyright.text}</p>}
+                {data.copyright.notice && <p className="mt-1 md:mt-0">{data.copyright.notice}</p>}
               </div>
             </div>
           </div>
         </div>
-      </Container>
+      </div>
     </footer>
   );
 }

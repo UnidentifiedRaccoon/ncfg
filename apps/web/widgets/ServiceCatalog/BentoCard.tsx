@@ -22,31 +22,28 @@ export function BentoCard({
       href={href}
       className={cn(
         "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out [will-change:transform]",
-        "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",
+        "hover:-translate-y-1.5 hover:shadow-[0_26px_48px_rgba(36,80,154,0.2)] hover:border-[#3B82F6]/45 hover:z-10",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
-        "before:pointer-events-none before:absolute before:inset-x-6 before:top-0 before:z-0 before:h-px before:content-['']",
-        "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
-        "before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100",
         "after:pointer-events-none after:absolute after:inset-0 after:z-0 after:rounded-2xl after:content-['']",
-        "after:bg-[radial-gradient(circle_at_18%_12%,rgba(88,168,224,0.16),transparent_60%)]",
+        "after:bg-[radial-gradient(circle_at_18%_12%,rgba(48,215,255,0.22),transparent_60%)]",
         "after:opacity-0 after:transition-opacity after:duration-300 hover:after:opacity-100",
         featured
-          ? "bg-[#F0F7FF] border-[#E2E8F0] p-6 md:p-8"
-          : "bg-white border-[#F1F5F9] p-5 md:p-6",
+          ? "bg-[linear-gradient(145deg,#F2F8FF,#ECF4FF)] border-[#DCE8F8] p-6 md:p-8"
+          : "bg-white/92 border-[#E4ECF7] p-5 md:p-6",
         className
       )}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-24 -top-20 z-0 h-64 w-64 rounded-full bg-gradient-to-br from-[#58A8E0]/22 via-[#3B82F6]/14 to-transparent blur-2xl"
+        className="pointer-events-none absolute -right-24 -top-20 z-0 h-64 w-64 rounded-full bg-gradient-to-br from-[#4FC3F7]/25 via-[#3B82F6]/16 to-transparent blur-2xl"
       />
 
       <div className="relative z-10 flex h-full flex-col">
         <h4
           className={cn(
             featured
-              ? "text-2xl md:text-3xl font-bold leading-tight tracking-tight text-[#1E3A5F]"
-              : "text-lg font-semibold tracking-tight text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]",
+              ? "text-2xl md:text-3xl font-bold leading-tight tracking-tight text-[#132B4A]"
+              : "text-lg font-semibold tracking-tight text-[#132B4A] transition-colors group-hover:text-[#2F65C7]",
           )}
         >
           {title}
@@ -55,8 +52,8 @@ export function BentoCard({
         <p
           className={cn(
             featured
-              ? "mt-3 text-base md:text-lg text-[#475569] leading-relaxed"
-              : "mt-3 text-sm text-[#475569] leading-relaxed line-clamp-3"
+              ? "mt-3 text-base md:text-lg text-[#425A77] leading-relaxed"
+              : "mt-3 text-sm text-[#425A77] leading-relaxed line-clamp-3"
           )}
         >
           {description}

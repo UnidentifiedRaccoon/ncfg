@@ -1,4 +1,8 @@
+ "use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Section } from "@/shared/ui/Section";
 import { PostCard, type PostCardPost } from "@/entities/Post";
@@ -7,6 +11,7 @@ import { Button } from "@/shared/ui/Button";
 import { BLOG_RUBRICS, type BlogRubricSlug } from "@/shared/lib/blog-rubrics";
 import { cn } from "@/shared/lib/cn";
 import { makeExcerpt, stripHtmlToText } from "@/shared/lib/excerpt";
+import { EXCERPT_MAX_LENGTH } from "@/shared/config/constants";
 
 interface BlogPost extends PostCardPost {
   body: string;
@@ -18,6 +23,8 @@ interface BlogPostsProps {
   posts: BlogPost[];
   selectedCategory?: BlogRubricSlug;
 }
+
+const BLOG_AUTOPLAY_DELAY_MS = 6000;
 
 function buildBlogHref(options: {
   category?: BlogRubricSlug;
@@ -129,20 +136,33 @@ export function BlogPosts({
   posts,
   selectedCategory,
 }: BlogPostsProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const shouldReduceMotion = prefersReducedMotion ?? false;
+  const safePosts = Array.isArray(posts) ? posts : [];
+  const safeActiveIndex = useMemo(
+    () => Math.min(activeIndex, Math.max(safePosts.length - 1, 0)),
+    [activeIndex, safePosts.length]
+  );
+  const activePost = safePosts[safeActiveIndex];
+
+  useEffect(() => {
+    if (safePosts.length <= 1 || shouldReduceMotion) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % safePosts.length);
+    }, BLOG_AUTOPLAY_DELAY_MS);
+    return () => window.clearInterval(timer);
+  }, [safePosts.length, shouldReduceMotion]);
+
   return (
     <Section
       id="blog"
       title={title}
       lead={lead}
       background="gray"
-      className="relative isolate -mt-16 md:-mt-20 pt-16 md:pt-20"
+      className="relative isolate -mt-[84px] pt-[84px] md:-mt-[106px] md:pt-[106px]"
       containerClassName="pt-12 md:pt-16"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[340px] content-[''] [background-image:radial-gradient(640px_circle_at_12%_22%,rgba(88,168,224,0.18),transparent_55%),radial-gradient(560px_circle_at_88%_10%,rgba(59,130,246,0.14),transparent_60%),radial-gradient(760px_circle_at_55%_-10%,rgba(30,58,95,0.10),transparent_65%)] [mask-image:linear-gradient(to_bottom,black,transparent_92%)] -z-10"
-      />
-
       <div className="lg:hidden sticky top-[72px] z-40 mb-6">
         <PillsNav active={selectedCategory} />
       </div>
@@ -153,7 +173,7 @@ export function BlogPosts({
         </div>
 
         <div className="lg:col-span-8">
-          {posts.length === 0 ? (
+          {safePosts.length === 0 || !activePost ? (
             <div className="mx-auto w-full max-w-[760px] overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white/80 backdrop-blur-sm shadow-sm">
               <div className="p-6 md:p-8">
                 <p className="text-base md:text-lg font-semibold text-[#1E3A5F]">
@@ -171,24 +191,48 @@ export function BlogPosts({
             </div>
           ) : (
             <div className="flex flex-col items-center gap-6">
-              {posts.map((post) => {
-                const excerpt = makeExcerpt(stripHtmlToText(post.body), 170);
-
-                return (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`blog-post-${activePost.id}`}
+                  initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.99 }}
+                  animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+                  exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -18, scale: 0.99 }}
+                  transition={{ duration: 0.32, ease: "easeOut" }}
+                >
                   <PostCard
-                    key={post.id}
                     post={{
-                      id: post.id,
-                      title: post.title,
-                      category: post.category,
-                      slug: post.slug,
-                      anonsImage: post.anonsImage,
-                      createdAt: post.createdAt,
-                      excerpt,
+                      id: activePost.id,
+                      title: activePost.title,
+                      category: activePost.category,
+                      slug: activePost.slug,
+                      anonsImage: activePost.anonsImage,
+                      createdAt: activePost.createdAt,
+                      excerpt: makeExcerpt(
+                        stripHtmlToText(activePost.body),
+                        EXCERPT_MAX_LENGTH
+                      ),
                     }}
                   />
-                );
-              })}
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="flex flex-wrap items-center justify-center gap-2" aria-label="Пагинация новостей">
+                {safePosts.map((post, index) => (
+                  <button
+                    key={`blog-post-dot-${post.id}`}
+                    type="button"
+                    onClick={() => setActiveIndex(index)}
+                    className={cn(
+                      "h-2.5 rounded-full transition-all",
+                      index === safeActiveIndex
+                        ? "w-7 bg-[#3B82F6]"
+                        : "w-2.5 bg-[#BFDBFE] hover:bg-[#93C5FD]"
+                    )}
+                    aria-label={`Перейти к новости ${index + 1}`}
+                    aria-current={index === safeActiveIndex ? "true" : undefined}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>

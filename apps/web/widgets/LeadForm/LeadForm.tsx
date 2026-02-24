@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   Send,
@@ -14,6 +14,7 @@ import {
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
+import { DEFAULT_TRUST_CHIPS } from "@/shared/config/constants";
 
 interface FormData {
   name: string;
@@ -25,18 +26,16 @@ interface FormData {
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
-const TRUST_CHIPS = ["Минфин России", "Сбербанк", "Почта Банк", "Мир"] as const;
-
-const fieldLabelClass = "block text-sm font-medium text-[#1E3A5F]";
+const fieldLabelClass = "block text-sm font-semibold text-[#153259]";
 
 const leadBadgeClass =
-  "inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur";
+  "inline-flex items-center gap-2 rounded-full border border-[#CFE0FF] bg-white/85 px-3 py-1 text-xs font-semibold text-[#153259] backdrop-blur";
 
 const inputBaseClass = cn(
-  "w-full rounded-md border border-[#E2E8F0] bg-white px-4 py-3",
-  "text-[#0F172A] placeholder:text-[#94A3B8]",
+  "w-full rounded-xl border border-[#D2E2FF] bg-white/95 px-4 py-3",
+  "text-[#0F1F3F] placeholder:text-[#84A0C5]",
   "shadow-[0_1px_0_rgba(15,23,42,0.02)]",
-  "focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[rgba(59,130,246,0.15)]",
+  "focus:outline-none focus:border-[#5B8DFF] focus:ring-2 focus:ring-[rgba(91,141,255,0.2)]",
   "transition-all duration-150"
 );
 
@@ -67,16 +66,11 @@ function LeadFormCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-[#E2E8F0]/80 bg-white",
-        "shadow-[0_18px_56px_rgba(15,23,42,0.08)]",
+        "relative overflow-hidden rounded-3xl bg-[linear-gradient(145deg,#FFFFFF,#F5F9FF)]",
+        "shadow-[0_22px_60px_rgba(23,63,134,0.16)]",
         className
       )}
     >
-      {/* Premium top accent line */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#58A8E0] via-[#3B82F6] to-transparent"
-      />
       <div className="relative p-5 md:p-6">{children}</div>
     </div>
   );
@@ -93,89 +87,85 @@ export function LeadForm() {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [consent, setConsent] = useState(false);
-  const consentId = useId();
-  const errorId = useId();
+  const consentId = "lead-form-consent";
+  const errorId = "lead-form-error";
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     if (status === "error") {
       setStatus("idle");
       setErrorMessage("");
     }
-  };
+  }, [status]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
 
-    const name = formData.name.trim();
-    const email = formData.email.trim();
+      const name = formData.name.trim();
+      const email = formData.email.trim();
 
-    if (!name || !email) {
-      setStatus("error");
-      setErrorMessage("Имя и email обязательны для заполнения");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setStatus("error");
-      setErrorMessage("Некорректный формат email");
-      return;
-    }
-
-    if (!consent) {
-      setStatus("error");
-      setErrorMessage("Подтвердите согласие на обработку персональных данных");
-      return;
-    }
-
-    setStatus("loading");
-    setErrorMessage("");
-
-    try {
-      const response = await fetch("/api/lead", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...formData, name, email }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Произошла ошибка при отправке");
+      if (!name || !email) {
+        setStatus("error");
+        setErrorMessage("Имя и email обязательны для заполнения");
+        return;
       }
 
-      setStatus("success");
-      setFormData({ name: "", email: "", phone: "", company: "", message: "" });
-    } catch (error) {
-      setStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : "Произошла ошибка");
-    }
-  };
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setStatus("error");
+        setErrorMessage("Некорректный формат email");
+        return;
+      }
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    clearError();
-  };
+      if (!consent) {
+        setStatus("error");
+        setErrorMessage("Подтвердите согласие на обработку персональных данных");
+        return;
+      }
+
+      setStatus("loading");
+      setErrorMessage("");
+
+      try {
+        const response = await fetch("/api/lead", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...formData, name, email }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Произошла ошибка при отправке");
+        }
+
+        setStatus("success");
+        setFormData({ name: "", email: "", phone: "", company: "", message: "" });
+      } catch (error) {
+        setStatus("error");
+        setErrorMessage(error instanceof Error ? error.message : "Произошла ошибка");
+      }
+    },
+    [consent, formData]
+  );
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      clearError();
+    },
+    [clearError]
+  );
 
   if (status === "success") {
     return (
       <Section
         id="lead-form"
         background="gray"
-        className="relative overflow-hidden"
+        className="relative -mt-px overflow-hidden"
       >
-        {/* Background atmosphere (subtle) */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:56px_56px]" />
-          <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/16 blur-3xl" />
-          <div className="absolute -bottom-56 left-1/3 h-[640px] w-[640px] rounded-full bg-[#58A8E0]/14 blur-3xl" />
-          <div className="absolute -top-52 -right-52 h-[560px] w-[560px] rounded-full bg-[#1E3A5F]/10 blur-3xl" />
-        </div>
-
         <div className="relative z-10 grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur">
@@ -194,7 +184,7 @@ export function LeadForm() {
             <div className="mt-8 flex flex-wrap items-center gap-2 text-xs text-[#475569]">
               <ShieldCheck className="h-4 w-4 text-[#3B82F6]" aria-hidden="true" />
               <span className="font-semibold text-[#1E3A5F]">Нам доверяют:</span>
-              {TRUST_CHIPS.map((chip) => (
+              {DEFAULT_TRUST_CHIPS.map((chip) => (
                 <span
                   key={chip}
                   className="rounded-full border border-[#E2E8F0] bg-white/70 px-2.5 py-1"
@@ -241,16 +231,8 @@ export function LeadForm() {
     <Section
       id="lead-form"
       background="gray"
-      className="relative overflow-hidden"
+      className="relative -mt-px overflow-hidden"
     >
-      {/* Background atmosphere (subtle) */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:56px_56px]" />
-        <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/14 blur-3xl" />
-        <div className="absolute -bottom-56 left-1/3 h-[640px] w-[640px] rounded-full bg-[#58A8E0]/12 blur-3xl" />
-        <div className="absolute -top-52 -right-52 h-[560px] w-[560px] rounded-full bg-[#1E3A5F]/10 blur-3xl" />
-	      </div>
-
 	      <div className="relative z-10 grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
 	        <div className="max-w-xl">
 	          <div className="flex flex-wrap items-center gap-2">
@@ -319,7 +301,7 @@ export function LeadForm() {
           <div className="mt-8 flex flex-wrap items-center gap-2 text-xs text-[#475569]">
             <ShieldCheck className="h-4 w-4 text-[#3B82F6]" aria-hidden="true" />
             <span className="font-semibold text-[#1E3A5F]">Нам доверяют:</span>
-            {TRUST_CHIPS.map((chip) => (
+            {DEFAULT_TRUST_CHIPS.map((chip) => (
               <span
                 key={chip}
                 className="rounded-full border border-[#E2E8F0] bg-white/70 px-2.5 py-1"

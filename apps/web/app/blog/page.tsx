@@ -11,7 +11,7 @@ export const metadata = {
   description: "Полезные материалы о финансовой грамотности от Национального центра финансовой грамотности",
 };
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 60;
 
 type SearchParams = Record<string, string | string[] | undefined>;
 

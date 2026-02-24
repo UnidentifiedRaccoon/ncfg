@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -9,6 +12,7 @@ import {
 import { Section } from "@/shared/ui/Section";
 import { cn } from "@/shared/lib/cn";
 import type { ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 type ProductIcon = "graduation-cap" | "trending-up" | "zap";
 type ProductAudience = "Дети" | "Взрослые" | "Все";
@@ -58,18 +62,7 @@ const products: Product[] = [
   },
 ];
 
-function DecorativeBackground() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-      aria-hidden="true"
-    >
-      <div className="absolute -top-24 right-[-160px] h-80 w-80 rounded-full bg-[#58A8E0]/14 blur-3xl" />
-
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:28px_28px] opacity-[0.22]" />
-    </div>
-  );
-}
+const PRODUCTS_AUTOPLAY_DELAY_MS = 6200;
 
 function ProductTileLink({
   href,
@@ -116,22 +109,19 @@ function ProductTile({
     <ProductTileLink
       href={product.href}
       className={cn(
-        "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out [will-change:transform]",
-        "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",
+        "group relative isolate flex h-full flex-col overflow-hidden rounded-3xl transition-all duration-300 ease-out [will-change:transform]",
+        "hover:-translate-y-1.5 hover:shadow-[0_26px_52px_rgba(36,80,154,0.2)] hover:z-10",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
         featured
-          ? "bg-[#F0F7FF] border-[#E2E8F0] p-6 md:p-8"
-          : "bg-white border-[#F1F5F9] p-5 md:p-6",
-        "before:pointer-events-none before:absolute before:inset-x-6 before:top-0 before:z-0 before:h-px before:content-['']",
-        "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
-        "before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100",
+          ? "bg-[linear-gradient(155deg,#F7FBFF,#EDF3FF)] p-6 md:p-8"
+          : "bg-[linear-gradient(155deg,#FFFFFF,#F4F8FF)] p-5 md:p-6",
         "after:pointer-events-none after:absolute after:inset-0 after:z-0 after:rounded-2xl after:content-['']",
-        "after:bg-[radial-gradient(circle_at_18%_12%,rgba(88,168,224,0.16),transparent_60%)]",
+        "after:bg-[radial-gradient(circle_at_18%_12%,rgba(48,215,255,0.2),transparent_60%)]",
         "after:opacity-0 after:transition-opacity after:duration-300 hover:after:opacity-100"
       )}
     >
       <div
-        className="pointer-events-none absolute -right-24 -top-20 z-0 hidden h-64 w-64 rounded-full bg-gradient-to-br from-[#58A8E0]/26 via-[#3B82F6]/16 to-transparent blur-2xl md:block"
+        className="pointer-events-none absolute -right-24 -top-20 z-0 hidden h-64 w-64 rounded-full bg-gradient-to-br from-[#30D7FF]/28 via-[#5B8DFF]/18 to-transparent blur-2xl md:block"
         aria-hidden="true"
       />
 
@@ -157,7 +147,7 @@ function ProductTile({
         </div>
 
         {isExternal && (
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-white/80 text-[#475569] transition-colors group-hover:border-[#3B82F6]/35 group-hover:text-[#3B82F6]">
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 text-[#475569] transition-colors group-hover:text-[#3B82F6]">
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
           </span>
         )}
@@ -166,7 +156,7 @@ function ProductTile({
       <h3
         className={cn(
           "relative z-10 mt-5 leading-tight tracking-tight text-[#1E3A5F]",
-          featured ? "text-2xl md:text-3xl font-bold" : "text-lg font-semibold"
+          featured ? "text-2xl md:text-3xl font-extrabold" : "text-lg font-bold"
         )}
       >
         {product.title}
@@ -198,22 +188,58 @@ function ProductTile({
 }
 
 export function Products() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const shouldReduceMotion = prefersReducedMotion ?? false;
+  const safeActiveIndex = Math.min(activeIndex, Math.max(products.length - 1, 0));
+  const activeProduct = products[safeActiveIndex];
+
+  useEffect(() => {
+    if (products.length <= 1 || shouldReduceMotion) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % products.length);
+    }, PRODUCTS_AUTOPLAY_DELAY_MS);
+    return () => window.clearInterval(timer);
+  }, [shouldReduceMotion]);
+
+  if (!activeProduct) return null;
+
   return (
     <Section
       id="products"
       title="Продукты"
       lead="Программы финансовой грамотности для детей и взрослых — выберите подходящий формат"
     >
-      <div className="relative">
-        <DecorativeBackground />
+      <div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`product-slide-${activeProduct.id}`}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.98 }}
+            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -20, scale: 0.98 }}
+            transition={{ duration: 0.36, ease: "easeOut" }}
+          >
+            <ProductTile product={activeProduct} featured />
+          </motion.div>
+        </AnimatePresence>
 
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 md:gap-6">
-          <div className="md:col-span-2 md:row-span-2">
-            <ProductTile product={products[0]} featured />
-          </div>
-
-          {products.slice(1).map((product) => (
-            <ProductTile key={product.id} product={product} />
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          {products.map((product, index) => (
+            <button
+              key={`products-tab-${product.id}`}
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              className={cn(
+                "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+                index === safeActiveIndex
+                  ? "bg-[#3B82F6]/10 text-[#1E3A5F]"
+                  : "bg-white/85 text-[#5A7297] hover:bg-[#EAF2FF]"
+              )}
+              aria-label={`Показать продукт: ${product.title}`}
+              aria-current={index === safeActiveIndex ? "true" : undefined}
+            >
+              {product.title}
+            </button>
           ))}
         </div>
       </div>
