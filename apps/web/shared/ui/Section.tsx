@@ -33,7 +33,7 @@ export function Section({
     <section
       id={id}
       className={cn(
-        "py-14 md:py-20",
+        "-mt-px py-14 md:py-20",
         background === "gray" && "bg-transparent",
         "relative",
         className

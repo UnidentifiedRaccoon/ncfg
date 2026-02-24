@@ -5,7 +5,6 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Container } from "@/shared/ui/Container";
 import { Button } from "@/shared/ui/Button";
 import { AnimatedGlyph } from "@/shared/ui/AnimatedGlyph";
 import { cn } from "@/shared/lib/cn";
@@ -66,32 +65,6 @@ function normalizeCopyrightLine(value: string): string {
     .toLowerCase();
 }
 
-function FooterBackdrop() {
-  return (
-    <>
-      <div aria-hidden="true" className="absolute inset-0 bg-transparent" />
-
-      <div
-        aria-hidden="true"
-        className="absolute -top-40 -left-40 h-[440px] w-[440px] rounded-full bg-[#30D7FF]/20 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -bottom-52 left-1/4 h-[560px] w-[560px] rounded-full bg-[#5B8DFF]/16 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -top-52 -right-40 h-[520px] w-[520px] rounded-full bg-[#8A5CFF]/14 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-transparent"
-      />
-    </>
-  );
-}
-
 function FooterLink({
   href,
   className,
@@ -131,7 +104,7 @@ export function Footer({ data }: FooterProps) {
   const mapId = "footer-address-map";
 
   const panelClassName =
-    "overflow-hidden rounded-3xl bg-[linear-gradient(160deg,#08162D_0%,#10274D_52%,#143360_100%)] shadow-[0_24px_64px_rgba(1,6,18,0.52)]";
+    "overflow-hidden rounded-3xl bg-[linear-gradient(160deg,#08162D_0%,#10274D_52%,#143360_100%)]";
   const sectionTitleClassName =
     "text-[11px] font-semibold uppercase tracking-[0.12em] text-white/62";
   const linkClassName = "text-sm text-white/78 transition-colors hover:text-white";
@@ -157,10 +130,9 @@ export function Footer({ data }: FooterProps) {
       normalizeCopyrightLine(copyrightTitle);
 
   return (
-    <footer id="contacts" className="relative overflow-hidden bg-transparent text-white">
-      <FooterBackdrop />
-      <Container className="relative z-10">
-        <div className="py-8 md:py-10">
+    <footer id="contacts" className="relative -mt-px overflow-hidden bg-transparent text-white">
+      <div className="relative z-10 w-full px-4 md:px-6 lg:px-8">
+        <div className="py-0">
           <div className={cn("relative", panelClassName)}>
             <div className="relative p-6 md:p-8">
               <div className="flex flex-col gap-6 pb-6 md:flex-row md:items-center md:justify-between">
@@ -389,7 +361,7 @@ export function Footer({ data }: FooterProps) {
             </div>
           </div>
         </div>
-      </Container>
+      </div>
     </footer>
   );
 }

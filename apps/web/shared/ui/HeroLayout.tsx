@@ -108,25 +108,10 @@ export function HeroLayout({
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden -mt-16 md:-mt-20 pt-16 md:pt-20">
-      <div aria-hidden="true" className="absolute inset-0 bg-transparent" />
-
-      <div
-        aria-hidden="true"
-        className="absolute -top-40 -left-40 h-[440px] w-[440px] rounded-full bg-[#30D7FF]/20 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -bottom-52 left-1/4 h-[560px] w-[560px] rounded-full bg-[#5B8DFF]/16 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -top-52 -right-40 h-[520px] w-[520px] rounded-full bg-[#8A5CFF]/14 blur-3xl"
-      />
-
+    <section className="relative overflow-hidden -mt-[84px] pt-[84px] md:-mt-[106px] md:pt-[106px]">
       <Container className="relative z-10 lg:max-w-[1320px]">
         <div className="py-14 md:py-20 lg:py-24">
-          <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(160deg,#08162D_0%,#10274D_52%,#143360_100%)] p-6 shadow-[0_24px_64px_rgba(1,6,18,0.52)] md:p-8 lg:p-10">
+          <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(160deg,#08162D_0%,#10274D_52%,#143360_100%)] p-6 md:p-8 lg:p-10">
             <div
               className={cn(
                 "grid gap-12 lg:grid-cols-[1.2fr_0.8fr]",
@@ -191,7 +176,7 @@ export function HeroLayout({
 
               {hasMetricsCard && metricsCard && (
                 <div className="relative mx-auto w-full max-w-[560px]">
-                  <div className="relative z-10 mt-6 rounded-2xl bg-[linear-gradient(160deg,#08162D_0%,#10274D_52%,#143360_100%)] p-5 shadow-[0_24px_64px_rgba(1,6,18,0.52)] backdrop-blur-xl lg:-mt-4 lg:-translate-y-10">
+                  <div className="relative z-10 mt-6 rounded-2xl bg-[linear-gradient(160deg,#08162D_0%,#10274D_52%,#143360_100%)] p-5 backdrop-blur-xl lg:-mt-4 lg:-translate-y-10">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="text-sm font-semibold text-white">

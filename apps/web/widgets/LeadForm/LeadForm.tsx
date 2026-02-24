@@ -164,14 +164,8 @@ export function LeadForm() {
       <Section
         id="lead-form"
         background="gray"
-        className="relative overflow-hidden"
+        className="relative -mt-px overflow-hidden"
       >
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/16 blur-3xl" />
-          <div className="absolute -bottom-56 left-1/3 h-[640px] w-[640px] rounded-full bg-[#58A8E0]/14 blur-3xl" />
-          <div className="absolute -top-52 -right-52 h-[560px] w-[560px] rounded-full bg-[#1E3A5F]/10 blur-3xl" />
-        </div>
-
         <div className="relative z-10 grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur">
@@ -237,14 +231,8 @@ export function LeadForm() {
     <Section
       id="lead-form"
       background="gray"
-      className="relative overflow-hidden"
+      className="relative -mt-px overflow-hidden"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/14 blur-3xl" />
-        <div className="absolute -bottom-56 left-1/3 h-[640px] w-[640px] rounded-full bg-[#58A8E0]/12 blur-3xl" />
-        <div className="absolute -top-52 -right-52 h-[560px] w-[560px] rounded-full bg-[#1E3A5F]/10 blur-3xl" />
-	      </div>
-
 	      <div className="relative z-10 grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
 	        <div className="max-w-xl">
 	          <div className="flex flex-wrap items-center gap-2">

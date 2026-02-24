@@ -66,7 +66,7 @@ export function HowWeWork({ title, lead, steps }: HowWeWorkProps) {
       id="how-we-work"
       title={title}
       lead={lead}
-      className="bg-[radial-gradient(circle_at_24%_42%,rgba(88,168,224,0.10),transparent_52%),radial-gradient(circle_at_76%_58%,rgba(59,130,246,0.07),transparent_50%),linear-gradient(180deg,#FFFFFF_0%,#FFFFFF_14%,#F8FBFF_30%,#F4F9FF_70%,#FFFFFF_86%,#FFFFFF_100%)]"
+      className="bg-transparent"
     >
       <div className="relative">
         <div className="relative z-10">
