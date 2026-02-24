@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -69,7 +69,7 @@ interface PartnersProps {
   };
 }
 
-function CategoryTabs({
+const CategoryTabs = memo(function CategoryTabs({
   categories,
   activeIndex,
   onChange,
@@ -105,7 +105,6 @@ function CategoryTabs({
             aria-controls={panelId}
             onClick={() => onChange(index)}
             className={cn(
-              // Keep geometry stable: constant border width prevents "jumping" when active tab changes.
               "snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full border border-transparent",
               "transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
@@ -120,12 +119,13 @@ function CategoryTabs({
       })}
     </div>
   );
-}
+});
 
-function LogoTile({ logo }: { logo: Logo }) {
+const LogoTile = memo(function LogoTile({ logo }: { logo: Logo }) {
   const [imageFailed, setImageFailed] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const shouldReduceMotion = prefersReducedMotion ?? false;
 
   const isLink = !!logo.href;
   const showImage = !!logo.img && !imageFailed;
@@ -139,7 +139,7 @@ function LogoTile({ logo }: { logo: Logo }) {
 
   const content = (
     <motion.div
-      whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+      whileHover={shouldReduceMotion ? undefined : { y: -2 }}
       className={cn(
         "relative h-full w-full overflow-hidden rounded-xl",
         "flex items-center justify-center p-2 sm:p-3"
@@ -190,7 +190,7 @@ function LogoTile({ logo }: { logo: Logo }) {
       {content}
     </div>
   );
-}
+});
 
 function CompanyMark({ company, logoImg }: { company: string; logoImg?: string }) {
   const [failed, setFailed] = useState(false);
@@ -292,7 +292,6 @@ function TestimonialCard({
         <blockquote
           className={cn(
             "mt-5 pr-1 text-[#475569] text-[15px] leading-relaxed",
-            // Clean multi-line truncation with ellipsis.
             "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:10]",
             "md:[-webkit-line-clamp:11]"
           )}
@@ -407,15 +406,42 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
   const tabsBaseId = "partners-tabs";
   const panelId = `${tabsBaseId}-panel`;
 
-  const categories = clientsCarousel.categories ?? [];
-  const safeActiveCategory = Math.min(activeCategory, Math.max(categories.length - 1, 0));
-  const currentCategory = categories[safeActiveCategory];
-
-  const testimonialItems = testimonials.items ?? [];
-  const safeActiveTestimonial = Math.min(
-    activeTestimonial,
-    Math.max(testimonialItems.length - 1, 0)
+  const categories = useMemo(
+    () => clientsCarousel.categories ?? [],
+    [clientsCarousel.categories]
   );
+  const safeActiveCategory = useMemo(
+    () => Math.min(activeCategory, Math.max(categories.length - 1, 0)),
+    [activeCategory, categories.length]
+  );
+  const currentCategory = useMemo(
+    () => categories[safeActiveCategory],
+    [categories, safeActiveCategory]
+  );
+
+  const testimonialItems = useMemo(() => testimonials.items ?? [], [testimonials.items]);
+  const safeActiveTestimonial = useMemo(
+    () => Math.min(activeTestimonial, Math.max(testimonialItems.length - 1, 0)),
+    [activeTestimonial, testimonialItems.length]
+  );
+  const visibleLogos = useMemo(
+    () => (currentCategory?.logos ?? []).slice(0, 12),
+    [currentCategory]
+  );
+
+  const handleCategoryChange = useCallback((nextIndex: number) => {
+    setActiveCategory(nextIndex);
+  }, []);
+  const handlePrevTestimonial = useCallback(() => {
+    setActiveTestimonial((prev) => (prev - 1 + testimonialItems.length) % testimonialItems.length);
+  }, [testimonialItems.length]);
+  const handleNextTestimonial = useCallback(() => {
+    setActiveTestimonial((prev) => (prev + 1) % testimonialItems.length);
+  }, [testimonialItems.length]);
+  const handleSelectTestimonial = useCallback((nextIndex: number) => {
+    setActiveTestimonial(nextIndex);
+  }, []);
+
   const activeTabId = `${tabsBaseId}-tab-${currentCategory?.id ?? "unknown"}`;
 
   return (
@@ -423,7 +449,6 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="min-w-0 lg:col-span-8">
           <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm lg:h-[500px]">
-            {/* Decorative background */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-[0.55] bg-[radial-gradient(920px_460px_at_0%_0%,rgba(59,130,246,0.12),transparent_58%),radial-gradient(760px_420px_at_100%_45%,rgba(88,168,224,0.10),transparent_62%)]"
@@ -442,7 +467,7 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                 <CategoryTabs
                   categories={categories}
                   activeIndex={safeActiveCategory}
-                  onChange={(nextIndex) => setActiveCategory(nextIndex)}
+                  onChange={handleCategoryChange}
                   panelId={panelId}
                   tabsBaseId={tabsBaseId}
                 />
@@ -456,7 +481,7 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                 >
                   <div className="min-w-0 flex-1 overflow-visible lg:min-h-0 lg:overflow-auto lg:pr-1">
                     <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-4 md:gap-4">
-                      {(currentCategory?.logos ?? []).slice(0, 12).map((logo) => (
+                      {visibleLogos.map((logo) => (
                         <LogoTile key={logo.id} logo={logo} />
                       ))}
                     </div>
@@ -484,15 +509,9 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
             items={testimonialItems}
             more={testimonials.more}
             activeIndex={safeActiveTestimonial}
-            onPrev={() =>
-              setActiveTestimonial(
-                (prev) => (prev - 1 + testimonialItems.length) % testimonialItems.length
-              )
-            }
-            onNext={() =>
-              setActiveTestimonial((prev) => (prev + 1) % testimonialItems.length)
-            }
-            onSelect={(nextIndex) => setActiveTestimonial(nextIndex)}
+            onPrev={handlePrevTestimonial}
+            onNext={handleNextTestimonial}
+            onSelect={handleSelectTestimonial}
           />
         </div>
 

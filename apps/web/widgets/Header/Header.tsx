@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { memo, useCallback, useEffect, useId, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/shared/ui/Button";
@@ -24,7 +24,7 @@ function isActiveHref(pathname: string | null, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function DesktopNav({
+const DesktopNav = memo(function DesktopNav({
   pathname,
   prefersReducedMotion,
 }: {
@@ -71,7 +71,7 @@ function DesktopNav({
       })}
     </div>
   );
-}
+});
 
 export function Header() {
   const pathname = usePathname();
@@ -86,8 +86,19 @@ export function Header() {
   const ctaHref = pathname?.startsWith("/blog") ? "/#lead-form" : "#lead-form";
   const mobileMenuOpen = mobileMenu.open && mobileMenu.openedOnPath === pathname;
 
-  const closeMobileMenu = () =>
-    setMobileMenu({ open: false, openedOnPath: pathname });
+  const closeMobileMenu = useCallback(
+    () => setMobileMenu({ open: false, openedOnPath: pathname }),
+    [pathname]
+  );
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenu((state) => {
+      const isCurrentlyOpen = state.open && state.openedOnPath === pathname;
+      return {
+        open: !isCurrentlyOpen,
+        openedOnPath: pathname,
+      };
+    });
+  }, [pathname]);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -199,16 +210,7 @@ export function Header() {
                   "text-[#3D557A] hover:bg-[#3B82F6]/[0.10] hover:text-[#1E3A5F]",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
                 )}
-                onClick={() =>
-                  setMobileMenu((state) => {
-                    const isCurrentlyOpen =
-                      state.open && state.openedOnPath === pathname;
-                    return {
-                      open: !isCurrentlyOpen,
-                      openedOnPath: pathname,
-                    };
-                  })
-                }
+                onClick={toggleMobileMenu}
                 aria-label={mobileMenuOpen ? "Закрыть меню" : "Открыть меню"}
                 aria-expanded={mobileMenuOpen}
                 aria-controls={mobileMenuPanelId}

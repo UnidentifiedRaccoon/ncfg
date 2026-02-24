@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { Container } from "@/shared/ui/Container";
 import type { TeamMember } from "./types";
 import { pickLeadershipMembers } from "./team-utils";
@@ -15,16 +16,20 @@ import {
 interface TeamListProps {
   featured: TeamMember[];
   regular: TeamMember[];
-  prefersReducedMotion: boolean | null;
+  prefersReducedMotion: boolean;
 }
 
+const MemoHeroCard = memo(HeroCard);
+const MemoFeaturedCard = memo(FeaturedCard);
+const MemoTeamCard = memo(TeamCard);
+const MemoAccentCard = memo(AccentCard);
+const MemoMobileHeroCard = memo(MobileHeroCard);
+const MemoMobileTeamCard = memo(MobileTeamCard);
+
 function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListProps) {
-  // Determine grid layout based on team size
   const totalMembers = featured.length + regular.length;
   const hasAccentCard = totalMembers >= 4;
-
-  // Grid areas based on member count
-  const getGridTemplate = () => {
+  const gridTemplate = useMemo(() => {
     if (totalMembers >= 8) {
       return {
         areas: `
@@ -48,7 +53,6 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
         rows: "auto auto auto",
       };
     }
-    // Small team
     return {
       areas: `
         "hero hero  lead lead"
@@ -57,12 +61,9 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
       columns: "repeat(4, 1fr)",
       rows: "auto auto",
     };
-  };
+  }, [totalMembers]);
 
-  const gridTemplate = getGridTemplate();
   const { heroMember, featuredMember } = pickLeadershipMembers(featured);
-
-  // Map regular members to grid areas
   const regularGridAreas = ["p1", "p2", "p3", "p4", "p5", "p6", "p7"];
 
   return (
@@ -75,18 +76,16 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
           gridTemplateRows: gridTemplate.rows,
         }}
       >
-        {/* Hero Card (Founder) */}
         {heroMember && (
-          <HeroCard
+          <MemoHeroCard
             member={heroMember}
             index={0}
             prefersReducedMotion={prefersReducedMotion}
           />
         )}
 
-        {/* Featured Card (Leader) */}
         {featuredMember && (
-          <FeaturedCard
+          <MemoFeaturedCard
             member={featuredMember}
             index={1}
             gridArea="lead"
@@ -94,9 +93,8 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
           />
         )}
 
-        {/* Regular Team Cards */}
         {regular.slice(0, regularGridAreas.length).map((member, index) => (
-          <TeamCard
+          <MemoTeamCard
             key={member.id}
             member={member}
             index={index + 2}
@@ -105,16 +103,13 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
           />
         ))}
 
-        {/* Accent Card with quote/stats */}
         {hasAccentCard && totalMembers >= 8 && (
-          <AccentCard
+          <MemoAccentCard
             index={regular.length + 2}
             prefersReducedMotion={prefersReducedMotion}
           />
         )}
       </div>
-
-      {/* Accessible list for screen readers */}
       <ul className="sr-only" aria-label="Наша команда">
         {[
           ...(heroMember ? [heroMember] : []),
@@ -134,10 +129,9 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
 function MobileTeamStack({ featured, regular, prefersReducedMotion }: TeamListProps) {
   return (
     <div className="space-y-6">
-      {/* Hero cards for leadership */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {featured.map((member, index) => (
-          <MobileHeroCard
+          <MemoMobileHeroCard
             key={member.id}
             member={member}
             index={index}
@@ -146,12 +140,11 @@ function MobileTeamStack({ featured, regular, prefersReducedMotion }: TeamListPr
         ))}
       </div>
 
-      {/* Horizontal scroll for team */}
       {regular.length > 0 && (
         <div className="-mx-4 px-4">
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide">
             {regular.map((member, index) => (
-              <MobileTeamCard
+              <MemoMobileTeamCard
                 key={member.id}
                 member={member}
                 index={index}

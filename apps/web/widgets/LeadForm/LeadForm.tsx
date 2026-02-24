@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   Send,
@@ -14,6 +14,7 @@ import {
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
+import { DEFAULT_TRUST_CHIPS } from "@/shared/config/constants";
 
 interface FormData {
   name: string;
@@ -24,8 +25,6 @@ interface FormData {
 }
 
 type FormStatus = "idle" | "loading" | "success" | "error";
-
-const TRUST_CHIPS = ["Минфин России", "Сбербанк", "Почта Банк", "Мир"] as const;
 
 const fieldLabelClass = "block text-sm font-semibold text-[#153259]";
 
@@ -91,70 +90,74 @@ export function LeadForm() {
   const consentId = "lead-form-consent";
   const errorId = "lead-form-error";
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     if (status === "error") {
       setStatus("idle");
       setErrorMessage("");
     }
-  };
+  }, [status]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
 
-    const name = formData.name.trim();
-    const email = formData.email.trim();
+      const name = formData.name.trim();
+      const email = formData.email.trim();
 
-    if (!name || !email) {
-      setStatus("error");
-      setErrorMessage("Имя и email обязательны для заполнения");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setStatus("error");
-      setErrorMessage("Некорректный формат email");
-      return;
-    }
-
-    if (!consent) {
-      setStatus("error");
-      setErrorMessage("Подтвердите согласие на обработку персональных данных");
-      return;
-    }
-
-    setStatus("loading");
-    setErrorMessage("");
-
-    try {
-      const response = await fetch("/api/lead", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...formData, name, email }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Произошла ошибка при отправке");
+      if (!name || !email) {
+        setStatus("error");
+        setErrorMessage("Имя и email обязательны для заполнения");
+        return;
       }
 
-      setStatus("success");
-      setFormData({ name: "", email: "", phone: "", company: "", message: "" });
-    } catch (error) {
-      setStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : "Произошла ошибка");
-    }
-  };
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setStatus("error");
+        setErrorMessage("Некорректный формат email");
+        return;
+      }
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    clearError();
-  };
+      if (!consent) {
+        setStatus("error");
+        setErrorMessage("Подтвердите согласие на обработку персональных данных");
+        return;
+      }
+
+      setStatus("loading");
+      setErrorMessage("");
+
+      try {
+        const response = await fetch("/api/lead", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...formData, name, email }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Произошла ошибка при отправке");
+        }
+
+        setStatus("success");
+        setFormData({ name: "", email: "", phone: "", company: "", message: "" });
+      } catch (error) {
+        setStatus("error");
+        setErrorMessage(error instanceof Error ? error.message : "Произошла ошибка");
+      }
+    },
+    [consent, formData]
+  );
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      clearError();
+    },
+    [clearError]
+  );
 
   if (status === "success") {
     return (
@@ -163,7 +166,6 @@ export function LeadForm() {
         background="gray"
         className="relative overflow-hidden"
       >
-        {/* Background atmosphere (subtle) */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/16 blur-3xl" />
           <div className="absolute -bottom-56 left-1/3 h-[640px] w-[640px] rounded-full bg-[#58A8E0]/14 blur-3xl" />
@@ -188,7 +190,7 @@ export function LeadForm() {
             <div className="mt-8 flex flex-wrap items-center gap-2 text-xs text-[#475569]">
               <ShieldCheck className="h-4 w-4 text-[#3B82F6]" aria-hidden="true" />
               <span className="font-semibold text-[#1E3A5F]">Нам доверяют:</span>
-              {TRUST_CHIPS.map((chip) => (
+              {DEFAULT_TRUST_CHIPS.map((chip) => (
                 <span
                   key={chip}
                   className="rounded-full border border-[#E2E8F0] bg-white/70 px-2.5 py-1"
@@ -237,7 +239,6 @@ export function LeadForm() {
       background="gray"
       className="relative overflow-hidden"
     >
-      {/* Background atmosphere (subtle) */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/14 blur-3xl" />
         <div className="absolute -bottom-56 left-1/3 h-[640px] w-[640px] rounded-full bg-[#58A8E0]/12 blur-3xl" />
@@ -312,7 +313,7 @@ export function LeadForm() {
           <div className="mt-8 flex flex-wrap items-center gap-2 text-xs text-[#475569]">
             <ShieldCheck className="h-4 w-4 text-[#3B82F6]" aria-hidden="true" />
             <span className="font-semibold text-[#1E3A5F]">Нам доверяют:</span>
-            {TRUST_CHIPS.map((chip) => (
+            {DEFAULT_TRUST_CHIPS.map((chip) => (
               <span
                 key={chip}
                 className="rounded-full border border-[#E2E8F0] bg-white/70 px-2.5 py-1"

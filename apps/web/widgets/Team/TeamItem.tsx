@@ -4,10 +4,15 @@ import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { cn } from "@/shared/lib/cn";
+import {
+  TEAM_ENTRY_DELAY_STEP,
+  TEAM_ENTRY_DURATION,
+  TEAM_IN_VIEW_AMOUNT,
+  TEAM_MOBILE_ENTRY_DELAY_STEP,
+  TEAM_MOBILE_ENTRY_DURATION,
+} from "@/shared/config/constants";
 import { getInitials } from "./team-utils";
 import type { TeamMember } from "./types";
-
-// Hero Card (2x2) - for Founder
 export function HeroCard({
   member,
   index,
@@ -18,7 +23,7 @@ export function HeroCard({
   prefersReducedMotion: boolean | null;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const isInView = useInView(ref, { once: true, amount: TEAM_IN_VIEW_AMOUNT });
 
   return (
     <motion.article
@@ -38,18 +43,16 @@ export function HeroCard({
       transition={
         prefersReducedMotion
           ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
+          : { duration: TEAM_ENTRY_DURATION, delay: index * TEAM_ENTRY_DELAY_STEP, ease: "easeOut" }
       }
       whileHover={prefersReducedMotion ? {} : { y: -2 }}
     >
-      {/* Subtle background pattern */}
       <div
         className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_80%_20%,rgba(88,168,224,0.18)_0%,transparent_55%)]"
         aria-hidden="true"
       />
 
       <div className="relative z-10 h-full flex flex-col">
-        {/* Avatar */}
         <motion.div
           className={cn(
             "h-24 w-24 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] p-[2px]",
@@ -75,7 +78,6 @@ export function HeroCard({
           </div>
         </motion.div>
 
-        {/* Info */}
         <h3 className="mt-4 text-xl font-bold text-[#1E3A5F]">
           {member.fullName}
         </h3>
@@ -86,7 +88,6 @@ export function HeroCard({
           </p>
         )}
 
-        {/* Experience badge */}
         {member.experienceYears && (
           <div className="mt-auto pt-4">
             <span className="inline-flex items-center rounded-full bg-[#3B82F6]/10 px-3 py-1 text-sm font-semibold text-[#3B82F6]">
@@ -99,7 +100,6 @@ export function HeroCard({
   );
 }
 
-// Featured Card (2x1) - for Leader
 export function FeaturedCard({
   member,
   index,
@@ -112,7 +112,7 @@ export function FeaturedCard({
   prefersReducedMotion: boolean | null;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const isInView = useInView(ref, { once: true, amount: TEAM_IN_VIEW_AMOUNT });
 
   return (
     <motion.article
@@ -134,18 +134,16 @@ export function FeaturedCard({
       transition={
         prefersReducedMotion
           ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
+          : { duration: TEAM_ENTRY_DURATION, delay: index * TEAM_ENTRY_DELAY_STEP, ease: "easeOut" }
       }
       whileHover={prefersReducedMotion ? {} : { y: -2 }}
     >
-      {/* Accent gradient line */}
       <div
         className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#58A8E0] to-[#3B82F6]"
         aria-hidden="true"
       />
 
       <div className="flex items-start gap-4">
-        {/* Avatar */}
         <motion.div
           className={cn(
             "flex-shrink-0 h-16 w-16 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] p-[2px]",
@@ -171,7 +169,6 @@ export function FeaturedCard({
           </div>
         </motion.div>
 
-        {/* Info */}
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-[#1E3A5F] text-lg">
             {member.fullName}
@@ -190,7 +187,6 @@ export function FeaturedCard({
   );
 }
 
-// Team Card (1x1) - for regular members
 export function TeamCard({
   member,
   index,
@@ -203,7 +199,7 @@ export function TeamCard({
   prefersReducedMotion: boolean | null;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const isInView = useInView(ref, { once: true, amount: TEAM_IN_VIEW_AMOUNT });
 
   return (
     <motion.article
@@ -224,12 +220,11 @@ export function TeamCard({
       transition={
         prefersReducedMotion
           ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
+          : { duration: TEAM_ENTRY_DURATION, delay: index * TEAM_ENTRY_DELAY_STEP, ease: "easeOut" }
       }
       whileHover={prefersReducedMotion ? {} : { y: -2 }}
     >
       <div className="relative z-10">
-        {/* Avatar */}
         <motion.div
           className={cn(
             "h-14 w-14 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] p-px",
@@ -255,13 +250,11 @@ export function TeamCard({
           </div>
         </motion.div>
 
-        {/* Info */}
         <h4 className="mt-3 font-semibold text-[#1E3A5F]">
           {member.fullName}
         </h4>
         <p className="text-sm text-[#475569] line-clamp-2">{member.position}</p>
 
-        {/* Experience badge - always visible */}
         {member.experienceYears && (
           <div className="mt-2">
             <span className="inline-flex items-center rounded-full bg-[#3B82F6]/10 px-2 py-0.5 text-xs font-semibold text-[#3B82F6]">
@@ -274,7 +267,6 @@ export function TeamCard({
   );
 }
 
-// Accent Card - for quote or stats
 export function AccentCard({
   index,
   prefersReducedMotion,
@@ -283,7 +275,7 @@ export function AccentCard({
   prefersReducedMotion: boolean | null;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const isInView = useInView(ref, { once: true, amount: TEAM_IN_VIEW_AMOUNT });
 
   return (
     <motion.div
@@ -301,10 +293,9 @@ export function AccentCard({
       transition={
         prefersReducedMotion
           ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
+          : { duration: TEAM_ENTRY_DURATION, delay: index * TEAM_ENTRY_DELAY_STEP, ease: "easeOut" }
       }
     >
-      {/* Background pattern */}
       <div
         className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.55)_0%,transparent_55%),radial-gradient(circle_at_80%_50%,rgba(255,255,255,0.55)_0%,transparent_55%)]"
         aria-hidden="true"
@@ -319,7 +310,6 @@ export function AccentCard({
   );
 }
 
-// Mobile hero card for leadership
 export function MobileHeroCard({
   member,
   index,
@@ -330,7 +320,7 @@ export function MobileHeroCard({
   prefersReducedMotion: boolean | null;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const isInView = useInView(ref, { once: true, amount: TEAM_IN_VIEW_AMOUNT });
 
   return (
     <motion.div
@@ -339,7 +329,9 @@ export function MobileHeroCard({
       initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={
-        prefersReducedMotion ? { duration: 0 } : { duration: 0.4, delay: index * 0.1 }
+        prefersReducedMotion
+          ? { duration: 0 }
+          : { duration: TEAM_ENTRY_DURATION, delay: index * TEAM_MOBILE_ENTRY_DELAY_STEP }
       }
     >
       <div
@@ -355,9 +347,7 @@ export function MobileHeroCard({
         aria-hidden="true"
       />
 
-      {/* Inner content */}
       <div className="relative z-10">
-        {/* Avatar */}
         <div className="mx-auto h-20 w-20 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] p-[2px] shadow-sm shadow-black/5">
           <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white">
             {member.photoUrl ? (
@@ -376,7 +366,6 @@ export function MobileHeroCard({
           </div>
         </div>
 
-        {/* Info */}
         <h3 className="mt-4 text-xl font-semibold text-[#1E3A5F]">
           {member.fullName}
         </h3>
@@ -393,7 +382,6 @@ export function MobileHeroCard({
   );
 }
 
-// Mobile team card (compact)
 export function MobileTeamCard({
   member,
   index,
@@ -404,7 +392,7 @@ export function MobileTeamCard({
   prefersReducedMotion: boolean | null;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const isInView = useInView(ref, { once: true, amount: TEAM_IN_VIEW_AMOUNT });
 
   return (
     <motion.div
@@ -417,19 +405,17 @@ export function MobileTeamCard({
       transition={
         prefersReducedMotion
           ? { duration: 0 }
-          : { duration: 0.3, delay: index * 0.05 }
+          : { duration: TEAM_MOBILE_ENTRY_DURATION, delay: index * TEAM_MOBILE_ENTRY_DELAY_STEP }
       }
     >
       <div
         className="relative h-full overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-4 text-center shadow-sm"
       >
-        {/* Subtle glow */}
         <div
           className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_50%_0%,rgba(88,168,224,0.18)_0%,transparent_65%)]"
           aria-hidden="true"
         />
 
-        {/* Content */}
         <div className="relative z-10">
           <div className="mx-auto h-14 w-14 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] p-px shadow-sm shadow-black/5">
             <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { memo, useCallback, useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
 
 interface RecommendationItem {
@@ -117,7 +117,7 @@ function companyInitials(company: string): string {
   return letters || "•";
 }
 
-function RecommendationCard({
+const RecommendationCard = memo(function RecommendationCard({
   item,
   isWide,
   expanded,
@@ -127,7 +127,7 @@ function RecommendationCard({
   item: RecommendationItem;
   isWide: boolean;
   expanded: boolean;
-  onToggleExpanded: () => void;
+  onToggleExpanded: (id: number) => void;
   className?: string;
 }) {
   const quoteId = `recommendation-quote-${item.id}`;
@@ -169,7 +169,7 @@ function RecommendationCard({
           type="button"
           aria-controls={quoteId}
           aria-expanded={expanded}
-          onClick={onToggleExpanded}
+          onClick={() => onToggleExpanded(item.id)}
           className={cn(
             "mt-4 inline-flex items-center rounded-lg px-3 py-2 text-sm font-semibold text-[#3B82F6]",
             "transition-colors hover:bg-[#3B82F6]/10 hover:text-[#1D4ED8]",
@@ -181,9 +181,9 @@ function RecommendationCard({
       )}
     </div>
   );
-}
+});
 
-function CapitalGrid({
+const CapitalGrid = memo(function CapitalGrid({
   rows,
   expandedById,
   onToggleExpanded,
@@ -219,7 +219,7 @@ function CapitalGrid({
                   item={entry.item}
                   isWide={entry.isWide}
                   expanded={Boolean(expandedById[entry.item.id])}
-                  onToggleExpanded={() => onToggleExpanded(entry.item.id)}
+                  onToggleExpanded={onToggleExpanded}
                   className={row.length === 1 ? "md:col-span-2" : undefined}
                 />
               ))}
@@ -229,24 +229,25 @@ function CapitalGrid({
       </div>
     </article>
   );
-}
+});
 
 export function RecommendationsShowcase({
   items,
 }: RecommendationsShowcaseProps) {
   const [expandedById, setExpandedById] = useState<Record<number, boolean>>({});
 
-  const normalizedItems = items.filter(
-    (item) => item.company.trim().length > 0 && item.quote.trim().length > 0
+  const normalizedItems = useMemo(
+    () =>
+      items.filter(
+        (item) => item.company.trim().length > 0 && item.quote.trim().length > 0
+      ),
+    [items]
   );
-  const rows = buildCardRows(normalizedItems);
+  const rows = useMemo(() => buildCardRows(normalizedItems), [normalizedItems]);
 
-  const handleToggleExpanded = (id: number): void => {
-    setExpandedById((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
+  const handleToggleExpanded = useCallback((id: number): void => {
+    setExpandedById((prev) => ({ ...prev, [id]: !prev[id] }));
+  }, []);
 
   if (normalizedItems.length === 0) {
     return (
