@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Inter } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import { Suspense } from "react";
 import { SmoothAnchor } from "@/shared/ui/SmoothAnchor";
 import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
@@ -9,6 +9,12 @@ import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
+});
+
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin", "cyrillic"],
   display: "swap",
 });
@@ -43,7 +49,7 @@ export default function RootLayout({
 
   return (
     <html lang="ru">
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${manrope.variable} font-sans antialiased`}>
         {isMetrikaEnabled ? (
           <>
             <Script id="yandex-metrika" strategy="beforeInteractive">
@@ -73,9 +79,11 @@ ym(${ymCounterId}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"d
             </Suspense>
           </>
         ) : null}
-        <SmoothAnchor />
-        <Header />
-        {children}
+        <div className="app-shell bg-mesh">
+          <SmoothAnchor />
+          <Header />
+          {children}
+        </div>
       </body>
     </html>
   );
