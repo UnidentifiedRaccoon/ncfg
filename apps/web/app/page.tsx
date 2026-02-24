@@ -90,7 +90,12 @@ export default async function Home() {
         logoImg: item.logoImg ?? "",
         quote: item.quote,
       })),
-    more: { href: "/rekomendacii" },
+    more: {
+      labelTop: "Все",
+      labelBottom: "рекомендации",
+      href: "/rekomendacii",
+      value: recommendations.length,
+    },
   };
 
   return (
