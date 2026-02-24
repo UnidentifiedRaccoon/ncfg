@@ -347,7 +347,7 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
                       id: 1,
                       labelTop: partners.testimonials.more.labelTop ?? '',
                       labelBottom: partners.testimonials.more.labelBottom ?? '',
-                      href: partners.testimonials.more.href ?? '/companies',
+                      href: partners.testimonials.more.href || '/rekomendacii',
                     }
                   : null,
               }

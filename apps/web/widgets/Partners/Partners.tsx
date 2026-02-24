@@ -17,7 +17,7 @@ interface Logo {
   id: number;
   title: string;
   href: string | null;
-  img: string;
+  img: string | null;
 }
 
 interface Category {
@@ -122,51 +122,30 @@ function CategoryTabs({
 }
 
 function LogoTile({ logo }: { logo: Logo }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
   const isLink = !!logo.href;
-  const showImage = !!logo.img && !imageFailed;
 
   const tileClassName = cn(
     "group relative aspect-[3/2] rounded-xl border border-[#E2E8F0]/70 bg-white",
-    "shadow-sm shadow-[#0F172A]/[0.03]",
-    // Hover: only a subtle scale + "color comes back" on the content.
-    "transition-transform duration-200 ease-out hover:scale-[1.03]"
+    "shadow-sm shadow-[#0F172A]/[0.03]"
   );
 
   const content = (
     <div
       className={cn(
-        "relative h-full w-full overflow-hidden rounded-xl",
+        "relative h-full w-full rounded-xl",
         "flex items-center justify-center p-2 sm:p-3"
       )}
     >
-      {showImage ? (
-        <div className="relative h-full w-full">
-          <Image
-            src={logo.img}
-            alt={logo.title}
-            fill
-            sizes="(min-width: 1024px) 150px, (min-width: 640px) 130px, 44vw"
-            className={cn(
-              "object-contain transition-all duration-300",
-              imageLoaded
-                ? "opacity-90 grayscale [@media(hover:none)]:opacity-100 [@media(hover:none)]:grayscale-0"
-                : "opacity-0",
-              "group-hover:opacity-100 group-hover:grayscale-0"
-            )}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageFailed(true)}
-          />
-        </div>
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-center">
-          <span className="text-[11px] sm:text-xs font-semibold tracking-tight text-[#475569] leading-snug line-clamp-2 transition-colors group-hover:text-[#1E3A5F] group-focus-visible:text-[#1E3A5F]">
+      <div className="flex h-full w-full items-center justify-center text-center">
+        <div className="relative w-full">
+          <span className="invisible block text-[13px] sm:text-sm font-semibold tracking-tight text-[#64748B] leading-[1.25] line-clamp-2">
+            {logo.title}
+          </span>
+          <span className="absolute inset-0 text-[11px] sm:text-xs font-semibold tracking-tight text-[#64748B] leading-[1.25] line-clamp-2 transition-[font-size] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none group-hover:text-[13px] sm:group-hover:text-sm group-focus-visible:text-[13px] sm:group-focus-visible:text-sm">
             {logo.title}
           </span>
         </div>
-      )}
+      </div>
     </div>
   );
 

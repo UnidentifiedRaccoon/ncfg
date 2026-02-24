@@ -92,14 +92,14 @@ export default async function Home() {
           ? {
               labelTop: testimonials.more.labelTop,
               labelBottom: testimonials.more.labelBottom,
-              href: testimonials.more.href,
+              href: testimonials.more.href || "/rekomendacii",
             }
-          : { labelTop: "", labelBottom: "", href: "/companies" },
+          : { labelTop: "", labelBottom: "", href: "/rekomendacii" },
       }
     : {
         title: "",
         items: [],
-        more: { labelTop: "", labelBottom: "", href: "/companies" },
+        more: { labelTop: "", labelBottom: "", href: "/rekomendacii" },
       };
 
   return (

@@ -193,20 +193,16 @@
               "id": "business",
               "name": "Бизнес",
               "logos": [
-                { "id": 48, "title": "Superjob", "href": null, "img": "/data/clients/48/image.png" },
-                { "id": 46, "title": "UNILEVER", "href": "/rekomendacii/46", "img": "/data/clients/46/image.png" },
-                { "id": 2, "title": "Лента", "href": "/rekomendacii/2", "img": "/data/clients/2/image.png" },
-                { "id": 3, "title": "Шнейдер", "href": "/rekomendacii/3", "img": "/data/clients/3/image.png" },
-                { "id": 6, "title": "ИКЕА", "href": "/rekomendacii/6", "img": "/data/clients/6/image.png" },
-                { "id": 7, "title": "Mars", "href": "/rekomendacii/7", "img": "/data/clients/7/image.png" },
-                { "id": 8, "title": "AB InBev Efes", "href": "/rekomendacii/8", "img": "/data/clients/8/image.png" },
-                { "id": 9, "title": "Saint-Gobian", "href": "/rekomendacii/9", "img": "/data/clients/9/image.png" },
-                { "id": 10, "title": "Киа Моторс", "href": "/rekomendacii/10", "img": "/data/clients/10/image.png" },
-                { "id": 11, "title": "ПанасоникРус", "href": "/rekomendacii/11", "img": "/data/clients/11/image.png" }
+                { "id": 101, "title": "Лемана Про", "href": null, "img": null },
+                { "id": 102, "title": "Эгис", "href": null, "img": null },
+                { "id": 103, "title": "Газпромнефть", "href": null, "img": null },
+                { "id": 104, "title": "Инфинитум", "href": null, "img": null },
+                { "id": 105, "title": "Юнирусь", "href": null, "img": null },
+                { "id": 106, "title": "Марс", "href": null, "img": null }
               ],
               "more": {
-                "display": "+ 1 711 компания",
-                "value": 1711,
+                "display": "+ 6 компаний",
+                "value": 6,
                 "unit": "company"
               }
             },
@@ -214,25 +210,18 @@
               "id": "finance",
               "name": "Финансы",
               "logos": [
-                { "id": 45, "title": "Райффайзенбанк", "href": "/rekomendacii/45", "img": "/data/clients/45/image.png" },
-                { "id": 12, "title": "Сбербанк", "href": "/rekomendacii/12", "img": "/data/clients/12/image.png" },
-                { "id": 13, "title": "Почта банк", "href": null, "img": "/data/clients/13/image.png" },
-                { "id": 14, "title": "ХоумКредбанк", "href": null, "img": "/data/clients/14/image.png" },
-                { "id": 15, "title": "ЭРГО жизнь", "href": null, "img": "/data/clients/15/image.png" },
-                { "id": 16, "title": "Мир", "href": null, "img": "/data/clients/16/image.png" },
-                { "id": 17, "title": "Visa", "href": null, "img": "/data/clients/17/image.png" },
-                { "id": 18, "title": "Мастер кард", "href": null, "img": "/data/clients/18/image.png" },
-                { "id": 19, "title": "Росгосстрах", "href": "/rekomendacii/19", "img": "/data/clients/19/image.png" },
-                { "id": 20, "title": "Райфайзен", "href": null, "img": "/data/clients/20/image.png" },
-                { "id": 21, "title": "HSBC", "href": "/rekomendacii/21", "img": "/data/clients/21/image.png" },
-                { "id": 22, "title": "МТС Банк", "href": "/rekomendacii/22", "img": "/data/clients/22/image.png" },
-                { "id": 23, "title": "МДМ Банк", "href": "/rekomendacii/23", "img": "/data/clients/23/image.png" },
-                { "id": 24, "title": "ВСК", "href": "/rekomendacii/24", "img": "/data/clients/24/image.png" },
-                { "id": 25, "title": "Нордеа Банк", "href": "/rekomendacii/25", "img": "/data/clients/25/image.png" }
+                { "id": 107, "title": "Сбер", "href": null, "img": null },
+                { "id": 108, "title": "Т-банк", "href": null, "img": null },
+                { "id": 109, "title": "Югория", "href": null, "img": null },
+                { "id": 110, "title": "Инфинитум", "href": null, "img": null },
+                { "id": 111, "title": "Промсвязьбанк", "href": null, "img": null },
+                { "id": 112, "title": "ВТБ Мои Инвестиции", "href": null, "img": null },
+                { "id": 113, "title": "ДОМ.рф", "href": null, "img": null },
+                { "id": 114, "title": "НПФ ВТБ", "href": null, "img": null }
               ],
               "more": {
-                "display": "+ 123 компании",
-                "value": 123,
+                "display": "+ 8 компаний",
+                "value": 8,
                 "unit": "company"
               }
             },
@@ -240,51 +229,53 @@
               "id": "government",
               "name": "Госсектор",
               "logos": [
-                { "id": 26, "title": "Минфин России", "href": "/rekomendacii/26", "img": "/data/clients/26/image.png" },
-                { "id": 27, "title": "Центральный банк Российской Федерации", "href": "/rekomendacii/27", "img": "/data/clients/27/image.png" },
-                { "id": 40, "title": "Министерство финансов Чувашия", "href": "/rekomendacii/40", "img": "/data/clients/40/image.png" },
-                { "id": 41, "title": "Администрация Хабаровска", "href": "/rekomendacii/41", "img": "/data/clients/41/image.png" },
-                { "id": 43, "title": "Министерство финансов Республики Башкортостан", "href": "/rekomendacii/43", "img": "/data/clients/43/image.png" },
-                { "id": 44, "title": "Правительство Ярославской области", "href": "/rekomendacii/44", "img": "/data/clients/44/image.png" }
+                { "id": 115, "title": "НИФИ Минфина", "href": null, "img": null },
+                { "id": 116, "title": "АРФГ", "href": null, "img": null },
+                { "id": 117, "title": "АСИ", "href": null, "img": null },
+                { "id": 118, "title": "ЦФГ Москвы", "href": null, "img": null },
+                { "id": 119, "title": "Движение Первых", "href": null, "img": null },
+                { "id": 120, "title": "НАСФП", "href": null, "img": null }
               ],
               "more": {
-                "display": "+ 43 региона",
-                "value": 43,
-                "unit": "region"
+                "display": "+ 6 организаций",
+                "value": 6,
+                "unit": "organization"
               }
             },
             {
               "id": "education",
               "name": "Образование",
               "logos": [
-                { "id": 28, "title": "Российский союз промышленников и предпринимателей", "href": "/rekomendacii/28", "img": "/data/clients/28/image.png" },
-                { "id": 29, "title": "Фонд развития моногородов", "href": "/rekomendacii/29", "img": "/data/clients/29/image.png" },
-                { "id": 30, "title": "АНО «Развитие человеческого капитала»", "href": "/rekomendacii/30", "img": "/data/clients/30/image.png" },
-                { "id": 31, "title": "Детский фонд Виктория", "href": "/rekomendacii/31", "img": "/data/clients/31/image.png" },
-                { "id": 32, "title": "Лидеры России", "href": "/rekomendacii/32", "img": "/data/clients/32/image.png" },
-                { "id": 42, "title": "Международный форум лидеров бизнеса", "href": "/rekomendacii/42", "img": "/data/clients/42/image.png" }
+                { "id": 121, "title": "Skillbox", "href": null, "img": null },
+                { "id": 122, "title": "Т-учебник", "href": null, "img": null },
+                { "id": 123, "title": "LevelOne", "href": null, "img": null },
+                { "id": 124, "title": "Альпина Лекторий", "href": null, "img": null },
+                { "id": 125, "title": "ФинГрам", "href": null, "img": null },
+                { "id": 126, "title": "Фоксворд", "href": null, "img": null },
+                { "id": 127, "title": "Инфоурок", "href": null, "img": null },
+                { "id": 128, "title": "Сотка", "href": null, "img": null },
+                { "id": 129, "title": "ВШЭ", "href": null, "img": null }
               ],
               "more": {
-                "display": "+ 50 организаций",
-                "value": 50,
+                "display": "+ 9 организаций",
+                "value": 9,
                 "unit": "organization"
               }
             },
             {
               "id": "media",
-              "name": "Медиа",
+              "name": "Медиа/СМИ",
               "logos": [
-                { "id": 33, "title": "Финансовый университет РФ", "href": null, "img": "/data/clients/33/image.png" },
-                { "id": 34, "title": "Фоксфорд", "href": null, "img": "/data/clients/34/image.png" },
-                { "id": 35, "title": "Инфоурок", "href": null, "img": "/data/clients/35/image.png" },
-                { "id": 36, "title": "Дневник.ру", "href": null, "img": "/data/clients/36/image.png" },
-                { "id": 37, "title": "Якласс", "href": null, "img": "/data/clients/37/image.png" },
-                { "id": 38, "title": "Первый канал", "href": "/rekomendacii/38", "img": "/data/clients/38/image.png" },
-                { "id": 39, "title": "Домашний очаг", "href": null, "img": "/data/clients/39/image.png" }
+                { "id": 130, "title": "РБК", "href": null, "img": null },
+                { "id": 131, "title": "СберСова", "href": null, "img": null },
+                { "id": 132, "title": "Skillbox медиа", "href": null, "img": null },
+                { "id": 133, "title": "Известия", "href": null, "img": null },
+                { "id": 134, "title": "Радио Маяк", "href": null, "img": null },
+                { "id": 135, "title": "ОТР", "href": null, "img": null }
               ],
               "more": {
-                "display": "+ 1567 школ, вузов и тп.",
-                "value": 1567,
+                "display": "+ 6 медиа",
+                "value": 6,
                 "unit": "institution"
               }
             }
@@ -295,13 +286,20 @@
           "items": [
             {
               "id": 1,
+              "company": "Лемана ПРО",
+              "logoImg": null,
+              "quote": "«В компании Лемана ПРО программа финансового благополучия стала ключевым элементом корпоративной культуры и заботы о сотрудниках. Мы выстраиваем системный подход, в котором сочетаются диагностика финансового здоровья, выявление рисков и развитие финансовой грамотности разных целевых групп. Особое внимание уделяем финансовой культуре семьи, создавая обучающие и игровые форматы для детей сотрудников».",
+              "sourceLink": null
+            },
+            {
+              "id": 2,
               "company": "МТС Банк",
               "logoImg": "/data/clients/22/image.png",
               "quote": "«ПАО «МТС Банк» благодарит коллектив Национального центра финансовой грамотности за высокий уровень профессионализма в организации проектов «V Всероссийская неделя финансовой грамотности для детей и молодежи» и «VI Всероссийская неделя сбережений» для взрослого населения. Мы высоко ценим надежные партнерские связи, сложившиеся за время нашего плодотворного сотрудничества».",
               "sourceLink": null
             },
             {
-              "id": 2,
+              "id": 3,
               "company": "Mars",
               "logoImg": "/data/clients/7/image.png",
               "quote": "«На данный момент наша задача — сделать доступным данное обучение абсолютно для всех наших сотрудников, включая тех, кто работает на фабриках. Мы ищем подходящий канал коммуникации данных материалов и тестируем разные форматы обучения, с фокусом на онлайн. Есть очень большой интерес к этой теме, особенно к блоку про инвестирование. Поэтому мы обязательно будем продолжать повышать уровень финансовой грамотности наших сотрудников».",

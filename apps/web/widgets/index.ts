@@ -18,3 +18,4 @@ export { HowWeWork } from "./HowWeWork";
 export { Principles } from "./Principles";
 export { Team } from "./Team";
 export { Experts } from "./Experts";
+export { RecommendationsShowcase } from "./RecommendationsShowcase";

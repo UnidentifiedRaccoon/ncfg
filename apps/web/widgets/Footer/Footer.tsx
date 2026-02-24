@@ -50,6 +50,7 @@ const navigation = [
   { label: "Компаниям", href: "/companies" },
   { label: "О центре", href: "/about" },
   { label: "Блог", href: "/blog" },
+  { label: "Рекомендации", href: "/rekomendacii" },
 ] as const;
 
 function normalizeCopyrightLine(value: string): string {
