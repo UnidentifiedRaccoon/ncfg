@@ -157,6 +157,25 @@ export interface StrapiPerson {
 }
 
 // ==================
+// Recommendation
+// ==================
+
+export interface StrapiRecommendation {
+  id: number;
+  documentId: string;
+  company: string;
+  slug: string;
+  quote: string;
+  fullQuote: string | null;
+  logoImg: string | null;
+  sourceLink: string | null;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+}
+
+// ==================
 // Shared Components
 // ==================
 
@@ -262,32 +281,10 @@ interface StrapiHomeClientsCarousel {
   categories: StrapiHomeClientsCategory[];
 }
 
-interface StrapiHomeTestimonial {
-  id: number;
-  company: string;
-  logoImgPath: string | null;
-  quote: string;
-}
-
-interface StrapiHomeTestimonialsMore {
-  id: number;
-  labelTop: string;
-  labelBottom: string;
-  href: string;
-}
-
-interface StrapiHomeTestimonialsBlock {
-  id: number;
-  title: string;
-  items: StrapiHomeTestimonial[];
-  more: StrapiHomeTestimonialsMore | null;
-}
-
 export interface StrapiHomePartnersBlock {
   id: number;
   awards: StrapiHomeAward[];
   clientsCarousel: StrapiHomeClientsCarousel | null;
-  testimonials: StrapiHomeTestimonialsBlock | null;
 }
 
 export interface StrapiHomePage {
@@ -393,20 +390,6 @@ export interface StrapiBlogPage {
   documentId: string;
   title: string;
   lead: string | null;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string | null;
-}
-
-// ==================
-// Service UI
-// ==================
-
-export interface StrapiServiceUi {
-  id: number;
-  documentId: string;
-  iconKey: string;
-  service: Pick<StrapiService, 'id' | 'documentId' | 'slug'> | null;
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;

@@ -40,6 +40,17 @@ npm install
 npm run media:check
 ```
 
+### Миграция рекомендаций из кода в Strapi
+
+Для первичного переноса рекомендаций из legacy-данных кода в новый collection type:
+
+```bash
+cd apps/cms
+npm run migrate:recommendations
+```
+
+Скрипт идемпотентный: повторный запуск обновляет записи по `slug` и не создает дубликаты.
+
 ## Синхронизация прода в локальную БД Strapi
 
 Добавлен скрипт `scripts/sync-prod-to-local.sh`, который:
@@ -75,8 +86,8 @@ bash scripts/sync-prod-to-local.sh --help
 - **News Article** - новостные статьи
 - **Service Category** - категории услуг
 - **Service** - услуги
-- **Service UI** - UI-метаданные услуг (например, `iconKey`)
 - **Person** - команда и эксперты
+- **Recommendation** - рекомендации партнеров и клиентов
 
 ### Single Types
 
@@ -106,10 +117,17 @@ GET /api/news-articles/:documentId
 GET /api/service-categories?populate=services
 GET /api/services
 GET /api/people
-GET /api/service-uis
+GET /api/recommendations
 GET /api/team-config
 GET /api/expert-config
 ```
+
+## Rollout (рекомендуемый порядок)
+
+1. Деплой CMS со схемой `recommendation`.
+2. Выполнение `npm run migrate:recommendations` в целевой среде.
+3. Проверка чтения `GET /api/recommendations` токеном фронтенда.
+4. Деплой фронтенда, который читает рекомендации из Strapi.
 
 ## Переменные окружения
 

@@ -8,7 +8,11 @@
 
 import { getLatestNews, getNews, getNewsArticle, transformToLegacyNews } from './news';
 import { getPeople, transformToLegacyPerson, type LegacyPerson } from './people';
-import { getServiceUiIconMap } from './service-ui';
+import {
+  getRecommendations,
+  transformToLegacyRecommendation,
+  type LegacyRecommendation,
+} from './recommendations';
 import { getServicesDataLegacy } from './services';
 import type {
   StrapiAboutPage,
@@ -88,11 +92,6 @@ interface FallbackHomePartnersData {
       logos?: Array<{ id?: number; title?: string; href?: string | null; img?: string }>;
       more?: { display?: string; value?: number; unit?: string };
     }>;
-  };
-  testimonials?: {
-    title?: string;
-    items?: Array<{ id?: number; company?: string; logoImg?: string; quote?: string }>;
-    more?: { labelTop?: string; labelBottom?: string; href?: string };
   };
 }
 
@@ -184,6 +183,17 @@ export async function fetchLatestNewsArticles(
 ): Promise<NewsArticleData[]> {
   const articles = await getLatestNews(limit, options);
   return articles.map(transformToLegacyNews);
+}
+
+// ==================
+// Recommendations
+// ==================
+
+export type RecommendationData = LegacyRecommendation;
+
+export async function fetchRecommendations(limit?: number): Promise<RecommendationData[]> {
+  const recommendations = await getRecommendations(limit);
+  return recommendations.map(transformToLegacyRecommendation);
 }
 
 // ==================
@@ -328,28 +338,6 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
                       moreUnit: c.more?.unit ?? null,
                     }))
                   : [],
-              }
-            : null,
-          testimonials: partners?.testimonials
-            ? {
-                id: 1,
-                title: partners.testimonials.title ?? '',
-                items: partners.testimonials.items
-                  ? partners.testimonials.items.map((t, idx) => ({
-                      id: typeof t.id === 'number' ? t.id : idx + 1,
-                      company: t.company ?? '',
-                      logoImgPath: t.logoImg ?? null,
-                      quote: t.quote ?? '',
-                    }))
-                  : [],
-                more: partners.testimonials.more
-                  ? {
-                      id: 1,
-                      labelTop: partners.testimonials.more.labelTop ?? '',
-                      labelBottom: partners.testimonials.more.labelBottom ?? '',
-                      href: partners.testimonials.more.href || '/rekomendacii',
-                    }
-                  : null,
               }
             : null,
         }
@@ -505,10 +493,6 @@ export async function fetchBlogPageData(): Promise<StrapiBlogPage> {
     updatedAt: updatedAt,
     publishedAt: updatedAt,
   };
-}
-
-export async function fetchServiceUiIconMap(): Promise<Record<string, string>> {
-  return await getServiceUiIconMap();
 }
 
 // ==================

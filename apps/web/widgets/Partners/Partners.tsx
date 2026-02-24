@@ -43,7 +43,6 @@ interface Testimonial {
   company: string;
   logoImg: string;
   quote: string;
-  sourceLink?: string | null;
 }
 
 interface PartnersProps {
@@ -60,10 +59,7 @@ interface PartnersProps {
     title: string;
     items: Testimonial[];
     more: {
-      labelTop: string;
-      labelBottom: string;
       href: string;
-      value?: number;
     };
   };
 }

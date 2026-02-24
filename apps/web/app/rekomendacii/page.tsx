@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { fetchHomePageData, fetchSiteSettings } from "@/shared/api/data-provider";
+import { fetchRecommendations, fetchSiteSettings } from "@/shared/api/data-provider";
 import { Container } from "@/shared/ui/Container";
 import { Footer, RecommendationsShowcase } from "@/widgets";
 
@@ -17,37 +17,20 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-const LEMANA_EXPANDED_QUOTE = `В компании Лемана ПРО программа финансового благополучия стала ключевым элементом корпоративной культуры и заботы о сотрудниках. Мы выстраиваем системный подход, в котором сочетаются диагностика финансового здоровья, выявление рисков и развитие финансовой грамотности разных целевых групп. Особое внимание уделяем финансовой культуре семьи, создавая обучающие и игровые форматы для детей сотрудников.
-
-Помимо образовательных программ, в нашей экосистеме действуют практические инструменты, интегрированные в бизнес-процессы компании. Мы развиваем авторские решения, создаваемые самими сотрудниками, активно используем аналитику и регулярно обновляем мотивационные программы на основе данных и обратной связи.
-
-Работа по финансовому благополучию строится с учетом актуальных трендов и потребностей команды. Мы анализируем финансовые задачи разных сегментов, помогаем снижать риски и формировать осознанное отношение к деньгам. Сотрудничество с Национальным центром финансовой грамотности, которое продолжается с 2022 года, стало основой нашего профессионального роста - мы ценим экспертизу, инновационный подход и вовлеченность партнеров.
-
-В 2024 году наша программа заняла второе место в конкурсе EWA, была представлена на заседаниях РСПП, Министерства финансов и Московском финансовом форуме, где получила признание как пример современного подхода к поддержке финансового благополучия сотрудников.
-
-Мы гордимся достигнутыми результатами и продолжаем развивать направление, помогая людям чувствовать уверенность в финансовых решениях и повышать качество жизни.
-
-Екатерина Холодкова
-Руководитель проектов по повышению благополучия и укреплению здоровья сотрудников
-
-Подробнее о программе в Лемана ПРО - в интервью на сайте культура-денег.рф (https://xn----7sbkdfa4aiwzvkc8j.xn--p1ai/lemana)`;
-
-function withExpandedQuote(company: string, quote: string): string {
-  return company.toLowerCase().includes("лемана") ? LEMANA_EXPANDED_QUOTE : quote;
-}
-
 export default async function RecommendationsPage() {
-  const [homePage, siteSetting] = await Promise.all([fetchHomePageData(), fetchSiteSettings()]);
+  const [recommendations, siteSetting] = await Promise.all([
+    fetchRecommendations(),
+    fetchSiteSettings(),
+  ]);
 
-  const testimonials = homePage.partners?.testimonials;
   const recommendationItems =
-    testimonials?.items
+    recommendations
       .filter((item) => item.quote.trim().length > 0)
       .map((item) => ({
         id: item.id,
         company: item.company,
-        quote: withExpandedQuote(item.company, item.quote),
-      })) ?? [];
+        quote: item.fullQuote ?? item.quote,
+      }));
 
   return (
     <>

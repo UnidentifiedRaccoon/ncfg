@@ -600,6 +600,52 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiRecommendationRecommendation
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'recommendations';
+  info: {
+    description: 'Partner and client recommendations';
+    displayName: 'Recommendation';
+    pluralName: 'recommendations';
+    singularName: 'recommendation';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    company: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    fullQuote: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::recommendation.recommendation'
+    > &
+      Schema.Attribute.Private;
+    logoImg: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 2048;
+      }>;
+    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    publishedAt: Schema.Attribute.DateTime;
+    quote: Schema.Attribute.Text & Schema.Attribute.Required;
+    slug: Schema.Attribute.UID<'company'> & Schema.Attribute.Required;
+    sourceLink: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 2048;
+      }>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiServiceCategoryServiceCategory
   extends Struct.CollectionTypeSchema {
   collectionName: 'service_categories';
@@ -632,40 +678,6 @@ export interface ApiServiceCategoryServiceCategory
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiServiceUiServiceUi extends Struct.CollectionTypeSchema {
-  collectionName: 'service_uis';
-  info: {
-    description: 'UI mapping for services (icons, etc.)';
-    displayName: 'Service UI';
-    pluralName: 'service-uis';
-    singularName: 'service-ui';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    iconKey: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 64;
-      }>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::service-ui.service-ui'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    service: Schema.Attribute.Relation<'oneToOne', 'api::service.service'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1265,8 +1277,8 @@ declare module '@strapi/strapi' {
       'api::expert-config.expert-config': ApiExpertConfigExpertConfig;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
       'api::person.person': ApiPersonPerson;
+      'api::recommendation.recommendation': ApiRecommendationRecommendation;
       'api::service-category.service-category': ApiServiceCategoryServiceCategory;
-      'api::service-ui.service-ui': ApiServiceUiServiceUi;
       'api::service.service': ApiServiceService;
       'api::team-config.team-config': ApiTeamConfigTeamConfig;
       'plugin::content-releases.release': PluginContentReleasesRelease;

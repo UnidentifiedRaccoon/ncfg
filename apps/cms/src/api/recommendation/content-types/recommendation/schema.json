@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "recommendations",
+  "info": {
+    "singularName": "recommendation",
+    "pluralName": "recommendations",
+    "displayName": "Recommendation",
+    "description": "Partner and client recommendations"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "company": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "company",
+      "required": true
+    },
+    "quote": {
+      "type": "text",
+      "required": true
+    },
+    "fullQuote": {
+      "type": "text"
+    },
+    "logoImg": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "sourceLink": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    }
+  }
+}

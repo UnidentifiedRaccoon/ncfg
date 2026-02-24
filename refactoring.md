@@ -74,7 +74,7 @@
 
 ### Реализовано (2026-02-15)
 - `apps/web/shared/api/data-provider.ts` стал фасадом с публичными экспортами без изменения имён.
-- Код разложен по модулям в `apps/web/shared/api/data-provider/`: `news.ts`, `services.ts`, `pages.ts`, `service-ui.ts`, `people.ts`, плюс общие утилиты `env.ts`, `utils.ts`, `fallback-meta.ts`.
+- Код разложен по модулям в `apps/web/shared/api/data-provider/`: `news.ts`, `services.ts`, `pages.ts`, `people.ts`, плюс общие утилиты `env.ts`, `utils.ts`, `fallback-meta.ts`.
 - Поведение fallback сохранено: Strapi предпочитается, при ошибках/нехватке env используется статический контент из `public/content/*`.
 - Запускалось локально: `pnpm -C apps/web lint`, `pnpm -C apps/web build` (при выключенной Strapi возможен `fetch failed`/`ECONNREFUSED` в логах во время SSG, но сборка завершается).
 

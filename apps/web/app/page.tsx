@@ -12,6 +12,7 @@ import {
 import {
   fetchHomePageData,
   fetchLatestNewsArticles,
+  fetchRecommendations,
   fetchServicesData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
@@ -28,18 +29,18 @@ function makeHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) 
 }
 
 export default async function Home() {
-  const [homePage, siteSetting, servicesData, latestNews] = await Promise.all([
+  const [homePage, siteSetting, servicesData, latestNews, recommendations] = await Promise.all([
     fetchHomePageData(),
     fetchSiteSettings(),
     fetchServicesData(),
     fetchLatestNewsArticles(4),
+    fetchRecommendations(3),
   ]);
 
   const hero = homePage.hero;
   const heroMetrics = makeHeroMetrics(siteSetting.metrics);
   const clientsCarousel = homePage.partners?.clientsCarousel;
   const awards = homePage.partners?.awards ?? [];
-  const testimonials = homePage.partners?.testimonials;
 
   const mappedAwards = awards.map((award) => ({
     id: award.id,
@@ -79,28 +80,18 @@ export default async function Home() {
         archiveCta: { label: "Все клиенты", href: "/companies" },
       };
 
-  const mappedTestimonials = testimonials
-    ? {
-        title: testimonials.title,
-        items: testimonials.items.map((item) => ({
-          id: item.id,
-          company: item.company,
-          logoImg: item.logoImgPath ?? "",
-          quote: item.quote,
-        })),
-        more: testimonials.more
-          ? {
-              labelTop: testimonials.more.labelTop,
-              labelBottom: testimonials.more.labelBottom,
-              href: testimonials.more.href || "/rekomendacii",
-            }
-          : { labelTop: "", labelBottom: "", href: "/rekomendacii" },
-      }
-    : {
-        title: "",
-        items: [],
-        more: { labelTop: "", labelBottom: "", href: "/rekomendacii" },
-      };
+  const mappedTestimonials = {
+    title: "Рекомендации",
+    items: recommendations
+      .filter((item) => item.quote.trim().length > 0)
+      .map((item) => ({
+        id: item.id,
+        company: item.company,
+        logoImg: item.logoImg ?? "",
+        quote: item.quote,
+      })),
+    more: { href: "/rekomendacii" },
+  };
 
   return (
     <>
