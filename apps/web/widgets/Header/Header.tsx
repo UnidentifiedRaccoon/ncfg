@@ -76,6 +76,7 @@ function DesktopNav({
 export function Header() {
   const pathname = usePathname();
   const prefersReducedMotion = useReducedMotion();
+  const shouldReduceMotion = prefersReducedMotion ?? false;
   const mobileMenuPanelId = useId();
   const [mobileMenu, setMobileMenu] = useState<{
     open: boolean;
@@ -102,8 +103,8 @@ export function Header() {
 
   return (
     <motion.header
-      initial={prefersReducedMotion ? false : { opacity: 0, y: -10 }}
-      animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+      animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="sticky top-0 z-50 isolate bg-transparent"
     >
@@ -112,7 +113,7 @@ export function Header() {
           <motion.div
             className="relative flex w-full items-center gap-3 overflow-hidden rounded-[999px] border border-[#CFE0FF]/80 bg-white/74 px-2.5 py-2.5 shadow-[0_22px_62px_rgba(26,66,132,0.2)] ring-1 ring-white/70 backdrop-blur-2xl backdrop-saturate-150"
             animate={
-              prefersReducedMotion
+              shouldReduceMotion
                 ? undefined
                 : {
                     boxShadow: [
@@ -133,7 +134,7 @@ export function Header() {
                 backgroundSize: "220% 100%",
               }}
               animate={
-                prefersReducedMotion
+                shouldReduceMotion
                   ? undefined
                   : { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }
               }
@@ -149,10 +150,10 @@ export function Header() {
               aria-label="НЦФГ — на главную"
             >
               <motion.div
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.08, rotate: -3 }}
-                animate={prefersReducedMotion ? undefined : { y: [0, -2, 0] }}
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.08, rotate: -3 }}
+                animate={shouldReduceMotion ? undefined : { y: [0, -2, 0] }}
                 transition={
-                  prefersReducedMotion
+                  shouldReduceMotion
                     ? undefined
                     : { duration: 2.4, repeat: Infinity, ease: "easeInOut" }
                 }
@@ -168,20 +169,20 @@ export function Header() {
               </motion.div>
               <motion.span
                 className="text-base font-semibold leading-none tracking-[0.11em] text-[#132B4A] sm:text-xl lg:text-[22px] lg:tracking-[0.14em]"
-                animate={prefersReducedMotion ? undefined : { opacity: [1, 0.92, 1] }}
+                animate={shouldReduceMotion ? undefined : { opacity: [1, 0.92, 1] }}
                 transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
               >
                 НЦФГ
               </motion.span>
             </Link>
 
-            <DesktopNav pathname={pathname} prefersReducedMotion={prefersReducedMotion} />
+            <DesktopNav pathname={pathname} prefersReducedMotion={shouldReduceMotion} />
 
             <div className="relative z-10 ml-auto flex items-center gap-2">
               <motion.div
                 className="hidden sm:block"
-                whileHover={prefersReducedMotion ? undefined : { y: -2, scale: 1.02 }}
-                whileTap={prefersReducedMotion ? undefined : { y: 0, scale: 0.99 }}
+                whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.02 }}
+                whileTap={shouldReduceMotion ? undefined : { y: 0, scale: 0.99 }}
               >
                 <Button
                   href={ctaHref}
@@ -266,7 +267,7 @@ export function Header() {
                     })}
 
                     <div className="mt-2 px-2 sm:hidden">
-                      <motion.div whileTap={prefersReducedMotion ? undefined : { scale: 0.99 }}>
+                      <motion.div whileTap={shouldReduceMotion ? undefined : { scale: 0.99 }}>
                         <Button
                           href={ctaHref}
                           className="h-11 w-full rounded-full text-base"
