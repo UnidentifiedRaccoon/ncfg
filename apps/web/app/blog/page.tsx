@@ -5,14 +5,13 @@ import {
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
 import { isBlogRubricSlug } from "@/shared/lib/blog-rubrics";
-import { REVALIDATE_SECONDS } from "@/shared/config/constants";
 
 export const metadata = {
   title: "Блог — НЦФГ",
   description: "Полезные материалы о финансовой грамотности от Национального центра финансовой грамотности",
 };
 
-export const revalidate = REVALIDATE_SECONDS;
+export const revalidate = 60;
 
 type SearchParams = Record<string, string | string[] | undefined>;
 

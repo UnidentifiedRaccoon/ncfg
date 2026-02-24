@@ -6,13 +6,12 @@ import {
   fetchNewsArticles,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
-import { REVALIDATE_SECONDS } from "@/shared/config/constants";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = REVALIDATE_SECONDS;
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   const posts = await fetchNewsArticles();

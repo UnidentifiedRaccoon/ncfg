@@ -14,7 +14,6 @@ import {
   fetchPeopleData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
-import { REVALIDATE_SECONDS } from "@/shared/config/constants";
 
 export const metadata: Metadata = {
   title: "О центре — Национальный центр финансовой грамотности | НЦФГ",
@@ -28,7 +27,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = REVALIDATE_SECONDS;
+export const revalidate = 60;
 const ABOUT_HERO_LEAD =
   "Проектируем и внедряем программы финансовой грамотности для регионов, бизнеса и образовательных команд. Помогаем людям и организациям принимать взвешенные финансовые решения.";
 
