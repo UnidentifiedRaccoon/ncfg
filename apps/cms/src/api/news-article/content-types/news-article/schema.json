@@ -11,6 +11,22 @@
     "draftAndPublish": true
   },
   "pluginOptions": {},
+  "config": {
+    "metadatas": {
+      "anonsImage": {
+        "edit": {
+          "description": "Рекомендуемое соотношение сторон: 4:3 (например, 400x300)."
+        },
+        "list": {}
+      },
+      "postImage": {
+        "edit": {
+          "description": "Рекомендуемое соотношение сторон: 16:9 (например, 1920x1080)."
+        },
+        "list": {}
+      }
+    }
+  },
   "attributes": {
     "title": {
       "type": "string",
@@ -26,6 +42,12 @@
       "type": "richtext"
     },
     "anonsImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "postImage": {
       "type": "media",
       "multiple": false,
       "required": false,

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { BlogPosts, Footer } from "@/widgets";
 import {
   fetchBlogPageData,
@@ -5,11 +6,13 @@ import {
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
 import { isBlogRubricSlug } from "@/shared/lib/blog-rubrics";
+import { buildPageMetadata } from "@/shared/lib/metadata";
 
-export const metadata = {
+export const metadata: Metadata = buildPageMetadata({
+  path: "/blog",
   title: "Блог — НЦФГ",
   description: "Полезные материалы о финансовой грамотности от Национального центра финансовой грамотности",
-};
+});
 
 export const revalidate = 60; // Revalidate every 60 seconds
 

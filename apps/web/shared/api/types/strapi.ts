@@ -68,6 +68,7 @@ export interface StrapiNewsArticle {
   slug: string;
   body: string | null;
   anonsImage: StrapiImage | null;
+  postImage: StrapiImage | null;
   category: StrapiBlogCategory | null;
   publishedDate: string | null;
   createdAt: string;
@@ -118,6 +119,12 @@ export interface StrapiCallToAction {
   type: 'form' | 'link' | 'email' | 'phone';
 }
 
+export interface StrapiServiceWebinar {
+  id: number;
+  title: string;
+  items: StrapiTextItem[];
+}
+
 export interface StrapiService {
   id: number;
   documentId: string;
@@ -125,9 +132,17 @@ export interface StrapiService {
   slug: string;
   order: number;
   shortDescription: string | null;
+  fullDescriptionTitle: string | null;
   fullDescription: string | null;
+  benefitsTitle: string | null;
   benefits: StrapiTextItem[];
+  htmlSectionBefore: string | null;
+  usefulInformation: string | null;
+  htmlSectionAfter: string | null;
+  howWeWorkTitle: string | null;
   howWeWork: StrapiTextItem[];
+  webinarsTitle: string | null;
+  webinars: StrapiServiceWebinar[];
   examples: StrapiServiceExample[];
   cta: StrapiCallToAction | null;
   category: StrapiServiceCategory | null;

@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Post, Footer } from "@/widgets";
 import {
@@ -6,10 +6,16 @@ import {
   fetchNewsArticles,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
+import { makeExcerpt, stripHtmlToText } from "@/shared/lib/excerpt";
+import { buildPageMetadata } from "@/shared/lib/metadata";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
+
+const BLOG_POST_NOT_FOUND_DESCRIPTION = "Материал блога не найден или недоступен.";
+const BLOG_POST_FALLBACK_DESCRIPTION =
+  "Материал НЦФГ о финансовой грамотности для сотрудников и частных лиц.";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
@@ -28,31 +34,38 @@ async function safeFetchNewsArticle(slug: string) {
   }
 }
 
+function getBlogDescription(body: string): string {
+  const plainText = stripHtmlToText(body);
+  return makeExcerpt(plainText, 170) || BLOG_POST_FALLBACK_DESCRIPTION;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await safeFetchNewsArticle(slug);
 
   if (!post) {
-    return {
+    return buildPageMetadata({
+      path: `/blog/${slug}`,
       title: "Статья не найдена — НЦФГ",
-    };
+      description: BLOG_POST_NOT_FOUND_DESCRIPTION,
+      robots: {
+        index: false,
+        follow: false,
+      },
+    });
   }
 
-  const description = post.body
-    .replace(/<[^>]*>/g, "")
-    .slice(0, 160)
-    .trim();
+  const description = getBlogDescription(post.body);
 
-  return {
+  return buildPageMetadata({
+    path: `/blog/${post.slug}`,
     title: `${post.title} — НЦФГ`,
     description,
-    openGraph: {
-      title: post.title,
-      description,
-      type: "article",
-      publishedTime: post.createdAt,
-    },
-  };
+    openGraphTitle: post.title,
+    openGraphType: "article",
+    publishedTime: post.createdAt,
+    imagePath: post.postImage ?? undefined,
+  });
 }
 
 export default async function BlogPostPage({ params }: PageProps) {

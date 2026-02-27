@@ -5,7 +5,12 @@
  */
 
 import { fetchAPI, buildQueryString, StrapiResponse } from '../lib/strapi';
-import type { StrapiService, StrapiServiceCategory, StrapiTextItem } from './types/strapi';
+import type {
+  StrapiService,
+  StrapiServiceCategory,
+  StrapiServiceWebinar,
+  StrapiTextItem,
+} from './types/strapi';
 
 // ==================
 // Service Categories
@@ -15,7 +20,7 @@ async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
   const query = buildQueryString({
     populate: {
       services: {
-        populate: ['benefits', 'howWeWork', 'examples', 'cta'],
+        populate: ['benefits', 'howWeWork', 'webinars', 'examples', 'cta'],
         sort: ['order:asc'],
       },
     },
@@ -35,11 +40,40 @@ async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
 // Helper: Transform to legacy format
 // ==================
 
-import type { Service, ServiceCategory, ServiceExample, ServiceCTA, ServicesData } from './types/service';
+import type {
+  Service,
+  ServiceCategory,
+  ServiceCTA,
+  ServiceExample,
+  ServiceWebinar,
+  ServicesData,
+} from './types/service';
+
+function normalizeOptionalText(value: string | null | undefined): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
 
 function extractTextItems(items: StrapiTextItem[] | null | undefined): string[] {
   if (!items || !Array.isArray(items)) return [];
-  return items.map(item => item.text);
+
+  return items
+    .map((item) => (typeof item.text === 'string' ? item.text.trim() : ''))
+    .filter((item) => item.length > 0);
+}
+
+function extractWebinars(webinars: StrapiServiceWebinar[] | null | undefined): ServiceWebinar[] {
+  if (!Array.isArray(webinars)) return [];
+
+  return webinars
+    .map((webinar) => {
+      const title = typeof webinar?.title === 'string' ? webinar.title.trim() : '';
+      const items = extractTextItems(webinar?.items);
+
+      return { title, items };
+    })
+    .filter((webinar) => webinar.title.length > 0 || webinar.items.length > 0);
 }
 
 function transformToLegacyService(service: StrapiService): Service {
@@ -65,8 +99,16 @@ function transformToLegacyService(service: StrapiService): Service {
     order: service.order,
     title: service.title,
     shortDescription: service.shortDescription || '',
-    fullDescription: service.fullDescription || '',
+    fullDescriptionTitle: normalizeOptionalText(service.fullDescriptionTitle),
+    fullDescription: normalizeOptionalText(service.fullDescription),
+    benefitsTitle: normalizeOptionalText(service.benefitsTitle),
     benefits: extractTextItems(service.benefits),
+    htmlSectionBefore: normalizeOptionalText(service.htmlSectionBefore),
+    usefulInformation: normalizeOptionalText(service.usefulInformation),
+    htmlSectionAfter: normalizeOptionalText(service.htmlSectionAfter),
+    howWeWorkTitle: normalizeOptionalText(service.howWeWorkTitle),
+    webinarsTitle: normalizeOptionalText(service.webinarsTitle),
+    webinars: extractWebinars(service.webinars),
     examples,
     howWeWork: extractTextItems(service.howWeWork),
     cta,

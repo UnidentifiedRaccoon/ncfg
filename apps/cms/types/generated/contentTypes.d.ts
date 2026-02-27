@@ -534,6 +534,7 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
       'api::news-article.news-article'
     > &
       Schema.Attribute.Private;
+    postImage: Schema.Attribute.Media<'images'>;
     publishedAt: Schema.Attribute.DateTime;
     publishedDate: Schema.Attribute.Date;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
@@ -697,6 +698,10 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
   };
   attributes: {
     benefits: Schema.Attribute.Component<'shared.text-item', true>;
+    benefitsTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
     category: Schema.Attribute.Relation<
       'manyToOne',
       'api::service-category.service-category'
@@ -707,7 +712,17 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
     cta: Schema.Attribute.Component<'shared.call-to-action', false>;
     examples: Schema.Attribute.Component<'service.service-example', true>;
     fullDescription: Schema.Attribute.RichText;
+    fullDescriptionTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
     howWeWork: Schema.Attribute.Component<'shared.text-item', true>;
+    howWeWorkTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    htmlSectionAfter: Schema.Attribute.RichText;
+    htmlSectionBefore: Schema.Attribute.RichText;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -726,6 +741,12 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    usefulInformation: Schema.Attribute.RichText;
+    webinars: Schema.Attribute.Component<'service.webinar', true>;
+    webinarsTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
   };
 }
 

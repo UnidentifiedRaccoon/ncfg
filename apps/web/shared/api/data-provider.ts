@@ -164,6 +164,7 @@ export interface NewsArticleData {
   slug: string;
   body: string;
   anonsImage: string | null;
+  postImage: string | null;
   createdAt: string;
 }
 

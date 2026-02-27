@@ -1,52 +1,39 @@
-import { Section } from "@/shared/ui/Section";
+import { Section } from "@/shared/ui";
 import { CheckCircle } from "lucide-react";
 
 interface ServiceDescriptionProps {
-  fullDescription: string;
+  benefitsTitle?: string;
   benefits?: string[];
 }
 
 export function ServiceDescription({
-  fullDescription,
+  benefitsTitle,
   benefits,
 }: ServiceDescriptionProps) {
-  const hasBenefits = benefits && benefits.length > 0;
+  const normalizedBenefits = (benefits ?? [])
+    .map((benefit) => benefit.trim())
+    .filter((benefit) => benefit.length > 0);
+
+  if (normalizedBenefits.length === 0) {
+    return null;
+  }
 
   return (
-    <Section id="description">
-      <div
-        className={
-          hasBenefits
-            ? "grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12"
-            : "max-w-3xl"
-        }
-      >
-        <div>
-          <h2 className="text-[28px] md:text-4xl font-bold text-[#1E3A5F] mb-6">
-            Описание услуги
-          </h2>
-          <p className="text-[#475569] text-base md:text-lg leading-relaxed">
-            {fullDescription}
-          </p>
-        </div>
-
-        {hasBenefits && (
-          <div>
-            <h3 className="text-xl md:text-2xl font-bold text-[#1E3A5F] mb-6">
-              Преимущества
-            </h3>
-            <ul className="space-y-4">
-              {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-[#10B981] mt-0.5 flex-shrink-0" />
-                  <span className="text-[#475569] leading-relaxed">
-                    {benefit}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+    <Section id="benefits">
+      <div className="max-w-3xl">
+        <h2 className="mb-6 text-xl font-bold text-[#1E3A5F] md:text-2xl">
+          {benefitsTitle?.trim() || "Преимущества"}
+        </h2>
+        <ul className="space-y-4">
+          {normalizedBenefits.map((benefit, index) => (
+            <li key={index} className="flex items-start gap-3">
+              <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#10B981]" />
+              <span className="leading-relaxed text-[#475569]">
+                {benefit}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </Section>
   );

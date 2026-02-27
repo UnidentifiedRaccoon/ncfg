@@ -84,7 +84,7 @@ export function PostCard({ post }: PostCardProps) {
   const hasExcerpt = Boolean(post.excerpt && post.excerpt.trim().length > 0);
 
   return (
-    <article className="group relative w-full max-w-[624px] overflow-hidden rounded-xl border border-[#E2E8F0]/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#3B82F6]/25 hover:shadow-md lg:max-w-[760px] after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-[#58A8E0]/70 after:via-[#3B82F6]/45 after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 group-hover:after:opacity-100">
+    <article className="group relative w-full max-w-[624px] overflow-hidden rounded-xl border border-[#E2E8F0]/80 bg-white shadow-sm transition-all duration-200 hover:border-[#3B82F6]/25 hover:shadow-md lg:max-w-[760px] after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-[#58A8E0]/70 after:via-[#3B82F6]/45 after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 group-hover:after:opacity-100">
       <Link href={`/blog/${post.slug}`} className="block">
         <div className="flex flex-col md:flex-row">
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F8FAFC] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/70 lg:w-[280px]">

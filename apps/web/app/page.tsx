@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Hero,
   Products,
@@ -9,6 +10,7 @@ import {
   LeadForm,
   Footer,
 } from "@/widgets";
+import { buildPageMetadata } from "@/shared/lib/metadata";
 import {
   fetchHomePageData,
   fetchLatestNewsArticles,
@@ -16,6 +18,15 @@ import {
   fetchServicesData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
+
+export const metadata: Metadata = buildPageMetadata({
+  path: "/",
+  title: "НЦФГ — Национальный центр финансовой грамотности",
+  description:
+    "Более 20 лет реализуем проекты по финансовой грамотности. 30 миллионов участников, 84 региона, программы для компаний и частных лиц.",
+  openGraphDescription:
+    "Более 20 лет реализуем проекты по финансовой грамотности. 30 миллионов участников, 84 региона.",
+});
 
 function makeHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) {
   const byKey = new Map(metrics.map((m) => [m.key, m.displayValue]));

@@ -7,18 +7,17 @@ import {
   Footer,
 } from "@/widgets";
 import { fetchIndividualsPageData, fetchSiteSettings } from "@/shared/api/data-provider";
+import { buildPageMetadata } from "@/shared/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
+  path: "/individuals",
   title: "Частным лицам — Финансовая грамотность для вас и вашей семьи | НЦФГ",
   description:
     "Программы финансовой грамотности для частных лиц: клуб ФинЗдоровье, финансовое воспитание детей, онлайн-курсы. Научитесь управлять личными финансами.",
-  openGraph: {
-    title: "Частным лицам — Финансовая грамотность | НЦФГ",
-    description:
-      "Программы финансовой грамотности для частных лиц: клуб ФинЗдоровье, финансовое воспитание детей, онлайн-курсы.",
-    type: "website",
-  },
-};
+  openGraphTitle: "Частным лицам — Финансовая грамотность | НЦФГ",
+  openGraphDescription:
+    "Программы финансовой грамотности для частных лиц: клуб ФинЗдоровье, финансовое воспитание детей, онлайн-курсы.",
+});
 
 export default async function IndividualsPage() {
   const [siteSetting, individualsPage] = await Promise.all([

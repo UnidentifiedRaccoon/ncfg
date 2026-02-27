@@ -11,18 +11,17 @@ import {
   fetchServicesData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
+import { buildPageMetadata } from "@/shared/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
+  path: "/companies",
   title: "Компаниям — Программы финансового благополучия для сотрудников | НЦФГ",
   description:
     "Комплексные программы финансовой грамотности для бизнеса: консалтинг, обучение, поддержка сотрудников. Повысьте финансовое благополучие вашей команды.",
-  openGraph: {
-    title: "Компаниям — Финансовая грамотность для бизнеса | НЦФГ",
-    description:
-      "Комплексные программы финансовой грамотности для бизнеса: консалтинг, обучение, поддержка сотрудников.",
-    type: "website",
-  },
-};
+  openGraphTitle: "Компаниям — Финансовая грамотность для бизнеса | НЦФГ",
+  openGraphDescription:
+    "Комплексные программы финансовой грамотности для бизнеса: консалтинг, обучение, поддержка сотрудников.",
+});
 
 export default async function CompaniesPage() {
   const [siteSetting, companiesPage, servicesData] = await Promise.all([

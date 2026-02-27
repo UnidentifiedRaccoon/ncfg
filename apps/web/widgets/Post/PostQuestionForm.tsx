@@ -67,7 +67,7 @@ export function PostQuestionForm({ postTitle }: PostQuestionFormProps) {
 
   if (status === "success") {
     return (
-      <section className="pb-12 md:pb-16">
+      <section data-scroll-reveal="" className="pb-12 md:pb-16">
         <div className="mx-auto max-w-[760px] px-5 md:px-6 lg:px-8">
           <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-8 text-center">
             <CheckCircle className="w-12 h-12 text-[#10B981] mx-auto mb-4" />
@@ -84,7 +84,7 @@ export function PostQuestionForm({ postTitle }: PostQuestionFormProps) {
   }
 
   return (
-    <section className="pb-12 md:pb-16">
+    <section data-scroll-reveal="" className="pb-12 md:pb-16">
       <div className="mx-auto max-w-[760px] px-5 md:px-6 lg:px-8">
         <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-8">
           {!isExpanded ? (

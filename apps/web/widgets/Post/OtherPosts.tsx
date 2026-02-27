@@ -9,7 +9,7 @@ export function OtherPosts({ posts }: OtherPostsProps) {
   if (posts.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-16 bg-[#F8FAFC]">
+    <section data-scroll-reveal="" className="py-12 md:py-16 bg-[#F8FAFC]">
       <div className="mx-auto max-w-[760px] px-5 md:px-6 lg:px-8">
         <h2 className="text-2xl md:text-3xl font-bold text-[#1E3A5F] text-center mb-8">
           Другие статьи

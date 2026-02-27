@@ -14,18 +14,17 @@ import {
   fetchPeopleData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
+import { buildPageMetadata } from "@/shared/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
+  path: "/about",
   title: "О центре — Национальный центр финансовой грамотности | НЦФГ",
   description:
     "Национальный центр финансовой грамотности с 2005 года реализует проекты по повышению финансовой грамотности. Узнайте о нашей команде, принципах работы и экспертах.",
-  openGraph: {
-    title: "О центре — НЦФГ",
-    description:
-      "Национальный центр финансовой грамотности с 2005 года реализует проекты по повышению финансовой грамотности населения России.",
-    type: "website",
-  },
-};
+  openGraphTitle: "О центре — НЦФГ",
+  openGraphDescription:
+    "Национальный центр финансовой грамотности с 2005 года реализует проекты по повышению финансовой грамотности населения России.",
+});
 
 export const revalidate = 60; // Revalidate every 60 seconds
 const ABOUT_HERO_LEAD =
@@ -88,15 +87,15 @@ export default async function AboutPage() {
           }
           metrics={heroMetrics}
         />
-        <HowWeWork
-          title={aboutPage.howWeWorkTitle ?? "Как мы работаем"}
-          lead={aboutPage.howWeWorkLead ?? undefined}
-          steps={howWeWorkSteps}
-        />
         <Principles
           title={aboutPage.principlesTitle ?? "Наши принципы"}
           lead={aboutPage.principlesLead ?? undefined}
           principles={principles}
+        />
+        <HowWeWork
+          title={aboutPage.howWeWorkTitle ?? "Как мы работаем"}
+          lead={aboutPage.howWeWorkLead ?? undefined}
+          steps={howWeWorkSteps}
         />
         {teamMembers.length > 0 ? <Team title="Наша команда" members={teamMembers} /> : null}
         <Experts title="Наши эксперты" experts={people} />

@@ -53,6 +53,7 @@ export function ServiceBlock({
   return (
     <section
       id={anchorId}
+      data-scroll-reveal=""
       className={cn(
         "scroll-mt-24",
         // Light separation between groups without an extra "stage" wrapper.

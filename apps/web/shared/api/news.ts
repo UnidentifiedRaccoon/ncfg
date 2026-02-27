@@ -60,7 +60,7 @@ export async function getNews(options: GetNewsOptions = {}): Promise<{
 
 export async function getNewsArticle(slug: string): Promise<StrapiNewsArticle | null> {
   const query = buildQueryString({
-    populate: ['anonsImage', 'category'],
+    populate: ['anonsImage', 'postImage', 'category'],
     filters: {
       slug: { $eq: slug },
     },
@@ -111,11 +111,13 @@ interface LegacyNewsArticle {
   slug: string;
   body: string;
   anonsImage: string | null;
+  postImage: string | null;
   createdAt: string;
 }
 
 export function transformToLegacyNews(article: StrapiNewsArticle): LegacyNewsArticle {
-  const transformedUrl = getStrapiMediaUrl(article.anonsImage?.url);
+  const transformedAnonsUrl = getStrapiMediaUrl(article.anonsImage?.url);
+  const transformedPostUrl = getStrapiMediaUrl(article.postImage?.url);
 
   return {
     id: String(article.id),
@@ -123,7 +125,8 @@ export function transformToLegacyNews(article: StrapiNewsArticle): LegacyNewsArt
     category: article.category ? { slug: article.category.slug, title: article.category.title } : null,
     slug: article.slug,
     body: article.body || '',
-    anonsImage: transformedUrl,
+    anonsImage: transformedAnonsUrl,
+    postImage: transformedPostUrl,
     createdAt: article.publishedDate || article.createdAt,
   };
 }

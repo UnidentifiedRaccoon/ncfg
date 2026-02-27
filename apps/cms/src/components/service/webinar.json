@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_service_webinars",
+  "info": {
+    "displayName": "Webinar",
+    "description": "Webinar block with title and list of items",
+    "icon": "presentation-chart"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.text-item"
+    }
+  }
+}

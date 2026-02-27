@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
 import { fetchRecommendations, fetchSiteSettings } from "@/shared/api/data-provider";
+import { buildPageMetadata } from "@/shared/lib/metadata";
+import { Button } from "@/shared/ui/Button";
 import { Container } from "@/shared/ui/Container";
 import { Footer, RecommendationsShowcase } from "@/widgets";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
+  path: "/rekomendacii",
   title: "Рекомендации | НЦФГ",
   description:
     "Рекомендации партнеров и клиентов НЦФГ на отдельной странице в формате Capital Grid.",
-  openGraph: {
-    title: "Рекомендации | НЦФГ",
-    description:
-      "Отдельная страница «Рекомендации» в стиле Capital Grid и визуальной системе НЦФГ.",
-    type: "website",
-  },
-};
+  openGraphDescription:
+    "Отдельная страница «Рекомендации» в стиле Capital Grid и визуальной системе НЦФГ.",
+});
 
 export const revalidate = 60;
 
@@ -35,7 +34,7 @@ export default async function RecommendationsPage() {
   return (
     <>
       <main className="pb-10 md:pb-12">
-        <section className="pt-10 md:pt-14">
+        <section data-scroll-reveal="" className="pt-10 md:pt-14">
           <Container>
             <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-6 md:p-8">
               <div
@@ -49,12 +48,17 @@ export default async function RecommendationsPage() {
                 <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#475569] md:text-lg">
                   Отзывы партнеров и клиентов о совместных проектах и программах НЦФГ.
                 </p>
+                <div className="mt-6">
+                  <Button href="/" variant="secondary" className="w-full sm:w-auto">
+                    На главную
+                  </Button>
+                </div>
               </div>
             </div>
           </Container>
         </section>
 
-        <section className="pt-6 md:pt-8">
+        <section data-scroll-reveal="" className="pt-6 md:pt-8">
           <Container>
             <RecommendationsShowcase items={recommendationItems} />
           </Container>

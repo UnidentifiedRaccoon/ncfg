@@ -137,7 +137,7 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
           href={`/blog/${featured.slug}`}
           className={cn(
             "group relative overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white shadow-sm",
-            "transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25",
+            "transition-all duration-200 hover:shadow-lg hover:border-[#3B82F6]/25",
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
             "lg:col-span-7"
           )}
@@ -208,7 +208,7 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
                 className={cn(
                   "group relative flex items-stretch gap-4 overflow-hidden rounded-xl border",
                   "border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm shadow-sm",
-                  "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-[#3B82F6]/25",
+                  "transition-all duration-200 hover:shadow-md hover:border-[#3B82F6]/25",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
                 )}
                 aria-label={post.title}

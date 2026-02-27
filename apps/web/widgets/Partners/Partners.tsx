@@ -1,6 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useState,
+  type FocusEvent as ReactFocusEvent,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -379,11 +384,33 @@ function AwardsStrip({ awards }: { awards: AwardItem[] }) {
 export function Partners({ awards, clientsCarousel, testimonials }: PartnersProps) {
   const [activeCategory, setActiveCategory] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [hasFocusWithin, setHasFocusWithin] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return false;
+    }
+
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+  const [isDocumentVisible, setIsDocumentVisible] = useState(() => {
+    if (typeof document === "undefined") {
+      return true;
+    }
+
+    return document.visibilityState === "visible";
+  });
 
   const tabsBaseId = useId();
   const panelId = `${tabsBaseId}-panel`;
 
   const categories = clientsCarousel.categories ?? [];
+  const isInteractionPaused = isHovered || hasFocusWithin;
+  const canAutoplayCategories =
+    categories.length > 1 &&
+    !isInteractionPaused &&
+    !prefersReducedMotion &&
+    isDocumentVisible;
   const safeActiveCategory = Math.min(activeCategory, Math.max(categories.length - 1, 0));
   const currentCategory = categories[safeActiveCategory];
 
@@ -394,11 +421,74 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
   );
   const activeTabId = `${tabsBaseId}-tab-${currentCategory?.id ?? "unknown"}`;
 
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onMediaQueryChange = (event: MediaQueryListEvent) => {
+      setPrefersReducedMotion(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", onMediaQueryChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", onMediaQueryChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const onVisibilityChange = () => {
+      setIsDocumentVisible(document.visibilityState === "visible");
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!canAutoplayCategories) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveCategory((prev) => (prev + 1) % categories.length);
+    }, 5000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [canAutoplayCategories, categories.length]);
+
+  const handleAutoplayBlur = (event: ReactFocusEvent<HTMLDivElement>) => {
+    const nextFocused = event.relatedTarget;
+
+    if (nextFocused instanceof Node && event.currentTarget.contains(nextFocused)) {
+      return;
+    }
+
+    setHasFocusWithin(false);
+  };
+
   return (
     <Section id="partners" title={clientsCarousel.title}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="min-w-0 lg:col-span-8">
-          <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm lg:h-[500px]">
+          <div
+            className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm lg:h-[500px]"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onFocusCapture={() => setHasFocusWithin(true)}
+            onBlurCapture={handleAutoplayBlur}
+          >
             {/* Decorative background */}
             <div
               aria-hidden="true"

@@ -10,7 +10,7 @@ interface PostProps {
     title: string;
     category: { slug: string; title: string } | null;
     body: string;
-    anonsImage?: string | null;
+    postImage?: string | null;
     createdAt: string;
   };
   allPosts?: PostCardPost[];
@@ -26,7 +26,7 @@ function formatDate(dateStr: string): string {
 }
 
 export function Post({ post, allPosts = [] }: PostProps) {
-  const hasImage = Boolean(post.anonsImage);
+  const hasImage = Boolean(post.postImage);
 
   const otherPosts = allPosts
     .filter((p) => p.id !== post.id)
@@ -35,7 +35,7 @@ export function Post({ post, allPosts = [] }: PostProps) {
 
   return (
     <>
-      <article className="py-12 md:py-16">
+      <article data-scroll-reveal="" className="py-12 md:py-16">
         <Container className="px-5 md:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-[760px]">
             <header className="text-center">
@@ -61,7 +61,7 @@ export function Post({ post, allPosts = [] }: PostProps) {
               <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC]">
                 {hasImage ? (
                   <Image
-                    src={post.anonsImage as string}
+                    src={post.postImage as string}
                     alt={post.title}
                     fill
                     sizes="(min-width: 1024px) 760px, 100vw"

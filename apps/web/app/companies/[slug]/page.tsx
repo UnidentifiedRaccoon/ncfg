@@ -5,16 +5,22 @@ import {
   LeadForm,
   FAQ,
   Footer,
+  ServiceHtmlSection,
+  ServiceMarkdownSection,
+  Webinars,
 } from "@/widgets";
 import { ServiceHero } from "@/widgets/ServiceHero";
 import { ServiceDescription } from "@/widgets/ServiceDescription";
 import { ServiceExamples } from "@/widgets/ServiceExamples";
 import { fetchServicesData, fetchSiteSettings } from "@/shared/api/data-provider";
+import { buildPageMetadata } from "@/shared/lib/metadata";
 import type { Service, ServicesData } from "@/shared/api/types/service";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
+
+const SERVICE_NOT_FOUND_DESCRIPTION = "Услуга не найдена или недоступна.";
 
 // Find service by ID across all categories
 function findServiceById(data: ServicesData, id: string): Service | null {
@@ -62,28 +68,36 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const servicesData = await safeFetchServicesData("generateMetadata");
   if (!servicesData) {
-    return {
+    return buildPageMetadata({
+      path: `/companies/${slug}`,
       title: "Услуга не найдена — НЦФГ",
-    };
+      description: SERVICE_NOT_FOUND_DESCRIPTION,
+      robots: {
+        index: false,
+        follow: false,
+      },
+    });
   }
 
   const service = findServiceById(servicesData, slug);
 
   if (!service) {
-    return {
+    return buildPageMetadata({
+      path: `/companies/${slug}`,
       title: "Услуга не найдена — НЦФГ",
-    };
+      description: SERVICE_NOT_FOUND_DESCRIPTION,
+      robots: {
+        index: false,
+        follow: false,
+      },
+    });
   }
 
-  return {
+  return buildPageMetadata({
+    path: `/companies/${slug}`,
     title: `${service.title} — НЦФГ`,
-    description: service.shortDescription,
-    openGraph: {
-      title: `${service.title} — НЦФГ`,
-      description: service.shortDescription,
-      type: "website",
-    },
-  };
+    description: service.shortDescription || "Программа финансовой грамотности для бизнеса от НЦФГ.",
+  });
 }
 
 const faqItems = [
@@ -131,7 +145,7 @@ export default async function ServicePage({ params }: PageProps) {
   }
 
   // Transform howWeWork string[] to Step[] for HowWeWork widget
-  const howWeWorkSteps = service.howWeWork?.map((step, index) => ({
+  const howWeWorkSteps = (service.howWeWork ?? []).map((step, index) => ({
     id: index + 1,
     title: step,
   }));
@@ -144,16 +158,42 @@ export default async function ServicePage({ params }: PageProps) {
           shortDescription={service.shortDescription}
           ctaLabel={service.cta?.label}
         />
+        <ServiceMarkdownSection
+          id="description"
+          title={service.fullDescriptionTitle || "Описание услуги"}
+          markdown={service.fullDescription}
+          variant="default"
+        />
         <ServiceDescription
-          fullDescription={service.fullDescription}
+          benefitsTitle={service.benefitsTitle}
           benefits={service.benefits}
         />
-        {howWeWorkSteps && howWeWorkSteps.length > 0 && (
-          <HowWeWork title="Как мы работаем" steps={howWeWorkSteps} />
+        <ServiceHtmlSection
+          id="html-section-before"
+          html={service.htmlSectionBefore}
+        />
+        <ServiceMarkdownSection
+          id="useful-information"
+          title="Полезная информация"
+          markdown={service.usefulInformation}
+          variant="info-card"
+        />
+        {howWeWorkSteps.length > 0 && (
+          <HowWeWork
+            title={service.howWeWorkTitle || "Как мы работаем"}
+            steps={howWeWorkSteps}
+          />
         )}
-        {service.examples && service.examples.length > 0 && (
-          <ServiceExamples examples={service.examples} />
-        )}
+        <Webinars
+          id="webinars"
+          title={service.webinarsTitle || "Вебинары"}
+          webinars={service.webinars ?? []}
+        />
+        <ServiceHtmlSection
+          id="html-section-after"
+          html={service.htmlSectionAfter}
+        />
+        <ServiceExamples examples={service.examples ?? []} />
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />
       </main>

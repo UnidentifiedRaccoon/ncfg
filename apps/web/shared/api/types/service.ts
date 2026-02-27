@@ -12,13 +12,26 @@ export interface ServiceExample {
   notes?: string;
 }
 
+export interface ServiceWebinar {
+  title: string;
+  items: string[];
+}
+
 export interface Service {
   id: string;
   order: number;
   title: string;
   shortDescription: string;
-  fullDescription: string;
+  fullDescriptionTitle?: string;
+  fullDescription?: string;
+  benefitsTitle?: string;
   benefits?: string[];
+  htmlSectionBefore?: string;
+  usefulInformation?: string;
+  htmlSectionAfter?: string;
+  howWeWorkTitle?: string;
+  webinarsTitle?: string;
+  webinars?: ServiceWebinar[];
   examples?: ServiceExample[];
   howWeWork?: string[];
   cta: ServiceCTA;

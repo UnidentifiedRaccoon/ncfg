@@ -29,18 +29,48 @@
     "shortDescription": {
       "type": "text"
     },
+    "fullDescriptionTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
     "fullDescription": {
       "type": "richtext"
+    },
+    "benefitsTitle": {
+      "type": "string",
+      "maxLength": 255
     },
     "benefits": {
       "type": "component",
       "repeatable": true,
       "component": "shared.text-item"
     },
+    "htmlSectionBefore": {
+      "type": "richtext"
+    },
+    "usefulInformation": {
+      "type": "richtext"
+    },
+    "howWeWorkTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
     "howWeWork": {
       "type": "component",
       "repeatable": true,
       "component": "shared.text-item"
+    },
+    "webinarsTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "webinars": {
+      "type": "component",
+      "repeatable": true,
+      "component": "service.webinar"
+    },
+    "htmlSectionAfter": {
+      "type": "richtext"
     },
     "examples": {
       "type": "component",

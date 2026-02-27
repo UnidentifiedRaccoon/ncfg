@@ -126,6 +126,32 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+[data-scroll-reveal] {
+  will-change: opacity, transform;
+}
+
+[data-scroll-reveal][data-scroll-reveal-state="hidden"] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+}
+
+[data-scroll-reveal][data-scroll-reveal-state="visible"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-scroll-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto;
+  }
+}
+
 /* Focus styles - never remove outline */
 :focus-visible {
   outline: 2px solid var(--color-secondary);

@@ -75,7 +75,7 @@ function HeroActionsAndTrust({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-xs text-white/55">
-        <ShieldCheck className="h-4 w-4 text-white/50" aria-hidden="true" />
+        <ShieldCheck className="h-4 w-4 text-[#3B82F6]" aria-hidden="true" />
         <span className="font-medium text-white/70">Нам доверяют:</span>
         {trustChips.slice(0, 8).map((chip) => (
           <span

@@ -33,6 +33,23 @@ export interface ServiceServiceExample extends Struct.ComponentSchema {
   };
 }
 
+export interface ServiceWebinar extends Struct.ComponentSchema {
+  collectionName: 'components_service_webinars';
+  info: {
+    description: 'Webinar block with title and list of items';
+    displayName: 'Webinar';
+    icon: 'presentation-chart';
+  };
+  attributes: {
+    items: Schema.Attribute.Component<'shared.text-item', true>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+  };
+}
+
 export interface SharedCallToAction extends Struct.ComponentSchema {
   collectionName: 'components_shared_call_to_actions';
   info: {
@@ -67,6 +84,7 @@ declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
       'service.service-example': ServiceServiceExample;
+      'service.webinar': ServiceWebinar;
       'shared.call-to-action': SharedCallToAction;
       'shared.text-item': SharedTextItem;
     }

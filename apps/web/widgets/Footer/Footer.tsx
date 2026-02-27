@@ -150,6 +150,10 @@ export function Footer({ data }: FooterProps) {
 
   const phoneSanitized = data.contacts.phone.replace(/\s/g, "");
   const ctaHref = "/#lead-form";
+  const addressQuery = `${data.organization.fullName} ${data.contacts.legalAddress}`.trim();
+  const yandexMapsAddressHref = addressQuery
+    ? `https://yandex.ru/maps/?text=${encodeURIComponent(addressQuery)}`
+    : null;
 
   const copyrightTitle = data.copyright.years
     ? `© ${data.copyright.years} ${data.organization.shortName}.`
@@ -291,15 +295,31 @@ export function Footer({ data }: FooterProps) {
                     <Mail size={14} className={iconAccentClassName} />
                     {data.contacts.email}
                   </a>
-                  <div
-                    className="flex items-start gap-2 text-white/70"
-                  >
-                    <MapPin
-                      size={14}
-                      className={cn(iconAccentClassName, "shrink-0 mt-0.5")}
-                    />
-                    <span>{data.contacts.legalAddress}</span>
-                  </div>
+                  {yandexMapsAddressHref ? (
+                    <a
+                      href={yandexMapsAddressHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        "flex items-start gap-2 transition-colors",
+                        "text-white/70 hover:text-white hover:underline underline-offset-4 decoration-white/30"
+                      )}
+                    >
+                      <MapPin
+                        size={14}
+                        className={cn(iconAccentClassName, "shrink-0 mt-0.5")}
+                      />
+                      <span>{data.contacts.legalAddress}</span>
+                    </a>
+                  ) : (
+                    <div className="flex items-start gap-2 text-white/70">
+                      <MapPin
+                        size={14}
+                        className={cn(iconAccentClassName, "shrink-0 mt-0.5")}
+                      />
+                      <span>{data.contacts.legalAddress}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

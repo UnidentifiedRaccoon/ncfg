@@ -11,7 +11,7 @@ export function TeamContainer({ title, members }: TeamProps) {
   const { featured, rest } = splitTeamMembers(members);
 
   return (
-    <section id="team" className="py-12 md:py-16">
+    <section id="team" data-scroll-reveal="" className="py-12 md:py-16">
       {/* Section header - same style as other sections */}
       <Container>
         <div className="mb-10 md:mb-12 text-center max-w-3xl mx-auto">
@@ -29,4 +29,3 @@ export function TeamContainer({ title, members }: TeamProps) {
     </section>
   );
 }
-

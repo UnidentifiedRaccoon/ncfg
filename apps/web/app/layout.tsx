@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
+import { getMetadataBase } from "@/shared/lib/metadata";
+import { ScrollRevealObserver } from "@/shared/ui/ScrollRevealObserver";
 import { SmoothAnchor } from "@/shared/ui/SmoothAnchor";
 import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
 import { Header } from "@/widgets";
@@ -14,19 +16,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "НЦФГ — Национальный центр финансовой грамотности",
-  description:
-    "Более 20 лет реализуем проекты по финансовой грамотности. 30 миллионов участников, 84 региона, программы для компаний и частных лиц.",
+  metadataBase: getMetadataBase(),
   icons: {
     icon: "/icon.svg",
     apple: "/icon.svg",
-  },
-  openGraph: {
-    title: "НЦФГ — Национальный центр финансовой грамотности",
-    description:
-      "Более 20 лет реализуем проекты по финансовой грамотности. 30 миллионов участников, 84 региона.",
-    locale: "ru_RU",
-    type: "website",
   },
 };
 
@@ -74,6 +67,7 @@ ym(${ymCounterId}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"d
           </>
         ) : null}
         <SmoothAnchor />
+        <ScrollRevealObserver />
         <Header />
         {children}
       </body>

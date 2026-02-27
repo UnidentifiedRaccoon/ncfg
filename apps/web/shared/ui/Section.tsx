@@ -10,6 +10,7 @@ interface SectionProps {
   lead?: ReactNode;
   id?: string;
   background?: "white" | "gray";
+  reveal?: boolean;
   /** Add top divider line (use when adjacent section has same background) */
   dividerTop?: boolean;
 }
@@ -22,11 +23,13 @@ export function Section({
   lead,
   id,
   background = "white",
+  reveal = true,
   dividerTop = false,
 }: SectionProps) {
   return (
     <section
       id={id}
+      data-scroll-reveal={reveal ? "" : undefined}
       className={cn(
         "py-12 md:py-16",
         background === "gray" && "bg-[#F8FAFC]",
