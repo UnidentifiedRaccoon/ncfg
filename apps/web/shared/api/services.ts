@@ -16,24 +16,45 @@ import type {
 // Service Categories
 // ==================
 
+const SERVICES_POPULATE_WITH_WEBINARS = ['benefits', 'howWeWork', 'webinars', 'examples', 'cta'] as const;
+const SERVICES_POPULATE_LEGACY = ['benefits', 'howWeWork', 'examples', 'cta'] as const;
+
+function isInvalidPopulateKeyError(error: unknown, key: string): boolean {
+  return error instanceof Error && error.message.includes(`Invalid key ${key}`);
+}
+
 async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
-  const query = buildQueryString({
-    populate: {
-      services: {
-        populate: ['benefits', 'howWeWork', 'webinars', 'examples', 'cta'],
-        sort: ['order:asc'],
+  const buildCategoriesQuery = (servicesPopulate: readonly string[]) =>
+    buildQueryString({
+      populate: {
+        services: {
+          populate: [...servicesPopulate],
+          sort: ['order:asc'],
+        },
       },
-    },
-    sort: 'order:asc',
-    publicationState: 'live',
-  });
+      sort: 'order:asc',
+      publicationState: 'live',
+    });
 
-  const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
-    `/service-categories${query}`,
-    { tags: ['services'] }
-  );
+  try {
+    const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
+      `/service-categories${buildCategoriesQuery(SERVICES_POPULATE_WITH_WEBINARS)}`,
+      { tags: ['services'] }
+    );
 
-  return response.data;
+    return response.data;
+  } catch (error: unknown) {
+    if (!isInvalidPopulateKeyError(error, 'webinars')) {
+      throw error;
+    }
+
+    const fallbackResponse = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
+      `/service-categories${buildCategoriesQuery(SERVICES_POPULATE_LEGACY)}`,
+      { tags: ['services'] }
+    );
+
+    return fallbackResponse.data;
+  }
 }
 
 // ==================
