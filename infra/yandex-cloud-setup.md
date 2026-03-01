@@ -207,6 +207,20 @@ Detailed checklist: `infra/getcourse-orders-intake.md`
    - `aedengina@ncfg.ru`
    - `yura.posledov@yandex.ru`
 
+### 2.3 Repository variables for no-coldstart profile
+
+Add these **Repository Variables** (not Secrets) in GitHub repository settings:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WEB_PROVISIONED` | `1` | Minimum warm instances for production `ncfg-web` |
+| `CMS_PROVISIONED` | `1` | Minimum warm instances for production `ncfg-cms` |
+
+Deploy workflow resolution order:
+1. `workflow_dispatch` input (`web_provisioned` / `cms_provisioned`)
+2. Repository variable (`WEB_PROVISIONED` / `CMS_PROVISIONED`)
+3. Fallback default `1`
+
 ## 3. Get Container URLs
 
 After first deployment:
@@ -250,6 +264,45 @@ curl https://<cms-url>/_health
 # Check Strapi API
 curl https://<cms-url>/api/articles
 ```
+
+### 5.1 No-coldstart profile verification (production)
+
+Target profile:
+- `ncfg-web`: `provisioned=1`
+- `ncfg-cms`: `provisioned=1`
+
+Manual deploy values (`workflow_dispatch`):
+- `deploy_web=true`
+- `deploy_cms=true`
+- `web_provisioned=1`
+- `cms_provisioned=1`
+
+Check active revision provision policy:
+
+```bash
+yc serverless container revision list --container-name ncfg-web --format json \
+  | jq '[.[] | select(.status == "ACTIVE")][0] | {id, provision_policy}'
+
+yc serverless container revision list --container-name ncfg-cms --format json \
+  | jq '[.[] | select(.status == "ACTIVE")][0] | {id, provision_policy}'
+```
+
+Expected result:
+- `provision_policy` is not empty
+- policy value for min/provisioned instances is `1`
+
+Daily regression guard:
+- workflow `.github/workflows/coldstart-smoke.yml` runs once per day
+- it fails if first-hit latency after `idle=300` is above:
+  - web: `2.5s`
+  - cms: `4.0s`
+- if the smoke workflow fails 3 runs in a row, treat it as infrastructure incident
+
+Rollback to scale-to-zero:
+
+1. Set `WEB_PROVISIONED=0` and/or `CMS_PROVISIONED=0` in Repository Variables.
+2. Trigger production deploy for the affected service.
+3. Re-check active revision policy and verify it is empty/zero again.
 
 ## Troubleshooting
 

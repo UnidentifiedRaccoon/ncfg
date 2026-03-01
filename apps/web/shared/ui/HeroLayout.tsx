@@ -35,7 +35,13 @@ interface HeroLayoutProps {
 }
 
 const DEFAULT_EYEBROW = "С 2005 года. Проекты по всей России";
-const DEFAULT_TRUST_CHIPS = ["Минфин России", "Сбербанк", "Почта Банк", "Мир"];
+const DEFAULT_TRUST_CHIPS = [
+  "Лемана ПРО",
+  "Газпромнефть",
+  "Сбер",
+  "ВТБ Мои Инвестиции",
+  "Марс",
+];
 
 interface HeroActionsAndTrustProps {
   primaryAction: HeroAction;

@@ -16,19 +16,35 @@ import type {
 // Service Categories
 // ==================
 
-const SERVICES_POPULATE_WITH_WEBINARS = ['benefits', 'howWeWork', 'webinars', 'examples', 'cta'] as const;
-const SERVICES_POPULATE_LEGACY = ['benefits', 'howWeWork', 'examples', 'cta'] as const;
+const SERVICES_POPULATE_WITH_WEBINARS = {
+  benefits: true,
+  howWeWork: true,
+  webinars: {
+    populate: {
+      items: true,
+    },
+  },
+  examples: true,
+  cta: true,
+} as const;
+
+const SERVICES_POPULATE_LEGACY = {
+  benefits: true,
+  howWeWork: true,
+  examples: true,
+  cta: true,
+} as const;
 
 function isInvalidPopulateKeyError(error: unknown, key: string): boolean {
   return error instanceof Error && error.message.includes(`Invalid key ${key}`);
 }
 
 async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
-  const buildCategoriesQuery = (servicesPopulate: readonly string[]) =>
+  const buildCategoriesQuery = (servicesPopulate: Record<string, unknown>) =>
     buildQueryString({
       populate: {
         services: {
-          populate: [...servicesPopulate],
+          populate: servicesPopulate,
           sort: ['order:asc'],
         },
       },
@@ -102,7 +118,7 @@ function transformToLegacyService(service: StrapiService): Service {
     service.examples.map(ex => ({
       id: ex.exampleId || ex.id,
       title: ex.title,
-      type: ex.type === 'custom' ? undefined : ex.type || undefined,
+      type: ex.type || undefined,
       link: ex.link || undefined,
       description: ex.description || undefined,
       notes: ex.notes || undefined,

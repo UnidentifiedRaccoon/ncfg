@@ -28,7 +28,7 @@ export interface ServiceServiceExample extends Struct.ComponentSchema {
         maxLength: 255;
       }>;
     type: Schema.Attribute.Enumeration<
-      ['link', 'fact', 'presentation', 'custom']
+      ['link', 'fact', 'presentation', 'material']
     >;
   };
 }

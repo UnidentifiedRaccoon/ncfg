@@ -51,7 +51,6 @@ function BrandedCover({ slug, categoryTitle }: { slug: string; categoryTitle?: s
       className={cn(
         "relative flex h-full w-full items-end overflow-hidden",
         variant,
-        "transition-transform duration-300 group-hover:scale-[1.02]",
         "before:absolute before:inset-0 before:content-[''] before:opacity-80 before:[background-image:radial-gradient(circle_at_18%_28%,rgba(255,255,255,0.20),transparent_55%),radial-gradient(circle_at_85%_75%,rgba(88,168,224,0.35),transparent_60%)]",
         "after:absolute after:inset-0 after:content-[''] after:opacity-20 after:[background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.14)_0,rgba(255,255,255,0.14)_1px,transparent_1px,transparent_12px)]"
       )}
@@ -93,7 +92,7 @@ function Cover({
             alt={post.title}
             fill
             sizes={sizes}
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className="object-cover"
           />
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#58A8E0]/12 via-transparent to-[#3B82F6]/10"
@@ -137,7 +136,8 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
           href={`/blog/${featured.slug}`}
           className={cn(
             "group relative overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white shadow-sm",
-            "transition-all duration-200 hover:shadow-lg hover:border-[#3B82F6]/25",
+            "transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:shadow-lg hover:border-[#3B82F6]/25",
+            "transform-gpu will-change-transform md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none",
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
             "lg:col-span-7"
           )}
@@ -208,7 +208,8 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
                 className={cn(
                   "group relative flex items-stretch gap-4 overflow-hidden rounded-xl border",
                   "border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm shadow-sm",
-                  "transition-all duration-200 hover:shadow-md hover:border-[#3B82F6]/25",
+                  "transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:shadow-md hover:border-[#3B82F6]/25",
+                  "transform-gpu will-change-transform md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
                 )}
                 aria-label={post.title}

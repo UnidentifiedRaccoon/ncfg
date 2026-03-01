@@ -1,34 +1,24 @@
 import type { Metadata } from "next";
-import { fetchRecommendations, fetchSiteSettings } from "@/shared/api/data-provider";
+import { Footer, PortfolioShowcase } from "@/widgets";
+import { fetchPortfolioPageData, fetchSiteSettings } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
 import { Container } from "@/shared/ui/Container";
-import { Footer, RecommendationsShowcase } from "@/widgets";
 
 export const metadata: Metadata = buildPageMetadata({
-  path: "/rekomendacii",
-  title: "Рекомендации | НЦФГ",
+  path: "/portfolio",
+  title: "Портфолио — Исторические проекты НЦФГ | НЦФГ",
   description:
-    "Рекомендации партнеров и клиентов НЦФГ на отдельной странице в формате Capital Grid.",
+    "Исторические проекты НЦФГ федерального и регионального уровня по повышению финансовой грамотности населения России.",
+  openGraphTitle: "Портфолио НЦФГ",
   openGraphDescription:
-    "Отдельная страница «Рекомендации» в стиле Capital Grid и визуальной системе НЦФГ.",
+    "Ключевые проекты НЦФГ: недели финансовой грамотности, программы для работодателей, библиотек и взрослого населения.",
 });
 
-export const revalidate = 60;
-
-export default async function RecommendationsPage() {
-  const [recommendations, siteSetting] = await Promise.all([
-    fetchRecommendations(),
+export default async function PortfolioPage() {
+  const [siteSetting, portfolioPage] = await Promise.all([
     fetchSiteSettings(),
+    fetchPortfolioPageData(),
   ]);
-
-  const recommendationItems =
-    recommendations
-      .filter((item) => item.quote.trim().length > 0)
-      .map((item) => ({
-        id: item.id,
-        company: item.company,
-        quote: item.fullQuote ?? item.quote,
-      }));
 
   return (
     <>
@@ -38,21 +28,36 @@ export default async function RecommendationsPage() {
             <div className="flex min-h-[280px] flex-col gap-8 px-6 py-6 md:min-h-[360px] md:px-10 md:py-8">
               <div className="mx-auto my-auto w-full max-w-5xl text-center">
                 <h1 className="text-4xl font-bold tracking-tight text-[#1E3A5F] sm:text-5xl md:text-6xl lg:text-[72px] lg:leading-[1.0]">
-                  Рекомендации
+                  {portfolioPage.title}
                 </h1>
-                <p className="mx-auto mt-5 max-w-4xl text-base leading-relaxed text-[#3F5C86] sm:text-lg md:text-2xl lg:text-[38px] lg:leading-[1.2]">
-                  Что говорят о нас наши партнёры и клиенты
-                </p>
+                {portfolioPage.lead && (
+                  <p className="mx-auto mt-5 max-w-4xl text-base leading-relaxed text-[#3F5C86] sm:text-lg md:text-xl lg:text-2xl lg:leading-[1.3]">
+                    {portfolioPage.lead}
+                  </p>
+                )}
               </div>
             </div>
           </Container>
         </section>
 
-        <section data-scroll-reveal="" className="pt-6 md:pt-8">
-          <Container>
-            <RecommendationsShowcase items={recommendationItems} />
-          </Container>
-        </section>
+        <PortfolioShowcase
+          title={undefined}
+          lead={undefined}
+          projects={portfolioPage.projects.map((project) => ({
+            id: project.id,
+            title: project.title,
+            description: project.description,
+            period: project.period,
+          }))}
+          presentation={
+            portfolioPage.presentationHref && portfolioPage.presentationLabel
+              ? {
+                  label: portfolioPage.presentationLabel,
+                  href: portfolioPage.presentationHref,
+                }
+              : undefined
+          }
+        />
       </main>
       <Footer
         data={{

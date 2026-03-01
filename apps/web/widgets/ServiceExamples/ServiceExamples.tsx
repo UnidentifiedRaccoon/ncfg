@@ -20,6 +20,8 @@ function getTypeIcon(type?: string) {
       return <Presentation className="w-4 h-4" />;
     case "fact":
       return <Lightbulb className="w-4 h-4" />;
+    case "material":
+      return <FileText className="w-4 h-4" />;
     default:
       return <FileText className="w-4 h-4" />;
   }
@@ -33,23 +35,29 @@ function getTypeLabel(type?: string) {
       return "Презентация";
     case "fact":
       return "Факт";
+    case "material":
+      return "Материал";
     default:
       return "Материал";
   }
 }
 
 function ExampleCard({ example }: ExampleCardProps) {
+  const hasType = Boolean(example.type);
+
   const CardContent = (
     <>
-      <div className="flex items-center gap-2 mb-3">
-        <span
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full 
-                     bg-[#3B82F6]/10 text-[#3B82F6] text-xs font-medium"
-        >
-          {getTypeIcon(example.type)}
-          {getTypeLabel(example.type)}
-        </span>
-      </div>
+      {hasType && (
+        <div className="flex items-center gap-2 mb-3">
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full 
+                       bg-[#3B82F6]/10 text-[#3B82F6] text-xs font-medium"
+          >
+            {getTypeIcon(example.type)}
+            {getTypeLabel(example.type)}
+          </span>
+        </div>
+      )}
       <h3 className="text-lg font-semibold text-[#1E3A5F] mb-2 group-hover:text-[#3B82F6] transition-colors">
         {example.title}
       </h3>

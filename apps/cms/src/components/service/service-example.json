@@ -18,7 +18,7 @@
     },
     "type": {
       "type": "enumeration",
-      "enum": ["link", "fact", "presentation", "custom"]
+      "enum": ["link", "fact", "presentation", "material"]
     },
     "link": {
       "type": "string",

@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/cn";
+import { Section } from "@/shared/ui";
 
 export type WebinarsVariant = "executive-rail";
 
@@ -16,15 +17,13 @@ export interface WebinarsProps {
 }
 
 interface VariantStyle {
-  shell: string;
-  shellGlow: string;
-  badge: string;
-  title: string;
   tableWrap: string;
   row: string;
   rowDivider: string;
   topicCell: string;
-  topicText: string;
+  topicHeader: string;
+  topicNumber: string;
+  topicTitle: string;
   detailsCell: string;
   detailsList: string;
   detailsItem: string;
@@ -33,14 +32,6 @@ interface VariantStyle {
 
 const variantStyles: Record<WebinarsVariant, VariantStyle> = {
   "executive-rail": {
-    shell: [
-      "border-[#D6E2F1] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)]",
-      "shadow-[0_18px_40px_rgba(15,23,42,0.07)]",
-    ].join(" "),
-    shellGlow:
-      "bg-[radial-gradient(circle_at_14%_0%,rgba(124,194,255,0.18),transparent_56%),radial-gradient(circle_at_92%_12%,rgba(59,130,246,0.12),transparent_52%)]",
-    badge: "border-[#C7DDFB] bg-[#EAF2FF] text-[#1D4ED8]",
-    title: "text-[#173E66]",
     tableWrap: [
       "overflow-hidden rounded-2xl border border-[#CBD8EA] bg-white",
       "shadow-[0_10px_30px_rgba(15,23,42,0.06)]",
@@ -52,18 +43,17 @@ const variantStyles: Record<WebinarsVariant, VariantStyle> = {
     rowDivider: "border-t border-[#CBD8EA]",
     topicCell:
       "border-b border-[#CBD8EA] p-5 md:border-b-0 md:border-r md:border-[#CBD8EA] md:p-6",
-    topicText:
-      "text-[30px] leading-[1.18] tracking-tight text-[#27374A] md:text-[38px] lg:text-[42px]",
+    topicHeader: "flex items-start gap-3.5 md:gap-4",
+    topicNumber:
+      "inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full bg-[#3B82F6]/10 px-2 text-sm font-mono font-semibold tracking-wide text-[#1E3A5F] md:h-9 md:min-w-9 md:text-[15px]",
+    topicTitle:
+      "text-[22px] leading-[1.24] tracking-tight text-[#27374A] md:text-[26px] lg:text-[30px]",
     detailsCell: "p-5 md:p-6",
     detailsList: "space-y-2.5",
     detailsItem: "flex items-start gap-3 text-[15px] leading-relaxed text-[#516273] md:text-[16px]",
     detailsBullet:
       "mt-[10px] inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-[#7A8FA8]",
   },
-};
-
-const variantLabels: Record<WebinarsVariant, string> = {
-  "executive-rail": "Executive Rail",
 };
 
 function normalizeWebinars(webinars: WebinarGroup[]): WebinarGroup[] {
@@ -77,6 +67,10 @@ function normalizeWebinars(webinars: WebinarGroup[]): WebinarGroup[] {
       return { title, items };
     })
     .filter((webinar) => webinar.title.length > 0 || webinar.items.length > 0);
+}
+
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
 }
 
 export function Webinars({
@@ -95,39 +89,20 @@ export function Webinars({
   const styles = variantStyles[variant];
 
   return (
-    <article
+    <Section
       id={id}
+      title={title}
       className={cn(
-        "relative isolate overflow-hidden rounded-[28px] border p-5 md:p-7 lg:p-8",
-        styles.shell,
+        "bg-[radial-gradient(circle_at_24%_42%,rgba(88,168,224,0.10),transparent_52%),radial-gradient(circle_at_76%_58%,rgba(59,130,246,0.07),transparent_50%),linear-gradient(180deg,#FFFFFF_0%,#FFFFFF_14%,#F8FBFF_30%,#F4F9FF_70%,#FFFFFF_86%,#FFFFFF_100%)]",
         className
       )}
     >
-      <div aria-hidden className={cn("pointer-events-none absolute inset-0", styles.shellGlow)} />
+      {normalizedWebinars.length > 0 && (
+        <div className={styles.tableWrap}>
+          {normalizedWebinars.map((webinar, webinarIndex) => {
+            const lessonCode = pad2(webinarIndex + 1);
 
-      <div className="relative z-10">
-        <div className="flex flex-wrap items-center gap-3">
-          <span
-            className={cn(
-              "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold tracking-wide",
-              styles.badge
-            )}
-          >
-            {variantLabels[variant]}
-          </span>
-          <h3
-            className={cn(
-              "text-xl font-semibold tracking-tight md:text-[26px]",
-              styles.title
-            )}
-          >
-            {title}
-          </h3>
-        </div>
-
-        {normalizedWebinars.length > 0 && (
-          <div className={cn("mt-6 md:mt-7", styles.tableWrap)}>
-            {normalizedWebinars.map((webinar, webinarIndex) => (
+            return (
               <section
                 key={`${webinar.title}-${webinarIndex}`}
                 className={cn(
@@ -136,9 +111,17 @@ export function Webinars({
                 )}
               >
                 <div className={styles.topicCell}>
-                  <h4 className={cn("font-semibold", styles.topicText)}>
-                    {webinar.title}
-                  </h4>
+                  <div className={styles.topicHeader}>
+                    <span aria-hidden className={styles.topicNumber}>
+                      {lessonCode}
+                    </span>
+                    <h3 className={cn("font-semibold", styles.topicTitle)}>
+                      <span className="sr-only">
+                        Урок {webinarIndex + 1}:{" "}
+                      </span>
+                      {webinar.title}
+                    </h3>
+                  </div>
                 </div>
 
                 <div className={styles.detailsCell}>
@@ -155,10 +138,10 @@ export function Webinars({
                   </ul>
                 </div>
               </section>
-            ))}
-          </div>
-        )}
-      </div>
-    </article>
+            );
+          })}
+        </div>
+      )}
+    </Section>
   );
 }

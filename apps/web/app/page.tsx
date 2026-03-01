@@ -151,7 +151,6 @@ export default async function Home() {
           contacts: {
             phone: siteSetting.contactsPhone,
             email: siteSetting.contactsEmail,
-            legalAddress: siteSetting.contactsLegalAddress ?? "",
           },
           social: siteSetting.socialLinks.map((l) => ({ label: l.label, href: l.href })),
           legalLinks: siteSetting.legalLinks.map((l) => ({ label: l.label, href: l.href })),

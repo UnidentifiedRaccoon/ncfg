@@ -25,7 +25,13 @@ interface FormData {
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
-const TRUST_CHIPS = ["Минфин России", "Сбербанк", "Почта Банк", "Мир"] as const;
+const TRUST_CHIPS = [
+  "Лемана ПРО",
+  "Газпромнефть",
+  "Сбер",
+  "ВТБ Мои Инвестиции",
+  "Марс",
+] as const;
 
 const fieldLabelClass = "block text-sm font-medium text-[#1E3A5F]";
 

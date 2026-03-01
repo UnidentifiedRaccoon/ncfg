@@ -16,6 +16,14 @@ on:
         description: 'Deploy CMS (Strapi)'
         type: boolean
         default: true
+      web_provisioned:
+        description: 'Min warm instances for web (input -> vars.WEB_PROVISIONED -> 1)'
+        type: number
+        default: 1
+      cms_provisioned:
+        description: 'Min warm instances for cms (input -> vars.CMS_PROVISIONED -> 1)'
+        type: number
+        default: 1
 
 env:
   YC_REGISTRY: cr.yandex/${{ secrets.YC_REGISTRY_ID }}
@@ -205,7 +213,30 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-web
     environment: production
+    env:
+      WEB_PROVISIONED_INPUT: ${{ github.event.inputs.web_provisioned || '' }}
+      WEB_PROVISIONED_VAR: ${{ vars.WEB_PROVISIONED || '' }}
     steps:
+      - name: Resolve web provisioned capacity
+        run: |
+          set -euo pipefail
+
+          value="$WEB_PROVISIONED_INPUT"
+          if [ -z "$value" ]; then
+            value="$WEB_PROVISIONED_VAR"
+          fi
+          if [ -z "$value" ]; then
+            value="1"
+          fi
+
+          if ! [[ "$value" =~ ^[0-9]+$ ]]; then
+            echo "::error::Invalid web provisioned value: $value"
+            exit 1
+          fi
+
+          echo "WEB_PROVISIONED_EFFECTIVE=$value" >> "$GITHUB_ENV"
+          echo "Using WEB_PROVISIONED_EFFECTIVE=$value"
+
       - name: Deploy to Yandex Serverless Container
         uses: yc-actions/yc-sls-container-deploy@v2
         with:
@@ -219,7 +250,7 @@ jobs:
           revision-core-fraction: 100
           revision-concurrency: 8
           revision-execution-timeout: 30s
-          revision-provisioned: 0
+          revision-provisioned: ${{ env.WEB_PROVISIONED_EFFECTIVE }}
           revision-env: |
             NODE_ENV=production
             STRAPI_URL=${{ secrets.STRAPI_URL }}
@@ -253,7 +284,30 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-cms
     environment: production
+    env:
+      CMS_PROVISIONED_INPUT: ${{ github.event.inputs.cms_provisioned || '' }}
+      CMS_PROVISIONED_VAR: ${{ vars.CMS_PROVISIONED || '' }}
     steps:
+      - name: Resolve cms provisioned capacity
+        run: |
+          set -euo pipefail
+
+          value="$CMS_PROVISIONED_INPUT"
+          if [ -z "$value" ]; then
+            value="$CMS_PROVISIONED_VAR"
+          fi
+          if [ -z "$value" ]; then
+            value="1"
+          fi
+
+          if ! [[ "$value" =~ ^[0-9]+$ ]]; then
+            echo "::error::Invalid cms provisioned value: $value"
+            exit 1
+          fi
+
+          echo "CMS_PROVISIONED_EFFECTIVE=$value" >> "$GITHUB_ENV"
+          echo "Using CMS_PROVISIONED_EFFECTIVE=$value"
+
       - name: Deploy to Yandex Serverless Container
         uses: yc-actions/yc-sls-container-deploy@v2
         with:
@@ -267,7 +321,7 @@ jobs:
           revision-core-fraction: 100
           revision-concurrency: 4
           revision-execution-timeout: 120s
-          revision-provisioned: 0
+          revision-provisioned: ${{ env.CMS_PROVISIONED_EFFECTIVE }}
           revision-secrets: |
             DATABASE_HOST=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_HOST
             DATABASE_PORT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_PORT
@@ -292,6 +346,106 @@ jobs:
             HOST=0.0.0.0
             PUBLIC_URL=https://admin.ncfg.ru
             ADMIN_URL=/admin
+
+  verify-provisioned:
+    name: Verify provisioned capacity
+    runs-on: ubuntu-latest
+    needs: [deploy-web, deploy-cms]
+    if: always() && (needs.deploy-web.result == 'success' || needs.deploy-cms.result == 'success')
+    environment: production
+    env:
+      WEB_PROVISIONED_INPUT: ${{ github.event.inputs.web_provisioned || '' }}
+      CMS_PROVISIONED_INPUT: ${{ github.event.inputs.cms_provisioned || '' }}
+      WEB_PROVISIONED_VAR: ${{ vars.WEB_PROVISIONED || '' }}
+      CMS_PROVISIONED_VAR: ${{ vars.CMS_PROVISIONED || '' }}
+    steps:
+      - name: Install yc CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
+
+      - name: Configure yc CLI
+        env:
+          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+        run: |
+          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
+          yc config set service-account-key /tmp/sa.json
+          yc config set folder-id "$YC_FOLDER_ID"
+
+      - name: Verify active revisions provisioned policy
+        run: |
+          set -euo pipefail
+
+          resolve_expected() {
+            local input_value="$1"
+            local var_value="$2"
+            local value="$input_value"
+
+            if [ -z "$value" ]; then
+              value="$var_value"
+            fi
+            if [ -z "$value" ]; then
+              value="1"
+            fi
+
+            if ! [[ "$value" =~ ^[0-9]+$ ]]; then
+              echo "::error::Expected provisioned value must be a non-negative integer, got: $value"
+              exit 1
+            fi
+
+            printf '%s' "$value"
+          }
+
+          verify_container() {
+            local container_name="$1"
+            local expected="$2"
+            local active_revision
+            local provision_policy
+            local actual
+            local revision_id
+
+            active_revision="$(yc serverless container revision list --container-name "$container_name" --format json | jq -c '[.[] | select(.status == "ACTIVE")][0]')"
+            if [ -z "$active_revision" ] || [ "$active_revision" = "null" ]; then
+              echo "::error::No ACTIVE revision found for $container_name"
+              exit 1
+            fi
+
+            provision_policy="$(printf '%s' "$active_revision" | jq -c '.provision_policy // {}')"
+            if [ "$provision_policy" = "{}" ]; then
+              echo "::error::$container_name ACTIVE revision has empty provision policy"
+              exit 1
+            fi
+
+            actual="$(printf '%s' "$provision_policy" | jq -r '[.. | scalars | tostring | select(test("^[0-9]+$"))][0] // empty')"
+            if [ -z "$actual" ]; then
+              echo "::error::Cannot parse provisioned value for $container_name from policy: $provision_policy"
+              exit 1
+            fi
+
+            if [ "$actual" != "$expected" ]; then
+              echo "::error::$container_name provisioned mismatch: expected $expected, got $actual"
+              exit 1
+            fi
+
+            revision_id="$(printf '%s' "$active_revision" | jq -r '.id')"
+            echo "Verified $container_name (revision: $revision_id, provisioned: $actual)"
+          }
+
+          web_expected="$(resolve_expected "$WEB_PROVISIONED_INPUT" "$WEB_PROVISIONED_VAR")"
+          cms_expected="$(resolve_expected "$CMS_PROVISIONED_INPUT" "$CMS_PROVISIONED_VAR")"
+
+          if [ "${{ needs.deploy-web.result }}" = "success" ]; then
+            verify_container "ncfg-web" "$web_expected"
+          else
+            echo "Skipping ncfg-web verification: deploy-web result is ${{ needs.deploy-web.result }}"
+          fi
+
+          if [ "${{ needs.deploy-cms.result }}" = "success" ]; then
+            verify_container "ncfg-cms" "$cms_expected"
+          else
+            echo "Skipping ncfg-cms verification: deploy-cms result is ${{ needs.deploy-cms.result }}"
+          fi
 
   # Health check after deployment
   health-check:

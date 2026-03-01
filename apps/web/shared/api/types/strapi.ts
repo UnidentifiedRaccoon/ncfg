@@ -106,7 +106,7 @@ export interface StrapiServiceExample {
   id: number;
   exampleId: string | null;
   title: string;
-  type: 'link' | 'fact' | 'presentation' | 'custom' | null;
+  type: 'link' | 'fact' | 'presentation' | 'material' | null;
   link: string | null;
   description: string | null;
   notes: string | null;
@@ -240,7 +240,6 @@ export interface StrapiSiteSetting {
   organizationShortName: string;
   contactsPhone: string;
   contactsEmail: string;
-  contactsLegalAddress: string | null;
   socialLinks: StrapiLink[];
   legalLinks: StrapiLink[];
   legalDocumentsTitle: string | null;
@@ -355,6 +354,30 @@ export interface StrapiIndividualsPage {
   productsLead: string | null;
   products: StrapiIndividualsProduct[];
   faqItems: StrapiFaqItem[];
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+}
+
+// ==================
+// Portfolio Page
+// ==================
+
+export interface StrapiPortfolioProject {
+  id: number;
+  title: string;
+  description: string;
+  period: string | null;
+}
+
+export interface StrapiPortfolioPage {
+  id: number;
+  documentId: string;
+  title: string;
+  lead: string | null;
+  projects: StrapiPortfolioProject[];
+  presentationLabel: string | null;
+  presentationHref: string | null;
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;

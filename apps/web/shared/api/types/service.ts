@@ -6,7 +6,7 @@ export interface ServiceCTA {
 export interface ServiceExample {
   id: number | string;
   title: string;
-  type?: "link" | "fact" | "presentation";
+  type?: "link" | "fact" | "presentation" | "material";
   link?: string;
   description?: string;
   notes?: string;

@@ -54,7 +54,6 @@ function BrandedCover({ slug, categoryTitle }: { slug: string; categoryTitle?: s
       className={cn(
         "relative flex h-full w-full items-end overflow-hidden",
         variant,
-        "transition-transform duration-300 group-hover:scale-[1.02]",
         "before:absolute before:inset-0 before:content-[''] before:opacity-80 before:[background-image:radial-gradient(circle_at_18%_28%,rgba(255,255,255,0.20),transparent_55%),radial-gradient(circle_at_85%_75%,rgba(88,168,224,0.35),transparent_60%)]",
         "after:absolute after:inset-0 after:content-[''] after:opacity-20 after:[background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.14)_0,rgba(255,255,255,0.14)_1px,transparent_1px,transparent_12px)]"
       )}
@@ -84,7 +83,7 @@ export function PostCard({ post }: PostCardProps) {
   const hasExcerpt = Boolean(post.excerpt && post.excerpt.trim().length > 0);
 
   return (
-    <article className="group relative w-full max-w-[624px] overflow-hidden rounded-xl border border-[#E2E8F0]/80 bg-white shadow-sm transition-all duration-200 hover:border-[#3B82F6]/25 hover:shadow-md lg:max-w-[760px] after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-[#58A8E0]/70 after:via-[#3B82F6]/45 after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 group-hover:after:opacity-100">
+    <article className="group relative w-full max-w-[624px] overflow-hidden rounded-xl border border-[#E2E8F0]/80 bg-white shadow-sm transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:border-[#3B82F6]/25 hover:shadow-md transform-gpu will-change-transform md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none lg:max-w-[760px] after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-[#58A8E0]/70 after:via-[#3B82F6]/45 after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 group-hover:after:opacity-100">
       <Link href={`/blog/${post.slug}`} className="block">
         <div className="flex flex-col md:flex-row">
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F8FAFC] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/70 lg:w-[280px]">
@@ -95,7 +94,7 @@ export function PostCard({ post }: PostCardProps) {
                   alt={post.title}
                   fill
                   sizes="(min-width: 1024px) 280px, (min-width: 768px) 240px, 100vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  className="object-cover"
                 />
                 {/* Normalize covers from different sources: subtle tint + inner frame */}
                 <div

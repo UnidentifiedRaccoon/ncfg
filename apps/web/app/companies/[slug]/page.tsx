@@ -158,13 +158,9 @@ export default async function ServicePage({ params }: PageProps) {
           shortDescription={service.shortDescription}
           ctaLabel={service.cta?.label}
         />
-        <ServiceMarkdownSection
-          id="description"
-          title={service.fullDescriptionTitle || "Описание услуги"}
-          markdown={service.fullDescription}
-          variant="default"
-        />
         <ServiceDescription
+          descriptionTitle={service.fullDescriptionTitle || "Описание услуги"}
+          descriptionMarkdown={service.fullDescription}
           benefitsTitle={service.benefitsTitle}
           benefits={service.benefits}
         />
@@ -206,7 +202,6 @@ export default async function ServicePage({ params }: PageProps) {
           contacts: {
             phone: siteSetting.contactsPhone,
             email: siteSetting.contactsEmail,
-            legalAddress: siteSetting.contactsLegalAddress ?? "",
           },
           social: siteSetting.socialLinks.map((l) => ({ label: l.label, href: l.href })),
           legalLinks: siteSetting.legalLinks.map((l) => ({ label: l.label, href: l.href })),

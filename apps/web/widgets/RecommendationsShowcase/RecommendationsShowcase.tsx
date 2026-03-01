@@ -136,7 +136,7 @@ function RecommendationCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-[#E2E8F0] bg-white/85 p-5 shadow-sm",
+        "rounded-2xl border border-[#E2E8F0] bg-white/85 p-5 shadow-sm transition-transform duration-300 ease-out will-change-transform md:hover:scale-[1.02] motion-reduce:transform-none",
         className
       )}
     >
@@ -193,39 +193,25 @@ function CapitalGrid({
   onToggleExpanded: (id: number) => void;
 }) {
   return (
-    <article
-      id="capital-grid"
-      className="relative overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm md:p-8"
-    >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(840px_360px_at_0%_0%,rgba(59,130,246,0.16),transparent_58%),radial-gradient(740px_320px_at_100%_100%,rgba(88,168,224,0.13),transparent_62%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.24] bg-[linear-gradient(to_right,rgba(226,232,240,0.64)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.64)_1px,transparent_1px)] bg-[size:24px_24px]"
-      />
-
-      <div className="relative z-10">
-        <div className="space-y-4">
-          {rows.map((row) => (
-            <div
-              key={`row-${row.map((entry) => entry.item.id).join("-")}`}
-              className="grid gap-4 md:grid-cols-2"
-            >
-              {row.map((entry) => (
-                <RecommendationCard
-                  key={`v1-${entry.item.id}`}
-                  item={entry.item}
-                  isWide={entry.isWide}
-                  expanded={Boolean(expandedById[entry.item.id])}
-                  onToggleExpanded={() => onToggleExpanded(entry.item.id)}
-                  className={row.length === 1 ? "md:col-span-2" : undefined}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
+    <article id="capital-grid">
+      <div className="space-y-4">
+        {rows.map((row) => (
+          <div
+            key={`row-${row.map((entry) => entry.item.id).join("-")}`}
+            className="grid gap-4 md:grid-cols-2"
+          >
+            {row.map((entry) => (
+              <RecommendationCard
+                key={`v1-${entry.item.id}`}
+                item={entry.item}
+                isWide={entry.isWide}
+                expanded={Boolean(expandedById[entry.item.id])}
+                onToggleExpanded={() => onToggleExpanded(entry.item.id)}
+                className={row.length === 1 ? "md:col-span-2" : undefined}
+              />
+            ))}
+          </div>
+        ))}
       </div>
     </article>
   );

@@ -20,6 +20,7 @@ import type {
   StrapiCompaniesPage,
   StrapiHomePage,
   StrapiIndividualsPage,
+  StrapiPortfolioPage,
   StrapiSiteSetting,
 } from './types/strapi';
 import type { ServicesData } from './types/service';
@@ -50,7 +51,7 @@ interface FallbackLink {
 
 interface FallbackFooterData {
   organization?: { fullName?: string; shortName?: string };
-  contacts?: { phone?: string; email?: string; legalAddress?: string };
+  contacts?: { phone?: string; email?: string };
   social?: Array<{ label?: string; href?: string }>;
   legalLinks?: Array<{ label?: string; href?: string }>;
   legalDocuments?: {
@@ -148,6 +149,22 @@ interface FallbackBlogJson {
   meta?: { updatedAt?: string; title?: string; lead?: string };
 }
 
+interface FallbackPortfolioJson {
+  meta?: { updatedAt?: string };
+  title?: string;
+  lead?: string;
+  projects?: Array<{
+    id?: string;
+    title?: string;
+    description?: string;
+    period?: string | null;
+  }>;
+  presentation?: {
+    label?: string;
+    href?: string;
+  };
+}
+
 // ==================
 // News
 // ==================
@@ -222,7 +239,6 @@ export async function fetchSiteSettings(): Promise<StrapiSiteSetting> {
     organizationShortName: footer?.organization?.shortName ?? 'НЦФГ',
     contactsPhone: footer?.contacts?.phone ?? '',
     contactsEmail: footer?.contacts?.email ?? '',
-    contactsLegalAddress: footer?.contacts?.legalAddress ?? null,
     socialLinks: footer?.social
       ? footer.social.map((l, idx) => ({
           id: idx + 1,
@@ -437,6 +453,31 @@ export async function fetchIndividualsPageData(): Promise<StrapiIndividualsPage>
           order: typeof item.id === 'number' ? item.id : idx + 1,
         }))
       : [],
+    createdAt: updatedAt,
+    updatedAt: updatedAt,
+    publishedAt: updatedAt,
+  };
+}
+
+export async function fetchPortfolioPageData(): Promise<StrapiPortfolioPage> {
+  const fallback = (await import('@/public/content/portfolio.json')).default as unknown as FallbackPortfolioJson;
+  const updatedAt = fallback.meta?.updatedAt ?? getFallbackUpdatedAt();
+
+  return {
+    id: 1,
+    documentId: 'json-portfolio-page',
+    title: fallback.title ?? 'Портфолио',
+    lead: fallback.lead ?? null,
+    projects: Array.isArray(fallback.projects)
+      ? fallback.projects.map((project, idx) => ({
+          id: idx + 1,
+          title: project.title ?? '',
+          description: project.description ?? '',
+          period: project.period ?? null,
+        }))
+      : [],
+    presentationLabel: fallback.presentation?.label ?? null,
+    presentationHref: fallback.presentation?.href ?? null,
     createdAt: updatedAt,
     updatedAt: updatedAt,
     publishedAt: updatedAt,
