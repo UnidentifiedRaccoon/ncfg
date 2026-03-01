@@ -62,6 +62,26 @@ function normalizeCopyrightLine(value: string): string {
     .toLowerCase();
 }
 
+function normalizeLegalLinkHref({
+  label,
+  href,
+}: {
+  label: string;
+  href: string;
+}): string {
+  const normalizedLabel = label.trim().toLowerCase();
+
+  if (normalizedLabel.includes("политика конфиденциальности")) {
+    return "/politika-konfidencialnosti";
+  }
+
+  if (normalizedLabel.includes("пользовательское соглашение")) {
+    return "/polzovatelskoe-soglashenie";
+  }
+
+  return href;
+}
+
 function FooterBackdrop() {
   return (
     <>
@@ -127,6 +147,10 @@ function FooterLink({
 export function Footer({ data }: FooterProps) {
   const hasLegalDocuments =
     Boolean(data.legalDocuments) && data.legalDocuments.items.length > 0;
+  const legalLinks = data.legalLinks.map((item) => ({
+    ...item,
+    href: normalizeLegalLinkHref(item),
+  }));
 
   const panelClassName =
     "rounded-2xl border border-white/12 bg-[#0B1324] shadow-[0_28px_90px_rgba(0,0,0,0.55)] overflow-hidden";
@@ -329,13 +353,13 @@ export function Footer({ data }: FooterProps) {
                   ))}
                 </ul>
 
-                {data.legalLinks.length > 0 && (
+                {legalLinks.length > 0 && (
                   <div className="mt-7">
                     <h4 className={cn(sectionTitleClassName, "text-sm")}>
                       Юридическая информация
                     </h4>
                     <ul className="mt-3 space-y-2">
-                      {data.legalLinks.map((item) => {
+                      {legalLinks.map((item) => {
                         const isInternal = item.href.startsWith("/");
 
                         return (
