@@ -40,6 +40,20 @@ function getFallbackUpdatedAt(): string {
   return '2026-01-31';
 }
 
+function getOptionalEnvValue(name: string): string | null {
+  const value = process.env[name];
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+function resolvePortfolioPresentationHref(fallbackHref: string | undefined): string | null {
+  return getOptionalEnvValue('PORTFOLIO_PRESENTATION_URL') ?? fallbackHref ?? null;
+}
+
 // ==================
 // Static content types (JSON source)
 // ==================
@@ -477,7 +491,7 @@ export async function fetchPortfolioPageData(): Promise<StrapiPortfolioPage> {
         }))
       : [],
     presentationLabel: fallback.presentation?.label ?? null,
-    presentationHref: fallback.presentation?.href ?? null,
+    presentationHref: resolvePortfolioPresentationHref(fallback.presentation?.href),
     createdAt: updatedAt,
     updatedAt: updatedAt,
     publishedAt: updatedAt,

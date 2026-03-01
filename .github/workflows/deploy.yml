@@ -87,6 +87,7 @@ jobs:
             STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.NEXT_PUBLIC_YANDEX_METRIKA_ID }}
+            PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -257,6 +258,7 @@ jobs:
             STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.NEXT_PUBLIC_YANDEX_METRIKA_ID }}
+            PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
             POSTBOX_SMTP_HOST=${{ secrets.POSTBOX_SMTP_HOST || 'postbox.cloud.yandex.net' }}
             POSTBOX_SMTP_PORT=${{ secrets.POSTBOX_SMTP_PORT || '465' }}
             POSTBOX_API_KEY_ID=${{ secrets.POSTBOX_API_KEY_ID }}

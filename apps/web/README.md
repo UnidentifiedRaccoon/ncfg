@@ -31,6 +31,7 @@ STRAPI_PROD_URL=https://admin.ncfg.ru
 STRAPI_PROD_API_TOKEN=...
 
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+PORTFOLIO_PRESENTATION_URL=https://storage.yandexcloud.net/<bucket>/docs/ncfg-portfolio-2021.pdf
 ```
 
 3. Run:
@@ -66,6 +67,7 @@ Optional GitHub Actions secrets (Postbox):
 - `POSTBOX_SMTP_HOST` (default: `postbox.cloud.yandex.net`)
 - `POSTBOX_SMTP_PORT` (default: `465`)
 - `LEADS_RECIPIENT_EMAIL` (legacy single-recipient fallback)
+- `PORTFOLIO_PRESENTATION_URL` (absolute Object Storage URL for `/portfolio` presentation PDF)
 
 Optional GitHub Actions secrets (GetCourse fallback/enrichment):
 - `GETCOURSE_BASE_URL` = `https://fgrm.ncfg.ru`

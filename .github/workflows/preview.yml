@@ -87,6 +87,7 @@ jobs:
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ steps.preview.outputs.url }}
+            PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
             DEPLOY_ENV=${{ env.PREVIEW_DEPLOY_ENV }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -110,6 +111,7 @@ jobs:
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ steps.preview.outputs.url }}
+            PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
             DEPLOY_ENV=${{ env.PREVIEW_DEPLOY_ENV }}
 
       - name: Health check (tolerate cold start)
