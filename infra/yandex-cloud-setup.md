@@ -425,6 +425,46 @@ Safe migration flow:
 3. Later clone the full zone into Cloud DNS (including MX/TXT/SPF/DKIM/DMARC/service records).
 4. Only then switch NS at registrar.
 
+### 6.8 Apex (`ncfg.ru`) cutover preparation (2026-03-02)
+
+This subsection captures the root-domain migration preparation for web gateway.
+
+Created resources:
+
+- Managed cert for root domain: `fpqhl7cmsr3826g2vfs8` (`ncfg-root-le`, domain `ncfg.ru`, challenge `dns`)
+- Public Cloud DNS zone: `dnse7nf9d3nan3b96a4n` (`ncfg-ru-public`, zone `ncfg.ru.`)
+- Cloud DNS NS for registrar delegation:
+  - `ns1.yandexcloud.net.`
+  - `ns2.yandexcloud.net.`
+
+Prepared Cloud DNS records (TTL `300`):
+
+- `ncfg.ru` `ANAME` `d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net.`
+- `www.ncfg.ru` `CNAME` `d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net.`
+- `admin.ncfg.ru` `CNAME` `d5dldgvqcrea64k57ge9.aqkd4clz.apigw.yandexcloud.net.`
+- Mail and service records (`MX`, SPF, DKIM, DMARC, GetCourse and A-record subdomains) copied.
+- Legacy TXT validation records (`globalsign`, `tci`) intentionally skipped.
+
+Current state (`2026-03-02 08:44 UTC`):
+
+- `_acme-challenge.ncfg.ru` CNAME is present in Yandex 360 and Cloud DNS.
+- Root cert `fpqhl7cmsr3826g2vfs8` transitioned to `ISSUED`.
+- Root domain `ncfg.ru` is attached to web gateway `ncfg-web-gw`.
+
+Commands used:
+
+```bash
+yc serverless api-gateway add-domain \
+  --name ncfg-web-gw \
+  --domain ncfg.ru \
+  --certificate-id fpqhl7cmsr3826g2vfs8
+```
+
+Remaining propagation note:
+
+- Registry WHOIS already shows `ns1.yandexcloud.net.` / `ns2.yandexcloud.net.`
+- DNS trace from `.ru` may still temporarily return old delegation (`dns1.yandex.net` / `dns2.yandex.net`) until zone propagation completes.
+
 ## 7. Deployment incident log (2026-02-12)
 
 This section captures real issues seen during Strapi admin cutover and how they were resolved.

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const DEFAULT_SITE_URL = "https://www.ncfg.ru";
+const DEFAULT_SITE_URL = "https://ncfg.ru";
 const DEFAULT_OG_IMAGE = "/logo.svg";
 const DEFAULT_LOCALE = "ru_RU";
 
