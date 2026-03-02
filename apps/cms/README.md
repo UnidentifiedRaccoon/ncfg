@@ -169,3 +169,27 @@ AWS_ENDPOINT=https://storage.yandexcloud.net
 - Настроить S3/Object Storage для медиафайлов
 - Изменить все секретные ключи
 - Настроить CORS для продакшен-домена
+
+### CORS для Strapi Media Library crop
+
+Если CORS не настроен на бакете, в админке Strapi при `Crop the original asset`
+появляется ошибка `Tainted canvases may not be exported`.
+
+Для бакета `ncfg-uploads-1770291983` примените:
+
+```bash
+yc storage bucket update ncfg-uploads-1770291983 \
+  --cors 'id=strapi-admin-crop,allowed-origins=https://admin.ncfg.ru,allowed-methods=METHOD_GET,allowed-methods=METHOD_HEAD,allowed-headers=*,expose-headers=ETag,expose-headers=Content-Type,expose-headers=Content-Length,max-age-seconds=3000'
+```
+
+Проверка:
+
+```bash
+curl -s -D - -o /dev/null \
+  -H 'Origin: https://admin.ncfg.ru' \
+  'https://storage.yandexcloud.net/ncfg-uploads-1770291983/Sycheva_6bbd51293b.jpg'
+```
+
+В ответе должны быть заголовки:
+- `Access-Control-Allow-Origin: https://admin.ncfg.ru`
+- `Access-Control-Allow-Methods: GET, HEAD`

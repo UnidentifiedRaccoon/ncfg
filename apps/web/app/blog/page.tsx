@@ -11,7 +11,7 @@ import { buildPageMetadata } from "@/shared/lib/metadata";
 export const metadata: Metadata = buildPageMetadata({
   path: "/blog",
   title: "Блог — НЦФГ",
-  description: "Полезные материалы о финансовой грамотности от Национального центра финансовой грамотности",
+  description: "Новости и материалы Национального центра финансовой грамотности",
 });
 
 export const revalidate = 60; // Revalidate every 60 seconds

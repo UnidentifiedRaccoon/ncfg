@@ -8,7 +8,8 @@
     "dev:prod": "STRAPI_SOURCE=prod next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seo:check": "node scripts/check-seo-indexing.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

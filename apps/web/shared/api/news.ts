@@ -134,6 +134,7 @@ interface LegacyNewsArticle {
   anonsImage: string | null;
   postImage: string | null;
   createdAt: string;
+  updatedAt: string;
 }
 
 export function transformToLegacyNews(article: StrapiNewsArticle): LegacyNewsArticle {
@@ -149,5 +150,6 @@ export function transformToLegacyNews(article: StrapiNewsArticle): LegacyNewsArt
     anonsImage: transformedAnonsUrl,
     postImage: transformedPostUrl,
     createdAt: article.publishedDate || article.createdAt,
+    updatedAt: article.updatedAt || article.publishedDate || article.createdAt,
   };
 }

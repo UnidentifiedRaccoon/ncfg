@@ -4,6 +4,10 @@ This app renders mostly static marketing pages, but **news/blog**, **people**, a
 
 Important: there is **no silent JSON fallback** for Strapi-backed sections. If Strapi is unavailable or env vars are missing, the app fails fast with a clear error.
 
+## SEO operations
+
+- Indexing and recrawl runbook: [SEO_INDEXING_RUNBOOK.md](./SEO_INDEXING_RUNBOOK.md)
+
 ## About page data contract
 
 - Route `/about` requires at least one `person` in Strapi with `teamGroup != null`.
@@ -57,6 +61,7 @@ Deployment is done via GitHub Actions to YC Serverless Containers.
 Required GitHub Actions secrets:
 - `STRAPI_URL` = `https://admin.ncfg.ru`
 - `STRAPI_API_TOKEN` = your read-only token
+- `REVALIDATE_TOKEN` = shared secret for Strapi webhook -> `POST /api/revalidate/strapi`
 - `NEXT_PUBLIC_SITE_URL` = public site URL (used for health-checks and metadata)
 - `POSTBOX_API_KEY_ID` = Postbox API key ID
 - `POSTBOX_API_KEY_SECRET` = Postbox API key secret
@@ -84,6 +89,41 @@ Optional GitHub Actions secrets (GetCourse fallback/enrichment):
 - `GETCOURSE_DEAL_FIELD_POST_TITLE`
 - `GETCOURSE_DEAL_FIELD_REQUEST_ID`
 - `GETCOURSE_DEAL_FIELD_FORM_TYPE`
+
+### Blog cache revalidation (Strapi webhook)
+
+Blog routes use ISR with a fixed interval of `60` seconds:
+- `/blog` -> `revalidate = 60`
+- `/blog/[slug]` -> `revalidate = 60`
+- Strapi fetch default -> `DEFAULT_REVALIDATE = 60`
+
+To invalidate faster on content edits, use webhook-driven revalidation.
+
+Strapi setup:
+- `Settings -> Webhooks -> Create webhook`
+- URL: `https://ncfg.ru/api/revalidate/strapi`
+- Method: `POST`
+- Header: `x-revalidate-token: <REVALIDATE_TOKEN>`
+- Events: `entry.update`
+- Model: `News Article` (`api::news-article.news-article`)
+
+Smoke test with `curl`:
+
+```bash
+curl -i -X POST "https://ncfg.ru/api/revalidate/strapi" \
+  -H "content-type: application/json" \
+  -H "x-revalidate-token: ${REVALIDATE_TOKEN}" \
+  -d '{"event":"entry.update","model":"api::news-article.news-article","entry":{"slug":"test-slug"}}'
+```
+
+Expected responses:
+- `200` + `{"ok":true,"revalidated":[...]}` -> cache invalidated.
+- `200` + `{"ok":true,"revalidated":[],"reason":"no-op: ..."}` -> event/model payload does not match filter.
+- `401` -> missing or invalid token; check `REVALIDATE_TOKEN` in webhook header and web runtime env.
+
+Propagation expectations:
+- With webhook: usually visible on next request shortly after `entry.update`.
+- Without webhook fallback: updates appear within about `60` seconds due to ISR.
 
 ### Postbox runbook (temporary lead intake)
 

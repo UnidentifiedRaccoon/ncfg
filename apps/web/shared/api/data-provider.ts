@@ -197,6 +197,7 @@ export interface NewsArticleData {
   anonsImage: string | null;
   postImage: string | null;
   createdAt: string;
+  updatedAt: string;
 }
 
 export async function fetchNewsArticles(options: { category?: string } = {}): Promise<NewsArticleData[]> {

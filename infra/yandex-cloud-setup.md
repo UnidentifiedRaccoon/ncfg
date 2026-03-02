@@ -326,6 +326,31 @@ Ensure the PostgreSQL cluster allows connections from Serverless Containers:
 - Verify access keys in Lockbox
 - Ensure `forcePathStyle: true` in Strapi config
 
+### Strapi crop fails with `Tainted canvases may not be exported`
+
+If Strapi admin (`https://admin.ncfg.ru`) loads images from
+`https://storage.yandexcloud.net/...`, Object Storage must return CORS headers
+for this origin. Without bucket CORS, canvas export in Media Library crop fails.
+
+Apply CORS policy:
+
+```bash
+yc storage bucket update ncfg-uploads-1770291983 \
+  --cors 'id=strapi-admin-crop,allowed-origins=https://admin.ncfg.ru,allowed-methods=METHOD_GET,allowed-methods=METHOD_HEAD,allowed-headers=*,expose-headers=ETag,expose-headers=Content-Type,expose-headers=Content-Length,max-age-seconds=3000'
+```
+
+Validation:
+
+```bash
+curl -s -D - -o /dev/null \
+  -H 'Origin: https://admin.ncfg.ru' \
+  'https://storage.yandexcloud.net/ncfg-uploads-1770291983/Sycheva_6bbd51293b.jpg'
+```
+
+Expected headers include:
+- `Access-Control-Allow-Origin: https://admin.ncfg.ru`
+- `Access-Control-Allow-Methods: GET, HEAD`
+
 ## 6. Admin domain cutover plan (safe partial migration)
 
 Use this section when you need to move only Strapi admin to `admin.ncfg.ru` and keep `ncfg.ru` / `www.ncfg.ru` on the old site.

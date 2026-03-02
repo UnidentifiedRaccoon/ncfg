@@ -65,7 +65,7 @@ interface FetchOptions extends RequestInit {
 
 // In development, disable cache for instant updates from Strapi
 const isDev = process.env.NODE_ENV === 'development';
-const DEFAULT_REVALIDATE = isDev ? 0 : 60; // 0 = no cache in dev, 60s in prod
+const DEFAULT_REVALIDATE = 60;
 
 function getFetchErrorCauseMessage(error: unknown): string | null {
   if (!isRecord(error)) return null;
