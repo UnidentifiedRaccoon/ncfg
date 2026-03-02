@@ -104,7 +104,7 @@ Strapi setup:
 - URL: `https://ncfg.ru/api/revalidate/strapi`
 - Method: `POST`
 - Header: `x-revalidate-token: <REVALIDATE_TOKEN>`
-- Events: `entry.update`
+- Events (`Entry`): `create`, `update`, `delete`, `publish`, `unpublish`
 - Model: `News Article` (`api::news-article.news-article`)
 
 Smoke test with `curl`:
@@ -113,7 +113,7 @@ Smoke test with `curl`:
 curl -i -X POST "https://ncfg.ru/api/revalidate/strapi" \
   -H "content-type: application/json" \
   -H "x-revalidate-token: ${REVALIDATE_TOKEN}" \
-  -d '{"event":"entry.update","model":"api::news-article.news-article","entry":{"slug":"test-slug"}}'
+  -d '{"event":"entry.publish","model":"api::news-article.news-article","entry":{"slug":"test-slug"}}'
 ```
 
 Expected responses:
@@ -122,7 +122,7 @@ Expected responses:
 - `401` -> missing or invalid token; check `REVALIDATE_TOKEN` in webhook header and web runtime env.
 
 Propagation expectations:
-- With webhook: usually visible on next request shortly after `entry.update`.
+- With webhook: usually visible on next request shortly after `entry.create|update|delete|publish|unpublish`.
 - Without webhook fallback: updates appear within about `60` seconds due to ISR.
 
 ### Postbox runbook (temporary lead intake)

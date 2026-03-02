@@ -8,8 +8,17 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const NEWS_ARTICLE_MODEL = "api::news-article.news-article";
-const NEWS_ARTICLE_UPDATE_EVENT = "entry.update";
+const NEWS_ARTICLE_MODELS = new Set([
+  "api::news-article.news-article",
+  "news-article",
+]);
+const SUPPORTED_NEWS_ARTICLE_EVENTS = new Set([
+  "entry.create",
+  "entry.update",
+  "entry.delete",
+  "entry.publish",
+  "entry.unpublish",
+]);
 
 interface StrapiWebhookPayload {
   event?: unknown;
@@ -35,6 +44,16 @@ function getProvidedToken(request: Request): string | null {
 function parsePayload(input: unknown): StrapiWebhookPayload {
   if (typeof input !== "object" || input === null) return {};
   return input as StrapiWebhookPayload;
+}
+
+function isNewsArticleModel(model: string | null): boolean {
+  if (!model) return false;
+  if (NEWS_ARTICLE_MODELS.has(model)) return true;
+  return model.endsWith(".news-article");
+}
+
+function isSupportedNewsArticleEvent(event: string | null): boolean {
+  return Boolean(event && SUPPORTED_NEWS_ARTICLE_EVENTS.has(event));
 }
 
 export async function POST(request: Request) {
@@ -71,7 +90,7 @@ export async function POST(request: Request) {
   const model = asTrimmedString(payload.model);
   const slug = asTrimmedString(payload.entry?.slug);
 
-  if (event !== NEWS_ARTICLE_UPDATE_EVENT || model !== NEWS_ARTICLE_MODEL) {
+  if (!isSupportedNewsArticleEvent(event) || !isNewsArticleModel(model)) {
     return NextResponse.json(
       {
         ok: true,
@@ -89,6 +108,11 @@ export async function POST(request: Request) {
 
   revalidatePath("/blog");
   revalidated.push("path:/blog");
+
+  // Delete/unpublish webhooks may not always include slug in payload.
+  // Revalidate all article page routes to avoid stale post pages.
+  revalidatePath("/blog/[slug]", "page");
+  revalidated.push("path:/blog/[slug]");
 
   if (slug) {
     const slugTag = `news-${slug}`;
