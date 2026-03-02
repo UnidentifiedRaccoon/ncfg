@@ -10,7 +10,8 @@ export function middleware(request: NextRequest) {
   if (hostHeader === WWW_HOST) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.protocol = "https:";
-    redirectUrl.host = APEX_HOST;
+    redirectUrl.hostname = APEX_HOST;
+    redirectUrl.port = "";
     return NextResponse.redirect(redirectUrl, 301);
   }
 
