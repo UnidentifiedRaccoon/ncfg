@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Mail, Phone, FileText } from "lucide-react";
+import { ArrowRight, Mail, Phone, FileText, MapPin } from "lucide-react";
 import type { ReactNode } from "react";
 import { Container } from "@/shared/ui/Container";
 import { Button } from "@/shared/ui/Button";
@@ -174,6 +174,9 @@ export function Footer({ data }: FooterProps) {
 
   const phoneSanitized = data.contacts.phone.replace(/\s/g, "");
   const ctaHref = "/#lead-form";
+  const officeAddress = "Бульвар Матроса Железняка, 13";
+  const officeAddressHref =
+    "https://yandex.ru/maps/?text=%D0%91%D1%83%D0%BB%D1%8C%D0%B2%D0%B0%D1%80%20%D0%9C%D0%B0%D1%82%D1%80%D0%BE%D1%81%D0%B0%20%D0%96%D0%B5%D0%BB%D0%B5%D0%B7%D0%BD%D1%8F%D0%BA%D0%B0%2C%2013";
 
   const copyrightTitle = data.copyright.years
     ? `© ${data.copyright.years} ${data.organization.shortName}.`
@@ -314,6 +317,18 @@ export function Footer({ data }: FooterProps) {
                   >
                     <Mail size={14} className={iconAccentClassName} />
                     {data.contacts.email}
+                  </a>
+                  <a
+                    href={officeAddressHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "flex items-start gap-2 transition-colors",
+                      "text-white/70 hover:text-white"
+                    )}
+                  >
+                    <MapPin size={14} className={cn(iconAccentClassName, "mt-0.5 shrink-0")} />
+                    <span>{officeAddress}</span>
                   </a>
                 </div>
               </div>
