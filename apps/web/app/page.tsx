@@ -109,6 +109,7 @@ export default async function Home() {
       <main>
         <Hero
           headline={hero?.headline ?? ""}
+          accentWord="финансовой грамотности"
           lead={hero?.lead ?? undefined}
           primaryCta={
             hero?.primaryCta

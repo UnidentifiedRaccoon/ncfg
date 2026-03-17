@@ -8,6 +8,7 @@ import {
   readJsonSafe,
 } from "@/shared/lib/api-route-utils";
 import { contactSink } from "@/shared/lib/contact-sink";
+import { resolveSourcePageUrl } from "@/shared/lib/source-page";
 
 interface LeadData {
   name: string;
@@ -15,6 +16,7 @@ interface LeadData {
   phone?: string;
   company?: string;
   message?: string;
+  sourcePageUrl?: string;
 }
 
 function parseLeadPayload(payload: unknown): LeadData | null {
@@ -31,6 +33,7 @@ function parseLeadPayload(payload: unknown): LeadData | null {
     phone: asOptionalTrimmedString(record.phone),
     company: asOptionalTrimmedString(record.company),
     message: asOptionalTrimmedString(record.message),
+    sourcePageUrl: asOptionalTrimmedString(record.sourcePageUrl),
   };
 }
 
@@ -63,11 +66,19 @@ export async function POST(request: Request) {
       );
     }
 
-    await contactSink.submitLead(data, {
-      requestId,
-      clientIp: getClientIp(request),
-      userAgent: request.headers.get("user-agent") ?? undefined,
-    });
+    const sourcePageUrl = resolveSourcePageUrl(request, data.sourcePageUrl);
+
+    await contactSink.submitLead(
+      {
+        ...data,
+        sourcePageUrl,
+      },
+      {
+        requestId,
+        clientIp: getClientIp(request),
+        userAgent: request.headers.get("user-agent") ?? undefined,
+      }
+    );
 
     return NextResponse.json(
       {

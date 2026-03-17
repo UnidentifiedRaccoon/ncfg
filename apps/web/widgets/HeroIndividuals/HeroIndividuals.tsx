@@ -20,7 +20,7 @@ export function HeroIndividuals({ headline, lead, primaryCta }: HeroIndividualsP
       lead={lead}
       primaryAction={primaryAction}
       secondaryAction={{ label: "Наши услуги", href: "#services" }}
-      imageSrc="/hero.png"
+      imageSrc="/ChatGPT Image Mar 17, 2026, 06_20_21 PM.png"
       imageAlt=""
     />
   );

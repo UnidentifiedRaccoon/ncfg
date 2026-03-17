@@ -8,12 +8,14 @@ import {
   readJsonSafe,
 } from "@/shared/lib/api-route-utils";
 import { contactSink } from "@/shared/lib/contact-sink";
+import { resolveSourcePageUrl } from "@/shared/lib/source-page";
 
 interface QuestionData {
   question: string;
   name: string;
   email: string;
   postTitle?: string;
+  sourcePageUrl?: string;
 }
 
 function parseQuestionPayload(payload: unknown): QuestionData | null {
@@ -31,6 +33,7 @@ function parseQuestionPayload(payload: unknown): QuestionData | null {
     name,
     email,
     postTitle: asOptionalTrimmedString(record.postTitle),
+    sourcePageUrl: asOptionalTrimmedString(record.sourcePageUrl),
   };
 }
 
@@ -69,11 +72,19 @@ export async function POST(request: Request) {
       );
     }
 
-    await contactSink.submitQuestion(data, {
-      requestId,
-      clientIp: getClientIp(request),
-      userAgent: request.headers.get("user-agent") ?? undefined,
-    });
+    const sourcePageUrl = resolveSourcePageUrl(request, data.sourcePageUrl);
+
+    await contactSink.submitQuestion(
+      {
+        ...data,
+        sourcePageUrl,
+      },
+      {
+        requestId,
+        clientIp: getClientIp(request),
+        userAgent: request.headers.get("user-agent") ?? undefined,
+      }
+    );
 
     return NextResponse.json(
       {

@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_diagnostic_questions",
+  "info": {
+    "displayName": "Diagnostic Question",
+    "description": "Question with answer options",
+    "icon": "question"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "description": {
+      "type": "text"
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    },
+    "options": {
+      "type": "component",
+      "repeatable": true,
+      "component": "diagnostic.option"
+    }
+  }
+}

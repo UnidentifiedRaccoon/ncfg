@@ -4,6 +4,7 @@ import { ArrowRight, ShieldCheck } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import { Container } from "@/shared/ui/Container";
 import { Button } from "@/shared/ui/Button";
+import { HighlightedHeadline } from "@/shared/ui/HighlightedHeadline";
 
 interface HeroAction {
   label: string;
@@ -15,15 +16,9 @@ interface HeroMetricItem {
   label: string;
 }
 
-interface HeroMetricsCard {
-  title: string;
-  subtitle?: string;
-  badge?: string;
-  metrics: HeroMetricItem[];
-}
-
 interface HeroLayoutProps {
   headline: string;
+  accentWord?: string | string[];
   lead?: string;
   primaryAction: HeroAction;
   secondaryAction?: HeroAction;
@@ -31,7 +26,9 @@ interface HeroLayoutProps {
   trustChips?: string[];
   imageSrc: string;
   imageAlt?: string;
-  metricsCard?: HeroMetricsCard;
+  metrics?: HeroMetricItem[];
+  noSentinel?: boolean;
+  className?: string;
 }
 
 const DEFAULT_EYEBROW = "С 2005 года. Проекты по всей России";
@@ -43,61 +40,9 @@ const DEFAULT_TRUST_CHIPS = [
   "Марс",
 ];
 
-interface HeroActionsAndTrustProps {
-  primaryAction: HeroAction;
-  secondaryAction?: HeroAction;
-  trustChips: string[];
-  className?: string;
-}
-
-function HeroActionsAndTrust({
-  primaryAction,
-  secondaryAction,
-  trustChips,
-  className,
-}: HeroActionsAndTrustProps) {
-  return (
-    <div className={cn("flex flex-col gap-8", className)}>
-      <div className="flex flex-wrap items-center gap-4">
-        <Button
-          href={primaryAction.href}
-          size="lg"
-          className="shadow-[0_16px_44px_rgba(88,168,224,0.22)]"
-        >
-          {primaryAction.label}
-        </Button>
-
-        {secondaryAction && (
-          <Button
-            href={secondaryAction.href}
-            variant="secondary"
-            size="lg"
-            className="!bg-transparent !text-white border border-white/25 hover:bg-white/10"
-          >
-            {secondaryAction.label}
-            <ArrowRight className="ml-2 h-4 w-4 opacity-80" aria-hidden="true" />
-          </Button>
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2 text-xs text-white/55">
-        <ShieldCheck className="h-4 w-4 text-[#3B82F6]" aria-hidden="true" />
-        <span className="font-medium text-white/70">Нам доверяют:</span>
-        {trustChips.slice(0, 8).map((chip) => (
-          <span
-            key={chip}
-            className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1"
-          >
-            {chip}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function HeroLayout({
   headline,
+  accentWord,
   lead,
   primaryAction,
   secondaryAction,
@@ -105,12 +50,14 @@ export function HeroLayout({
   trustChips = DEFAULT_TRUST_CHIPS,
   imageSrc,
   imageAlt = "",
-  metricsCard,
+  metrics,
+  noSentinel,
+  className,
 }: HeroLayoutProps) {
-  const hasMetricsCard = Boolean(metricsCard && metricsCard.metrics.length > 0);
+  const hasMetrics = Boolean(metrics && metrics.length > 0);
 
   return (
-    <section className="relative overflow-hidden -mt-16 md:-mt-20 pt-16 md:pt-20">
+    <section className={cn("relative overflow-hidden -mt-16 md:-mt-20 pt-16 md:pt-20", className)}>
       <div aria-hidden="true" className="absolute inset-0 bg-[#050B16]" />
 
       <div
@@ -138,12 +85,8 @@ export function HeroLayout({
 
       <Container className="relative z-10 lg:max-w-[1320px]">
         <div className="py-14 md:py-20 lg:py-24">
-          <div
-            className={cn(
-              "grid gap-12 lg:grid-cols-[1.2fr_0.8fr]",
-              hasMetricsCard ? "lg:items-start" : "lg:items-center"
-            )}
-          >
+          <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            {/* Left — text */}
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/70 backdrop-blur">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#58A8E0]" />
@@ -151,7 +94,11 @@ export function HeroLayout({
               </div>
 
               <h1 className="mt-5 text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-semibold tracking-tight text-white leading-[1.05]">
-                {headline}
+                <HighlightedHeadline
+                  text={headline}
+                  accentWord={accentWord}
+                  accentClassName="text-[#58A8E0] animate-[textGlow_3s_ease-in-out_infinite]"
+                />
               </h1>
 
               {lead && (
@@ -160,27 +107,68 @@ export function HeroLayout({
                 </p>
               )}
 
-              {hasMetricsCard ? (
-                <div className="hidden lg:block">
-                  <HeroActionsAndTrust
-                    primaryAction={primaryAction}
-                    secondaryAction={secondaryAction}
-                    trustChips={trustChips}
-                    className="mt-8"
-                  />
-                </div>
-              ) : (
-                <HeroActionsAndTrust
-                  primaryAction={primaryAction}
-                  secondaryAction={secondaryAction}
-                  trustChips={trustChips}
-                  className="mt-8"
-                />
+              {/* Inline metrics — glass card with dividers */}
+              {hasMetrics && metrics && (
+                <dl className="mt-8 inline-flex items-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md">
+                  {metrics.slice(0, 4).map((m, i) => (
+                    <div key={m.label} className="flex items-center">
+                      {i > 0 && (
+                        <div
+                          aria-hidden="true"
+                          className="h-10 w-px bg-white/10"
+                        />
+                      )}
+                      <div className="px-8 py-5 text-center">
+                        <dd className="text-2xl font-bold text-white">{m.value}</dd>
+                        <dt className="mt-1 text-sm text-white/50">{m.label}</dt>
+                      </div>
+                    </div>
+                  ))}
+                </dl>
               )}
+
+              {/* CTA + trust */}
+              <div className={cn("flex flex-col gap-8", "mt-8")}>
+                <div className="flex flex-wrap items-center gap-4">
+                  <Button
+                    href={primaryAction.href}
+                    size="lg"
+                    className="shadow-[0_16px_44px_rgba(88,168,224,0.22)]"
+                  >
+                    {primaryAction.label}
+                  </Button>
+
+                  {secondaryAction && (
+                    <Button
+                      href={secondaryAction.href}
+                      variant="secondary"
+                      size="lg"
+                      className="!bg-transparent !text-white border border-white/25 hover:bg-white/10"
+                    >
+                      {secondaryAction.label}
+                      <ArrowRight className="ml-2 h-4 w-4 opacity-80" aria-hidden="true" />
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-xs text-white/55">
+                  <ShieldCheck className="h-4 w-4 text-[#3B82F6]" aria-hidden="true" />
+                  <span className="font-medium text-white/70">Нам доверяют:</span>
+                  {trustChips.slice(0, 8).map((chip) => (
+                    <span
+                      key={chip}
+                      className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1"
+                    >
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className={cn("relative", !hasMetricsCard && "hidden lg:block")}>
-              <div className="relative mx-auto hidden w-full max-w-[560px] lg:block">
+            {/* Right — image */}
+            <div className="relative hidden lg:block">
+              <div className="relative mx-auto w-full max-w-[560px]">
                 <div className="relative aspect-[4/3]">
                   <Image
                     src={imageSrc}
@@ -188,10 +176,7 @@ export function HeroLayout({
                     fill
                     priority
                     sizes="(min-width: 1024px) 560px, 90vw"
-                    className={cn(
-                      "pointer-events-none object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)]",
-                      !hasMetricsCard && "scale-[1.5]"
-                    )}
+                    className="pointer-events-none object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)] scale-[1.5]"
                   />
                 </div>
 
@@ -200,63 +185,13 @@ export function HeroLayout({
                   className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full border border-white/10"
                 />
               </div>
-
-              {hasMetricsCard && metricsCard && (
-                <div className="relative mx-auto w-full max-w-[560px]">
-                  <div className="relative z-10 mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl lg:-mt-4 lg:-translate-y-10">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="text-sm font-semibold text-white">
-                          {metricsCard.title}
-                        </div>
-                        {metricsCard.subtitle && (
-                          <div className="mt-1 text-xs text-white/60">
-                            {metricsCard.subtitle}
-                          </div>
-                        )}
-                      </div>
-                      {metricsCard.badge && (
-                        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white/70">
-                          {metricsCard.badge}
-                        </div>
-                      )}
-                    </div>
-
-                    <dl className="mt-4 grid grid-cols-2 gap-3">
-                      {metricsCard.metrics.slice(0, 4).map((metric) => (
-                        <div
-                          key={metric.label}
-                          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-                        >
-                          <dt className="text-[11px] leading-snug text-white/60">
-                            {metric.label}
-                          </dt>
-                          <dd className="mt-1 text-xl font-semibold text-white">
-                            {metric.value}
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                </div>
-              )}
             </div>
-
-            {hasMetricsCard && (
-              <div className="lg:hidden">
-                <HeroActionsAndTrust
-                  primaryAction={primaryAction}
-                  secondaryAction={secondaryAction}
-                  trustChips={trustChips}
-                />
-              </div>
-            )}
           </div>
         </div>
       </Container>
 
       {/* Sentinel for dock header tone switching (Hero -> surface). */}
-      <div data-header-hero-end aria-hidden="true" className="h-px" />
+      {!noSentinel && <div data-header-hero-end aria-hidden="true" className="h-px" />}
     </section>
   );
 }

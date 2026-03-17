@@ -1,0 +1,35 @@
+{
+  "collectionName": "components_diagnostic_submission_answers",
+  "info": {
+    "displayName": "Diagnostic Submission Answer",
+    "description": "Answer snapshot stored with submission",
+    "icon": "check"
+  },
+  "options": {},
+  "attributes": {
+    "questionKey": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "questionTitle": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "answerKey": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "answerLabel": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "weight": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

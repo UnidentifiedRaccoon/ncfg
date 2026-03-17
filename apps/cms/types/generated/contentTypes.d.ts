@@ -472,6 +472,236 @@ export interface ApiBlogCategoryBlogCategory
   };
 }
 
+export interface ApiDiagnosticCampaignDiagnosticCampaign
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'diagnostic_campaigns';
+  info: {
+    description: 'Public diagnostic link bound to organization and test version';
+    displayName: 'Diagnostic Campaign';
+    pluralName: 'diagnostic-campaigns';
+    singularName: 'diagnostic-campaign';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    endsAt: Schema.Attribute.DateTime;
+    isActive: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-campaign.diagnostic-campaign'
+    > &
+      Schema.Attribute.Private;
+    organization: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::diagnostic-organization.diagnostic-organization'
+    > &
+      Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
+    startsAt: Schema.Attribute.DateTime;
+    submissions: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-submission.diagnostic-submission'
+    >;
+    test: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::diagnostic-test.diagnostic-test'
+    > &
+      Schema.Attribute.Required;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiDiagnosticOrganizationDiagnosticOrganization
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'diagnostic_organizations';
+  info: {
+    description: 'Organization tied to diagnostic campaigns and submissions';
+    displayName: 'Diagnostic Organization';
+    pluralName: 'diagnostic-organizations';
+    singularName: 'diagnostic-organization';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    campaigns: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-campaign.diagnostic-campaign'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-organization.diagnostic-organization'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    publishedAt: Schema.Attribute.DateTime;
+    submissions: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-submission.diagnostic-submission'
+    >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiDiagnosticSubmissionDiagnosticSubmission
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'diagnostic_submissions';
+  info: {
+    description: 'Saved diagnostic completion by respondent';
+    displayName: 'Diagnostic Submission';
+    pluralName: 'diagnostic-submissions';
+    singularName: 'diagnostic-submission';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    answers: Schema.Attribute.Component<'diagnostic.submission-answer', true>;
+    attemptNumber: Schema.Attribute.Integer & Schema.Attribute.Required;
+    campaign: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::diagnostic-campaign.diagnostic-campaign'
+    > &
+      Schema.Attribute.Required;
+    campaignSlugSnapshot: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    consentAcceptedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    emailNormalized: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    fullName: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-submission.diagnostic-submission'
+    > &
+      Schema.Attribute.Private;
+    organization: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::diagnostic-organization.diagnostic-organization'
+    > &
+      Schema.Attribute.Required;
+    organizationNameSnapshot: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    phone: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 50;
+      }>;
+    publishedAt: Schema.Attribute.DateTime;
+    sourcePageUrl: Schema.Attribute.Text;
+    submittedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    test: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::diagnostic-test.diagnostic-test'
+    > &
+      Schema.Attribute.Required;
+    testCodeSnapshot: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    testVersionSnapshot: Schema.Attribute.Integer & Schema.Attribute.Required;
+    totalScore: Schema.Attribute.Integer & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiDiagnosticTestDiagnosticTest
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'diagnostic_tests';
+  info: {
+    description: 'Versioned diagnostic questionnaire';
+    displayName: 'Diagnostic Test';
+    pluralName: 'diagnostic-tests';
+    singularName: 'diagnostic-test';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    campaigns: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-campaign.diagnostic-campaign'
+    >;
+    code: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-test.diagnostic-test'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    questions: Schema.Attribute.Component<'diagnostic.question', true>;
+    submissions: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::diagnostic-submission.diagnostic-submission'
+    >;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    version: Schema.Attribute.Integer & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiExpertConfigExpertConfig extends Struct.SingleTypeSchema {
   collectionName: 'expert_configs';
   info: {
@@ -1295,6 +1525,10 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::blog-category.blog-category': ApiBlogCategoryBlogCategory;
+      'api::diagnostic-campaign.diagnostic-campaign': ApiDiagnosticCampaignDiagnosticCampaign;
+      'api::diagnostic-organization.diagnostic-organization': ApiDiagnosticOrganizationDiagnosticOrganization;
+      'api::diagnostic-submission.diagnostic-submission': ApiDiagnosticSubmissionDiagnosticSubmission;
+      'api::diagnostic-test.diagnostic-test': ApiDiagnosticTestDiagnosticTest;
       'api::expert-config.expert-config': ApiExpertConfigExpertConfig;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
       'api::person.person': ApiPersonPerson;

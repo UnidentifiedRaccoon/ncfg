@@ -14,6 +14,7 @@ import {
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
+import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 
 interface FormData {
   name: string;
@@ -143,7 +144,12 @@ export function LeadForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...formData, name, email }),
+        body: JSON.stringify({
+          ...formData,
+          name,
+          email,
+          sourcePageUrl: captureCurrentPageUrl(),
+        }),
       });
 
       if (!response.ok) {

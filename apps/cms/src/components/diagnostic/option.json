@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_diagnostic_options",
+  "info": {
+    "displayName": "Diagnostic Option",
+    "description": "Answer option with weight",
+    "icon": "bulletList"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "label": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "weight": {
+      "type": "integer",
+      "required": true
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    }
+  }
+}

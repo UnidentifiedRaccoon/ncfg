@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "diagnostic_organizations",
+  "info": {
+    "singularName": "diagnostic-organization",
+    "pluralName": "diagnostic-organizations",
+    "displayName": "Diagnostic Organization",
+    "description": "Organization tied to diagnostic campaigns and submissions"
+  },
+  "options": {},
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "campaigns": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::diagnostic-campaign.diagnostic-campaign",
+      "mappedBy": "organization"
+    },
+    "submissions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::diagnostic-submission.diagnostic-submission",
+      "mappedBy": "organization"
+    }
+  }
+}

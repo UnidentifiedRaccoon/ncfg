@@ -10,6 +10,7 @@
     "build": "npm run validate:env && strapi build",
     "migrate:recommendations": "npm run validate:env && node scripts/migrate-recommendations-from-code.mjs",
     "migrate:news-post-image": "npm run validate:env && node scripts/migrate-news-post-image.mjs",
+    "seed:diagnostics-demo": "npm run validate:env && node scripts/seed-diagnostics-demo.mjs",
     "sync:prod-api-to-local": "npm run validate:env && node scripts/sync-prod-api-to-local.mjs",
     "sync:prod-to-local": "bash scripts/sync-prod-to-local.sh",
     "strapi": "strapi",

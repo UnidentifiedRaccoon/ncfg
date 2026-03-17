@@ -1,0 +1,109 @@
+{
+  "kind": "collectionType",
+  "collectionName": "diagnostic_submissions",
+  "info": {
+    "singularName": "diagnostic-submission",
+    "pluralName": "diagnostic-submissions",
+    "displayName": "Diagnostic Submission",
+    "description": "Saved diagnostic completion by respondent"
+  },
+  "options": {},
+  "pluginOptions": {},
+  "config": {
+    "metadatas": {
+      "emailNormalized": {
+        "edit": {
+          "visible": false
+        },
+        "list": {
+          "visible": false
+        }
+      }
+    }
+  },
+  "attributes": {
+    "organization": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::diagnostic-organization.diagnostic-organization",
+      "inversedBy": "submissions",
+      "required": true
+    },
+    "campaign": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::diagnostic-campaign.diagnostic-campaign",
+      "inversedBy": "submissions",
+      "required": true
+    },
+    "test": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::diagnostic-test.diagnostic-test",
+      "inversedBy": "submissions",
+      "required": true
+    },
+    "fullName": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "email": {
+      "type": "email",
+      "required": true,
+      "maxLength": 255
+    },
+    "emailNormalized": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "phone": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "sourcePageUrl": {
+      "type": "text"
+    },
+    "consentAcceptedAt": {
+      "type": "datetime",
+      "required": true
+    },
+    "totalScore": {
+      "type": "integer",
+      "required": true
+    },
+    "attemptNumber": {
+      "type": "integer",
+      "required": true
+    },
+    "submittedAt": {
+      "type": "datetime",
+      "required": true
+    },
+    "campaignSlugSnapshot": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "organizationNameSnapshot": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "testCodeSnapshot": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "testVersionSnapshot": {
+      "type": "integer",
+      "required": true
+    },
+    "answers": {
+      "type": "component",
+      "repeatable": true,
+      "component": "diagnostic.submission-answer"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "diagnostic_tests",
+  "info": {
+    "singularName": "diagnostic-test",
+    "pluralName": "diagnostic-tests",
+    "displayName": "Diagnostic Test",
+    "description": "Versioned diagnostic questionnaire"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "code": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "version": {
+      "type": "integer",
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "questions": {
+      "type": "component",
+      "repeatable": true,
+      "component": "diagnostic.question"
+    },
+    "campaigns": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::diagnostic-campaign.diagnostic-campaign",
+      "mappedBy": "test"
+    },
+    "submissions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::diagnostic-submission.diagnostic-submission",
+      "mappedBy": "test"
+    }
+  }
+}

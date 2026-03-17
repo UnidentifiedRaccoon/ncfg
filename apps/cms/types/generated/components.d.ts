@@ -1,5 +1,84 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface DiagnosticOption extends Struct.ComponentSchema {
+  collectionName: 'components_diagnostic_options';
+  info: {
+    description: 'Answer option with weight';
+    displayName: 'Diagnostic Option';
+    icon: 'bulletList';
+  };
+  attributes: {
+    key: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    weight: Schema.Attribute.Integer & Schema.Attribute.Required;
+  };
+}
+
+export interface DiagnosticQuestion extends Struct.ComponentSchema {
+  collectionName: 'components_diagnostic_questions';
+  info: {
+    description: 'Question with answer options';
+    displayName: 'Diagnostic Question';
+    icon: 'question';
+  };
+  attributes: {
+    description: Schema.Attribute.Text;
+    key: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    options: Schema.Attribute.Component<'diagnostic.option', true>;
+    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+  };
+}
+
+export interface DiagnosticSubmissionAnswer extends Struct.ComponentSchema {
+  collectionName: 'components_diagnostic_submission_answers';
+  info: {
+    description: 'Answer snapshot stored with submission';
+    displayName: 'Diagnostic Submission Answer';
+    icon: 'check';
+  };
+  attributes: {
+    answerKey: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    answerLabel: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    questionKey: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    questionTitle: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    weight: Schema.Attribute.Integer & Schema.Attribute.Required;
+  };
+}
+
 export interface ServiceServiceExample extends Struct.ComponentSchema {
   collectionName: 'components_service_service_examples';
   info: {
@@ -83,6 +162,9 @@ export interface SharedTextItem extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'diagnostic.option': DiagnosticOption;
+      'diagnostic.question': DiagnosticQuestion;
+      'diagnostic.submission-answer': DiagnosticSubmissionAnswer;
       'service.service-example': ServiceServiceExample;
       'service.webinar': ServiceWebinar;
       'shared.call-to-action': SharedCallToAction;

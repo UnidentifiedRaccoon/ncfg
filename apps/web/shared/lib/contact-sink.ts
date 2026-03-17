@@ -6,6 +6,7 @@ type LeadSubmission = {
   phone?: string;
   company?: string;
   message?: string;
+  sourcePageUrl?: string;
 };
 
 type QuestionSubmission = {
@@ -13,6 +14,7 @@ type QuestionSubmission = {
   name: string;
   email: string;
   postTitle?: string;
+  sourcePageUrl?: string;
 };
 
 type ContactSinkContext = {
@@ -69,6 +71,7 @@ type GetCourseConfig = {
     message?: string;
     question?: string;
     postTitle?: string;
+    pageUrl?: string;
     requestId?: string;
     formType?: string;
   };
@@ -97,6 +100,7 @@ class ConsoleContactSink implements ContactSink {
     console.log(`Телефон: ${data.phone || "не указан"}`);
     console.log(`Компания: ${data.company || "не указана"}`);
     console.log(`Сообщение: ${data.message || "не указано"}`);
+    console.log(`Страница: ${data.sourcePageUrl || "не указана"}`);
     console.log("================================");
   }
 
@@ -109,6 +113,7 @@ class ConsoleContactSink implements ContactSink {
     console.log(`Имя: ${data.name}`);
     console.log(`Email: ${data.email}`);
     console.log(`Вопрос: ${data.question}`);
+    console.log(`Страница: ${data.sourcePageUrl || "не указана"}`);
     console.log("================================");
   }
 }
@@ -140,6 +145,7 @@ class PostboxEmailContactSink implements ContactSink {
         `Телефон: ${data.phone || "не указан"}`,
         `Компания: ${data.company || "не указана"}`,
         `Сообщение: ${data.message || "не указано"}`,
+        `Страница: ${data.sourcePageUrl || "не указана"}`,
         "",
         `Request ID: ${ctx.requestId}`,
         `IP: ${ctx.clientIp}`,
@@ -161,6 +167,7 @@ class PostboxEmailContactSink implements ContactSink {
         `Имя: ${data.name}`,
         `Email: ${data.email}`,
         `Вопрос: ${data.question}`,
+        `Страница: ${data.sourcePageUrl || "не указана"}`,
         "",
         `Request ID: ${ctx.requestId}`,
         `IP: ${ctx.clientIp}`,
@@ -200,6 +207,7 @@ class GetCourseContactSink implements ContactSink {
       [this.config.fields.formType, "lead"],
       [this.config.fields.company, data.company],
       [this.config.fields.message, data.message],
+      [this.config.fields.pageUrl, data.sourcePageUrl],
     ]);
 
     await this.submitDeal(
@@ -227,6 +235,7 @@ class GetCourseContactSink implements ContactSink {
       [this.config.fields.formType, "question"],
       [this.config.fields.question, data.question],
       [this.config.fields.postTitle, data.postTitle],
+      [this.config.fields.pageUrl, data.sourcePageUrl],
     ]);
 
     await this.submitDeal(
@@ -311,6 +320,7 @@ class GetCourseContactSink implements ContactSink {
       `Телефон: ${data.phone || "не указан"}`,
       `Компания: ${data.company || "не указана"}`,
       `Сообщение: ${data.message || "не указано"}`,
+      `Страница: ${data.sourcePageUrl || "не указана"}`,
       `Источник: ${this.config.sourceValue}`,
       `Request ID: ${ctx.requestId}`,
     ].join("\n");
@@ -323,6 +333,7 @@ class GetCourseContactSink implements ContactSink {
       `Имя: ${data.name}`,
       `Email: ${data.email}`,
       `Вопрос: ${data.question}`,
+      `Страница: ${data.sourcePageUrl || "не указана"}`,
       `Источник: ${this.config.sourceValue}`,
       `Request ID: ${ctx.requestId}`,
     ].join("\n");
@@ -477,6 +488,7 @@ function createContactSink(): ContactSink {
       message: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_MESSAGE),
       question: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_QUESTION),
       postTitle: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_POST_TITLE),
+      pageUrl: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_PAGE_URL),
       requestId: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_REQUEST_ID),
       formType: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_FORM_TYPE),
     },

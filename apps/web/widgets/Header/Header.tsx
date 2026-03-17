@@ -27,7 +27,7 @@ function getHeaderHeightPx() {
 
 function computeDockTone(pathname: string | null): DockTone {
   if (typeof window === "undefined") return "hero";
-  if (pathname?.startsWith("/blog")) return "surface";
+  if (pathname?.startsWith("/blog") || pathname?.startsWith("/diagnostika")) return "surface";
 
   if (typeof document === "undefined") return "hero";
   const sentinel = document.querySelector(HERO_END_SENTINEL_SELECTOR);
@@ -113,7 +113,10 @@ export function Header() {
     openedOnPath: string | null;
   }>({ open: false, openedOnPath: null });
 
-  const ctaHref = pathname?.startsWith("/blog") ? "/#lead-form" : "#lead-form";
+  const ctaHref =
+    pathname?.startsWith("/blog") || pathname?.startsWith("/diagnostika")
+      ? "/#lead-form"
+      : "#lead-form";
   const mobileMenuOpen = mobileMenu.open && mobileMenu.openedOnPath === pathname;
 
   const closeMobileMenu = () =>
@@ -135,7 +138,7 @@ export function Header() {
     subscribeDockTone,
     () => computeDockTone(pathname),
     () => {
-      if (pathname?.startsWith("/blog")) return "surface";
+      if (pathname?.startsWith("/blog") || pathname?.startsWith("/diagnostika")) return "surface";
       return "hero";
     }
   );

@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "diagnostic_campaigns",
+  "info": {
+    "singularName": "diagnostic-campaign",
+    "pluralName": "diagnostic-campaigns",
+    "displayName": "Diagnostic Campaign",
+    "description": "Public diagnostic link bound to organization and test version"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "startsAt": {
+      "type": "datetime"
+    },
+    "endsAt": {
+      "type": "datetime"
+    },
+    "organization": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::diagnostic-organization.diagnostic-organization",
+      "inversedBy": "campaigns",
+      "required": true
+    },
+    "test": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::diagnostic-test.diagnostic-test",
+      "inversedBy": "campaigns",
+      "required": true
+    },
+    "submissions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::diagnostic-submission.diagnostic-submission",
+      "mappedBy": "campaign"
+    }
+  }
+}

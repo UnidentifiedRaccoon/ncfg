@@ -306,3 +306,78 @@ body {
 .post-content td {
   color: var(--color-gray-600);
 }
+
+/* Diagnostic survey variant animations */
+@keyframes minimalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes blobDrift {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(30px, -20px);
+  }
+  66% {
+    transform: translate(-20px, 15px);
+  }
+}
+
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes chatBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes textGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.25));
+  }
+  50% {
+    filter: drop-shadow(0 0 18px rgba(59, 130, 246, 0.5));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="animate-[minimalSlideIn"],
+  [class*="animate-[cardIn"],
+  [class*="animate-[bubbleIn"],
+  [class*="animate-[chatBounce"],
+  [class*="animate-[blobDrift"],
+  [class*="animate-[textGlow"] {
+    animation: none !important;
+  }
+}

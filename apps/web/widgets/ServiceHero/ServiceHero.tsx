@@ -16,7 +16,7 @@ export function ServiceHero({
       headline={title}
       lead={shortDescription}
       primaryAction={{ label: ctaLabel, href: "#lead-form" }}
-      imageSrc="/hero.png"
+      imageSrc="/ChatGPT Image Mar 17, 2026, 06_20_21 PM.png"
       imageAlt=""
     />
   );

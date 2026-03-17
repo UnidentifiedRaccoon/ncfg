@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { ChevronDown, Send, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
+import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 
 interface PostQuestionFormProps {
   postTitle: string;
@@ -41,6 +42,7 @@ export function PostQuestionForm({ postTitle }: PostQuestionFormProps) {
         body: JSON.stringify({
           ...formData,
           postTitle,
+          sourcePageUrl: captureCurrentPageUrl(),
         }),
       });
 

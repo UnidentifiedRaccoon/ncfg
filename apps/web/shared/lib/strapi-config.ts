@@ -3,6 +3,7 @@ type StrapiSource = 'default' | 'local' | 'prod';
 interface StrapiSourceConfig {
   urlEnv: string;
   tokenEnv: string;
+  writeTokenEnv?: string;
 }
 
 interface ResolvedStrapiConfig {
@@ -19,14 +20,17 @@ const STRAPI_SOURCE_CONFIG: Record<StrapiSource, StrapiSourceConfig> = {
   default: {
     urlEnv: 'STRAPI_URL',
     tokenEnv: 'STRAPI_API_TOKEN',
+    writeTokenEnv: 'STRAPI_WRITE_API_TOKEN',
   },
   local: {
     urlEnv: 'STRAPI_LOCAL_URL',
     tokenEnv: 'STRAPI_LOCAL_API_TOKEN',
+    writeTokenEnv: 'STRAPI_LOCAL_WRITE_API_TOKEN',
   },
   prod: {
     urlEnv: 'STRAPI_PROD_URL',
     tokenEnv: 'STRAPI_PROD_API_TOKEN',
+    writeTokenEnv: 'STRAPI_PROD_WRITE_API_TOKEN',
   },
 };
 
@@ -85,4 +89,31 @@ export function getResolvedStrapiConfigOrThrow(): ResolvedStrapiConfig {
   }
 
   return { source, url, token, urlEnv, tokenEnv };
+}
+
+export function getResolvedStrapiWriteConfigOrThrow(): ResolvedStrapiConfig {
+  const source = getStrapiSourceOrThrow();
+  const { urlEnv, writeTokenEnv } = STRAPI_SOURCE_CONFIG[source];
+
+  const url = trimEnv(urlEnv);
+  const token = normalizeToken(
+    trimEnv(writeTokenEnv || '') ?? trimEnv('STRAPI_WRITE_API_TOKEN')
+  );
+
+  if (!url || !token) {
+    const missingVars: string[] = [];
+    if (!url) missingVars.push(urlEnv);
+    if (!token) {
+      missingVars.push(writeTokenEnv || 'STRAPI_WRITE_API_TOKEN');
+    }
+    throw new Error(getRequiredMessage(source, missingVars));
+  }
+
+  return {
+    source,
+    url,
+    token,
+    urlEnv,
+    tokenEnv: writeTokenEnv || 'STRAPI_WRITE_API_TOKEN',
+  };
 }
