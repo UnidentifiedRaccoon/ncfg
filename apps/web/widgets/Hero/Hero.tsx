@@ -26,7 +26,7 @@ export function Hero({
   lead,
   primaryCta,
   metrics,
-  imageSrc = "/ChatGPT Image Mar 17, 2026, 06_20_21 PM.png",
+  imageSrc = "/heroV2.minified.png",
   imageAlt = "",
 }: HeroProps) {
   const sanitizeLabel = (label: string) => label.replace(/\.{2,}$/, "");
