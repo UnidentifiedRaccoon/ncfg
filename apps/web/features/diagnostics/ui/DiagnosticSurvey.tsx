@@ -891,7 +891,7 @@ export function DiagnosticSurvey({
                               Контактные данные
                             </h2>
                             <p className="mt-3 text-base leading-7 text-[#475569]">
-                              Заполните форму, чтобы мы связали ответы с участником.
+                              Заполните форму, чтобы получить результаты на почту
                             </p>
 
                             {status === "error" && (
