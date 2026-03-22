@@ -341,8 +341,7 @@ export default factories.createCoreService(
         attemptNumber = Array.isArray(existingAttempts) ? existingAttempts.length + 1 : 1;
       }
 
-      const baseData = {
-        ...buildSubmissionRelations(parsedPayload),
+      const scalarData = {
         submissionKey: parsedPayload.submissionKey,
         sourcePageUrl:
           parsedPayload.sourcePageUrl ?? existingSubmission?.sourcePageUrl ?? null,
@@ -371,9 +370,12 @@ export default factories.createCoreService(
           : null;
 
       if (existingSubmission?.documentId) {
+        // Do NOT send relation fields in update — plain documentId strings
+        // can clear manyToOne relations in Strapi 5 Document Service.
+        // Relations are already set correctly during the initial create.
         const updated = await strapi.documents(SUBMISSION_UID).update({
           documentId: existingSubmission.documentId,
-          data: respondentData ? { ...baseData, ...respondentData } : baseData,
+          data: respondentData ? { ...scalarData, ...respondentData } : scalarData,
         });
 
         if (parsedPayload.meta?.requestId) {
@@ -390,7 +392,8 @@ export default factories.createCoreService(
 
       const created = await strapi.documents(SUBMISSION_UID).create({
         data: {
-          ...baseData,
+          ...buildSubmissionRelations(parsedPayload),
+          ...scalarData,
           fullName: respondentData?.fullName ?? null,
           email: respondentData?.email ?? null,
           emailNormalized: respondentData?.emailNormalized ?? null,
