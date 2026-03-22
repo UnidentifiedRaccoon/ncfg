@@ -438,13 +438,14 @@ export function DiagnosticSurvey({
   };
 
   const goToPreviousStep = () => {
+    if (phase === "results" || isSubmitted) return;
     rawGoToPreviousStep();
     setStepKey((k) => k + 1);
     setHasNavigated(true);
   };
 
   const goToStep = (index: number) => {
-    if (isSubmitted) return;
+    if (phase === "results" || isSubmitted) return;
     rawGoToStep(index);
     setStepKey((k) => k + 1);
     setHasNavigated(true);
@@ -486,6 +487,7 @@ export function DiagnosticSurvey({
 
   const estimatedMinutes = Math.ceil(questions.length * 0.5);
   const showSidebar = phase === "survey" || phase === "results";
+  const areAnswersLocked = phase === "results" || isSubmitted;
 
   // The result to display: canonical (from submit) takes priority over preview
   const displayResult = isSubmitted && result ? result : previewResult;
@@ -620,10 +622,10 @@ export function DiagnosticSurvey({
                         key={question.key}
                         type="button"
                         onClick={() => goToStep(index)}
-                        disabled={isSubmitted}
+                        disabled={areAnswersLocked}
                         className={cn(
                           "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors",
-                          isSubmitted && "opacity-60 cursor-default",
+                          areAnswersLocked && "opacity-60 cursor-default",
                           stepState === "active"
                             ? "bg-[#3B82F6]/[0.06] border border-[#3B82F6]/30"
                             : "border border-transparent hover:bg-[#3B82F6]/[0.06]"
@@ -723,10 +725,10 @@ export function DiagnosticSurvey({
                             key={question.key}
                             type="button"
                             onClick={() => goToStep(index)}
-                            disabled={isSubmitted}
+                            disabled={areAnswersLocked}
                             className={cn(
                               "group flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-all duration-200",
-                              isSubmitted && "opacity-60 cursor-default",
+                              areAnswersLocked && "opacity-60 cursor-default",
                               stepState === "active"
                                 ? "border-[#3B82F6]/30 bg-[#3B82F6]/[0.06]"
                                 : stepState === "done"
@@ -842,15 +844,7 @@ export function DiagnosticSurvey({
                             Не удалось загрузить результаты
                           </h2>
                           <p className="mt-2 text-sm text-[#475569]">{errorMessage}</p>
-                          <div className="mt-6 flex items-center justify-center gap-3">
-                            <button
-                              type="button"
-                              onClick={goToPreviousStep}
-                              className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-[#475569] transition-colors hover:bg-[#3B82F6]/[0.06] hover:text-[#1E3A5F]"
-                            >
-                              <ArrowLeft className="h-4 w-4" />
-                              Назад
-                            </button>
+                          <div className="mt-6 flex items-center justify-center">
                             <button
                               type="button"
                               onClick={() => fetchPreviewResult()}
@@ -1009,14 +1003,9 @@ export function DiagnosticSurvey({
                             </div>
 
                             <div className="mt-8 flex items-center justify-between">
-                              <button
-                                type="button"
-                                onClick={goToPreviousStep}
-                                className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-[#475569] transition-colors hover:bg-[#3B82F6]/[0.06] hover:text-[#1E3A5F]"
-                              >
-                                <ArrowLeft className="h-4 w-4" />
-                                Назад
-                              </button>
+                              <p className="text-sm leading-6 text-[#94A3B8]">
+                                После перехода к результату ответы фиксируются.
+                              </p>
                               <button
                                 type="submit"
                                 disabled={status === "submitting"}

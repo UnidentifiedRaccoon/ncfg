@@ -93,6 +93,8 @@ export interface DiagnosticSubmitResponse {
 export interface DiagnosticPreviewResponse {
   success: boolean;
   data: {
+    documentId?: string;
+    attemptNumber?: number;
     result: DiagnosticResult;
   };
 }

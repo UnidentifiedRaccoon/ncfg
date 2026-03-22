@@ -2,6 +2,7 @@ import type {
   DiagnosticCampaign,
   DiagnosticPublicQuestion,
   DiagnosticQuestion,
+  DiagnosticResult,
   DiagnosticResultBand,
   DiagnosticResultInsight,
   DiagnosticSubmissionAnswerSnapshot,
@@ -125,16 +126,54 @@ export function selectResultBand(
   );
 }
 
-export function evaluateDiagnosticSubmission(
-  campaign: DiagnosticCampaign,
-  answers: DiagnosticAnswerInput[]
-): {
+export interface EvaluatedDiagnosticSubmission {
   totalScore: number;
   maxScore: number;
   scorePercent: number;
   answersSnapshot: DiagnosticSubmissionAnswerSnapshot[];
   insights: DiagnosticResultInsight[];
-} {
+}
+
+export function buildDiagnosticResult(
+  campaign: DiagnosticCampaign,
+  evaluatedSubmission: Pick<
+    EvaluatedDiagnosticSubmission,
+    "totalScore" | "maxScore" | "scorePercent" | "insights"
+  >
+): DiagnosticResult {
+  const { totalScore, maxScore, scorePercent, insights } = evaluatedSubmission;
+  const resultBands = campaign.test?.resultBands ?? [];
+  let band: DiagnosticResult["band"] = null;
+
+  if (resultBands.length > 0) {
+    const validation = validateResultBands(resultBands);
+    if (validation.valid) {
+      const matched = selectResultBand(resultBands, scorePercent);
+      if (matched) {
+        band = {
+          key: matched.key,
+          title: matched.title,
+          summary: matched.summary,
+          ctaLabel: matched.ctaLabel,
+          ctaHref: matched.ctaHref,
+        };
+      }
+    }
+  }
+
+  return {
+    totalScore,
+    maxScore,
+    scorePercent,
+    band,
+    insights,
+  };
+}
+
+export function evaluateDiagnosticSubmission(
+  campaign: DiagnosticCampaign,
+  answers: DiagnosticAnswerInput[]
+): EvaluatedDiagnosticSubmission {
   if (!campaign.test) {
     throw new Error("Тест для диагностики не настроен");
   }

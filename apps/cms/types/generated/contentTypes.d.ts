@@ -593,22 +593,19 @@ export interface ApiDiagnosticSubmissionDiagnosticSubmission
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
-    consentAcceptedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    consentAcceptedAt: Schema.Attribute.DateTime;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     email: Schema.Attribute.Email &
-      Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
     emailNormalized: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
     fullName: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
@@ -634,6 +631,11 @@ export interface ApiDiagnosticSubmissionDiagnosticSubmission
       }>;
     publishedAt: Schema.Attribute.DateTime;
     sourcePageUrl: Schema.Attribute.Text;
+    submissionKey: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
     submittedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
     test: Schema.Attribute.Relation<
       'manyToOne',

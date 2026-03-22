@@ -11,6 +11,14 @@
   "pluginOptions": {},
   "config": {
     "metadatas": {
+      "submissionKey": {
+        "edit": {
+          "visible": false
+        },
+        "list": {
+          "visible": false
+        }
+      },
       "emailNormalized": {
         "edit": {
           "visible": false
@@ -43,19 +51,21 @@
       "inversedBy": "submissions",
       "required": true
     },
-    "fullName": {
+    "submissionKey": {
       "type": "string",
       "required": true,
+      "maxLength": 100
+    },
+    "fullName": {
+      "type": "string",
       "maxLength": 255
     },
     "email": {
       "type": "email",
-      "required": true,
       "maxLength": 255
     },
     "emailNormalized": {
       "type": "string",
-      "required": true,
       "maxLength": 255
     },
     "phone": {
@@ -66,8 +76,7 @@
       "type": "text"
     },
     "consentAcceptedAt": {
-      "type": "datetime",
-      "required": true
+      "type": "datetime"
     },
     "totalScore": {
       "type": "integer",

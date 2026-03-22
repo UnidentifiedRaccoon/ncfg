@@ -35,10 +35,20 @@ interface DraftState {
   respondent: RespondentFormData;
   consentAccepted: boolean;
   phase: DiagnosticPhase;
+  submissionKey: string;
+  submissionDocumentId?: string;
 }
 
 function draftKey(campaignSlug: string): string {
   return `ncfg.diagnostic.${campaignSlug}.draft.v1`;
+}
+
+function createSubmissionKey() {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `diag-${Date.now().toString(36)}-${Math.random().toString(16).slice(2, 10)}`;
 }
 
 function loadDraft(campaignSlug: string): DraftState | null {
@@ -49,11 +59,25 @@ function loadDraft(campaignSlug: string): DraftState | null {
     if (
       typeof parsed.currentStep !== "number" ||
       typeof parsed.answers !== "object" ||
-      typeof parsed.respondent !== "object"
+      parsed.answers === null ||
+      typeof parsed.respondent !== "object" ||
+      parsed.respondent === null
     ) {
       return null;
     }
-    return parsed;
+
+    return {
+      ...parsed,
+      submissionKey:
+        typeof parsed.submissionKey === "string" && parsed.submissionKey.trim().length > 0
+          ? parsed.submissionKey.trim()
+          : createSubmissionKey(),
+      submissionDocumentId:
+        typeof parsed.submissionDocumentId === "string" &&
+        parsed.submissionDocumentId.trim().length > 0
+          ? parsed.submissionDocumentId.trim()
+          : undefined,
+    };
   } catch {
     return null;
   }
@@ -145,6 +169,8 @@ export function useDiagnosticSurvey({
   const [phase, setPhase] = useState<DiagnosticPhase>("intro");
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
+  const [submissionKey, setSubmissionKey] = useState(() => createSubmissionKey());
+  const [submissionDocumentId, setSubmissionDocumentId] = useState<string | null>(null);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -182,8 +208,27 @@ export function useDiagnosticSurvey({
   useEffect(() => {
     if ((phase !== "survey" && phase !== "results") || !isHydrated || isSubmitted) return;
 
-    saveDraft(campaignSlug, { currentStep, answers, respondent, consentAccepted, phase });
-  }, [phase, isHydrated, isSubmitted, campaignSlug, currentStep, answers, respondent, consentAccepted]);
+    saveDraft(campaignSlug, {
+      currentStep,
+      answers,
+      respondent,
+      consentAccepted,
+      phase,
+      submissionKey,
+      submissionDocumentId: submissionDocumentId ?? undefined,
+    });
+  }, [
+    phase,
+    isHydrated,
+    isSubmitted,
+    campaignSlug,
+    currentStep,
+    answers,
+    respondent,
+    consentAccepted,
+    submissionKey,
+    submissionDocumentId,
+  ]);
 
   /* ---- Preview fetch ---- */
 
@@ -202,6 +247,8 @@ export function useDiagnosticSurvey({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          submissionKey,
+          sourcePageUrl: captureCurrentPageUrl(),
           answers: questions.map((question) => ({
             questionKey: question.key,
             answerKey: answers[question.key],
@@ -218,6 +265,7 @@ export function useDiagnosticSurvey({
       }
 
       setPreviewResult(payload.data.result);
+      setSubmissionDocumentId(payload.data.documentId ?? null);
       setPreviewStatus("success");
     } catch (error) {
       if (counter !== previewCounter.current) return;
@@ -247,10 +295,12 @@ export function useDiagnosticSurvey({
     setResult(null);
     setPreviewResult(null);
     setPreviewStatus("idle");
+    setSubmissionDocumentId(null);
   };
 
   const startFresh = () => {
     clearDraft(campaignSlug);
+    setSubmissionKey(createSubmissionKey());
     resetSurveyState();
     setHasDraft(false);
     setPhase("survey");
@@ -263,6 +313,8 @@ export function useDiagnosticSurvey({
       setAnswers(draft.answers);
       setRespondent(draft.respondent);
       setConsentAccepted(draft.consentAccepted);
+      setSubmissionKey(draft.submissionKey);
+      setSubmissionDocumentId(draft.submissionDocumentId ?? null);
 
       // If draft was in results phase, restore and re-fetch preview
       if (draft.phase === "results") {
@@ -292,12 +344,14 @@ export function useDiagnosticSurvey({
 
   const startFromIntro = () => {
     clearDraft(campaignSlug);
+    setSubmissionKey(createSubmissionKey());
     resetSurveyState();
     setHasDraft(false);
     setPhase("intro");
   };
 
   const handleSelectAnswer = (questionKey: string, answerKey: string) => {
+    if (phase === "results" || isSubmitted) return;
     setAnswers((prev) => ({ ...prev, [questionKey]: answerKey }));
     clearError();
   };
@@ -336,9 +390,6 @@ export function useDiagnosticSurvey({
 
   const goToPreviousStep = () => {
     if (phase === "results") {
-      setPhase("survey");
-      setCurrentStep(questions.length - 1);
-      clearError();
       return;
     }
 
@@ -349,9 +400,7 @@ export function useDiagnosticSurvey({
   const goToStep = (index: number) => {
     if (index < 0 || index >= questions.length) return;
 
-    if (phase === "results") {
-      setPhase("survey");
-    }
+    if (phase === "results") return;
     setCurrentStep(index);
     clearError();
   };
@@ -397,6 +446,7 @@ export function useDiagnosticSurvey({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          submissionKey,
           answers: questions.map((question) => ({
             questionKey: question.key,
             answerKey: answers[question.key],
@@ -418,6 +468,7 @@ export function useDiagnosticSurvey({
 
       clearDraft(campaignSlug);
       setResult(payload.data.result);
+      setSubmissionDocumentId(payload.data.documentId ?? submissionDocumentId);
       setStatus("success");
     } catch (error) {
       setStatus("error");

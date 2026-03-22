@@ -15,15 +15,16 @@ interface IntakeAnswerPayload {
 }
 
 interface IntakePayload {
+  submissionKey: string;
   campaignDocumentId: string;
   organizationDocumentId: string;
   testDocumentId: string;
-  fullName: string;
-  email: string;
-  emailNormalized: string;
+  fullName?: string;
+  email?: string;
+  emailNormalized?: string;
   phone?: string;
   sourcePageUrl?: string;
-  consentAcceptedAt: string;
+  consentAcceptedAt?: string;
   submittedAt: string;
   totalScore: number;
   campaignSlugSnapshot: string;
@@ -112,6 +113,7 @@ function parseIntakePayload(payload: unknown): IntakePayload | null {
   }
 
   const record = payload as Record<string, unknown>;
+  const submissionKey = asTrimmedString(record.submissionKey);
   const campaignDocumentId = asTrimmedString(record.campaignDocumentId);
   const organizationDocumentId = asTrimmedString(record.organizationDocumentId);
   const testDocumentId = asTrimmedString(record.testDocumentId);
@@ -126,15 +128,15 @@ function parseIntakePayload(payload: unknown): IntakePayload | null {
   const testCodeSnapshot = asTrimmedString(record.testCodeSnapshot);
   const testVersionSnapshot = asFiniteInteger(record.testVersionSnapshot);
   const answers = parseAnswers(record.answers);
+  const hasRespondentData = Boolean(
+    fullName || email || emailNormalized || asOptionalTrimmedString(record.phone) || consentAcceptedAt
+  );
 
   if (
+    !submissionKey ||
     !campaignDocumentId ||
     !organizationDocumentId ||
     !testDocumentId ||
-    !fullName ||
-    !email ||
-    !emailNormalized ||
-    !consentAcceptedAt ||
     !submittedAt ||
     totalScore === null ||
     !campaignSlugSnapshot ||
@@ -143,6 +145,10 @@ function parseIntakePayload(payload: unknown): IntakePayload | null {
     testVersionSnapshot === null ||
     !answers
   ) {
+    return null;
+  }
+
+  if (hasRespondentData && (!fullName || !email || !emailNormalized || !consentAcceptedAt)) {
     return null;
   }
 
@@ -157,15 +163,16 @@ function parseIntakePayload(payload: unknown): IntakePayload | null {
       : undefined;
 
   return {
+    submissionKey,
     campaignDocumentId,
     organizationDocumentId,
     testDocumentId,
-    fullName,
-    email,
-    emailNormalized,
+    fullName: fullName ?? undefined,
+    email: email ?? undefined,
+    emailNormalized: emailNormalized ?? undefined,
     phone: asOptionalTrimmedString(record.phone),
     sourcePageUrl: asOptionalTrimmedString(record.sourcePageUrl),
-    consentAcceptedAt,
+    consentAcceptedAt: consentAcceptedAt ?? undefined,
     submittedAt,
     totalScore,
     campaignSlugSnapshot,
@@ -250,6 +257,19 @@ function sanitizeFileSegment(value: string) {
     .replace(/^-|-$/g, "") || "diagnostics";
 }
 
+function mapAnswersForStorage(answers: IntakeAnswerPayload[]) {
+  return answers.map((answer) => ({
+    questionKey: answer.questionKey,
+    questionTitle: answer.questionTitle,
+    answerKey: answer.answerKey,
+    answerLabel: answer.answerLabel,
+    weight: answer.weight,
+    insightTitle: answer.insightTitle ?? null,
+    insightText: answer.insightText ?? null,
+    practiceStep: answer.practiceStep ?? null,
+  }));
+}
+
 export default factories.createCoreService(
   SUBMISSION_UID,
   ({ strapi }: { strapi: any }) => ({
@@ -259,62 +279,123 @@ export default factories.createCoreService(
         throw new Error("Некорректный payload диагностики");
       }
 
-      const existingAttempts = await strapi.documents(SUBMISSION_UID).findMany({
-        fields: ["documentId"],
+      const existingSubmission = await strapi.documents(SUBMISSION_UID).findFirst({
+        fields: [
+          "documentId",
+          "attemptNumber",
+          "submittedAt",
+          "sourcePageUrl",
+          "fullName",
+          "email",
+          "emailNormalized",
+          "phone",
+          "consentAcceptedAt",
+        ],
         filters: {
-          campaign: {
-            documentId: {
-              $eq: parsedPayload.campaignDocumentId,
-            },
+          submissionKey: {
+            $eq: parsedPayload.submissionKey,
           },
-          emailNormalized: {
-            $eq: parsedPayload.emailNormalized,
-          },
-        },
-        pagination: {
-          page: 1,
-          pageSize: 1000,
         },
       });
 
-      const attemptNumber = Array.isArray(existingAttempts)
-        ? existingAttempts.length + 1
-        : 1;
+      let attemptNumber =
+        typeof existingSubmission?.attemptNumber === "number" &&
+        Number.isFinite(existingSubmission.attemptNumber)
+          ? Math.trunc(existingSubmission.attemptNumber)
+          : 1;
+
+      if (parsedPayload.emailNormalized) {
+        const existingAttempts = await strapi.documents(SUBMISSION_UID).findMany({
+          fields: ["documentId"],
+          filters: {
+            campaign: {
+              documentId: {
+                $eq: parsedPayload.campaignDocumentId,
+              },
+            },
+            emailNormalized: {
+              $eq: parsedPayload.emailNormalized,
+            },
+            ...(existingSubmission?.documentId
+              ? {
+                  documentId: {
+                    $ne: existingSubmission.documentId,
+                  },
+                }
+              : {}),
+          },
+          pagination: {
+            page: 1,
+            pageSize: 1000,
+          },
+        });
+
+        attemptNumber = Array.isArray(existingAttempts) ? existingAttempts.length + 1 : 1;
+      }
+
+      const baseData = {
+        organization: { documentId: parsedPayload.organizationDocumentId },
+        campaign: { documentId: parsedPayload.campaignDocumentId },
+        test: { documentId: parsedPayload.testDocumentId },
+        submissionKey: parsedPayload.submissionKey,
+        sourcePageUrl:
+          parsedPayload.sourcePageUrl ?? existingSubmission?.sourcePageUrl ?? null,
+        totalScore: parsedPayload.totalScore,
+        attemptNumber,
+        submittedAt: existingSubmission?.submittedAt ?? parsedPayload.submittedAt,
+        campaignSlugSnapshot: parsedPayload.campaignSlugSnapshot,
+        organizationNameSnapshot: parsedPayload.organizationNameSnapshot,
+        testCodeSnapshot: parsedPayload.testCodeSnapshot,
+        testVersionSnapshot: parsedPayload.testVersionSnapshot,
+        answers: mapAnswersForStorage(parsedPayload.answers),
+      };
+
+      const respondentData =
+        parsedPayload.fullName &&
+        parsedPayload.email &&
+        parsedPayload.emailNormalized &&
+        parsedPayload.consentAcceptedAt
+          ? {
+              fullName: parsedPayload.fullName,
+              email: parsedPayload.email,
+              emailNormalized: parsedPayload.emailNormalized,
+              phone: parsedPayload.phone ?? null,
+              consentAcceptedAt: parsedPayload.consentAcceptedAt,
+            }
+          : null;
+
+      if (existingSubmission?.documentId) {
+        const updated = await strapi.documents(SUBMISSION_UID).update({
+          documentId: existingSubmission.documentId,
+          data: respondentData ? { ...baseData, ...respondentData } : baseData,
+        });
+
+        if (parsedPayload.meta?.requestId) {
+          strapi.log.info(
+            `[diagnostics] submission upserted requestId=${parsedPayload.meta.requestId} campaign=${parsedPayload.campaignSlugSnapshot} documentId=${updated.documentId} attempt=${attemptNumber}`
+          );
+        }
+
+        return {
+          documentId: updated.documentId,
+          attemptNumber,
+        };
+      }
 
       const created = await strapi.documents(SUBMISSION_UID).create({
         data: {
-          organization: { documentId: parsedPayload.organizationDocumentId },
-          campaign: { documentId: parsedPayload.campaignDocumentId },
-          test: { documentId: parsedPayload.testDocumentId },
-          fullName: parsedPayload.fullName,
-          email: parsedPayload.email,
-          emailNormalized: parsedPayload.emailNormalized,
-          phone: parsedPayload.phone ?? null,
-          sourcePageUrl: parsedPayload.sourcePageUrl ?? null,
-          consentAcceptedAt: parsedPayload.consentAcceptedAt,
-          totalScore: parsedPayload.totalScore,
-          attemptNumber,
-          submittedAt: parsedPayload.submittedAt,
-          campaignSlugSnapshot: parsedPayload.campaignSlugSnapshot,
-          organizationNameSnapshot: parsedPayload.organizationNameSnapshot,
-          testCodeSnapshot: parsedPayload.testCodeSnapshot,
-          testVersionSnapshot: parsedPayload.testVersionSnapshot,
-          answers: parsedPayload.answers.map((answer) => ({
-            questionKey: answer.questionKey,
-            questionTitle: answer.questionTitle,
-            answerKey: answer.answerKey,
-            answerLabel: answer.answerLabel,
-            weight: answer.weight,
-            insightTitle: answer.insightTitle ?? null,
-            insightText: answer.insightText ?? null,
-            practiceStep: answer.practiceStep ?? null,
-          })),
+          ...baseData,
+          fullName: respondentData?.fullName ?? null,
+          email: respondentData?.email ?? null,
+          emailNormalized: respondentData?.emailNormalized ?? null,
+          phone: respondentData?.phone ?? null,
+          consentAcceptedAt: respondentData?.consentAcceptedAt ?? null,
         },
       });
 
       if (parsedPayload.meta?.requestId) {
         strapi.log.info(
-          `[diagnostics] submission stored requestId=${parsedPayload.meta.requestId} campaign=${parsedPayload.campaignSlugSnapshot} attempt=${attemptNumber}`
+          `[diagnostics] submission upserted requestId=${parsedPayload.meta.requestId} campaign=${parsedPayload.campaignSlugSnapshot} documentId=${created.documentId} attempt=${attemptNumber}`
         );
       }
 

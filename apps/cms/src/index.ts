@@ -15,6 +15,64 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
+    const submissionUid = 'api::diagnostic-submission.diagnostic-submission';
+
+    const parseQueryValue = (value) =>
+      typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
+
+    const sendDiagnosticsError = (ctx, status, message) => {
+      ctx.status = status;
+      ctx.body = {
+        error: {
+          status,
+          name: status === 404 ? 'NotFoundError' : 'ApplicationError',
+          message,
+        },
+      };
+    };
+
+    strapi.server.routes({
+      type: 'admin',
+      prefix: '/diagnostic-tools',
+      routes: [
+        {
+          method: 'GET',
+          path: '/campaigns',
+          handler: async (ctx) => {
+            const campaigns = await strapi.service(submissionUid).listCampaignOptions();
+            ctx.body = { data: campaigns };
+          },
+        },
+        {
+          method: 'GET',
+          path: '/export',
+          handler: async (ctx) => {
+            const campaignDocumentId = parseQueryValue(ctx.query?.campaign);
+
+            if (!campaignDocumentId) {
+              sendDiagnosticsError(ctx, 400, 'Параметр campaign обязателен');
+              return;
+            }
+
+            const result = await strapi.service(submissionUid).exportCampaignCsv({
+              campaignDocumentId,
+              from: parseQueryValue(ctx.query?.from),
+              to: parseQueryValue(ctx.query?.to),
+            });
+
+            if (!result) {
+              sendDiagnosticsError(ctx, 404, 'Кампания не найдена');
+              return;
+            }
+
+            ctx.set('Content-Type', 'text/csv; charset=utf-8');
+            ctx.set('Content-Disposition', `attachment; filename="${result.fileName}"`);
+            ctx.body = result.csv;
+          },
+        },
+      ],
+    });
+
     const rubrics = [
       { title: 'Новости', slug: 'news', order: 10 },
       { title: 'Анонс', slug: 'announce', order: 20 },

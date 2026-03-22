@@ -1,17 +1,26 @@
 import { NextResponse } from "next/server";
 import {
+  getClientIp,
   asTrimmedString,
   getOrCreateRequestId,
   readJsonSafe,
 } from "@/shared/lib/api-route-utils";
 import { getDiagnosticCampaignBySlug } from "@/shared/api/diagnostics";
 import {
+  buildDiagnosticResult,
   evaluateDiagnosticSubmission,
   isDiagnosticCampaignAvailable,
-  selectResultBand,
-  validateResultBands,
   type DiagnosticAnswerInput,
 } from "@/shared/lib/diagnostics";
+import { resolveSourcePageUrl } from "@/shared/lib/source-page";
+import { postStrapiWriteJSON } from "@/shared/lib/strapi-write";
+
+interface DiagnosticIntakeResponse {
+  data?: {
+    documentId?: string;
+    attemptNumber?: number;
+  };
+}
 
 function parseAnswers(value: unknown): DiagnosticAnswerInput[] | null {
   if (!Array.isArray(value)) {
@@ -63,6 +72,14 @@ export async function POST(
       );
     }
 
+    const submissionKey = asTrimmedString(body.submissionKey);
+    if (!submissionKey) {
+      return NextResponse.json(
+        { error: "Идентификатор диагностики обязателен" },
+        { status: 400, headers: responseHeaders }
+      );
+    }
+
     const answers = parseAnswers(body.answers);
     if (!answers || answers.length === 0) {
       return NextResponse.json(
@@ -99,37 +116,37 @@ export async function POST(
       );
     }
 
-    const { totalScore, maxScore, scorePercent, insights } = evaluatedSubmission;
-    const resultBands = campaign.test.resultBands ?? [];
-    let band: {
-      key: string;
-      title: string;
-      summary: string;
-      ctaLabel?: string;
-      ctaHref?: string;
-    } | null = null;
-
-    if (resultBands.length > 0) {
-      const validation = validateResultBands(resultBands);
-      if (validation.valid) {
-        const matched = selectResultBand(resultBands, scorePercent);
-        if (matched) {
-          band = {
-            key: matched.key,
-            title: matched.title,
-            summary: matched.summary,
-            ctaLabel: matched.ctaLabel,
-            ctaHref: matched.ctaHref,
-          };
-        }
+    const intakeResponse = await postStrapiWriteJSON<DiagnosticIntakeResponse>(
+      "/diagnostic-submissions/intake",
+      {
+        submissionKey,
+        campaignDocumentId: campaign.documentId,
+        organizationDocumentId: campaign.organization.documentId,
+        testDocumentId: campaign.test.documentId,
+        submittedAt: new Date().toISOString(),
+        totalScore: evaluatedSubmission.totalScore,
+        sourcePageUrl: resolveSourcePageUrl(request, body.sourcePageUrl),
+        campaignSlugSnapshot: campaign.slug,
+        organizationNameSnapshot: campaign.organization.name,
+        testCodeSnapshot: campaign.test.code,
+        testVersionSnapshot: campaign.test.version,
+        answers: evaluatedSubmission.answersSnapshot,
+        meta: {
+          requestId,
+          clientIp: getClientIp(request),
+          userAgent: request.headers.get("user-agent") ?? undefined,
+        },
       }
-    }
+    );
+
+    const result = buildDiagnosticResult(campaign, evaluatedSubmission);
 
     return NextResponse.json(
       {
         success: true,
         data: {
-          result: { totalScore, maxScore, scorePercent, band, insights },
+          ...intakeResponse.data,
+          result,
         },
       },
       { headers: responseHeaders }
@@ -137,7 +154,7 @@ export async function POST(
   } catch (error) {
     console.error(`[${requestId}] Error processing diagnostic preview:`, error);
     return NextResponse.json(
-      { error: "Произошла ошибка при вычислении результатов" },
+      { error: "Произошла ошибка при сохранении результата диагностики" },
       { status: 500, headers: responseHeaders }
     );
   }

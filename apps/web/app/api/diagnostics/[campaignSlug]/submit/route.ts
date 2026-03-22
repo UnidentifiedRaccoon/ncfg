@@ -9,17 +9,17 @@ import {
 } from "@/shared/lib/api-route-utils";
 import { getDiagnosticCampaignBySlug } from "@/shared/api/diagnostics";
 import {
+  buildDiagnosticResult,
   evaluateDiagnosticSubmission,
   isDiagnosticCampaignAvailable,
   normalizeDiagnosticEmail,
-  selectResultBand,
-  validateResultBands,
   type DiagnosticAnswerInput,
 } from "@/shared/lib/diagnostics";
 import { resolveSourcePageUrl } from "@/shared/lib/source-page";
 import { postStrapiWriteJSON } from "@/shared/lib/strapi-write";
 
 interface SubmitPayload {
+  submissionKey: string;
   answers: DiagnosticAnswerInput[];
   sourcePageUrl?: string;
   respondent: {
@@ -61,8 +61,9 @@ function parseSubmitPayload(payload: unknown): SubmitPayload | null {
   }
 
   const record = payload as Record<string, unknown>;
+  const submissionKey = asTrimmedString(record.submissionKey);
   const answers = parseAnswers(record.answers);
-  if (!answers || answers.length === 0) {
+  if (!submissionKey || !answers || answers.length === 0) {
     return null;
   }
 
@@ -81,6 +82,7 @@ function parseSubmitPayload(payload: unknown): SubmitPayload | null {
   }
 
   return {
+    submissionKey,
     answers,
     sourcePageUrl: asOptionalTrimmedString(record.sourcePageUrl),
     respondent: {
@@ -159,6 +161,7 @@ export async function POST(
 
     const submittedAt = new Date().toISOString();
     const intakePayload = {
+      submissionKey: data.submissionKey,
       campaignDocumentId: campaign.documentId,
       organizationDocumentId: campaign.organization.documentId,
       testDocumentId: campaign.test.documentId,
@@ -187,31 +190,7 @@ export async function POST(
       intakePayload
     );
 
-    const { totalScore, maxScore, scorePercent, insights } = evaluatedSubmission;
-    const resultBands = campaign.test.resultBands ?? [];
-    let band: {
-      key: string;
-      title: string;
-      summary: string;
-      ctaLabel?: string;
-      ctaHref?: string;
-    } | null = null;
-
-    if (resultBands.length > 0) {
-      const validation = validateResultBands(resultBands);
-      if (validation.valid) {
-        const matched = selectResultBand(resultBands, scorePercent);
-        if (matched) {
-          band = {
-            key: matched.key,
-            title: matched.title,
-            summary: matched.summary,
-            ctaLabel: matched.ctaLabel,
-            ctaHref: matched.ctaHref,
-          };
-        }
-      }
-    }
+    const result = buildDiagnosticResult(campaign, evaluatedSubmission);
 
     return NextResponse.json(
       {
@@ -219,7 +198,7 @@ export async function POST(
         message: "Диагностика успешно сохранена",
         data: {
           ...intakeResponse.data,
-          result: { totalScore, maxScore, scorePercent, band, insights },
+          result,
         },
       },
       { headers: responseHeaders }
