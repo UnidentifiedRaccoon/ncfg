@@ -108,7 +108,7 @@ export async function POST(request: Request) {
 
   const revalidated: string[] = [];
 
-  revalidateTag("diagnostics");
+  revalidateTag("diagnostics", "max");
   revalidated.push("tag:diagnostics");
 
   revalidatePath("/diagnostika/[campaignSlug]", "page");
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
 
   if (slug) {
     const campaignTag = `diagnostic-campaign-${slug}`;
-    revalidateTag(campaignTag);
+    revalidateTag(campaignTag, "max");
     revalidated.push(`tag:${campaignTag}`);
 
     const campaignPath = `/diagnostika/${slug}`;
