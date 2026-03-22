@@ -24,6 +24,16 @@
     "order": {
       "type": "integer",
       "default": 0
+    },
+    "insightTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "insightText": {
+      "type": "text"
+    },
+    "practiceStep": {
+      "type": "text"
     }
   }
 }

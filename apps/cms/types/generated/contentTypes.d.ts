@@ -686,6 +686,7 @@ export interface ApiDiagnosticTestDiagnosticTest
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     questions: Schema.Attribute.Component<'diagnostic.question', true>;
+    resultBands: Schema.Attribute.Component<'diagnostic.result-band', true>;
     submissions: Schema.Attribute.Relation<
       'oneToMany',
       'api::diagnostic-submission.diagnostic-submission'

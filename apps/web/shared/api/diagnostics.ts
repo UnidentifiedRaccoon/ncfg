@@ -5,6 +5,7 @@ import type {
   DiagnosticOption,
   DiagnosticOrganization,
   DiagnosticQuestion,
+  DiagnosticResultBand,
   DiagnosticTest,
 } from "@/shared/api/types/diagnostic";
 
@@ -14,6 +15,9 @@ interface StrapiDiagnosticOption {
   label: string;
   weight: number;
   order: number;
+  insightTitle: string | null;
+  insightText: string | null;
+  practiceStep: string | null;
 }
 
 interface StrapiDiagnosticQuestion {
@@ -25,6 +29,18 @@ interface StrapiDiagnosticQuestion {
   options: StrapiDiagnosticOption[] | null;
 }
 
+interface StrapiDiagnosticResultBand {
+  id: number;
+  key: string;
+  title: string;
+  minPercent: number;
+  maxPercent: number;
+  summary: string;
+  ctaLabel: string | null;
+  ctaHref: string | null;
+  order: number;
+}
+
 interface StrapiDiagnosticTest {
   id: number;
   documentId: string;
@@ -32,6 +48,7 @@ interface StrapiDiagnosticTest {
   version: number;
   title: string;
   questions: StrapiDiagnosticQuestion[] | null;
+  resultBands: StrapiDiagnosticResultBand[] | null;
 }
 
 interface StrapiDiagnosticOrganization {
@@ -58,6 +75,9 @@ function transformOption(option: StrapiDiagnosticOption): DiagnosticOption {
     label: option.label,
     weight: Number(option.weight ?? 0),
     order: Number(option.order ?? 0),
+    insightTitle: option.insightTitle ?? undefined,
+    insightText: option.insightText ?? undefined,
+    practiceStep: option.practiceStep ?? undefined,
   };
 }
 
@@ -71,7 +91,24 @@ function transformQuestion(question: StrapiDiagnosticQuestion): DiagnosticQuesti
   };
 }
 
+function transformResultBand(band: StrapiDiagnosticResultBand): DiagnosticResultBand {
+  return {
+    key: band.key,
+    title: band.title,
+    minPercent: Number(band.minPercent ?? 0),
+    maxPercent: Number(band.maxPercent ?? 100),
+    summary: band.summary,
+    ctaLabel: band.ctaLabel ?? undefined,
+    ctaHref: band.ctaHref ?? undefined,
+    order: Number(band.order ?? 0),
+  };
+}
+
 function transformTest(test: StrapiDiagnosticTest): DiagnosticTest {
+  const resultBands = Array.isArray(test.resultBands)
+    ? test.resultBands.map(transformResultBand).sort((a, b) => a.order - b.order)
+    : [];
+
   return {
     documentId: test.documentId,
     code: test.code,
@@ -80,6 +117,7 @@ function transformTest(test: StrapiDiagnosticTest): DiagnosticTest {
     questions: sortDiagnosticQuestions(
       Array.isArray(test.questions) ? test.questions.map(transformQuestion) : []
     ),
+    resultBands,
   };
 }
 
@@ -125,6 +163,7 @@ export async function getDiagnosticCampaignBySlug(
               options: true,
             },
           },
+          resultBands: true,
         },
       },
     },

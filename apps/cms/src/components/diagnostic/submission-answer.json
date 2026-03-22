@@ -30,6 +30,16 @@
     "weight": {
       "type": "integer",
       "required": true
+    },
+    "insightTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "insightText": {
+      "type": "text"
+    },
+    "practiceStep": {
+      "type": "text"
     }
   }
 }

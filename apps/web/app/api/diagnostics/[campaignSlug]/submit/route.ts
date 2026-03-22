@@ -12,6 +12,8 @@ import {
   evaluateDiagnosticSubmission,
   isDiagnosticCampaignAvailable,
   normalizeDiagnosticEmail,
+  selectResultBand,
+  validateResultBands,
   type DiagnosticAnswerInput,
 } from "@/shared/lib/diagnostics";
 import { resolveSourcePageUrl } from "@/shared/lib/source-page";
@@ -185,11 +187,40 @@ export async function POST(
       intakePayload
     );
 
+    const { totalScore, maxScore, scorePercent, insights } = evaluatedSubmission;
+    const resultBands = campaign.test.resultBands ?? [];
+    let band: {
+      key: string;
+      title: string;
+      summary: string;
+      ctaLabel?: string;
+      ctaHref?: string;
+    } | null = null;
+
+    if (resultBands.length > 0) {
+      const validation = validateResultBands(resultBands);
+      if (validation.valid) {
+        const matched = selectResultBand(resultBands, scorePercent);
+        if (matched) {
+          band = {
+            key: matched.key,
+            title: matched.title,
+            summary: matched.summary,
+            ctaLabel: matched.ctaLabel,
+            ctaHref: matched.ctaHref,
+          };
+        }
+      }
+    }
+
     return NextResponse.json(
       {
         success: true,
         message: "Диагностика успешно сохранена",
-        data: intakeResponse.data ?? null,
+        data: {
+          ...intakeResponse.data,
+          result: { totalScore, maxScore, scorePercent, band, insights },
+        },
       },
       { headers: responseHeaders }
     );

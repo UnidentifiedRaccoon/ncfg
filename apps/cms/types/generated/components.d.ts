@@ -8,6 +8,11 @@ export interface DiagnosticOption extends Struct.ComponentSchema {
     icon: 'bulletList';
   };
   attributes: {
+    insightText: Schema.Attribute.Text;
+    insightTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
     key: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
@@ -19,6 +24,7 @@ export interface DiagnosticOption extends Struct.ComponentSchema {
         maxLength: 255;
       }>;
     order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    practiceStep: Schema.Attribute.Text;
     weight: Schema.Attribute.Integer & Schema.Attribute.Required;
   };
 }
@@ -47,6 +53,55 @@ export interface DiagnosticQuestion extends Struct.ComponentSchema {
   };
 }
 
+export interface DiagnosticResultBand extends Struct.ComponentSchema {
+  collectionName: 'components_diagnostic_result_bands';
+  info: {
+    description: 'Score range with recommendation and CTA';
+    displayName: 'Result Band';
+    icon: 'chartBubble';
+  };
+  attributes: {
+    ctaHref: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    ctaLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    key: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    maxPercent: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 100;
+          min: 0;
+        },
+        number
+      >;
+    minPercent: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 100;
+          min: 0;
+        },
+        number
+      >;
+    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    summary: Schema.Attribute.Text & Schema.Attribute.Required;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+  };
+}
+
 export interface DiagnosticSubmissionAnswer extends Struct.ComponentSchema {
   collectionName: 'components_diagnostic_submission_answers';
   info: {
@@ -65,6 +120,12 @@ export interface DiagnosticSubmissionAnswer extends Struct.ComponentSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
+    insightText: Schema.Attribute.Text;
+    insightTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    practiceStep: Schema.Attribute.Text;
     questionKey: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
@@ -164,6 +225,7 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'diagnostic.option': DiagnosticOption;
       'diagnostic.question': DiagnosticQuestion;
+      'diagnostic.result-band': DiagnosticResultBand;
       'diagnostic.submission-answer': DiagnosticSubmissionAnswer;
       'service.service-example': ServiceServiceExample;
       'service.webinar': ServiceWebinar;

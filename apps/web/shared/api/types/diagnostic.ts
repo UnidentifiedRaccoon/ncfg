@@ -3,6 +3,9 @@ export interface DiagnosticOption {
   label: string;
   weight: number;
   order: number;
+  insightTitle?: string;
+  insightText?: string;
+  practiceStep?: string;
 }
 
 export interface DiagnosticQuestion {
@@ -19,6 +22,7 @@ export interface DiagnosticTest {
   version: number;
   title: string;
   questions: DiagnosticQuestion[];
+  resultBands: DiagnosticResultBand[];
 }
 
 export interface DiagnosticOrganization {
@@ -51,10 +55,66 @@ export interface DiagnosticPublicQuestion {
   options: DiagnosticPublicOption[];
 }
 
+export interface DiagnosticResultBand {
+  key: string;
+  title: string;
+  minPercent: number;
+  maxPercent: number;
+  summary: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  order: number;
+}
+
+export interface DiagnosticResult {
+  totalScore: number;
+  maxScore: number;
+  scorePercent: number;
+  band: {
+    key: string;
+    title: string;
+    summary: string;
+    ctaLabel?: string;
+    ctaHref?: string;
+  } | null;
+  insights: DiagnosticResultInsight[];
+}
+
+export interface DiagnosticSubmitResponse {
+  success: boolean;
+  message: string;
+  data: {
+    documentId?: string;
+    attemptNumber?: number;
+    result: DiagnosticResult;
+  };
+}
+
+export interface DiagnosticPreviewResponse {
+  success: boolean;
+  data: {
+    result: DiagnosticResult;
+  };
+}
+
 export interface DiagnosticSubmissionAnswerSnapshot {
   questionKey: string;
   questionTitle: string;
   answerKey: string;
   answerLabel: string;
   weight: number;
+  insightTitle?: string;
+  insightText?: string;
+  practiceStep?: string;
+}
+
+export interface DiagnosticResultInsight {
+  questionKey: string;
+  questionTitle: string;
+  answerKey: string;
+  answerLabel: string;
+  weight: number;
+  insightTitle: string;
+  insightText: string;
+  practiceStep: string;
 }

@@ -9,6 +9,9 @@ interface IntakeAnswerPayload {
   answerKey: string;
   answerLabel: string;
   weight: number;
+  insightTitle?: string;
+  insightText?: string;
+  practiceStep?: string;
 }
 
 interface IntakePayload {
@@ -94,6 +97,9 @@ function parseAnswers(value: unknown): IntakeAnswerPayload[] | null {
       answerKey,
       answerLabel,
       weight,
+      insightTitle: asOptionalTrimmedString(record.insightTitle),
+      insightText: asOptionalTrimmedString(record.insightText),
+      practiceStep: asOptionalTrimmedString(record.practiceStep),
     });
   }
 
@@ -299,6 +305,9 @@ export default factories.createCoreService(
             answerKey: answer.answerKey,
             answerLabel: answer.answerLabel,
             weight: answer.weight,
+            insightTitle: answer.insightTitle ?? null,
+            insightText: answer.insightText ?? null,
+            practiceStep: answer.practiceStep ?? null,
           })),
         },
       });

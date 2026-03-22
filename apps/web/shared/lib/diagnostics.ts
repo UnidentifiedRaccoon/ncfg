@@ -2,6 +2,8 @@ import type {
   DiagnosticCampaign,
   DiagnosticPublicQuestion,
   DiagnosticQuestion,
+  DiagnosticResultBand,
+  DiagnosticResultInsight,
   DiagnosticSubmissionAnswerSnapshot,
 } from "@/shared/api/types/diagnostic";
 
@@ -72,12 +74,66 @@ export function normalizeDiagnosticEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+export function computeMaxScore(questions: DiagnosticQuestion[]): number {
+  return questions.reduce((sum, question) => {
+    const maxWeight = question.options.reduce(
+      (max, option) => Math.max(max, option.weight),
+      0
+    );
+    return sum + maxWeight;
+  }, 0);
+}
+
+export function validateResultBands(
+  bands: DiagnosticResultBand[]
+): { valid: boolean; error?: string } {
+  if (bands.length === 0) {
+    return { valid: false, error: "Result bands array is empty" };
+  }
+
+  const sorted = [...bands].sort((a, b) => a.minPercent - b.minPercent);
+
+  if (sorted[0].minPercent !== 0) {
+    return { valid: false, error: "Bands must start at 0%" };
+  }
+
+  if (sorted[sorted.length - 1].maxPercent !== 100) {
+    return { valid: false, error: "Bands must end at 100%" };
+  }
+
+  for (let i = 1; i < sorted.length; i++) {
+    const expectedMin = sorted[i - 1].maxPercent + 1;
+    if (sorted[i].minPercent !== expectedMin) {
+      return {
+        valid: false,
+        error: `Gap or overlap between bands at ${sorted[i - 1].maxPercent}%-${sorted[i].minPercent}%`,
+      };
+    }
+  }
+
+  return { valid: true };
+}
+
+export function selectResultBand(
+  bands: DiagnosticResultBand[],
+  scorePercent: number
+): DiagnosticResultBand | null {
+  return (
+    bands.find(
+      (band) => scorePercent >= band.minPercent && scorePercent <= band.maxPercent
+    ) ?? null
+  );
+}
+
 export function evaluateDiagnosticSubmission(
   campaign: DiagnosticCampaign,
   answers: DiagnosticAnswerInput[]
 ): {
   totalScore: number;
+  maxScore: number;
+  scorePercent: number;
   answersSnapshot: DiagnosticSubmissionAnswerSnapshot[];
+  insights: DiagnosticResultInsight[];
 } {
   if (!campaign.test) {
     throw new Error("Тест для диагностики не настроен");
@@ -111,6 +167,7 @@ export function evaluateDiagnosticSubmission(
 
   let totalScore = 0;
   const answersSnapshot: DiagnosticSubmissionAnswerSnapshot[] = [];
+  const insights: DiagnosticResultInsight[] = [];
 
   for (const question of questions) {
     const answerKey = answerByQuestionKey.get(question.key);
@@ -130,11 +187,33 @@ export function evaluateDiagnosticSubmission(
       answerKey: selectedOption.key,
       answerLabel: selectedOption.label,
       weight: selectedOption.weight,
+      insightTitle: selectedOption.insightTitle,
+      insightText: selectedOption.insightText,
+      practiceStep: selectedOption.practiceStep,
     });
+
+    if (selectedOption.insightTitle && selectedOption.insightText && selectedOption.practiceStep) {
+      insights.push({
+        questionKey: question.key,
+        questionTitle: question.title,
+        answerKey: selectedOption.key,
+        answerLabel: selectedOption.label,
+        weight: selectedOption.weight,
+        insightTitle: selectedOption.insightTitle,
+        insightText: selectedOption.insightText,
+        practiceStep: selectedOption.practiceStep,
+      });
+    }
   }
+
+  const maxScore = computeMaxScore(questions);
+  const scorePercent = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
 
   return {
     totalScore,
+    maxScore,
+    scorePercent,
     answersSnapshot,
+    insights,
   };
 }
