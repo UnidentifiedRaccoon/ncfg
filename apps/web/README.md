@@ -28,11 +28,13 @@ npm ci
 ```bash
 # local source (used by npm run dev / npm run dev:local)
 STRAPI_LOCAL_URL=http://localhost:1337
-STRAPI_LOCAL_API_TOKEN=... # required (read-only token)
+STRAPI_LOCAL_API_TOKEN=... # required (read token)
+STRAPI_LOCAL_WRITE_API_TOKEN=... # required for diagnostic preview/submit save flow
 
 # prod source (used by npm run dev:prod)
 STRAPI_PROD_URL=https://admin.ncfg.ru
-STRAPI_PROD_API_TOKEN=...
+STRAPI_PROD_API_TOKEN=... # read token
+STRAPI_PROD_WRITE_API_TOKEN=... # write token for /api/diagnostic-submissions/intake
 
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 PORTFOLIO_PRESENTATION_URL=https://storage.yandexcloud.net/<bucket>/docs/ncfg-portfolio-2021.pdf
@@ -45,28 +47,36 @@ npm run dev:local
 npm run dev:prod
 ```
 
-## Strapi Token
+## Strapi Tokens
 
-Create a Content API token in Strapi:
+Create two Content API tokens in Strapi:
 - `Settings` -> `API Tokens` -> `Create new API Token`
-- Type: `Read-only` (or `Custom` with read access to required content types)
+- Read token: `Read-only` (or `Custom` with read access to required content types)
+- Write token: `Custom` with access required by `POST /api/diagnostic-submissions/intake`
 - Put the value into:
-  - `STRAPI_LOCAL_API_TOKEN` for `npm run dev:local`
-  - `STRAPI_PROD_API_TOKEN` for `npm run dev:prod`
+  - `STRAPI_LOCAL_API_TOKEN` / `STRAPI_LOCAL_WRITE_API_TOKEN` for `npm run dev:local`
+  - `STRAPI_PROD_API_TOKEN` / `STRAPI_PROD_WRITE_API_TOKEN` for `npm run dev:prod`
 
 ## Production (Yandex Cloud)
 
 Deployment is done via GitHub Actions to YC Serverless Containers.
 
 Required GitHub Actions secrets:
+- `YC_LOCKBOX_SECRET_ID` = Lockbox secret with runtime tokens and CMS credentials
+- `YC_LOCKBOX_VERSION_ID` = active Lockbox version used by build/deploy workflows
 - `STRAPI_URL` = `https://admin.ncfg.ru`
-- `STRAPI_API_TOKEN` = your read-only token
 - `REVALIDATE_TOKEN` = shared secret for Strapi webhook -> `POST /api/revalidate/strapi`
 - `NEXT_PUBLIC_SITE_URL` = public site URL (used for health-checks and metadata)
 - `POSTBOX_API_KEY_ID` = Postbox API key ID
 - `POSTBOX_API_KEY_SECRET` = Postbox API key secret
 - `POSTBOX_FROM_EMAIL` = verified sender email (recommended: `no-reply@ncfg.ru`)
 - `LEADS_RECIPIENT_EMAILS` = `aedengina@ncfg.ru,yura.posledov@yandex.ru`
+
+Required Lockbox keys:
+- `STRAPI_API_TOKEN` = read-only token for web -> Strapi content fetches
+- `STRAPI_WRITE_API_TOKEN` = write token used by `POST /api/diagnostic-submissions/intake`
+
+GitHub Secrets are no longer the canonical source for Strapi tokens. Preview and production web deployments resolve both tokens from the same Lockbox secret version.
 
 Optional GitHub Actions secrets (Postbox):
 - `POSTBOX_SMTP_HOST` (default: `postbox.cloud.yandex.net`)

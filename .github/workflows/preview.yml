@@ -46,6 +46,33 @@ jobs:
           yc config set service-account-key /tmp/sa.json
           yc config set folder-id "$YC_FOLDER_ID"
 
+      - name: Lockbox preflight (preview web)
+        id: preview-lockbox
+        env:
+          YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
+          YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
+        run: |
+          set -euo pipefail
+
+          fetch_required_key() {
+            local key="$1"
+            local value=""
+            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" 2>/dev/null || true)"
+
+            if [ -z "$value" ]; then
+              echo "::error::Missing required Lockbox key: $key"
+              exit 1
+            fi
+
+            echo "::add-mask::$value"
+            printf '%s' "$value"
+          }
+
+          strapi_api_token="$(fetch_required_key STRAPI_API_TOKEN)"
+          fetch_required_key STRAPI_WRITE_API_TOKEN >/dev/null
+
+          printf 'strapi_api_token=%s\n' "$strapi_api_token" >> "$GITHUB_OUTPUT"
+
       - name: Ensure preview container exists and is public
         id: preview
         env:
@@ -85,7 +112,7 @@ jobs:
             ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:pr-${{ github.event.pull_request.number }}
           build-args: |
             STRAPI_URL=${{ secrets.STRAPI_URL }}
-            STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
+            STRAPI_API_TOKEN=${{ steps.preview-lockbox.outputs.strapi_api_token }}
             NEXT_PUBLIC_SITE_URL=${{ steps.preview.outputs.url }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
             DEPLOY_ENV=${{ env.PREVIEW_DEPLOY_ENV }}
@@ -106,10 +133,12 @@ jobs:
           revision-concurrency: 8
           revision-execution-timeout: 30s
           revision-provisioned: 0
+          revision-secrets: |
+            STRAPI_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_API_TOKEN
+            STRAPI_WRITE_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_WRITE_API_TOKEN
           revision-env: |
             NODE_ENV=production
             STRAPI_URL=${{ secrets.STRAPI_URL }}
-            STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ steps.preview.outputs.url }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
             DEPLOY_ENV=${{ env.PREVIEW_DEPLOY_ENV }}

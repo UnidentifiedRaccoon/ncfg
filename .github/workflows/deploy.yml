@@ -65,6 +65,48 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install yc CLI
+        run: |
+          # Official installation script from Yandex Cloud docs.
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
+
+      - name: Configure yc CLI
+        env:
+          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+        run: |
+          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
+          yc config set service-account-key /tmp/sa.json
+          yc config set folder-id "$YC_FOLDER_ID"
+
+      - name: Lockbox preflight (web build)
+        id: web-lockbox
+        env:
+          YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
+          YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
+        run: |
+          set -euo pipefail
+
+          fetch_required_key() {
+            local key="$1"
+            local value=""
+            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" 2>/dev/null || true)"
+
+            if [ -z "$value" ]; then
+              echo "::error::Missing required Lockbox key: $key"
+              exit 1
+            fi
+
+            echo "::add-mask::$value"
+            printf '%s' "$value"
+          }
+
+          strapi_api_token="$(fetch_required_key STRAPI_API_TOKEN)"
+          fetch_required_key STRAPI_WRITE_API_TOKEN >/dev/null
+
+          printf 'strapi_api_token=%s\n' "$strapi_api_token" >> "$GITHUB_OUTPUT"
+
       - name: Login to Yandex Container Registry
         uses: yc-actions/yc-cr-login@v2
         with:
@@ -84,7 +126,7 @@ jobs:
             ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:latest
           build-args: |
             STRAPI_URL=${{ secrets.STRAPI_URL }}
-            STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
+            STRAPI_API_TOKEN=${{ steps.web-lockbox.outputs.strapi_api_token }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.NEXT_PUBLIC_YANDEX_METRIKA_ID }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
@@ -238,6 +280,44 @@ jobs:
           echo "WEB_PROVISIONED_EFFECTIVE=$value" >> "$GITHUB_ENV"
           echo "Using WEB_PROVISIONED_EFFECTIVE=$value"
 
+      - name: Install yc CLI
+        run: |
+          # Official installation script from Yandex Cloud docs.
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
+
+      - name: Configure yc CLI
+        env:
+          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+        run: |
+          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
+          yc config set service-account-key /tmp/sa.json
+          yc config set folder-id "$YC_FOLDER_ID"
+
+      - name: Lockbox preflight (web runtime)
+        env:
+          YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
+          YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
+        run: |
+          set -euo pipefail
+
+          required_lockbox_keys=(
+            STRAPI_API_TOKEN
+            STRAPI_WRITE_API_TOKEN
+          )
+
+          for key in "${required_lockbox_keys[@]}"; do
+            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" 2>/dev/null || true)"
+
+            if [ -z "$value" ]; then
+              echo "::error::Missing required Lockbox key: $key"
+              exit 1
+            fi
+
+            echo "::add-mask::$value"
+          done
+
       - name: Deploy to Yandex Serverless Container
         uses: yc-actions/yc-sls-container-deploy@v2
         with:
@@ -252,11 +332,12 @@ jobs:
           revision-concurrency: 8
           revision-execution-timeout: 30s
           revision-provisioned: ${{ env.WEB_PROVISIONED_EFFECTIVE }}
+          revision-secrets: |
+            STRAPI_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_API_TOKEN
+            STRAPI_WRITE_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_WRITE_API_TOKEN
           revision-env: |
             NODE_ENV=production
             STRAPI_URL=${{ secrets.STRAPI_URL }}
-            STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}
-            STRAPI_WRITE_API_TOKEN=${{ secrets.STRAPI_WRITE_API_TOKEN }}
             REVALIDATE_TOKEN=${{ secrets.REVALIDATE_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.NEXT_PUBLIC_YANDEX_METRIKA_ID }}

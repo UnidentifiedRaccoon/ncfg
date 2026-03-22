@@ -64,13 +64,20 @@ function getStrapiSourceOrThrow(): StrapiSource {
   );
 }
 
-function getRequiredMessage(source: StrapiSource, missingVars: string[]): string {
+function getRequiredMessage(
+  source: StrapiSource,
+  missingVars: string[],
+  tokenEnv: string,
+  mode: 'read' | 'write'
+): string {
   const missing = missingVars.join(' and ');
   const config = STRAPI_SOURCE_CONFIG[source];
+  const requirement =
+    mode === 'write' ? 'Strapi write access is required.' : 'Strapi is required.';
 
   return (
-    `Strapi is required. Set ${missing} for ${STRAPI_SOURCE_ENV}=${source}. ` +
-    `Selected env pair: ${config.urlEnv} + ${config.tokenEnv}. ` +
+    `${requirement} Set ${missing} for ${STRAPI_SOURCE_ENV}=${source}. ` +
+    `Selected env pair: ${config.urlEnv} + ${tokenEnv}. ` +
     'See apps/web/.env.local.example.'
   );
 }
@@ -85,7 +92,7 @@ export function getResolvedStrapiConfigOrThrow(): ResolvedStrapiConfig {
     const missingVars: string[] = [];
     if (!url) missingVars.push(urlEnv);
     if (!token) missingVars.push(tokenEnv);
-    throw new Error(getRequiredMessage(source, missingVars));
+    throw new Error(getRequiredMessage(source, missingVars, tokenEnv, 'read'));
   }
 
   return { source, url, token, urlEnv, tokenEnv };
@@ -94,19 +101,18 @@ export function getResolvedStrapiConfigOrThrow(): ResolvedStrapiConfig {
 export function getResolvedStrapiWriteConfigOrThrow(): ResolvedStrapiConfig {
   const source = getStrapiSourceOrThrow();
   const { urlEnv, writeTokenEnv } = STRAPI_SOURCE_CONFIG[source];
+  const effectiveWriteTokenEnv = writeTokenEnv || 'STRAPI_WRITE_API_TOKEN';
 
   const url = trimEnv(urlEnv);
-  const token = normalizeToken(
-    trimEnv(writeTokenEnv || '') ?? trimEnv('STRAPI_WRITE_API_TOKEN')
-  );
+  const token = normalizeToken(trimEnv(effectiveWriteTokenEnv));
 
   if (!url || !token) {
     const missingVars: string[] = [];
     if (!url) missingVars.push(urlEnv);
     if (!token) {
-      missingVars.push(writeTokenEnv || 'STRAPI_WRITE_API_TOKEN');
+      missingVars.push(effectiveWriteTokenEnv);
     }
-    throw new Error(getRequiredMessage(source, missingVars));
+    throw new Error(getRequiredMessage(source, missingVars, effectiveWriteTokenEnv, 'write'));
   }
 
   return {
@@ -114,6 +120,6 @@ export function getResolvedStrapiWriteConfigOrThrow(): ResolvedStrapiConfig {
     url,
     token,
     urlEnv,
-    tokenEnv: writeTokenEnv || 'STRAPI_WRITE_API_TOKEN',
+    tokenEnv: effectiveWriteTokenEnv,
   };
 }

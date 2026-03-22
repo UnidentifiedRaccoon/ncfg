@@ -270,6 +270,22 @@ function mapAnswersForStorage(answers: IntakeAnswerPayload[]) {
   }));
 }
 
+function buildPublishedRelation(documentId: string) {
+  return {
+    set: [{ documentId, status: "published" as const }],
+  };
+}
+
+function buildSubmissionRelations(payload: IntakePayload) {
+  return {
+    organization: { documentId: payload.organizationDocumentId },
+    // Strapi 5 expects REST-like relation syntax for draft/publish edge cases.
+    // Using an explicit published relation keeps admin relation inputs stable.
+    campaign: buildPublishedRelation(payload.campaignDocumentId),
+    test: buildPublishedRelation(payload.testDocumentId),
+  };
+}
+
 export default factories.createCoreService(
   SUBMISSION_UID,
   ({ strapi }: { strapi: any }) => ({
@@ -334,9 +350,7 @@ export default factories.createCoreService(
       }
 
       const baseData = {
-        organization: { documentId: parsedPayload.organizationDocumentId },
-        campaign: { documentId: parsedPayload.campaignDocumentId },
-        test: { documentId: parsedPayload.testDocumentId },
+        ...buildSubmissionRelations(parsedPayload),
         submissionKey: parsedPayload.submissionKey,
         sourcePageUrl:
           parsedPayload.sourcePageUrl ?? existingSubmission?.sourcePageUrl ?? null,
@@ -528,13 +542,13 @@ export default factories.createCoreService(
       ];
 
       const rows = submissions.map((submission: any) => {
-        const answersByQuestionKey = new Map<string, string>();
+        const scoresByQuestionKey = new Map<string, string>();
 
         if (Array.isArray(submission.answers)) {
           for (const answer of submission.answers) {
             const questionKey = String(answer?.questionKey ?? "");
             if (!questionKey) continue;
-            answersByQuestionKey.set(questionKey, String(answer?.answerLabel ?? ""));
+            scoresByQuestionKey.set(questionKey, String(answer?.weight ?? ""));
           }
         }
 
@@ -551,7 +565,7 @@ export default factories.createCoreService(
           String(submission.testCodeSnapshot ?? ""),
           String(submission.testVersionSnapshot ?? ""),
           String(submission.totalScore ?? ""),
-          ...questionColumns.map((column) => answersByQuestionKey.get(column.key) ?? ""),
+          ...questionColumns.map((column) => scoresByQuestionKey.get(column.key) ?? ""),
         ];
       });
 

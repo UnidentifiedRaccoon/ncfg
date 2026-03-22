@@ -55,24 +55,28 @@ yc lockbox secret create --name ncfg-secrets
 # Add secret values
 yc lockbox secret add-version --name ncfg-secrets \
   --payload '[
-    {"key": "database_host", "text_value": "<DB_HOST>"},
-    {"key": "database_port", "text_value": "6432"},
-    {"key": "database_name", "text_value": "strapi"},
-    {"key": "database_username", "text_value": "strapi"},
-    {"key": "database_password", "text_value": "<DB_PASSWORD>"},
-    {"key": "aws_access_key_id", "text_value": "<S3_ACCESS_KEY>"},
-    {"key": "aws_secret_access_key", "text_value": "<S3_SECRET_KEY>"},
-    {"key": "aws_bucket", "text_value": "ncfg-uploads"},
-    {"key": "app_keys", "text_value": "<RANDOM_KEY1>,<RANDOM_KEY2>,<RANDOM_KEY3>,<RANDOM_KEY4>"},
-    {"key": "api_token_salt", "text_value": "<RANDOM_SALT>"},
-    {"key": "admin_jwt_secret", "text_value": "<RANDOM_SECRET>"},
-    {"key": "jwt_secret", "text_value": "<RANDOM_SECRET>"},
-    {"key": "transfer_token_salt", "text_value": "<RANDOM_SALT>"}
+    {"key": "DATABASE_HOST", "text_value": "<DB_HOST>"},
+    {"key": "DATABASE_PORT", "text_value": "6432"},
+    {"key": "DATABASE_NAME", "text_value": "strapi"},
+    {"key": "DATABASE_USERNAME", "text_value": "strapi"},
+    {"key": "DATABASE_PASSWORD", "text_value": "<DB_PASSWORD>"},
+    {"key": "AWS_ACCESS_KEY_ID", "text_value": "<S3_ACCESS_KEY>"},
+    {"key": "AWS_SECRET_ACCESS_KEY", "text_value": "<S3_SECRET_KEY>"},
+    {"key": "AWS_BUCKET", "text_value": "ncfg-uploads"},
+    {"key": "APP_KEYS", "text_value": "<RANDOM_KEY1>,<RANDOM_KEY2>,<RANDOM_KEY3>,<RANDOM_KEY4>"},
+    {"key": "API_TOKEN_SALT", "text_value": "<RANDOM_SALT>"},
+    {"key": "ADMIN_JWT_SECRET", "text_value": "<RANDOM_SECRET>"},
+    {"key": "JWT_SECRET", "text_value": "<RANDOM_SECRET>"},
+    {"key": "TRANSFER_TOKEN_SALT", "text_value": "<RANDOM_SALT>"},
+    {"key": "STRAPI_API_TOKEN", "text_value": "<READ_ONLY_CONTENT_API_TOKEN>"},
+    {"key": "STRAPI_WRITE_API_TOKEN", "text_value": "<WRITE_TOKEN_FOR_DIAGNOSTIC_INTAKE>"}
   ]'
 
 # Get secret ID (save for GitHub secrets)
 yc lockbox secret get --name ncfg-secrets --format json | jq -r '.id'
 ```
+
+Key names are case-sensitive and must match the workflow references exactly.
 
 ### 1.5 Service Account for CI/CD
 
@@ -137,14 +141,23 @@ Add the following secrets to your GitHub repository:
 | `YC_FOLDER_ID` | Your Yandex Cloud folder ID | Folder for resources |
 | `YC_CONTAINER_SA_ID` | SA ID from step 1.6 | Runtime service account |
 | `YC_LOCKBOX_SECRET_ID` | Secret ID from step 1.4 | Lockbox secret ID |
+| `YC_LOCKBOX_VERSION_ID` | Active Lockbox version ID | Secret version pinned by build/deploy workflows |
 | `STRAPI_URL` | `https://<cms-container-id>.containers.yandexcloud.net` | CMS URL for Next.js |
-| `STRAPI_API_TOKEN` | Strapi read-only Content API token | Token for web -> Strapi API |
 | `NEXT_PUBLIC_SITE_URL` | `https://<web-container-id>.containers.yandexcloud.net` | Public site URL |
 | `NEXT_PUBLIC_YANDEX_METRIKA_ID` | `106842784` | Yandex.Metrika counter ID |
 | `POSTBOX_API_KEY_ID` | `<postbox_api_key_id>` | Postbox SMTP auth user |
 | `POSTBOX_API_KEY_SECRET` | `<postbox_api_key_secret>` | Postbox SMTP auth password |
 | `POSTBOX_FROM_EMAIL` | `no-reply@ncfg.ru` | Verified sender email in Postbox |
 | `LEADS_RECIPIENT_EMAILS` | `aedengina@ncfg.ru,yura.posledov@yandex.ru` | Intake recipients for lead/question forms |
+
+Required Lockbox keys for web/CMS runtime:
+
+| Key | Value | Description |
+|-----|-------|-------------|
+| `STRAPI_API_TOKEN` | Strapi read-only Content API token | Token for web -> Strapi content fetches |
+| `STRAPI_WRITE_API_TOKEN` | Strapi custom write token | Token used by `POST /api/diagnostic-submissions/intake` |
+
+Store Strapi tokens in Lockbox, not in GitHub Secrets. GitHub only keeps the Lockbox secret/version identifiers used by CI/CD.
 
 Optional secrets for Postbox:
 
