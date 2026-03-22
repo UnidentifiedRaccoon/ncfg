@@ -179,11 +179,6 @@ export function HeroLayout({
                     className="pointer-events-none object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)] scale-[1.5]"
                   />
                 </div>
-
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full border border-white/10"
-                />
               </div>
             </div>
           </div>

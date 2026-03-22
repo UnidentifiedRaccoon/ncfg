@@ -49,6 +49,7 @@ const navigation = [
   { label: "Компаниям", href: "/companies" },
   { label: "Портфолио", href: "/portfolio" },
   { label: "О центре", href: "/about" },
+  { label: "История центра", href: "/about/history" },
   { label: "Блог", href: "/blog" },
   { label: "Рекомендации", href: "/rekomendacii" },
 ] as const;

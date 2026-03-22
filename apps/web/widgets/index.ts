@@ -1,5 +1,6 @@
 export { Hero } from "./Hero";
 export { Header } from "./Header";
+export { AboutHistoryTimeline } from "./AboutHistoryTimeline";
 export { HeroIndividuals } from "./HeroIndividuals";
 export { HeroCompanies } from "./HeroCompanies";
 export { Products } from "./Products";

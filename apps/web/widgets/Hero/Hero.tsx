@@ -18,6 +18,7 @@ interface HeroProps {
   metrics?: HeroMetric[];
   imageSrc?: string;
   imageAlt?: string;
+  noSentinel?: boolean;
 }
 
 export function Hero({
@@ -28,6 +29,7 @@ export function Hero({
   metrics,
   imageSrc = "/heroV2.minified.png",
   imageAlt = "",
+  noSentinel = false,
 }: HeroProps) {
   const sanitizeLabel = (label: string) => label.replace(/\.{2,}$/, "");
 
@@ -65,7 +67,7 @@ export function Hero({
       />
 
       {/* Standalone sentinel — always visible for header tone switching */}
-      <div data-header-hero-end aria-hidden="true" className="h-px" />
+      {!noSentinel && <div data-header-hero-end aria-hidden="true" className="h-px" />}
     </>
   );
 }

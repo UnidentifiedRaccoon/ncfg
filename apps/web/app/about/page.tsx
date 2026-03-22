@@ -14,6 +14,7 @@ import {
   fetchPeopleData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
+import { ABOUT_HERO_LEAD, pickAboutHeroMetrics } from "@/shared/lib/about-hero";
 import { buildPageMetadata } from "@/shared/lib/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -27,19 +28,6 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export const revalidate = 60; // Revalidate every 60 seconds
-const ABOUT_HERO_LEAD =
-  "Проектируем и внедряем программы финансовой грамотности для регионов, бизнеса и образовательных команд. Помогаем людям и организациям принимать взвешенные финансовые решения.";
-
-function pickHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) {
-  const byKey = new Map(metrics.map((m) => [m.key, m.displayValue]));
-
-  return [
-    { value: byKey.get("participants") ?? "30,2 млн", label: "участников" },
-    { value: byKey.get("regions") ?? "84", label: "региона" },
-    { value: byKey.get("corporate_clients") ?? "3 502", label: "компании" },
-    { value: byKey.get("nps") ?? "9,63", label: "NPS программ" },
-  ];
-}
 
 export default async function AboutPage() {
   const [siteSetting, aboutPage, peopleData] = await Promise.all([
@@ -72,7 +60,7 @@ export default async function AboutPage() {
       .sort((a, b) => a.order - b.order)
       .map((item) => ({ question: item.question, answer: item.answer }));
 
-  const heroMetrics = pickHeroMetrics(siteSetting.metrics);
+  const heroMetrics = pickAboutHeroMetrics(siteSetting.metrics);
 
   return (
     <>
