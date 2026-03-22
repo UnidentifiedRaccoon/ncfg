@@ -16,34 +16,6 @@ interface FAQProps {
   defaultOpenFirst?: boolean;
 }
 
-const placeholderFAQ: FAQItem[] = [
-  {
-    question: "Что такое финансовая грамотность и зачем она нужна?",
-    answer:
-      "Финансовая грамотность — это набор знаний и навыков, которые помогают принимать взвешенные решения о личных финансах: планировать бюджет, управлять долгами, инвестировать и защищаться от финансового мошенничества.",
-  },
-  {
-    question: "Какие программы вы предлагаете для компаний?",
-    answer:
-      "Мы разрабатываем комплексные программы финансового well-being для сотрудников: онлайн-курсы, вебинары, индивидуальные консультации, марафоны и офлайн-мероприятия. Программы адаптируются под потребности конкретной компании.",
-  },
-  {
-    question: "Как начать сотрудничество с НЦФГ?",
-    answer:
-      "Оставьте заявку на сайте или свяжитесь с нами напрямую. Наши специалисты проведут бесплатную консультацию, определят потребности и предложат оптимальное решение для вашей организации.",
-  },
-  {
-    question: "Есть ли бесплатные материалы для самостоятельного изучения?",
-    answer:
-      "Да, мы предоставляем бесплатные материалы: статьи, чек-листы, памятки и видеоуроки по основам финансовой грамотности. Оставляйте заявку, чтобы обсудить ваши задачи и получить материалы.",
-  },
-  {
-    question: "Работаете ли вы с государственными организациями?",
-    answer:
-      "Да, мы активно сотрудничаем с Минфином России, Центральным банком, региональными министерствами финансов и другими государственными структурами в рамках национальных проектов по повышению финансовой грамотности населения.",
-  },
-];
-
 function FAQAccordionItem({
   item,
   defaultOpen,
@@ -131,7 +103,10 @@ export function FAQ({
   items,
   defaultOpenFirst = true,
 }: FAQProps) {
-  const displayItems = items.length > 0 ? items : placeholderFAQ;
+  if (items.length === 0) {
+    return null;
+  }
+
   const normalizedTitle = title.trim();
   const displayTitle =
     normalizedTitle.length === 0 || normalizedTitle.toLowerCase() === "faq"
@@ -142,7 +117,7 @@ export function FAQ({
     <Section id="faq" title={displayTitle} lead={lead}>
       <div className="max-w-4xl mx-auto">
         <FAQAccordion
-          items={displayItems}
+          items={items}
           defaultOpenFirst={defaultOpenFirst}
           footer={
             <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">

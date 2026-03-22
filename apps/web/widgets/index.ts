@@ -23,5 +23,4 @@ export { RecommendationsShowcase } from "./RecommendationsShowcase";
 export { PortfolioShowcase } from "./PortfolioShowcase";
 export { ServiceHtmlSection } from "./ServiceHtmlSection";
 export { Webinars } from "./Webinars";
-export type { WebinarGroup, WebinarsProps, WebinarsVariant } from "./Webinars";
 export { ServiceMarkdownSection } from "./ServiceMarkdownSection";

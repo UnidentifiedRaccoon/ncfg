@@ -16,7 +16,7 @@ import type {
 // Service Categories
 // ==================
 
-const SERVICES_POPULATE_WITH_WEBINARS = {
+const SERVICES_POPULATE = {
   benefits: true,
   howWeWork: true,
   webinars: {
@@ -27,17 +27,6 @@ const SERVICES_POPULATE_WITH_WEBINARS = {
   examples: true,
   cta: true,
 } as const;
-
-const SERVICES_POPULATE_LEGACY = {
-  benefits: true,
-  howWeWork: true,
-  examples: true,
-  cta: true,
-} as const;
-
-function isInvalidPopulateKeyError(error: unknown, key: string): boolean {
-  return error instanceof Error && error.message.includes(`Invalid key ${key}`);
-}
 
 async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
   const buildCategoriesQuery = (servicesPopulate: Record<string, unknown>) =>
@@ -52,25 +41,12 @@ async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
       publicationState: 'live',
     });
 
-  try {
-    const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
-      `/service-categories${buildCategoriesQuery(SERVICES_POPULATE_WITH_WEBINARS)}`,
-      { tags: ['services'] }
-    );
+  const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
+    `/service-categories${buildCategoriesQuery(SERVICES_POPULATE)}`,
+    { tags: ['services'] }
+  );
 
-    return response.data;
-  } catch (error: unknown) {
-    if (!isInvalidPopulateKeyError(error, 'webinars')) {
-      throw error;
-    }
-
-    const fallbackResponse = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
-      `/service-categories${buildCategoriesQuery(SERVICES_POPULATE_LEGACY)}`,
-      { tags: ['services'] }
-    );
-
-    return fallbackResponse.data;
-  }
+  return response.data;
 }
 
 // ==================

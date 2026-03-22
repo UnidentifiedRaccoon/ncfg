@@ -26,7 +26,6 @@ interface DiagnosticSurveyProps {
   organizationName: string;
   testTitle: string;
   questions: DiagnosticPublicQuestion[];
-  demoMode?: boolean;
 }
 
 const inputClass = cn(
@@ -390,9 +389,8 @@ export function DiagnosticSurvey({
   organizationName,
   testTitle,
   questions,
-  demoMode,
 }: DiagnosticSurveyProps) {
-  const survey = useDiagnosticSurvey({ campaignSlug, questions, demoMode });
+  const survey = useDiagnosticSurvey({ campaignSlug, questions });
   const consentId = useId();
   const errorId = useId();
   const [stepKey, setStepKey] = useState(0);

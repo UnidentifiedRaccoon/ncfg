@@ -40,7 +40,6 @@ interface AwardItem {
   id: number;
   title: string;
   year: number | null;
-  img?: string;
 }
 
 interface Testimonial {

@@ -22,7 +22,6 @@ export type DiagnosticPhase = "intro" | "survey" | "results";
 interface UseDiagnosticSurveyOptions {
   campaignSlug: string;
   questions: DiagnosticPublicQuestion[];
-  demoMode?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -100,62 +99,6 @@ function clearDraft(campaignSlug: string): void {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Demo mock result                                                   */
-/* ------------------------------------------------------------------ */
-
-const DEMO_MOCK_RESULT: DiagnosticResult = {
-  totalScore: 75,
-  maxScore: 100,
-  scorePercent: 75,
-  band: {
-    key: "mid",
-    title: "Средний уровень",
-    summary:
-      "У вас есть базовые знания, но есть потенциал для роста. Рекомендуем углубить знания в области инвестиций и страхования.",
-    ctaLabel: "Узнать о программах",
-    ctaHref: "/uslugi",
-  },
-  insights: [
-    {
-      questionKey: "demo-q1",
-      questionTitle: "Финансовое планирование",
-      answerKey: "demo-a1",
-      answerLabel: "Планирую от случая к случаю",
-      weight: 3,
-      insightTitle: "Регулярное планирование повышает устойчивость",
-      insightText:
-        "Исследования показывают, что люди с регулярным финансовым планом на 40% устойчивее к непредвиденным расходам. Даже простой ежемесячный обзор бюджета значительно улучшает финансовое здоровье.",
-      practiceStep:
-        "Выделите 30 минут в начале каждого месяца для обзора доходов, расходов и целей. Используйте таблицу или приложение для отслеживания.",
-    },
-    {
-      questionKey: "demo-q2",
-      questionTitle: "Инвестиционная стратегия",
-      answerKey: "demo-a2",
-      answerLabel: "Только банковские вклады",
-      weight: 2,
-      insightTitle: "Диверсификация снижает риски",
-      insightText:
-        "Банковские вклады — надёжный, но ограниченный инструмент. Диверсификация портфеля между разными классами активов помогает защитить накопления от инфляции и получить более высокую доходность.",
-      practiceStep:
-        "Изучите базовые инвестиционные инструменты: облигации, ETF-фонды, ИИС. Начните с минимальных сумм для получения опыта.",
-    },
-    {
-      questionKey: "demo-q3",
-      questionTitle: "Страховая защита",
-      answerKey: "demo-a3",
-      answerLabel: "Только ОМС",
-      weight: 5,
-      insightTitle: "Комплексная защита — основа стабильности",
-      insightText:
-        "ОМС покрывает базовые медицинские потребности, но не защищает от финансовых последствий серьёзных заболеваний или несчастных случаев. Дополнительное страхование создаёт финансовую подушку безопасности.",
-      practiceStep:
-        "Оцените свои текущие риски и рассмотрите ДМС или страхование от несчастных случаев. Сравните предложения нескольких страховых компаний.",
-    },
-  ],
-};
-
-/* ------------------------------------------------------------------ */
 /*  Hook                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -164,7 +107,6 @@ const EMPTY_RESPONDENT: RespondentFormData = { fullName: "", email: "", phone: "
 export function useDiagnosticSurvey({
   campaignSlug,
   questions,
-  demoMode,
 }: UseDiagnosticSurveyOptions) {
   const [phase, setPhase] = useState<DiagnosticPhase>("intro");
   const [isHydrated, setIsHydrated] = useState(false);
@@ -233,12 +175,6 @@ export function useDiagnosticSurvey({
   /* ---- Preview fetch ---- */
 
   const fetchPreviewResult = async () => {
-    if (demoMode) {
-      setPreviewResult(DEMO_MOCK_RESULT);
-      setPreviewStatus("success");
-      return;
-    }
-
     const counter = ++previewCounter.current;
     setPreviewStatus("loading");
 
@@ -428,13 +364,6 @@ export function useDiagnosticSurvey({
     if (!consentAccepted) {
       setStatus("error");
       setErrorMessage("Подтвердите согласие на обработку персональных данных");
-      return;
-    }
-
-    if (demoMode) {
-      clearDraft(campaignSlug);
-      setResult(DEMO_MOCK_RESULT);
-      setStatus("success");
       return;
     }
 

@@ -7,19 +7,7 @@
     "source": "provided_html_fragment"
   },
   "sections": {
-    "Header": {
-      "present": false,
-      "data": {
-        "brand": {
-          "name": "Национальный центр финансовой грамотности",
-          "short": "НЦФГ"
-        },
-        "navigation": [],
-        "ctas": []
-      }
-    },
     "Hero": {
-      "present": true,
       "data": {
         "headline": "Успешно реализуем проекты по финансовой грамотности",
         "lead": "Помогаем клиентам разбираться в личных финансах - от детских программ до федеральных инициатив",
@@ -76,36 +64,11 @@
       }
     },
     "Services": {
-      "present": true,
       "data": {
-        "title": "Услуги",
-        "services": [
-          {
-            "id": "employee_wellbeing",
-            "title": "Программы финансового благополучия для сотрудников компаний",
-            "description": "Комплексные решения для развития финансовой культуры",
-            "href": "/companies",
-            "image": "/services/well-being.png"
-          },
-          {
-            "id": "educational_materials",
-            "title": "Методические и образовательные материалы",
-            "description": "Контент для обучения и информирования",
-            "href": "/companies",
-            "image": "/services/materials-development.png"
-          },
-          {
-            "id": "events_talks",
-            "title": "Мероприятия и публичные выступления",
-            "description": "Организация событий и экспертные выступления",
-            "href": "/companies",
-            "image": "/services/events.png"
-          }
-        ]
+        "title": "Услуги"
       }
     },
     "Stats": {
-      "present": true,
       "data": {
         "items": [
           {
@@ -154,32 +117,27 @@
       }
     },
     "Partners": {
-      "present": true,
       "data": {
         "awards": [
           {
             "id": 1,
             "title": "HR-проект в государственных и муниципальных организациях",
-            "year": 2020,
-            "img": "/awards/hr-project-2020.png"
+            "year": 2020
           },
           {
             "id": 2,
             "title": "Gold Quill",
-            "year": 2017,
-            "img": "/awards/gold-quill-2017.png"
+            "year": 2017
           },
           {
             "id": 3,
             "title": "SABRE Awards",
-            "year": 2017,
-            "img": "/awards/sabre-2017.png"
+            "year": 2017
           },
           {
             "id": 4,
             "title": "Global Inclusion Awards",
-            "year": 2016,
-            "img": "/awards/global-inclusion-2016.png"
+            "year": 2016
           }
         ],
         "clientsCarousel": {
@@ -284,7 +242,6 @@
       }
     },
     "News": {
-        "present": false,
       "data": {
         "title": "Новости",
         "teaser": "",
@@ -293,27 +250,10 @@
             "label": "Архив публикаций",
             "href": "/blog"
           }
-        ],
-        "items": []
-      }
-    },
-    "FAQ": {
-      "present": false,
-      "data": {
-        "title": "Частые вопросы",
-        "items": []
-      }
-    },
-    "LeadForm": {
-      "present": false,
-      "data": {
-        "title": "Оставить заявку",
-        "fields": [],
-        "cta": null
+        ]
       }
     },
     "Footer": {
-      "present": true,
       "data": {
         "organization": {
           "fullName": "Автономная Некоммерческая Организация «Национальный центр финансовой грамотности» (АНО «НЦФГ»)",

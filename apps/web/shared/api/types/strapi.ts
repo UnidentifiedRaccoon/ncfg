@@ -268,7 +268,6 @@ interface StrapiHomeAward {
   id: number;
   title: string;
   year: number | null;
-  imgPath: string | null;
 }
 
 interface StrapiHomeLogo {
@@ -309,7 +308,6 @@ export interface StrapiHomePage {
   proofPoints: StrapiHomeProofPoint[];
   servicesTitle: string | null;
   partners: StrapiHomePartnersBlock | null;
-  faqTitle: string | null;
   newsTitle: string | null;
   newsTeaser: string | null;
   newsArchiveLink: StrapiLink | null;

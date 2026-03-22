@@ -35,11 +35,6 @@ function isIndividualsProductIconKey(
   return value === 'graduation-cap' || value === 'trending-up' || value === 'zap';
 }
 
-function getFallbackUpdatedAt(): string {
-  // Keep it stable/deterministic for builds.
-  return '2026-01-31';
-}
-
 function getOptionalEnvValue(name: string): string | null {
   const value = process.env[name];
   if (!value) {
@@ -97,7 +92,7 @@ interface FallbackHomeHeroData {
 }
 
 interface FallbackHomePartnersData {
-  awards?: Array<{ id?: number; title?: string; year?: number; img?: string }>;
+  awards?: Array<{ id?: number; title?: string; year?: number }>;
   clientsCarousel?: {
     title?: string;
     archiveCta?: FallbackLink;
@@ -252,7 +247,11 @@ export async function fetchSiteSettings(): Promise<StrapiSiteSetting> {
   const home = (await import('@/public/content/home.json')).default as unknown as FallbackHomeJson;
   const footer = home.sections?.Footer?.data;
   const statsItems = home.sections?.Stats?.data?.items ?? [];
-  const updatedAt = home.meta?.updatedAt ?? getFallbackUpdatedAt();
+  const updatedAt = home.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in home.json');
+  }
 
   return {
     id: 1,
@@ -304,7 +303,11 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
   const home = (await import('@/public/content/home.json')).default as unknown as FallbackHomeJson;
   const hero = home.sections?.Hero?.data;
   const partners = home.sections?.Partners?.data;
-  const updatedAt = home.meta?.updatedAt ?? getFallbackUpdatedAt();
+  const updatedAt = home.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in home.json');
+  }
 
   return {
     id: 1,
@@ -315,7 +318,7 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
           headline: hero.headline ?? '',
           lead: hero.lead ?? null,
           primaryCta: hero.primaryCta
-            ? { id: 1, label: stripEllipsis(hero.primaryCta.label ?? 'Подробнее'), href: hero.primaryCta.href ?? '#' }
+            ? { id: 1, label: stripEllipsis(hero.primaryCta.label ?? ''), href: hero.primaryCta.href ?? '' }
             : null,
         }
       : null,
@@ -331,7 +334,7 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
             ? p.links.map((l, lidx) => ({
                 id: lidx + 1,
                 label: stripEllipsis(l.label ?? 'Подробнее'),
-                href: l.href ?? '#',
+                href: l.href ?? '',
               }))
             : [],
         }))
@@ -345,7 +348,6 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
                 id: typeof a.id === 'number' ? a.id : idx + 1,
                 title: a.title ?? '',
                 year: typeof a.year === 'number' ? a.year : null,
-                imgPath: a.img ?? null,
               }))
             : [],
           clientsCarousel: partners?.clientsCarousel
@@ -356,7 +358,7 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
                   ? {
                       id: 1,
                       label: stripEllipsis(partners.clientsCarousel.archiveCta.label ?? 'Все клиенты'),
-                      href: partners.clientsCarousel.archiveCta.href ?? '/companies',
+                      href: partners.clientsCarousel.archiveCta.href ?? '',
                     }
                   : null,
                 categories: Array.isArray(partners.clientsCarousel.categories)
@@ -381,7 +383,6 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
             : null,
         }
       : null,
-    faqTitle: home.sections?.FAQ?.data?.title ?? null,
     newsTitle: home.sections?.News?.data?.title ?? null,
     newsTeaser: home.sections?.News?.data?.teaser ?? null,
     newsArchiveLink:
@@ -389,7 +390,7 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
         ? {
             id: 1,
             label: stripEllipsis(home.sections.News.data.links[0].label ?? 'Архив'),
-            href: home.sections.News.data.links[0].href ?? '/blog',
+            href: home.sections.News.data.links[0].href ?? '',
           }
         : null,
     createdAt: updatedAt,
@@ -400,7 +401,11 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
 
 export async function fetchCompaniesPageData(): Promise<StrapiCompaniesPage> {
   const fallback = (await import('@/public/content/companies.json')).default as unknown as FallbackCompaniesJson;
-  const updatedAt = fallback.meta?.updatedAt ?? getFallbackUpdatedAt();
+  const updatedAt = fallback.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in companies.json');
+  }
 
   return {
     id: 1,
@@ -414,7 +419,7 @@ export async function fetchCompaniesPageData(): Promise<StrapiCompaniesPage> {
             ? {
                 id: 1,
                 label: stripEllipsis(fallback.hero.primaryCta.label ?? 'Оставить заявку'),
-                href: fallback.hero.primaryCta.href ?? '#lead-form',
+                href: fallback.hero.primaryCta.href ?? '',
               }
             : null,
         }
@@ -435,7 +440,11 @@ export async function fetchCompaniesPageData(): Promise<StrapiCompaniesPage> {
 
 export async function fetchIndividualsPageData(): Promise<StrapiIndividualsPage> {
   const fallback = (await import('@/public/content/individuals.json')).default as unknown as FallbackIndividualsJson;
-  const updatedAt = fallback.meta?.updatedAt ?? getFallbackUpdatedAt();
+  const updatedAt = fallback.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in individuals.json');
+  }
 
   return {
     id: 1,
@@ -449,7 +458,7 @@ export async function fetchIndividualsPageData(): Promise<StrapiIndividualsPage>
             ? {
                 id: 1,
                 label: stripEllipsis(fallback.hero.primaryCta.label ?? 'Оставить заявку'),
-                href: fallback.hero.primaryCta.href ?? '#lead-form',
+                href: fallback.hero.primaryCta.href ?? '',
               }
             : null,
         }
@@ -483,12 +492,16 @@ export async function fetchIndividualsPageData(): Promise<StrapiIndividualsPage>
 
 export async function fetchPortfolioPageData(): Promise<StrapiPortfolioPage> {
   const fallback = (await import('@/public/content/portfolio.json')).default as unknown as FallbackPortfolioJson;
-  const updatedAt = fallback.meta?.updatedAt ?? getFallbackUpdatedAt();
+  const updatedAt = fallback.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in portfolio.json');
+  }
 
   return {
     id: 1,
     documentId: 'json-portfolio-page',
-    title: fallback.title ?? 'Портфолио',
+    title: fallback.title ?? '',
     lead: fallback.lead ?? null,
     projects: Array.isArray(fallback.projects)
       ? fallback.projects.map((project, idx) => ({
@@ -509,7 +522,11 @@ export async function fetchPortfolioPageData(): Promise<StrapiPortfolioPage> {
 export async function fetchAboutPageData(): Promise<StrapiAboutPage> {
   const howWeWork = (await import('@/public/content/ncfg_how_we_work.json')).default as unknown as FallbackHowWeWorkJson;
   const principles = (await import('@/public/content/ncfg_principles.json')).default as unknown as FallbackPrinciplesJson;
-  const updatedAt = howWeWork.meta?.updatedAt ?? getFallbackUpdatedAt();
+  const updatedAt = howWeWork.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in ncfg_how_we_work.json');
+  }
 
   return {
     id: 1,
@@ -548,12 +565,16 @@ export async function fetchAboutPageData(): Promise<StrapiAboutPage> {
 
 export async function fetchBlogPageData(): Promise<StrapiBlogPage> {
   const blog = (await import('@/public/content/blog.json')).default as unknown as FallbackBlogJson;
-  const updatedAt = blog.meta?.updatedAt ?? getFallbackUpdatedAt();
+  const updatedAt = blog.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in blog.json');
+  }
 
   return {
     id: 1,
     documentId: 'json-blog-page',
-    title: blog.meta?.title ?? 'Блог',
+    title: blog.meta?.title ?? '',
     lead: blog.meta?.lead ?? null,
     createdAt: updatedAt,
     updatedAt: updatedAt,

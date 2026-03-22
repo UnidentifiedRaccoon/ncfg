@@ -17,12 +17,7 @@ interface GetNewsOptions {
   category?: string;
 }
 
-const NEWS_ARTICLE_POPULATE_WITH_POST_IMAGE = ['anonsImage', 'postImage', 'category'] as const;
-const NEWS_ARTICLE_POPULATE_LEGACY = ['anonsImage', 'category'] as const;
-
-function isInvalidPopulateKeyError(error: unknown, key: string): boolean {
-  return error instanceof Error && error.message.includes(`Invalid key ${key}`);
-}
+const NEWS_ARTICLE_POPULATE = ['anonsImage', 'postImage', 'category'] as const;
 
 export async function getNews(options: GetNewsOptions = {}): Promise<{
   articles: StrapiNewsArticle[];
@@ -66,33 +61,19 @@ export async function getNews(options: GetNewsOptions = {}): Promise<{
 }
 
 export async function getNewsArticle(slug: string): Promise<StrapiNewsArticle | null> {
-  const buildNewsArticleQuery = (populate: readonly string[]) =>
-    buildQueryString({
-      populate: [...populate],
-      filters: {
-        slug: { $eq: slug },
-      },
-    });
+  const query = buildQueryString({
+    populate: [...NEWS_ARTICLE_POPULATE],
+    filters: {
+      slug: { $eq: slug },
+    },
+  });
 
-  try {
-    const response = await fetchAPI<StrapiResponse<StrapiNewsArticle[]>>(
-      `/news-articles${buildNewsArticleQuery(NEWS_ARTICLE_POPULATE_WITH_POST_IMAGE)}`,
-      { tags: ['news', `news-${slug}`] }
-    );
+  const response = await fetchAPI<StrapiResponse<StrapiNewsArticle[]>>(
+    `/news-articles${query}`,
+    { tags: ['news', `news-${slug}`] }
+  );
 
-    return response.data[0] || null;
-  } catch (error: unknown) {
-    if (!isInvalidPopulateKeyError(error, 'postImage')) {
-      throw error;
-    }
-
-    const fallbackResponse = await fetchAPI<StrapiResponse<StrapiNewsArticle[]>>(
-      `/news-articles${buildNewsArticleQuery(NEWS_ARTICLE_POPULATE_LEGACY)}`,
-      { tags: ['news', `news-${slug}`] }
-    );
-
-    return fallbackResponse.data[0] || null;
-  }
+  return response.data[0] || null;
 }
 
 export async function getLatestNews(

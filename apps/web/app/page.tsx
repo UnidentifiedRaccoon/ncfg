@@ -6,7 +6,6 @@ import {
   Services,
   Partners,
   News,
-  FAQ,
   LeadForm,
   Footer,
 } from "@/widgets";
@@ -32,11 +31,14 @@ function makeHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) 
   const byKey = new Map(metrics.map((m) => [m.key, m.displayValue]));
 
   return [
-    { value: byKey.get("participants") ?? "30,2 млн", label: "участников" },
-    { value: byKey.get("regions") ?? "84", label: "региона" },
-    { value: byKey.get("corporate_clients") ?? "3 502", label: "компании" },
-    { value: byKey.get("nps") ?? "9,63", label: "NPS программ" },
-  ];
+    ["participants", "участников"],
+    ["regions", "региона"],
+    ["corporate_clients", "компании"],
+    ["nps", "NPS программ"],
+  ].flatMap(([key, label]) => {
+    const value = byKey.get(key);
+    return value ? [{ value, label }] : [];
+  });
 }
 
 export default async function Home() {
@@ -57,7 +59,6 @@ export default async function Home() {
     id: award.id,
     title: award.title,
     year: award.year ?? null,
-    img: award.imgPath ?? undefined,
   }));
 
   const mappedClientsCarousel = clientsCarousel
@@ -135,7 +136,6 @@ export default async function Home() {
           testimonials={mappedTestimonials}
         />
         <LeadForm />
-        <FAQ title="Частые вопросы" items={[]} />
         <News
           title={homePage.newsTitle ?? "Новости"}
           lead={homePage.newsTeaser ?? undefined}
