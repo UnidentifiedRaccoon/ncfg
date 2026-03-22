@@ -97,6 +97,10 @@ export const ABOUT_HISTORY_MILESTONES: AboutHistoryMilestone[] = [
         label: "Методика финансовых привычек",
         href: "https://finhabit52.ru/",
       },
+      {
+        label: "Финансовое благополучие сотрудников",
+        href: "/docs/ncfg-financial-wellbeing.pdf",
+      },
     ],
   },
 ];

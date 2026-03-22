@@ -1,5 +1,4 @@
-import { Manrope } from "next/font/google";
-import { cn } from "@/shared/lib/cn";
+import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/shared/ui/Container";
 import {
   ABOUT_HISTORY_MILESTONES,
@@ -7,22 +6,19 @@ import {
   type AboutHistoryMilestoneLink,
 } from "./timelineData";
 
-const manrope = Manrope({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-history-display",
-  display: "swap",
-  weight: ["500", "600", "700", "800"],
-});
-
 function ExternalLinkChip({ link }: { link: AboutHistoryMilestoneLink }) {
   return (
     <a
       href={link.href}
       target="_blank"
       rel="noreferrer noopener"
-      className="inline-flex items-center gap-2 rounded-full border border-white/[0.15] bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/[0.12] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
+      className="group inline-flex items-center gap-2 rounded-full border border-white/[0.15] bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/[0.12] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
     >
       {link.label}
+      <ArrowUpRight
+        className="h-4 w-4 shrink-0 text-[#9DD3FF] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+        aria-hidden="true"
+      />
     </a>
   );
 }
@@ -90,7 +86,7 @@ function TimelineItem({ milestone }: { milestone: AboutHistoryMilestone }) {
       <article className="overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.04]">
         <div className="grid gap-0 lg:grid-cols-[132px_minmax(0,1fr)]">
           <div className="border-b border-white/10 bg-white/[0.06] px-5 py-6 text-white lg:border-b-0 lg:border-r">
-            <div className="font-[family-name:var(--font-history-display)] text-[34px] font-semibold tracking-[-0.05em]">
+            <div className="text-[34px] font-semibold tracking-[-0.05em]">
               {milestone.period}
             </div>
           </div>
@@ -98,7 +94,7 @@ function TimelineItem({ milestone }: { milestone: AboutHistoryMilestone }) {
           <div className="p-5 md:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 max-w-3xl">
-                <h3 className="font-[family-name:var(--font-history-display)] text-[24px] font-semibold tracking-[-0.035em] text-white md:text-[30px]">
+                <h3 className="text-[24px] font-semibold tracking-[-0.035em] text-white md:text-[30px]">
                   {milestone.organization}
                 </h3>
               </div>
@@ -124,10 +120,7 @@ export function AboutHistoryTimeline() {
   return (
     <section
       id="history-center"
-      className={cn(
-        manrope.variable,
-        "relative -mt-px overflow-hidden bg-[#071321] pb-16 pt-0 md:pb-20"
-      )}
+      className="relative -mt-px overflow-hidden bg-[#071321] pb-16 pt-0 md:pb-20"
     >
       <div
         aria-hidden="true"

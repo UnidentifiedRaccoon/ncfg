@@ -1,14 +1,6 @@
 import { ArrowUpRight, ShieldCheck, Sparkles, TrendingUp, Zap } from "lucide-react";
-import { Lexend } from "next/font/google";
 import { cn } from "@/shared/lib/cn";
 import { Section } from "@/shared/ui/Section";
-
-const lexend = Lexend({
-  subsets: ["latin"],
-  variable: "--font-portfolio-lexend",
-  display: "swap",
-  weight: ["500", "600", "700"],
-});
 
 interface PortfolioProject {
   id: number;
@@ -106,19 +98,14 @@ export function PortfolioShowcase({
 }: PortfolioShowcaseProps) {
   if (projects.length === 0) {
     return (
-      <Section id="portfolio-projects" title={title} lead={lead} className={cn(lexend.variable)}>
+      <Section id="portfolio-projects" title={title} lead={lead}>
         <EmptyProjectsFallback />
       </Section>
     );
   }
 
   return (
-    <Section
-      id="portfolio-projects"
-      title={title}
-      lead={lead}
-      className={cn(lexend.variable)}
-    >
+    <Section id="portfolio-projects" title={title} lead={lead}>
       <div className="space-y-4 md:space-y-5">
         {projects.map((project, index) => (
           <article
@@ -179,7 +166,7 @@ export function PortfolioShowcase({
             />
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="min-w-0">
-                <h3 className="text-xl font-semibold tracking-tight text-white font-[family-name:var(--font-portfolio-lexend)] md:text-2xl">
+                <h3 className="text-xl font-semibold tracking-tight text-white md:text-2xl">
                   Презентация со всеми кейсами НЦФГ
                 </h3>
               </div>
