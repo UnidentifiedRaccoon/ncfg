@@ -98,12 +98,14 @@ jobs:
               exit 1
             fi
 
-            echo "::add-mask::$value"
             printf '%s' "$value"
           }
 
           strapi_api_token="$(fetch_required_key STRAPI_API_TOKEN)"
-          fetch_required_key STRAPI_WRITE_API_TOKEN >/dev/null
+          strapi_write_api_token="$(fetch_required_key STRAPI_WRITE_API_TOKEN)"
+
+          echo "::add-mask::$strapi_api_token"
+          echo "::add-mask::$strapi_write_api_token"
 
           printf 'strapi_api_token=%s\n' "$strapi_api_token" >> "$GITHUB_OUTPUT"
 
