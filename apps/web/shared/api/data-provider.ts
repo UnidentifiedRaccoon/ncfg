@@ -156,7 +156,14 @@ interface FallbackPrinciplesJson {
   meta?: { updatedAt?: string };
   title?: string;
   description?: string;
-  principles?: Array<{ id?: string; order?: number; title?: string; description?: string }>;
+  principles?: Array<{
+    id?: string;
+    order?: number;
+    title?: string;
+    description?: string;
+    linkLabel?: string;
+    href?: string;
+  }>;
 }
 
 interface FallbackBlogJson {
@@ -528,6 +535,8 @@ export async function fetchAboutPageData(): Promise<StrapiAboutPage> {
           order: typeof p.order === 'number' ? p.order : idx + 1,
           title: p.title ?? '',
           description: p.description ?? '',
+          linkLabel: p.linkLabel ?? null,
+          href: p.href ?? null,
         }))
       : [],
     faqItems: [],

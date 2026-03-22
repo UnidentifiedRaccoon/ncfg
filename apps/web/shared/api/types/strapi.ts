@@ -400,6 +400,8 @@ export interface StrapiPrinciple {
   order: number;
   title: string;
   description: string;
+  linkLabel: string | null;
+  href: string | null;
 }
 
 export interface StrapiAboutPage {

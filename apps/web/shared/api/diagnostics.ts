@@ -1,4 +1,8 @@
-import { buildQueryString, fetchAPI, StrapiResponse } from "@/shared/lib/strapi";
+import {
+  buildQueryString,
+  fetchAPI,
+  StrapiResponse,
+} from "@/shared/lib/strapi";
 import { sortDiagnosticQuestions } from "@/shared/lib/diagnostics";
 import type {
   DiagnosticCampaign,

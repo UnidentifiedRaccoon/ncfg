@@ -1,5 +1,6 @@
 import { Section } from "@/shared/ui/Section";
-import { BookOpen, FlaskConical, Users, Award, Heart } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BookOpen, FlaskConical, Users, Award, Heart } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 interface Principle {
@@ -7,6 +8,8 @@ interface Principle {
   order: number;
   title: string;
   description: string;
+  linkLabel?: string;
+  href?: string;
 }
 
 interface PrinciplesProps {
@@ -71,6 +74,19 @@ export function Principles({ title, lead, principles }: PrinciplesProps) {
                   <p className="mt-4 text-sm leading-relaxed text-[#475569] md:text-[15px]">
                     {principle.description}
                   </p>
+
+                  {principle.href ? (
+                    <Link
+                      href={principle.href}
+                      className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#2563EB] transition-colors hover:text-[#1D4ED8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
+                    >
+                      <span>{principle.linkLabel ?? "История центра"}</span>
+                      <ArrowRight
+                        className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  ) : null}
                 </div>
               </article>
             </li>

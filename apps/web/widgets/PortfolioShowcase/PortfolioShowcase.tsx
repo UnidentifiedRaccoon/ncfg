@@ -159,7 +159,7 @@ export function PortfolioShowcase({
         ))}
 
         {presentation && (
-          <div className="relative overflow-hidden rounded-[28px] border border-[#1D4ED8]/25 bg-[#0C1D39] p-6 text-white shadow-[0_24px_55px_rgba(15,23,42,0.45)] md:p-8">
+          <div className="relative overflow-hidden rounded-[28px] border border-[#1D4ED8]/25 bg-[#0C1D39] p-6 text-white md:p-8">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(56,189,248,0.34),transparent_48%),radial-gradient(circle_at_100%_100%,rgba(37,99,235,0.34),transparent_42%)]"

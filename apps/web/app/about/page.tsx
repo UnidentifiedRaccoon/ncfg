@@ -54,6 +54,8 @@ export default async function AboutPage() {
       order: p.order,
       title: p.title,
       description: p.description,
+      linkLabel: p.linkLabel ?? undefined,
+      href: p.href ?? undefined,
     }));
 
   const faqItems = [...aboutPage.faqItems]

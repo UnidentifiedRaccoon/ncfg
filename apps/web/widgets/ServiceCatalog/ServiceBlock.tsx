@@ -1,9 +1,16 @@
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import { BentoCard } from "./BentoCard";
 
 interface ServiceItem {
   title: string;
   description: string;
+  href: string;
+}
+
+interface ServiceBlockBanner {
+  title: string;
+  ctaLabel: string;
   href: string;
 }
 
@@ -16,6 +23,7 @@ interface ServiceBlockProps {
   description: string;
   items: ServiceItem[];
   idBase: string;
+  banner?: ServiceBlockBanner;
 }
 
 function pad2(value: number) {
@@ -45,6 +53,7 @@ export function ServiceBlock({
   description,
   items,
   idBase,
+  banner,
 }: ServiceBlockProps) {
   const anchorId = `${idBase}-${id}`;
   const number = pad2(index + 1);
@@ -90,6 +99,37 @@ export function ServiceBlock({
       </header>
 
       <div className="mt-6 md:mt-8">{renderGrid(items)}</div>
+
+      {banner && (
+        <div className="relative mt-5 overflow-hidden rounded-[28px] border border-[#D7E8FB] bg-[linear-gradient(135deg,#F9FCFF_0%,#F2F8FF_56%,#FBFDFF_100%)] p-6 md:p-8">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(88,168,224,0.18),transparent_48%),radial-gradient(circle_at_100%_100%,rgba(59,130,246,0.12),transparent_42%)]"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/80 to-transparent"
+          />
+
+          <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0">
+              <h4 className="text-xl font-semibold tracking-tight text-[#1E3A5F] md:text-2xl">
+                {banner.title}
+              </h4>
+            </div>
+
+            <a
+              href={banner.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative z-10 inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#BFDBFE] bg-white/85 px-6 text-base font-semibold text-[#2563EB] transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8]"
+            >
+              {banner.ctaLabel}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

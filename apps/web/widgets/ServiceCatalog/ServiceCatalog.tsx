@@ -14,6 +14,13 @@ interface Service {
   items: ServiceItem[];
 }
 
+interface ServiceCatalogBanner {
+  serviceId: string;
+  title: string;
+  ctaLabel: string;
+  href: string;
+}
+
 interface ServiceCatalogProps {
   services: Service[];
   /**
@@ -22,12 +29,14 @@ interface ServiceCatalogProps {
    */
   idBase?: string;
   showBadges?: boolean;
+  banner?: ServiceCatalogBanner;
 }
 
 export function ServiceCatalog({
   services,
   idBase = "services",
   showBadges = true,
+  banner,
 }: ServiceCatalogProps) {
   return (
     <Section
@@ -48,6 +57,7 @@ export function ServiceCatalog({
               description={service.description}
               items={service.items}
               idBase={idBase}
+              banner={banner?.serviceId === service.id ? banner : undefined}
             />
           ))}
         </div>

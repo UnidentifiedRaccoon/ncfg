@@ -60,7 +60,16 @@ export default async function CompaniesPage() {
               : undefined
           }
         />
-        <ServiceCatalog services={serviceBlocks} showBadges={false} />
+        <ServiceCatalog
+          services={serviceBlocks}
+          showBadges={false}
+          banner={{
+            serviceId: "programmy-finansovogo-blagopoluchiya-dlya-sotrudnikov",
+            title: "Финансовое благополучие сотрудников",
+            ctaLabel: "Скачать презентацию",
+            href: "/docs/ncfg-financial-wellbeing.pdf",
+          }}
+        />
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />
       </main>
