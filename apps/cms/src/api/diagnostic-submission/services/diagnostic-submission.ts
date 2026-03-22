@@ -272,9 +272,9 @@ function mapAnswersForStorage(answers: IntakeAnswerPayload[]) {
 
 function buildSubmissionRelations(payload: IntakePayload) {
   return {
-    organization: { connect: [{ documentId: payload.organizationDocumentId }] },
-    campaign: { connect: [{ documentId: payload.campaignDocumentId }] },
-    test: { connect: [{ documentId: payload.testDocumentId }] },
+    organization: payload.organizationDocumentId,
+    campaign: payload.campaignDocumentId,
+    test: payload.testDocumentId,
   };
 }
 
@@ -288,7 +288,6 @@ export default factories.createCoreService(
       }
 
       const existingSubmission = await strapi.documents(SUBMISSION_UID).findFirst({
-        status: "published",
         fields: [
           "documentId",
           "attemptNumber",
@@ -315,7 +314,6 @@ export default factories.createCoreService(
 
       if (parsedPayload.emailNormalized) {
         const existingAttempts = await strapi.documents(SUBMISSION_UID).findMany({
-          status: "published",
           fields: ["documentId"],
           filters: {
             campaign: {
@@ -376,7 +374,6 @@ export default factories.createCoreService(
         const updated = await strapi.documents(SUBMISSION_UID).update({
           documentId: existingSubmission.documentId,
           data: respondentData ? { ...baseData, ...respondentData } : baseData,
-          status: "published",
         });
 
         if (parsedPayload.meta?.requestId) {
@@ -400,7 +397,6 @@ export default factories.createCoreService(
           phone: respondentData?.phone ?? null,
           consentAcceptedAt: respondentData?.consentAcceptedAt ?? null,
         },
-        status: "published",
       });
 
       if (parsedPayload.meta?.requestId) {
@@ -477,7 +473,6 @@ export default factories.createCoreService(
 
       while (true) {
         const batch = await strapi.documents(SUBMISSION_UID).findMany({
-          status: "published",
           populate: {
             answers: true,
           },
