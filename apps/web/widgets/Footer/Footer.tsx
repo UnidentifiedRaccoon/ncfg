@@ -47,6 +47,7 @@ interface FooterProps {
 const navigation = [
   { label: "Частным лицам", href: "/individuals" },
   { label: "Компаниям", href: "/companies" },
+  { label: "Диагностика", href: "/diagnostika/financial-wellbeing" },
   { label: "Портфолио", href: "/portfolio" },
   { label: "О центре", href: "/about" },
   { label: "История", href: "/history" },
@@ -279,16 +280,20 @@ export function Footer({ data }: FooterProps) {
                   dividerClassName
                 )}
               >
-                <Link href="/" className="flex items-center gap-3">
+                <Link
+                  href="/"
+                  className="flex shrink-0 items-center gap-1"
+                  aria-label="НЦФГ — на главную"
+                >
                   <Image
                     src="/logo.svg"
                     alt="НЦФГ"
                     width={40}
                     height={40}
-                    className="h-10 w-10 brightness-0 invert"
+                    className="h-9 w-9 md:h-10 md:w-10 brightness-0 invert"
                   />
                   <span
-                    className="text-base sm:text-lg font-black tracking-[0.14em] leading-none text-white"
+                    className="text-base font-semibold leading-none tracking-[0.11em] text-white sm:text-xl lg:text-xl lg:tracking-[0.14em]"
                   >
                     {data.organization.shortName}
                   </span>

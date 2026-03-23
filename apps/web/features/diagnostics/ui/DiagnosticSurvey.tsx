@@ -41,6 +41,15 @@ const cardClass = cn(
   "md:mx-0 md:rounded-2xl md:border md:border-[#E2E8F0]/80 md:shadow-[0_18px_56px_rgba(15,23,42,0.08)]"
 );
 
+const primaryCtaClass = cn(
+  "inline-flex items-center gap-2 rounded-xl text-sm font-semibold text-white transition-all duration-150",
+  "bg-[#5485d5] hover:bg-[#4874c4] hover:shadow-[0_4px_12px_rgba(84,133,213,0.3)] active:bg-[#3d65b3]",
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
+);
+
+const primaryCtaLargeClass = cn(primaryCtaClass, "px-8 py-3.5");
+const primaryCtaCompactClass = cn(primaryCtaClass, "px-6 py-3");
+
 /* ------------------------------------------------------------------ */
 /*  Sidebar step dot                                                   */
 /* ------------------------------------------------------------------ */
@@ -302,7 +311,7 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
             {result.band.ctaLabel && result.band.ctaHref && (
               <Link
                 href={result.band.ctaHref}
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#58A8E0] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#4A96CC] hover:shadow-[0_4px_12px_rgba(88,168,224,0.3)]"
+                className={cn("mt-6", primaryCtaLargeClass)}
               >
                 {result.band.ctaLabel}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -542,7 +551,7 @@ export function DiagnosticSurvey({
                       <button
                         type="button"
                         onClick={handleContinueDraft}
-                        className="inline-flex items-center gap-2 rounded-xl bg-[#58A8E0] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#4A96CC] hover:shadow-[0_4px_12px_rgba(88,168,224,0.3)]"
+                        className={primaryCtaLargeClass}
                       >
                         <PlayCircle className="h-4 w-4" aria-hidden="true" />
                         Продолжить
@@ -560,7 +569,7 @@ export function DiagnosticSurvey({
                     <button
                       type="button"
                       onClick={handleStartFresh}
-                      className="inline-flex items-center gap-2 rounded-xl bg-[#58A8E0] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#4A96CC] hover:shadow-[0_4px_12px_rgba(88,168,224,0.3)]"
+                      className={primaryCtaLargeClass}
                     >
                       Начать
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -846,7 +855,7 @@ export function DiagnosticSurvey({
                             <button
                               type="button"
                               onClick={() => fetchPreviewResult()}
-                              className="inline-flex items-center gap-2 rounded-xl bg-[#58A8E0] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#4A96CC] hover:shadow-[0_4px_12px_rgba(88,168,224,0.3)]"
+                              className={primaryCtaCompactClass}
                             >
                               <RotateCcw className="h-4 w-4" aria-hidden="true" />
                               Попробовать снова
@@ -870,9 +879,6 @@ export function DiagnosticSurvey({
                             <h2 className="mt-4 text-xl font-semibold text-[#1E3A5F]">
                               Данные сохранены
                             </h2>
-                            <p className="mt-2 text-sm text-[#475569]">
-                              Специалисты НЦФГ свяжутся с вами при необходимости.
-                            </p>
                             <div className="mt-6">
                               <button
                                 type="button"
@@ -1007,7 +1013,7 @@ export function DiagnosticSurvey({
                               <button
                                 type="submit"
                                 disabled={status === "submitting"}
-                                className="inline-flex items-center gap-2 rounded-xl bg-[#58A8E0] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#4A96CC] hover:shadow-[0_4px_12px_rgba(88,168,224,0.3)] disabled:opacity-60"
+                                className={cn(primaryCtaCompactClass, "disabled:opacity-60")}
                               >
                                 {status === "submitting" ? (
                                   "Сохраняем..."
@@ -1119,7 +1125,7 @@ export function DiagnosticSurvey({
                             <button
                               type="button"
                               onClick={goToNextStep}
-                              className="inline-flex items-center gap-2 rounded-xl bg-[#58A8E0] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#4A96CC] hover:shadow-[0_4px_12px_rgba(88,168,224,0.3)]"
+                              className={primaryCtaCompactClass}
                             >
                               {currentStep === questions.length - 1
                                 ? "К результатам"
