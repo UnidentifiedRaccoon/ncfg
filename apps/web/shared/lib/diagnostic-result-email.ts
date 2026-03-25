@@ -1,6 +1,11 @@
 import type { DiagnosticResult } from "../api/types/diagnostic";
 import { getSiteUrl } from "./metadata";
 import { getDiagnosticResultPresentation } from "./diagnostic-result-presentation";
+import {
+  diagnosticEmailToneStyleByTone,
+  getDiagnosticInsightTone,
+  getDiagnosticScoreTone,
+} from "./diagnostic-result-tone";
 
 interface BuildDiagnosticResultEmailInput {
   fullName: string;
@@ -62,24 +67,36 @@ function renderInsightHtml(result: DiagnosticResult) {
 
   const items = result.insights
     .map((insight, index) => {
+      const tone = getDiagnosticInsightTone(insight.weight);
+      const toneStyle = diagnosticEmailToneStyleByTone[tone];
+
       return `
-        <div style="margin-top:${index === 0 ? "0" : "16px"};border:1px solid #E2E8F0;border-radius:16px;padding:20px;background:#FFFFFF;">
-          <p style="margin:0;font-size:12px;line-height:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">
-            Вопрос
-          </p>
-          <p style="margin:6px 0 0;font-size:16px;line-height:24px;font-weight:600;color:#1E3A5F;">
-            ${escapeHtml(insight.questionTitle)}
-          </p>
-          <p style="margin:10px 0 0;font-size:14px;line-height:22px;color:#475569;">
-            <strong style="color:#1E3A5F;">Ваш ответ:</strong> ${escapeHtml(insight.answerLabel)}
-          </p>
+        <div style="margin-top:${index === 0 ? "0" : "16px"};border:1px solid ${toneStyle.insightBorderColor};border-radius:16px;padding:20px;background:#FFFFFF;box-shadow:${toneStyle.insightBoxShadow};">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">
+            <tr>
+              <td valign="top" style="width:40px;padding:0 12px 0 0;">
+                <span style="display:inline-block;min-width:28px;border-radius:10px;background:${toneStyle.insightBadgeBackgroundColor};padding:5px 8px;font-size:12px;line-height:18px;font-weight:700;color:${toneStyle.insightBadgeColor};text-align:center;">
+                  ${index + 1}
+                </span>
+              </td>
+              <td valign="top" style="padding:0;">
+                <p style="margin:0;font-size:12px;line-height:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94A3B8;">
+                  ${escapeHtml(insight.questionTitle)}
+                </p>
+                <p style="margin:6px 0 0;font-size:14px;line-height:22px;color:#475569;">
+                  <strong style="color:#1E3A5F;">Ваш ответ:</strong> ${escapeHtml(insight.answerLabel)}
+                </p>
+              </td>
+            </tr>
+          </table>
+          <div style="margin:16px 0 0;height:1px;background:rgba(226, 232, 240, 0.7);"></div>
           <p style="margin:16px 0 0;font-size:18px;line-height:26px;font-weight:600;color:#1E3A5F;">
             ${escapeHtml(insight.insightTitle)}
           </p>
           <p style="margin:10px 0 0;font-size:15px;line-height:24px;color:#475569;">
             ${formatTextAsHtml(insight.insightText)}
           </p>
-          <div style="margin-top:16px;border-radius:14px;background:#EFF6FF;padding:16px;">
+          <div style="margin-top:16px;border-top:1px solid rgba(226, 232, 240, 0.6);border-radius:14px;background:${toneStyle.insightBackgroundColor};padding:16px;">
             <p style="margin:0;font-size:12px;line-height:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2563EB;">
               Практический шаг
             </p>
@@ -134,6 +151,8 @@ export function buildDiagnosticResultEmail({
   result,
 }: BuildDiagnosticResultEmailInput): DiagnosticResultEmailContent {
   const presentation = getDiagnosticResultPresentation(result);
+  const scoreTone = getDiagnosticScoreTone(result.scorePercent);
+  const scoreToneStyle = diagnosticEmailToneStyleByTone[scoreTone];
   const ctaHref = resolveAbsoluteUrl(presentation.ctaHref);
   const subject = `Результаты диагностики «${campaignTitle}»`;
   const greetingName = escapeText(fullName);
@@ -156,8 +175,8 @@ export function buildDiagnosticResultEmail({
         </p>
 
         <div style="margin-top:28px;border-radius:20px;background:#F8FAFC;padding:24px;text-align:center;">
-          <div style="display:inline-block;min-width:128px;border:4px solid #BFDBFE;border-radius:999px;padding:20px 16px;background:#EFF6FF;">
-            <div style="font-size:36px;line-height:40px;font-weight:700;color:#1D4ED8;">
+          <div style="display:inline-block;min-width:128px;border:4px solid ${scoreToneStyle.scoreCircleBorderColor};border-radius:999px;padding:20px 16px;background:${scoreToneStyle.scoreCircleBackgroundColor};">
+            <div style="font-size:36px;line-height:40px;font-weight:700;color:${scoreToneStyle.scoreNumberColor};">
               ${result.scorePercent}
             </div>
             <div style="margin-top:4px;font-size:14px;line-height:20px;color:#64748B;">

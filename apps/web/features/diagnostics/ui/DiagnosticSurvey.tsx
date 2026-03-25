@@ -19,6 +19,15 @@ import { cn } from "@/shared/lib/cn";
 import type { DiagnosticPublicQuestion } from "@/shared/api/types/diagnostic";
 import type { DiagnosticResult, DiagnosticResultInsight } from "@/shared/api/types/diagnostic";
 import { getDiagnosticResultPresentation } from "@/shared/lib/diagnostic-result-presentation";
+import {
+  diagnosticInsightBackgroundClassByTone,
+  diagnosticInsightBadgeClassByTone,
+  diagnosticInsightBorderClassByTone,
+  diagnosticScoreCircleClassByTone,
+  diagnosticScoreNumberClassByTone,
+  getDiagnosticInsightTone,
+  getDiagnosticScoreTone,
+} from "@/shared/lib/diagnostic-result-tone";
 import { useDiagnosticSurvey } from "../hooks/useDiagnosticSurvey";
 
 interface DiagnosticSurveyProps {
@@ -126,54 +135,6 @@ function useAnimatedCount(target: number, duration = 1200) {
   return value;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Score tone (0-35 red, 36-70 yellow, 71-100 green)                  */
-/* ------------------------------------------------------------------ */
-function scoreTone(percent: number) {
-  if (percent <= 40) return "red" as const;
-  if (percent <= 70) return "yellow" as const;
-  return "green" as const;
-}
-
-const scoreCircleStyles = {
-  red:    "border-[#E2969C]/60 bg-[#FDF0F1]/60",
-  yellow: "border-[#D4B678]/60 bg-[#FBF4E8]/60",
-  green:  "border-[#7DB8A4]/60 bg-[#EDF6F2]/60",
-} as const;
-
-const scoreNumberColor = {
-  red:    "text-[#C2555E]",
-  yellow: "text-[#9A7530]",
-  green:  "text-[#3D7D65]",
-} as const;
-
-/* ------------------------------------------------------------------ */
-/*  Insight card (accordion)                                           */
-/* ------------------------------------------------------------------ */
-function insightTone(weight: number) {
-  if (weight <= 3) return "red" as const;
-  if (weight <= 6) return "yellow" as const;
-  return "green" as const;
-}
-
-const toneBorder = {
-  red:    { closed: "border-[#E2969C]/40", open: "border-[#C9686F]/40 shadow-[0_4px_16px_rgba(194,85,94,0.10)]" },
-  yellow: { closed: "border-[#D4B678]/40", open: "border-[#BF9A4E]/40 shadow-[0_4px_16px_rgba(191,154,78,0.10)]" },
-  green:  { closed: "border-[#7DB8A4]/40", open: "border-[#549479]/40 shadow-[0_4px_16px_rgba(84,148,121,0.10)]" },
-} as const;
-
-const toneBadge = {
-  red:    { closed: "bg-[#FDF0F1] text-[#A84850]", open: "bg-[#C2555E] text-white" },
-  yellow: { closed: "bg-[#FBF4E8] text-[#856428]", open: "bg-[#9A7530] text-white" },
-  green:  { closed: "bg-[#EDF6F2] text-[#2F6B52]", open: "bg-[#3D7D65] text-white" },
-} as const;
-
-const toneBg = {
-  red:    "bg-[#FCECED]/50",
-  yellow: "bg-[#FAF2E5]/50",
-  green:  "bg-[#ECF5F0]/50",
-} as const;
-
 function InsightCard({
   insight,
   index,
@@ -185,13 +146,15 @@ function InsightCard({
   isOpen: boolean;
   onToggle: () => void;
 }) {
-  const tone = insightTone(insight.weight);
+  const tone = getDiagnosticInsightTone(insight.weight);
 
   return (
     <div
       className={cn(
         "rounded-xl border bg-white transition-all duration-300 overflow-hidden",
-        isOpen ? toneBorder[tone].open : toneBorder[tone].closed,
+        isOpen
+          ? diagnosticInsightBorderClassByTone[tone].open
+          : diagnosticInsightBorderClassByTone[tone].closed,
         !isOpen && "hover:shadow-sm"
       )}
     >
@@ -204,7 +167,9 @@ function InsightCard({
         <span
           className={cn(
             "mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-colors",
-            isOpen ? toneBadge[tone].open : toneBadge[tone].closed
+            isOpen
+              ? diagnosticInsightBadgeClassByTone[tone].open
+              : diagnosticInsightBadgeClassByTone[tone].closed
           )}
         >
           {index + 1}
@@ -259,7 +224,12 @@ function InsightCard({
           </div>
 
           {/* Practice step — edge-to-edge banner */}
-          <div className={cn("border-t border-[#E2E8F0]/60 px-5 py-4", toneBg[tone])}>
+          <div
+            className={cn(
+              "border-t border-[#E2E8F0]/60 px-5 py-4",
+              diagnosticInsightBackgroundClassByTone[tone]
+            )}
+          >
             <div className="flex items-start gap-3">
               <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-[#3B82F6]" aria-hidden="true" />
               <div className="min-w-0">
@@ -284,7 +254,7 @@ function InsightCard({
 function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
   const [openInsight, setOpenInsight] = useState<number>(0);
   const animatedScore = useAnimatedCount(result.scorePercent);
-  const tone = scoreTone(result.scorePercent);
+  const tone = getDiagnosticScoreTone(result.scorePercent);
   const presentation = getDiagnosticResultPresentation(result);
 
   const toggleInsight = useCallback((index: number) => {
@@ -295,9 +265,21 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
     <div>
       {/* Score */}
       <div className="text-center">
-        <div className={cn("mx-auto flex h-28 w-28 items-center justify-center rounded-full border-4 transition-colors duration-700", scoreCircleStyles[tone])}>
+        <div
+          className={cn(
+            "mx-auto flex h-28 w-28 items-center justify-center rounded-full border-4 transition-colors duration-700",
+            diagnosticScoreCircleClassByTone[tone]
+          )}
+        >
           <div>
-            <span className={cn("text-4xl font-bold tabular-nums transition-colors duration-700", scoreNumberColor[tone])}>{animatedScore}</span>
+            <span
+              className={cn(
+                "text-4xl font-bold tabular-nums transition-colors duration-700",
+                diagnosticScoreNumberClassByTone[tone]
+              )}
+            >
+              {animatedScore}
+            </span>
             <span className="block text-sm text-[#94A3B8]">из 100</span>
           </div>
         </div>
