@@ -18,6 +18,8 @@ interface GetNewsOptions {
 }
 
 const NEWS_ARTICLE_POPULATE = ['anonsImage', 'postImage', 'category'] as const;
+const DEFAULT_QUESTION_FORM_TITLE = 'Есть вопрос по другой теме?';
+const DEFAULT_QUESTION_FORM_DESCRIPTION = 'Задайте его специалисту НЦФГ';
 
 export async function getNews(options: GetNewsOptions = {}): Promise<{
   articles: StrapiNewsArticle[];
@@ -106,7 +108,13 @@ export async function getLatestNews(
 // Helper: Transform to legacy format
 // ==================
 
-interface LegacyNewsArticle {
+export interface LegacyNewsArticleQuestionForm {
+  isVisible: boolean;
+  title: string;
+  description: string;
+}
+
+export interface LegacyNewsArticle {
   id: string;
   title: string;
   category: { slug: string; title: string } | null;
@@ -114,8 +122,28 @@ interface LegacyNewsArticle {
   body: string;
   anonsImage: string | null;
   postImage: string | null;
+  questionForm: LegacyNewsArticleQuestionForm;
   createdAt: string;
   updatedAt: string;
+}
+
+function normalizeOptionalText(value: string | null | undefined): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function getQuestionForm(article: StrapiNewsArticle): LegacyNewsArticleQuestionForm {
+  return {
+    isVisible: article.showQuestionForm !== false,
+    title: normalizeOptionalText(article.questionFormTitle) ?? DEFAULT_QUESTION_FORM_TITLE,
+    description:
+      normalizeOptionalText(article.questionFormDescription) ??
+      DEFAULT_QUESTION_FORM_DESCRIPTION,
+  };
 }
 
 export function transformToLegacyNews(article: StrapiNewsArticle): LegacyNewsArticle {
@@ -130,6 +158,7 @@ export function transformToLegacyNews(article: StrapiNewsArticle): LegacyNewsArt
     body: article.body || '',
     anonsImage: transformedAnonsUrl,
     postImage: transformedPostUrl,
+    questionForm: getQuestionForm(article),
     createdAt: article.publishedDate || article.createdAt,
     updatedAt: article.updatedAt || article.publishedDate || article.createdAt,
   };

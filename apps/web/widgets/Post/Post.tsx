@@ -11,6 +11,11 @@ interface PostProps {
     category: { slug: string; title: string } | null;
     body: string;
     postImage?: string | null;
+    questionForm: {
+      isVisible: boolean;
+      title: string;
+      description: string;
+    };
     createdAt: string;
   };
   allPosts?: PostCardPost[];
@@ -87,7 +92,7 @@ export function Post({ post, allPosts = [] }: PostProps) {
         </Container>
       </article>
 
-      <PostQuestionForm postTitle={post.title} />
+      <PostQuestionForm postTitle={post.title} questionFormConfig={post.questionForm} />
 
       {otherPosts.length > 0 && <OtherPosts posts={otherPosts} />}
     </>

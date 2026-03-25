@@ -67,6 +67,9 @@ export interface StrapiNewsArticle {
   title: string;
   slug: string;
   body: string | null;
+  showQuestionForm: boolean | null;
+  questionFormTitle: string | null;
+  questionFormDescription: string | null;
   anonsImage: StrapiImage | null;
   postImage: StrapiImage | null;
   category: StrapiBlogCategory | null;

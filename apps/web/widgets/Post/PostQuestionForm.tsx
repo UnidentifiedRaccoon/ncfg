@@ -8,6 +8,11 @@ import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 
 interface PostQuestionFormProps {
   postTitle: string;
+  questionFormConfig: {
+    isVisible: boolean;
+    title: string;
+    description: string;
+  };
 }
 
 interface FormData {
@@ -18,7 +23,10 @@ interface FormData {
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
-export function PostQuestionForm({ postTitle }: PostQuestionFormProps) {
+export function PostQuestionForm({
+  postTitle,
+  questionFormConfig,
+}: PostQuestionFormProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     question: "",
@@ -67,6 +75,10 @@ export function PostQuestionForm({ postTitle }: PostQuestionFormProps) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  if (!questionFormConfig.isVisible) {
+    return null;
+  }
+
   if (status === "success") {
     return (
       <section data-scroll-reveal="" className="pb-12 md:pb-16">
@@ -92,10 +104,10 @@ export function PostQuestionForm({ postTitle }: PostQuestionFormProps) {
           {!isExpanded ? (
             <div className="text-center">
               <h3 className="text-xl font-semibold text-[#1E3A5F] mb-2">
-                Есть вопрос по другой теме?
+                {questionFormConfig.title}
               </h3>
               <p className="text-base text-[#475569] mb-6">
-                Задайте его специалисту НЦФГ
+                {questionFormConfig.description}
               </p>
               <Button
                 variant="secondary"

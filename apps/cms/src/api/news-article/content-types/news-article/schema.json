@@ -41,6 +41,17 @@
     "body": {
       "type": "richtext"
     },
+    "showQuestionForm": {
+      "type": "boolean",
+      "default": true
+    },
+    "questionFormTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "questionFormDescription": {
+      "type": "text"
+    },
     "anonsImage": {
       "type": "media",
       "multiple": false,

@@ -6,7 +6,13 @@
  * - Static page content from local JSON files (no Strapi requests).
  */
 
-import { getLatestNews, getNews, getNewsArticle, transformToLegacyNews } from './news';
+import {
+  getLatestNews,
+  getNews,
+  getNewsArticle,
+  transformToLegacyNews,
+  type LegacyNewsArticle,
+} from './news';
 import { getPeople, transformToLegacyPerson, type LegacyPerson } from './people';
 import {
   getRecommendations,
@@ -185,22 +191,7 @@ interface FallbackPortfolioJson {
 // News
 // ==================
 
-export interface NewsArticleCategoryData {
-  slug: string;
-  title: string;
-}
-
-export interface NewsArticleData {
-  id: string;
-  title: string;
-  category: NewsArticleCategoryData | null;
-  slug: string;
-  body: string;
-  anonsImage: string | null;
-  postImage: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export type NewsArticleData = LegacyNewsArticle;
 
 export async function fetchNewsArticles(options: { category?: string } = {}): Promise<NewsArticleData[]> {
   const { articles } = await getNews({ pageSize: 100, category: options.category });
