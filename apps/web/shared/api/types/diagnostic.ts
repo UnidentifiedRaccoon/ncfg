@@ -80,6 +80,8 @@ export interface DiagnosticResult {
   insights: DiagnosticResultInsight[];
 }
 
+export type DiagnosticEmailDeliveryStatus = "sent" | "failed";
+
 export interface DiagnosticSubmitResponse {
   success: boolean;
   message: string;
@@ -87,6 +89,7 @@ export interface DiagnosticSubmitResponse {
     documentId?: string;
     attemptNumber?: number;
     result: DiagnosticResult;
+    emailDeliveryStatus: DiagnosticEmailDeliveryStatus;
   };
 }
 

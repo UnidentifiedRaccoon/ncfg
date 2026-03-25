@@ -8,6 +8,7 @@ import {
   readJsonSafe,
 } from "@/shared/lib/api-route-utils";
 import { getDiagnosticCampaignBySlug } from "@/shared/api/diagnostics";
+import type { DiagnosticEmailDeliveryStatus } from "@/shared/api/types/diagnostic";
 import {
   buildDiagnosticResult,
   evaluateDiagnosticSubmission,
@@ -15,6 +16,7 @@ import {
   normalizeDiagnosticEmail,
   type DiagnosticAnswerInput,
 } from "@/shared/lib/diagnostics";
+import { diagnosticResultMailer } from "@/shared/lib/diagnostic-result-mailer";
 import { resolveSourcePageUrl } from "@/shared/lib/source-page";
 import { postStrapiWriteJSON } from "@/shared/lib/strapi-write";
 
@@ -191,14 +193,37 @@ export async function POST(
     );
 
     const result = buildDiagnosticResult(campaign, evaluatedSubmission);
+    let emailDeliveryStatus: DiagnosticEmailDeliveryStatus = "failed";
+
+    try {
+      await diagnosticResultMailer.sendResultCopy(
+        {
+          fullName: data.respondent.fullName,
+          email: data.respondent.email,
+          campaignTitle: campaign.title,
+          organizationName: campaign.organization.name,
+          result,
+        },
+        {
+          requestId,
+        }
+      );
+      emailDeliveryStatus = "sent";
+    } catch (error) {
+      console.error(`[${requestId}] Error sending diagnostic result email:`, error);
+    }
 
     return NextResponse.json(
       {
         success: true,
-        message: "Диагностика успешно сохранена",
+        message:
+          emailDeliveryStatus === "sent"
+            ? "Диагностика успешно сохранена, копия результатов отправлена на почту"
+            : "Диагностика успешно сохранена, но отправить копию результатов на почту не удалось",
         data: {
           ...intakeResponse.data,
           result,
+          emailDeliveryStatus,
         },
       },
       { headers: responseHeaders }

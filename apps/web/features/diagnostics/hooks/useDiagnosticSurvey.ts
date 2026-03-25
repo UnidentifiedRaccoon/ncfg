@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import type { DiagnosticPublicQuestion } from "@/shared/api/types/diagnostic";
 import type {
+  DiagnosticEmailDeliveryStatus,
   DiagnosticPreviewResponse,
   DiagnosticResult,
   DiagnosticSubmitResponse,
@@ -121,6 +122,8 @@ export function useDiagnosticSurvey({
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [result, setResult] = useState<DiagnosticResult | null>(null);
+  const [emailDeliveryStatus, setEmailDeliveryStatus] =
+    useState<DiagnosticEmailDeliveryStatus | null>(null);
 
   const [previewResult, setPreviewResult] = useState<DiagnosticResult | null>(null);
   const [previewStatus, setPreviewStatus] = useState<PreviewStatus>("idle");
@@ -229,6 +232,7 @@ export function useDiagnosticSurvey({
     setStatus("idle");
     setErrorMessage("");
     setResult(null);
+    setEmailDeliveryStatus(null);
     setPreviewResult(null);
     setPreviewStatus("idle");
     setSubmissionDocumentId(null);
@@ -251,6 +255,7 @@ export function useDiagnosticSurvey({
       setConsentAccepted(draft.consentAccepted);
       setSubmissionKey(draft.submissionKey);
       setSubmissionDocumentId(draft.submissionDocumentId ?? null);
+      setEmailDeliveryStatus(null);
 
       // If draft was in results phase, restore and re-fetch preview
       if (draft.phase === "results") {
@@ -265,6 +270,7 @@ export function useDiagnosticSurvey({
     setStatus("idle");
     setErrorMessage("");
     setResult(null);
+    setEmailDeliveryStatus(null);
     setPhase("survey");
   };
 
@@ -397,6 +403,7 @@ export function useDiagnosticSurvey({
 
       clearDraft(campaignSlug);
       setResult(payload.data.result);
+      setEmailDeliveryStatus(payload.data.emailDeliveryStatus);
       setSubmissionDocumentId(payload.data.documentId ?? submissionDocumentId);
       setStatus("success");
     } catch (error) {
@@ -419,6 +426,7 @@ export function useDiagnosticSurvey({
     consentAccepted,
     status,
     errorMessage,
+    emailDeliveryStatus,
     currentQuestion,
     answeredCount,
     progressPercent,

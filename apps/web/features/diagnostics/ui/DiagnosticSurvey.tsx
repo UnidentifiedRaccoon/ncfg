@@ -18,6 +18,7 @@ import {
 import { cn } from "@/shared/lib/cn";
 import type { DiagnosticPublicQuestion } from "@/shared/api/types/diagnostic";
 import type { DiagnosticResult, DiagnosticResultInsight } from "@/shared/api/types/diagnostic";
+import { getDiagnosticResultPresentation } from "@/shared/lib/diagnostic-result-presentation";
 import { useDiagnosticSurvey } from "../hooks/useDiagnosticSurvey";
 
 interface DiagnosticSurveyProps {
@@ -284,6 +285,7 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
   const [openInsight, setOpenInsight] = useState<number>(0);
   const animatedScore = useAnimatedCount(result.scorePercent);
   const tone = scoreTone(result.scorePercent);
+  const presentation = getDiagnosticResultPresentation(result);
 
   const toggleInsight = useCallback((index: number) => {
     setOpenInsight((prev) => (prev === index ? -1 : index));
@@ -303,17 +305,17 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
         {result.band ? (
           <>
             <h2 className="mt-6 text-2xl font-semibold tracking-tight text-[#1E3A5F] md:text-3xl">
-              {result.band.title}
+              {presentation.title}
             </h2>
             <p className="mt-4 text-base leading-7 text-[#475569]">
-              {result.band.summary}
+              {presentation.summary}
             </p>
-            {result.band.ctaLabel && result.band.ctaHref && (
+            {presentation.ctaLabel && presentation.ctaHref && (
               <Link
-                href={result.band.ctaHref}
+                href={presentation.ctaHref}
                 className={cn("mt-6", primaryCtaLargeClass)}
               >
-                {result.band.ctaLabel}
+                {presentation.ctaLabel}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             )}
@@ -321,11 +323,10 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
         ) : (
           <>
             <h2 className="mt-6 text-2xl font-semibold tracking-tight text-[#1E3A5F] md:text-3xl">
-              Результаты готовы
+              {presentation.title}
             </h2>
             <p className="mt-4 text-base leading-7 text-[#475569]">
-              Подробный анализ будет доступен после настройки диагностики.
-              При необходимости специалисты НЦФГ свяжутся с вами по указанным контактам.
+              {presentation.summary}
             </p>
           </>
         )}
@@ -418,6 +419,7 @@ export function DiagnosticSurvey({
     consentAccepted,
     status,
     errorMessage,
+    emailDeliveryStatus,
     currentQuestion,
     answeredCount,
     progressPercent,
@@ -873,12 +875,34 @@ export function DiagnosticSurvey({
                         {isSubmitted ? (
                           /* ---- Submitted confirmation ---- */
                           <div className="text-center py-4">
-                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-green-200 bg-green-50">
-                              <CheckCircle2 className="h-8 w-8 text-green-500" aria-hidden="true" />
+                            <div
+                              className={cn(
+                                "mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2",
+                                emailDeliveryStatus === "sent"
+                                  ? "border-green-200 bg-green-50"
+                                  : "border-amber-200 bg-amber-50"
+                              )}
+                            >
+                              {emailDeliveryStatus === "sent" ? (
+                                <CheckCircle2
+                                  className="h-8 w-8 text-green-500"
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                <AlertCircle
+                                  className="h-8 w-8 text-amber-500"
+                                  aria-hidden="true"
+                                />
+                              )}
                             </div>
                             <h2 className="mt-4 text-xl font-semibold text-[#1E3A5F]">
-                              Данные сохранены
+                              Результаты сохранены
                             </h2>
+                            <p className="mt-3 text-base leading-7 text-[#475569]">
+                              {emailDeliveryStatus === "sent"
+                                ? "Копию результатов отправили на указанный email."
+                                : "Результаты сохранены, но отправить копию на почту не удалось."}
+                            </p>
                             <div className="mt-6">
                               <button
                                 type="button"
@@ -897,7 +921,7 @@ export function DiagnosticSurvey({
                               Контактные данные
                             </h2>
                             <p className="mt-3 text-base leading-7 text-[#475569]">
-                              Заполните форму, чтобы получить результаты на почту
+                              Заполните форму, чтобы мы отправили копию результатов на почту
                             </p>
 
                             {status === "error" && (
