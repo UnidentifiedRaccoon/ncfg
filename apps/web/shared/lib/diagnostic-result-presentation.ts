@@ -18,13 +18,15 @@ export function getDiagnosticResultPresentation(
     return {
       title: result.band.title,
       summary: result.band.summary,
-      ctaLabel: result.band.ctaLabel,
-      ctaHref: result.band.ctaHref,
+      ctaLabel: result.ctaLabel,
+      ctaHref: result.ctaHref,
     };
   }
 
   return {
     title: FALLBACK_DIAGNOSTIC_RESULT_TITLE,
     summary: FALLBACK_DIAGNOSTIC_RESULT_SUMMARY,
+    ctaLabel: result.ctaLabel,
+    ctaHref: result.ctaHref,
   };
 }

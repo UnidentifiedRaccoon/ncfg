@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test shared/lib/diagnostic-result-email.test.ts",
+    "test": "node --import tsx --test shared/lib/*.test.ts",
     "seo:check": "node scripts/check-seo-indexing.mjs"
   },
   "dependencies": {

@@ -492,6 +492,9 @@ export interface ApiDiagnosticCampaignDiagnosticCampaign
     isActive: Schema.Attribute.Boolean &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<false>;
+    isCtaDisabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isNavigationLayoutDisabled: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -503,6 +506,14 @@ export interface ApiDiagnosticCampaignDiagnosticCampaign
       'api::diagnostic-organization.diagnostic-organization'
     > &
       Schema.Attribute.Required;
+    overwriteCtaHref: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    overwriteCtaLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     startsAt: Schema.Attribute.DateTime;
@@ -770,6 +781,13 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     postImage: Schema.Attribute.Media<'images'>;
     publishedAt: Schema.Attribute.DateTime;
     publishedDate: Schema.Attribute.Date;
+    questionFormDescription: Schema.Attribute.Text;
+    questionFormTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    showQuestionForm: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<true>;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     title: Schema.Attribute.String &
       Schema.Attribute.Required &

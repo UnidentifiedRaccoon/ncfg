@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DiagnosticSurvey } from "@/features/diagnostics";
-import { Footer } from "@/widgets";
+import { Footer, Header } from "@/widgets";
 import { fetchSiteSettings } from "@/shared/api/data-provider";
 import { getDiagnosticCampaignBySlug } from "@/shared/api/diagnostics";
 import { buildPageMetadata } from "@/shared/lib/metadata";
@@ -78,17 +78,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DiagnosticCampaignPage({ params }: PageProps) {
   const { campaignSlug } = await params;
-  const [campaign, siteSetting] = await Promise.all([
-    loadDiagnosticCampaign(campaignSlug),
-    fetchSiteSettings(),
-  ]);
+  const campaign = await loadDiagnosticCampaign(campaignSlug);
 
   if (!campaign || !campaign.organization || !campaign.test || !isDiagnosticCampaignAvailable(campaign)) {
     notFound();
   }
 
+  const isNavigationLayoutVisible = !campaign.isNavigationLayoutDisabled;
+  const siteSetting = isNavigationLayoutVisible ? await fetchSiteSettings() : null;
+
   return (
     <>
+      {isNavigationLayoutVisible ? <Header /> : null}
       <main>
         <DiagnosticSurvey
           campaignSlug={campaign.slug}
@@ -98,7 +99,9 @@ export default async function DiagnosticCampaignPage({ params }: PageProps) {
           questions={toPublicDiagnosticQuestions(campaign.test.questions)}
         />
       </main>
-      <Footer data={buildFooterData(siteSetting)} />
+      {isNavigationLayoutVisible && siteSetting ? (
+        <Footer data={buildFooterData(siteSetting)} />
+      ) : null}
     </>
   );
 }

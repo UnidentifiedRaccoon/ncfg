@@ -16,12 +16,12 @@ function createBaseResult(): DiagnosticResult {
     totalScore: 12,
     maxScore: 20,
     scorePercent: 60,
+    ctaLabel: "Открыть материалы",
+    ctaHref: "/materials/financial-health",
     band: {
       key: "steady",
       title: "Уверенная база",
       summary: "У вас уже есть хорошие привычки, которые можно усилить.",
-      ctaLabel: "Открыть материалы",
-      ctaHref: "/materials/financial-health",
     },
     insights: [
       {
@@ -156,11 +156,8 @@ test("buildDiagnosticResultEmail uses numbered badges and tone styles for recomm
 
 test("buildDiagnosticResultEmail omits CTA when result band has no link", () => {
   const result = createBaseResult();
-  result.band = {
-    ...result.band!,
-    ctaLabel: undefined,
-    ctaHref: undefined,
-  };
+  result.ctaLabel = undefined;
+  result.ctaHref = undefined;
 
   const email = buildDiagnosticResultEmail({
     fullName: "Иван Петров",
@@ -188,6 +185,22 @@ test("buildDiagnosticResultEmail uses fallback copy when result band is missing"
   assert.match(email.html, /Подробный анализ будет доступен после настройки диагностики/);
   assert.match(email.text, new RegExp(FALLBACK_DIAGNOSTIC_RESULT_TITLE));
   assert.match(email.text, new RegExp(FALLBACK_DIAGNOSTIC_RESULT_SUMMARY));
+});
+
+test("buildDiagnosticResultEmail keeps resolved CTA when result band is missing", () => {
+  const result = createBaseResult();
+  result.band = null;
+
+  const email = buildDiagnosticResultEmail({
+    fullName: "Иван Петров",
+    campaignTitle: "Финансовое здоровье",
+    organizationName: "НЦФГ",
+    result,
+  });
+
+  assert.match(email.html, /Открыть материалы/);
+  assert.match(email.html, /https:\/\/ncfg\.test\/materials\/financial-health/);
+  assert.match(email.text, /Открыть материалы: https:\/\/ncfg\.test\/materials\/financial-health/);
 });
 
 test("buildDiagnosticResultEmail omits recommendations block when there are no insights", () => {

@@ -33,6 +33,22 @@
     "endsAt": {
       "type": "datetime"
     },
+    "isNavigationLayoutDisabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "isCtaDisabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "overwriteCtaLabel": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "overwriteCtaHref": {
+      "type": "string",
+      "maxLength": 500
+    },
     "organization": {
       "type": "relation",
       "relation": "manyToOne",

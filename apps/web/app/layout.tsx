@@ -6,7 +6,6 @@ import { getMetadataBase } from "@/shared/lib/metadata";
 import { ScrollRevealObserver } from "@/shared/ui/ScrollRevealObserver";
 import { SmoothAnchor } from "@/shared/ui/SmoothAnchor";
 import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
-import { Header } from "@/widgets";
 import "./globals.css";
 
 const inter = Inter({
@@ -68,7 +67,6 @@ ym(${ymCounterId}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"d
         ) : null}
         <SmoothAnchor />
         <ScrollRevealObserver />
-        <Header />
         {children}
       </body>
     </html>

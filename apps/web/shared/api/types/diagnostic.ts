@@ -37,6 +37,10 @@ export interface DiagnosticCampaign {
   isActive: boolean;
   startsAt: string | null;
   endsAt: string | null;
+  isNavigationLayoutDisabled: boolean;
+  isCtaDisabled: boolean;
+  overwriteCtaLabel?: string;
+  overwriteCtaHref?: string;
   organization: DiagnosticOrganization | null;
   test: DiagnosticTest | null;
 }
@@ -70,12 +74,12 @@ export interface DiagnosticResult {
   totalScore: number;
   maxScore: number;
   scorePercent: number;
+  ctaLabel?: string;
+  ctaHref?: string;
   band: {
     key: string;
     title: string;
     summary: string;
-    ctaLabel?: string;
-    ctaHref?: string;
   } | null;
   insights: DiagnosticResultInsight[];
 }

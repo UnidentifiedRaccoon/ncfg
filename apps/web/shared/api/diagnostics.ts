@@ -69,8 +69,17 @@ interface StrapiDiagnosticCampaign {
   isActive: boolean;
   startsAt: string | null;
   endsAt: string | null;
+  isNavigationLayoutDisabled: boolean | null;
+  isCtaDisabled: boolean | null;
+  overwriteCtaLabel: string | null;
+  overwriteCtaHref: string | null;
   organization: StrapiDiagnosticOrganization | null;
   test: StrapiDiagnosticTest | null;
+}
+
+function normalizeOptionalString(value: string | null | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
 }
 
 function transformOption(option: StrapiDiagnosticOption): DiagnosticOption {
@@ -102,8 +111,8 @@ function transformResultBand(band: StrapiDiagnosticResultBand): DiagnosticResult
     minPercent: Number(band.minPercent ?? 0),
     maxPercent: Number(band.maxPercent ?? 100),
     summary: band.summary,
-    ctaLabel: band.ctaLabel ?? undefined,
-    ctaHref: band.ctaHref ?? undefined,
+    ctaLabel: normalizeOptionalString(band.ctaLabel),
+    ctaHref: normalizeOptionalString(band.ctaHref),
     order: Number(band.order ?? 0),
   };
 }
@@ -146,6 +155,10 @@ function transformCampaign(entry: StrapiDiagnosticCampaign): DiagnosticCampaign 
     isActive: Boolean(entry.isActive),
     startsAt: entry.startsAt ?? null,
     endsAt: entry.endsAt ?? null,
+    isNavigationLayoutDisabled: Boolean(entry.isNavigationLayoutDisabled),
+    isCtaDisabled: Boolean(entry.isCtaDisabled),
+    overwriteCtaLabel: normalizeOptionalString(entry.overwriteCtaLabel),
+    overwriteCtaHref: normalizeOptionalString(entry.overwriteCtaHref),
     organization: transformOrganization(entry.organization),
     test: entry.test ? transformTest(entry.test) : null,
   };

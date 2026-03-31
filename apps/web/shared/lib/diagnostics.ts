@@ -13,6 +13,11 @@ export interface DiagnosticAnswerInput {
   answerKey: string;
 }
 
+function normalizeOptionalCtaValue(value: string | undefined) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
+
 function compareByOrderThenLabel<T extends { order: number; key: string }>(left: T, right: T) {
   if (left.order !== right.order) {
     return left.order - right.order;
@@ -144,6 +149,8 @@ export function buildDiagnosticResult(
   const { totalScore, maxScore, scorePercent, insights } = evaluatedSubmission;
   const resultBands = campaign.test?.resultBands ?? [];
   let band: DiagnosticResult["band"] = null;
+  let ctaLabel = normalizeOptionalCtaValue(campaign.overwriteCtaLabel);
+  let ctaHref = normalizeOptionalCtaValue(campaign.overwriteCtaHref);
 
   if (resultBands.length > 0) {
     const validation = validateResultBands(resultBands);
@@ -154,17 +161,25 @@ export function buildDiagnosticResult(
           key: matched.key,
           title: matched.title,
           summary: matched.summary,
-          ctaLabel: matched.ctaLabel,
-          ctaHref: matched.ctaHref,
         };
+
+        ctaLabel = ctaLabel ?? normalizeOptionalCtaValue(matched.ctaLabel);
+        ctaHref = ctaHref ?? normalizeOptionalCtaValue(matched.ctaHref);
       }
     }
+  }
+
+  if (campaign.isCtaDisabled) {
+    ctaLabel = undefined;
+    ctaHref = undefined;
   }
 
   return {
     totalScore,
     maxScore,
     scorePercent,
+    ctaLabel,
+    ctaHref,
     band,
     insights,
   };
