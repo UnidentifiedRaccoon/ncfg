@@ -103,11 +103,14 @@ jobs:
 
           strapi_api_token="$(fetch_required_key STRAPI_API_TOKEN)"
           strapi_write_api_token="$(fetch_required_key STRAPI_WRITE_API_TOKEN)"
+          next_public_yandex_metrika_id="$(fetch_required_key NEXT_PUBLIC_YANDEX_METRIKA_ID)"
 
           echo "::add-mask::$strapi_api_token"
           echo "::add-mask::$strapi_write_api_token"
+          echo "::add-mask::$next_public_yandex_metrika_id"
 
           printf 'strapi_api_token=%s\n' "$strapi_api_token" >> "$GITHUB_OUTPUT"
+          printf 'next_public_yandex_metrika_id=%s\n' "$next_public_yandex_metrika_id" >> "$GITHUB_OUTPUT"
 
       - name: Login to Yandex Container Registry
         uses: yc-actions/yc-cr-login@v2
@@ -130,7 +133,7 @@ jobs:
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             STRAPI_API_TOKEN=${{ steps.web-lockbox.outputs.strapi_api_token }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
-            NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.NEXT_PUBLIC_YANDEX_METRIKA_ID }}
+            NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ steps.web-lockbox.outputs.next_public_yandex_metrika_id }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -307,6 +310,7 @@ jobs:
           required_lockbox_keys=(
             STRAPI_API_TOKEN
             STRAPI_WRITE_API_TOKEN
+            NEXT_PUBLIC_YANDEX_METRIKA_ID
           )
 
           for key in "${required_lockbox_keys[@]}"; do
@@ -337,12 +341,12 @@ jobs:
           revision-secrets: |
             STRAPI_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_API_TOKEN
             STRAPI_WRITE_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_WRITE_API_TOKEN
+            NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/NEXT_PUBLIC_YANDEX_METRIKA_ID
           revision-env: |
             NODE_ENV=production
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             REVALIDATE_TOKEN=${{ secrets.REVALIDATE_TOKEN }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
-            NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.NEXT_PUBLIC_YANDEX_METRIKA_ID }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
             POSTBOX_SMTP_HOST=${{ secrets.POSTBOX_SMTP_HOST || 'postbox.cloud.yandex.net' }}
             POSTBOX_SMTP_PORT=${{ secrets.POSTBOX_SMTP_PORT || '465' }}

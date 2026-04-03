@@ -38,6 +38,7 @@ STRAPI_PROD_WRITE_API_TOKEN=... # write token for /api/diagnostic-submissions/in
 
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 PORTFOLIO_PRESENTATION_URL=https://storage.yandexcloud.net/<bucket>/docs/ncfg-portfolio-2021.pdf
+NEXT_PUBLIC_YANDEX_METRIKA_ID=108387180 # optional local parity; prod is sourced from Lockbox
 ```
 
 3. Run:
@@ -66,7 +67,7 @@ Required GitHub Actions secrets:
 - `YC_LOCKBOX_VERSION_ID` = active Lockbox version used by build/deploy workflows
 - `STRAPI_URL` = `https://admin.ncfg.ru`
 - `REVALIDATE_TOKEN` = shared secret for Strapi webhook -> `POST /api/revalidate/strapi`
-- `NEXT_PUBLIC_SITE_URL` = public site URL (used for health-checks and metadata)
+- `NEXT_PUBLIC_SITE_URL` = exact canonical public site URL `https://ncfg.ru` (used for metadata, mirror redirects, and health-checks)
 - `POSTBOX_API_KEY_ID` = Postbox API key ID
 - `POSTBOX_API_KEY_SECRET` = Postbox API key secret
 - `POSTBOX_FROM_EMAIL` = verified sender email (recommended: `no-reply@ncfg.ru`)
@@ -75,8 +76,9 @@ Required GitHub Actions secrets:
 Required Lockbox keys:
 - `STRAPI_API_TOKEN` = read-only token for web -> Strapi content fetches
 - `STRAPI_WRITE_API_TOKEN` = write token used by `POST /api/diagnostic-submissions/intake`
+- `NEXT_PUBLIC_YANDEX_METRIKA_ID` = production Yandex Metrika counter ID (`108387180`)
 
-GitHub Secrets are no longer the canonical source for Strapi tokens. Preview and production web deployments resolve both tokens from the same Lockbox secret version.
+GitHub Secrets are no longer the canonical source for Strapi tokens or the production Metrika counter ID. Production web deployments resolve them from the same Lockbox secret version, while preview deployments intentionally ship without Metrika enabled.
 
 Optional GitHub Actions secrets (Postbox):
 - `POSTBOX_SMTP_HOST` (default: `postbox.cloud.yandex.net`)
