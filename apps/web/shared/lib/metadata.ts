@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 
-const DEFAULT_SITE_URL = "https://ncfg.ru";
-const DEFAULT_OG_IMAGE = "/logo.svg";
+export const SITE_NAME = "НЦФГ";
+export const SITE_FULL_NAME = "Национальный центр финансовой грамотности";
+export const SITE_THEME_COLOR = "#1E3A5F";
+export const DEFAULT_SITE_URL = "https://ncfg.ru";
+export const DEFAULT_OG_IMAGE = "/logo.svg";
 const DEFAULT_LOCALE = "ru_RU";
 
 interface BuildPageMetadataInput {
@@ -81,6 +84,7 @@ export function buildPageMetadata({
     title: ogTitle,
     description: ogDescription,
     type: openGraphType,
+    siteName: SITE_NAME,
     locale,
     url: canonicalUrl,
     images: [imageUrl],

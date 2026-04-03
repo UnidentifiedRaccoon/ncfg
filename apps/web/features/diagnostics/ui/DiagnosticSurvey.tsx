@@ -36,6 +36,7 @@ interface DiagnosticSurveyProps {
   organizationName: string;
   testTitle: string;
   questions: DiagnosticPublicQuestion[];
+  fillViewport?: boolean;
 }
 
 const inputClass = cn(
@@ -83,9 +84,9 @@ function StepDot({ state }: { state: "active" | "done" | "pending" }) {
 /* ------------------------------------------------------------------ */
 /*  Skeleton placeholder                                               */
 /* ------------------------------------------------------------------ */
-function SurveySkeleton() {
+function SurveySkeleton({ fillViewport = false }: { fillViewport?: boolean }) {
   return (
-    <div className="relative text-[#0F172A]">
+    <div className={cn("relative text-[#0F172A]", fillViewport && "min-h-screen min-h-dvh")}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 bg-[#F8FAFC]" />
       <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
         <div className="mb-8 text-center lg:mb-10">
@@ -381,6 +382,7 @@ export function DiagnosticSurvey({
   organizationName,
   testTitle,
   questions,
+  fillViewport = false,
 }: DiagnosticSurveyProps) {
   const survey = useDiagnosticSurvey({ campaignSlug, questions });
   const consentId = useId();
@@ -473,7 +475,7 @@ export function DiagnosticSurvey({
 
   /* ---- SSR skeleton ---- */
   if (!isHydrated) {
-    return <SurveySkeleton />;
+    return <SurveySkeleton fillViewport={fillViewport} />;
   }
 
   const estimatedMinutes = Math.ceil(questions.length * 0.5);
@@ -484,7 +486,7 @@ export function DiagnosticSurvey({
   const displayResult = isSubmitted && result ? result : previewResult;
 
   return (
-    <div className="relative text-[#0F172A]">
+    <div className={cn("relative text-[#0F172A]", fillViewport && "min-h-screen min-h-dvh")}>
       {/* Background extending behind the sticky header */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 bg-[#F8FAFC]" />
       {/* Animated background blobs */}

@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
 const baseArg = process.argv[2] || process.env.BASE_URL || "https://ncfg.ru";
+const mirrorArgs = process.env.SEO_MIRROR_URLS || "";
+const blockedArgs = process.env.SEO_BLOCKED_URLS || "";
 
 let baseUrl;
+let mirrorUrls = [];
+let blockedUrls = [];
 
 try {
   baseUrl = new URL(baseArg);
@@ -11,12 +15,28 @@ try {
   process.exit(1);
 }
 
-function toUrl(pathname) {
-  return new URL(pathname, baseUrl).toString();
+function parseUrlList(value, envName) {
+  try {
+    return value
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+      .map((entry) => new URL(entry));
+  } catch {
+    console.error(`Invalid ${envName} value: ${value}`);
+    process.exit(1);
+  }
 }
 
-async function request(pathname, method = "GET") {
-  const response = await fetch(toUrl(pathname), {
+mirrorUrls = parseUrlList(mirrorArgs, "SEO_MIRROR_URLS");
+blockedUrls = parseUrlList(blockedArgs, "SEO_BLOCKED_URLS");
+
+function toUrl(pathname, origin = baseUrl) {
+  return new URL(pathname, origin).toString();
+}
+
+async function request(pathname, method = "GET", origin = baseUrl) {
+  const response = await fetch(toUrl(pathname, origin), {
     method,
     redirect: "manual",
     headers: {
@@ -28,8 +48,8 @@ async function request(pathname, method = "GET") {
   return response;
 }
 
-async function readText(pathname) {
-  const response = await request(pathname, "GET");
+async function readText(pathname, origin = baseUrl) {
+  const response = await request(pathname, "GET", origin);
   const body = await response.text();
   return { response, body };
 }
@@ -52,16 +72,23 @@ function locationPathname(locationHeaderValue) {
   }
 }
 
-const redirectChecks = [
-  { from: "/klienty-partnery", to: "/companies" },
+function locationOriginAndPathname(locationHeaderValue, origin) {
+  if (!locationHeaderValue) return null;
+
+  try {
+    const target = new URL(locationHeaderValue, origin);
+    return `${target.origin}${trimTrailingSlash(target.pathname)}`;
+  } catch {
+    return null;
+  }
+}
+
+const redirectChecks = [{ from: "/news", to: "/blog" }];
+const mirrorChecks = [
+  { from: "/", to: "/" },
   { from: "/news", to: "/blog" },
-  { from: "/privacy-policy", to: "/politika-konfidencialnosti" },
-  { from: "/articles/za-dengi", to: "/blog/za-dengi" },
-  { from: "/services/financial-diagnostics", to: "/companies/finansovaya-diagnostika" },
-  {
-    from: "/companies/integrated_program",
-    to: "/companies/kompleksnaya-programma",
-  },
+  { from: "/robots.txt", to: "/robots.txt" },
+  { from: "/sitemap.xml", to: "/sitemap.xml" },
 ];
 
 const goneChecks = ["/wp-login.php", "/xmlrpc.php", "/feed"];
@@ -153,6 +180,44 @@ async function checkGone() {
   }
 }
 
+async function checkMirrors() {
+  for (const mirrorUrl of mirrorUrls) {
+    for (const check of mirrorChecks) {
+      const response = await request(check.from, "GET", mirrorUrl);
+      const location = response.headers.get("location");
+      const targetOriginAndPath = locationOriginAndPathname(location, mirrorUrl);
+      const expectedOriginAndPath = `${baseUrl.origin}${trimTrailingSlash(check.to)}`;
+
+      if (response.status !== 301) {
+        fail(`[mirror ${mirrorUrl.origin}] ${check.from} expected 301, got ${response.status}`);
+        continue;
+      }
+
+      if (targetOriginAndPath !== expectedOriginAndPath) {
+        fail(
+          `[mirror ${mirrorUrl.origin}] ${check.from} expected Location -> ${expectedOriginAndPath}, got ${targetOriginAndPath ?? "<missing>"}`
+        );
+        continue;
+      }
+
+      ok(`[mirror ${mirrorUrl.origin}] ${check.from} -> ${expectedOriginAndPath} (301)`);
+    }
+  }
+}
+
+async function checkBlockedUrls() {
+  for (const blockedUrl of blockedUrls) {
+    const response = await request("/", "GET", blockedUrl);
+
+    if (response.status !== 401 && response.status !== 403) {
+      fail(`[blocked ${blockedUrl.origin}] / expected 401 or 403, got ${response.status}`);
+      continue;
+    }
+
+    ok(`[blocked ${blockedUrl.origin}] / returns ${response.status}`);
+  }
+}
+
 async function run() {
   console.log(`Checking SEO endpoints for ${baseUrl.origin}`);
 
@@ -160,6 +225,8 @@ async function run() {
   await checkSitemap();
   await checkRedirects();
   await checkGone();
+  await checkMirrors();
+  await checkBlockedUrls();
 
   if (failures.length > 0) {
     console.error(`\nResult: ${passed} passed, ${failures.length} failed`);

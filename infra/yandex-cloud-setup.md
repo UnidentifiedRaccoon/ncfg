@@ -125,10 +125,15 @@ yc iam service-account get --name ncfg-container-sa --format json | jq -r '.id'
 yc serverless container create --name ncfg-web
 yc serverless container create --name ncfg-cms
 
-# Make containers public
-yc serverless container allow-unauthenticated-invoke --name ncfg-web
+# Keep production web private: all traffic must go through the web API Gateway/custom domain.
+# Do not grant unauthenticated invoke to ncfg-web.
+
+# CMS can be temporarily public during bootstrap, but later sections lock it down after gateway cutover.
 yc serverless container allow-unauthenticated-invoke --name ncfg-cms
 ```
+
+PR preview containers are the only intended public direct web containers. `.github/workflows/preview.yml`
+creates `ncfg-web-pr-*` containers and explicitly runs `allow-unauthenticated-invoke` for them.
 
 ## 2. GitHub Secrets Configuration
 
@@ -142,8 +147,8 @@ Add the following secrets to your GitHub repository:
 | `YC_CONTAINER_SA_ID` | SA ID from step 1.6 | Runtime service account |
 | `YC_LOCKBOX_SECRET_ID` | Secret ID from step 1.4 | Lockbox secret ID |
 | `YC_LOCKBOX_VERSION_ID` | Active Lockbox version ID | Secret version pinned by build/deploy workflows |
-| `STRAPI_URL` | `https://<cms-container-id>.containers.yandexcloud.net` | CMS URL for Next.js |
-| `NEXT_PUBLIC_SITE_URL` | `https://<web-container-id>.containers.yandexcloud.net` | Public site URL |
+| `STRAPI_URL` | `https://admin.ncfg.ru` | CMS URL for Next.js via API Gateway/custom domain |
+| `NEXT_PUBLIC_SITE_URL` | `https://ncfg.ru` | Canonical public site URL via web gateway/custom domain |
 | `NEXT_PUBLIC_YANDEX_METRIKA_ID` | `106842784` | Yandex.Metrika counter ID |
 | `POSTBOX_API_KEY_ID` | `<postbox_api_key_id>` | Postbox SMTP auth user |
 | `POSTBOX_API_KEY_SECRET` | `<postbox_api_key_secret>` | Postbox SMTP auth password |

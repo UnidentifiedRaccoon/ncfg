@@ -22,6 +22,11 @@ After deployment confirm:
 cd apps/web
 npm run seo:check -- https://ncfg.ru
 
+# Optional mirror + blocked direct URL validation:
+SEO_MIRROR_URLS="https://www.ncfg.ru,https://d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net" \
+SEO_BLOCKED_URLS="https://bban3i4dgt9p00m87f90.containers.yandexcloud.net" \
+  npm run seo:check -- https://ncfg.ru
+
 # or basic spot-check:
 curl -I https://ncfg.ru/robots.txt
 curl -I https://ncfg.ru/sitemap.xml
@@ -35,7 +40,38 @@ Then submit `https://ncfg.ru/sitemap.xml` in:
 - Google Search Console -> `Sitemaps`
 - Yandex Webmaster -> `Индексирование -> Файлы Sitemap`
 
-## 3) Trigger recrawl for key URLs
+Production runtime requirement:
+- `NEXT_PUBLIC_SITE_URL` must be exactly `https://ncfg.ru`
+
+## 3) Verify canonical mirror
+
+```bash
+curl -I https://www.ncfg.ru/
+curl -I https://www.ncfg.ru/news
+curl -I https://www.ncfg.ru/robots.txt
+curl -I https://www.ncfg.ru/sitemap.xml
+curl -I https://d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net/
+```
+
+Expected:
+- `https://ncfg.ru/` -> `200`
+- every public mirror -> `301` to `https://ncfg.ru/...`
+
+## 4) Verify blocked direct container
+
+The production container URL is not an SEO mirror. It must be unavailable to anonymous traffic.
+
+```bash
+yc serverless container list-access-bindings --name ncfg-web --format json
+curl -I https://bban3i4dgt9p00m87f90.containers.yandexcloud.net/
+```
+
+Expected:
+- no `allUsers` binding with `serverless-containers.containerInvoker`
+- direct container URL -> `401` or `403`
+- preview containers remain public by design via `.github/workflows/preview.yml`
+
+## 5) Trigger recrawl for key URLs
 
 Priority URLs:
 - `https://ncfg.ru/`
@@ -47,20 +83,25 @@ Use:
 - GSC -> `URL Inspection` -> `Request indexing`
 - Yandex Webmaster -> `Переобход страниц`
 
-## 4) Verify legacy redirects and gone URLs
+## 6) Verify legacy handling
 
 ```bash
 # Should return 301
-curl -I https://ncfg.ru/klienty-partnery
 curl -I https://ncfg.ru/news
-curl -I https://ncfg.ru/privacy-policy
 
 # Should return 410
 curl -I https://ncfg.ru/wp-login.php
 curl -I https://ncfg.ru/xmlrpc.php
+curl -I https://ncfg.ru/feed
+
+# Retired legacy URLs should return 404
+curl -I https://ncfg.ru/privacy-policy
+curl -I https://ncfg.ru/services/financial-diagnostics
+curl -I https://ncfg.ru/articles/za-dengi
+curl -I https://ncfg.ru/companies/integrated_program
 ```
 
-## 5) Monitoring cadence (4-8 weeks)
+## 7) Monitoring cadence (4-8 weeks)
 
 Weekly checks:
 - Index coverage in GSC and Yandex.

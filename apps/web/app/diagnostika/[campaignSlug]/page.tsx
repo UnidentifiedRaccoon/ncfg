@@ -97,6 +97,7 @@ export default async function DiagnosticCampaignPage({ params }: PageProps) {
           organizationName={campaign.organization.name}
           testTitle={campaign.test.title}
           questions={toPublicDiagnosticQuestions(campaign.test.questions)}
+          fillViewport={!isNavigationLayoutVisible}
         />
       </main>
       {isNavigationLayoutVisible && siteSetting ? (

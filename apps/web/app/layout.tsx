@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
-import { getMetadataBase } from "@/shared/lib/metadata";
+import {
+  DEFAULT_OG_IMAGE,
+  SITE_FULL_NAME,
+  SITE_NAME,
+  getMetadataBase,
+  getSiteUrl,
+} from "@/shared/lib/metadata";
 import { ScrollRevealObserver } from "@/shared/ui/ScrollRevealObserver";
 import { SmoothAnchor } from "@/shared/ui/SmoothAnchor";
 import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
@@ -15,12 +21,45 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  applicationName: SITE_NAME,
   metadataBase: getMetadataBase(),
+  manifest: "/manifest.webmanifest",
+  openGraph: {
+    siteName: SITE_NAME,
+  },
+  appleWebApp: {
+    title: SITE_NAME,
+  },
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
+
+const siteUrl = getSiteUrl();
+const siteStructuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    alternateName: SITE_FULL_NAME,
+    url: siteUrl,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_FULL_NAME,
+    alternateName: SITE_NAME,
+    url: siteUrl,
+    logo: new URL(DEFAULT_OG_IMAGE, `${siteUrl}/`).toString(),
+  },
+];
 
 export default function RootLayout({
   children,
@@ -36,6 +75,10 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${inter.variable} font-sans antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteStructuredData) }}
+        />
         {isMetrikaEnabled ? (
           <>
             <Script id="yandex-metrika" strategy="beforeInteractive">

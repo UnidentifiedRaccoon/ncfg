@@ -370,6 +370,38 @@ jobs:
             GETCOURSE_DEAL_FIELD_REQUEST_ID=${{ secrets.GETCOURSE_DEAL_FIELD_REQUEST_ID }}
             GETCOURSE_DEAL_FIELD_FORM_TYPE=${{ secrets.GETCOURSE_DEAL_FIELD_FORM_TYPE }}
 
+      - name: Lock down direct invoke for production web container
+        run: |
+          set -euo pipefail
+          yc serverless container deny-unauthenticated-invoke --name ncfg-web
+
+      - name: Verify production web container is not publicly invokable
+        run: |
+          set -euo pipefail
+
+          access_bindings="$(yc serverless container list-access-bindings --name ncfg-web --format json)"
+          if printf '%s' "$access_bindings" | jq -e '.[] | select(.role_id == "serverless-containers.containerInvoker" and .subject.id == "allUsers")' >/dev/null; then
+            echo "::error::ncfg-web still exposes unauthenticated invoke to allUsers"
+            exit 1
+          fi
+
+          container_url="$(yc serverless container get --name ncfg-web --format json | jq -r '.url')"
+          if [ -z "$container_url" ] || [ "$container_url" = "null" ]; then
+            echo "::error::Failed to resolve direct URL for ncfg-web"
+            exit 1
+          fi
+
+          status_code="$(curl -sS -o /dev/null -w "%{http_code}" -I --max-time 30 "$container_url" || echo "000")"
+          case "$status_code" in
+            401|403)
+              echo "Verified direct invoke is blocked for $container_url (status: $status_code)"
+              ;;
+            *)
+              echo "::error::Expected direct ncfg-web URL to return 401 or 403, got $status_code for $container_url"
+              exit 1
+              ;;
+          esac
+
   # Deploy Strapi to Serverless Container
   deploy-cms:
     name: Deploy Strapi

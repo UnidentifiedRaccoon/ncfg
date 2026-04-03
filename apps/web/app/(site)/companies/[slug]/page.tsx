@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
   HowWeWork,
   LeadForm,
@@ -125,10 +125,6 @@ const faqItems = [
 
 export default async function ServicePage({ params }: PageProps) {
   const { slug } = await params;
-
-  if (slug.includes("_")) {
-    redirect(`/companies/${slug.replace(/_/g, "-")}`);
-  }
 
   const [servicesData, siteSetting] = await Promise.all([
     safeFetchServicesData("ServicePage"),
