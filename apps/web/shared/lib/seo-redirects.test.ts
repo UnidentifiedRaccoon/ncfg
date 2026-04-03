@@ -33,6 +33,18 @@ test("buildCanonicalRedirectUrl normalizes /news on canonical host in one hop", 
   assert.equal(target?.toString(), "https://ncfg.ru/blog?utm=1");
 });
 
+test("buildCanonicalRedirectUrl ignores internal port on canonical host", () => {
+  const target = buildCanonicalRedirectUrl("https://ncfg.ru:8080/companies?tab=all", "https://ncfg.ru");
+
+  assert.equal(target, null);
+});
+
+test("buildCanonicalRedirectUrl removes internal port when rewriting canonical paths", () => {
+  const target = buildCanonicalRedirectUrl("https://ncfg.ru:8080/news?utm=1", "https://ncfg.ru");
+
+  assert.equal(target?.toString(), "https://ncfg.ru/blog?utm=1");
+});
+
 test("buildCanonicalRedirectUrl canonicalizes mirror hosts and preserves query", () => {
   const target = buildCanonicalRedirectUrl(
     "https://www.ncfg.ru/path/to/page?ref=mirror",

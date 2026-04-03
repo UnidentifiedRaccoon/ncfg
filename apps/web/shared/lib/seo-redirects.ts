@@ -13,15 +13,16 @@ export function buildCanonicalRedirectUrl(requestUrl: string, siteUrl: string): 
   const request = new URL(requestUrl);
   const canonical = new URL(siteUrl);
   const canonicalPathname = getSeoRedirectPathname(request.pathname);
+  const isCanonicalHost =
+    request.protocol === canonical.protocol && request.hostname === canonical.hostname;
 
-  if (request.origin === canonical.origin && canonicalPathname === request.pathname) {
+  if (isCanonicalHost && canonicalPathname === request.pathname) {
     return null;
   }
 
-  const target = new URL(requestUrl);
-  target.protocol = canonical.protocol;
-  target.host = canonical.host;
+  const target = new URL(canonical);
   target.pathname = canonicalPathname;
+  target.search = request.search;
 
   return target;
 }
