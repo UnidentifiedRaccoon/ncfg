@@ -14,6 +14,7 @@ test("getSeoRedirectPathname rewrites only supported legacy paths", () => {
   assert.equal(getSeoRedirectPathname("/news/20-let-v-puti/"), "/blog/20-let-v-puti");
   assert.equal(getSeoRedirectPathname("/news/archive/2024"), "/news/archive/2024");
   assert.equal(getSeoRedirectPathname("/companies"), "/companies");
+  assert.equal(getSeoRedirectPathname("/companies/"), "/companies");
 });
 
 test("isSeoGonePath matches bot and feed leftovers", () => {
@@ -40,6 +41,12 @@ test("buildCanonicalRedirectUrl keeps canonical requests untouched", () => {
   );
 
   assert.equal(target, null);
+});
+
+test("buildCanonicalRedirectUrl trims trailing slash on canonical paths", () => {
+  const target = buildCanonicalRedirectUrl("https://ncfg.ru/companies/?tab=all", "https://ncfg.ru");
+
+  assert.equal(target?.toString(), "https://ncfg.ru/companies?tab=all");
 });
 
 test("buildCanonicalRedirectUrl normalizes /news on canonical host in one hop", () => {

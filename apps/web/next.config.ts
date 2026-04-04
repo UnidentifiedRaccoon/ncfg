@@ -5,6 +5,7 @@ const isPreview = process.env.DEPLOY_ENV === 'preview';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  skipTrailingSlashRedirect: true,
   async headers() {
     const headers = [
       {

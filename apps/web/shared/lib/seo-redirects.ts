@@ -54,7 +54,7 @@ export function getSeoRedirectPathname(pathname: string): string {
     }
   }
 
-  return pathname;
+  return normalizedPathname;
 }
 
 export function isSeoGonePath(pathname: string): boolean {
