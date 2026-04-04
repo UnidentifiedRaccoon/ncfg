@@ -20,9 +20,9 @@ import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/companies",
-  title: "Компаниям",
+  title: "Финансовая грамотность сотрудников для компаний",
   description:
-    "НЦФГ помогает компаниям запускать программы финансовой грамотности и финансового благополучия сотрудников.",
+    "НЦФГ помогает компаниям запускать программы финансовой грамотности, финансового благополучия и обучения сотрудников на рабочем месте.",
 });
 
 export default async function CompaniesPage() {
@@ -61,7 +61,7 @@ export default async function CompaniesPage() {
       {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
         <HeroCompanies
-          headline={hero?.headline ?? ""}
+          headline="Программы финансовой грамотности для сотрудников компаний"
           lead={hero?.lead ?? undefined}
           primaryCta={
             hero?.primaryCta

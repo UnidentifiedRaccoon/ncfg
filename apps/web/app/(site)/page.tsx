@@ -25,9 +25,9 @@ import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/",
-  title: "Национальный центр финансовой грамотности",
+  title: "Национальный центр финансовой грамотности - официальный сайт",
   description:
-    "НЦФГ помогает компаниям и частным лицам развивать финансовую грамотность через программы, обучение и практические материалы.",
+    "Национальный центр финансовой грамотности (НЦФГ): программы финансовой грамотности, финансового благополучия и обучения для компаний и частных лиц.",
 });
 
 function makeHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) {
@@ -123,7 +123,7 @@ export default async function Home() {
       <StructuredDataScript data={organizationStructuredData} />
       <main>
         <Hero
-          headline={hero?.headline ?? ""}
+          headline="Национальный центр финансовой грамотности"
           accentWord="финансовой грамотности"
           lead={hero?.lead ?? undefined}
           primaryCta={
