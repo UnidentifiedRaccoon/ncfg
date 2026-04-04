@@ -45,6 +45,42 @@ test("buildCanonicalRedirectUrl removes internal port when rewriting canonical p
   assert.equal(target?.toString(), "https://ncfg.ru/blog?utm=1");
 });
 
+test("buildCanonicalRedirectUrl trusts forwarded canonical host and protocol", () => {
+  const target = buildCanonicalRedirectUrl("http://127.0.0.1:8080/companies?tab=all", "https://ncfg.ru", {
+    host: "ncfg.ru",
+    protocol: "https",
+  });
+
+  assert.equal(target, null);
+});
+
+test("buildCanonicalRedirectUrl strips port from forwarded canonical host", () => {
+  const target = buildCanonicalRedirectUrl("http://127.0.0.1:8080/companies?tab=all", "https://ncfg.ru", {
+    host: "ncfg.ru:443",
+    protocol: "https",
+  });
+
+  assert.equal(target, null);
+});
+
+test("buildCanonicalRedirectUrl rewrites forwarded mirror host to canonical", () => {
+  const target = buildCanonicalRedirectUrl("http://127.0.0.1:8080/path/to/page?ref=mirror", "https://ncfg.ru", {
+    host: "www.ncfg.ru",
+    protocol: "https",
+  });
+
+  assert.equal(target?.toString(), "https://ncfg.ru/path/to/page?ref=mirror");
+});
+
+test("buildCanonicalRedirectUrl rewrites forwarded canonical host legacy paths without leaking runtime origin", () => {
+  const target = buildCanonicalRedirectUrl("http://127.0.0.1:8080/news?utm=1", "https://ncfg.ru", {
+    host: "ncfg.ru",
+    protocol: "https",
+  });
+
+  assert.equal(target?.toString(), "https://ncfg.ru/blog?utm=1");
+});
+
 test("buildCanonicalRedirectUrl canonicalizes mirror hosts and preserves query", () => {
   const target = buildCanonicalRedirectUrl(
     "https://www.ncfg.ru/path/to/page?ref=mirror",
