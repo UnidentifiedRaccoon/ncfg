@@ -13,7 +13,12 @@ import { ServiceHero } from "@/widgets/ServiceHero";
 import { ServiceDescription } from "@/widgets/ServiceDescription";
 import { ServiceExamples } from "@/widgets/ServiceExamples";
 import { fetchServicesData, fetchSiteSettings } from "@/shared/api/data-provider";
-import { buildPageMetadata } from "@/shared/lib/metadata";
+import {
+  buildPageMetadata,
+  buildServiceDescription,
+} from "@/shared/lib/metadata";
+import { buildBreadcrumbList } from "@/shared/lib/structured-data";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 import type { Service, ServicesData } from "@/shared/api/types/service";
 
 interface PageProps {
@@ -70,7 +75,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!servicesData) {
     return buildPageMetadata({
       path: `/companies/${slug}`,
-      title: "Услуга не найдена — НЦФГ",
+      title: "Услуга не найдена",
       description: SERVICE_NOT_FOUND_DESCRIPTION,
       robots: {
         index: false,
@@ -84,7 +89,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!service) {
     return buildPageMetadata({
       path: `/companies/${slug}`,
-      title: "Услуга не найдена — НЦФГ",
+      title: "Услуга не найдена",
       description: SERVICE_NOT_FOUND_DESCRIPTION,
       robots: {
         index: false,
@@ -95,8 +100,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return buildPageMetadata({
     path: `/companies/${slug}`,
-    title: `${service.title} — НЦФГ`,
-    description: service.shortDescription || "Программа финансовой грамотности для бизнеса от НЦФГ.",
+    title: service.title,
+    description: buildServiceDescription(service),
   });
 }
 
@@ -140,6 +145,12 @@ export default async function ServicePage({ params }: PageProps) {
     notFound();
   }
 
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "Компаниям", path: "/companies" },
+    { name: service.title, path: `/companies/${slug}` },
+  ]);
+
   // Transform howWeWork string[] to Step[] for HowWeWork widget
   const howWeWorkSteps = (service.howWeWork ?? []).map((step, index) => ({
     id: index + 1,
@@ -148,6 +159,7 @@ export default async function ServicePage({ params }: PageProps) {
 
   return (
     <>
+      <StructuredDataScript data={breadcrumbStructuredData} />
       <main>
         <ServiceHero
           title={service.title}

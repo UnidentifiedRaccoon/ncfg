@@ -6,11 +6,9 @@ import { Footer, RecommendationsShowcase } from "@/widgets";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/rekomendacii",
-  title: "Рекомендации | НЦФГ",
+  title: "Рекомендации",
   description:
-    "Рекомендации партнеров и клиентов НЦФГ на отдельной странице в формате Capital Grid.",
-  openGraphDescription:
-    "Отдельная страница «Рекомендации» в стиле Capital Grid и визуальной системе НЦФГ.",
+    "На этой странице собраны отзывы и рекомендации партнеров и клиентов НЦФГ о совместной работе.",
 });
 
 export const revalidate = 60;

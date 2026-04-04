@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!campaign || !campaign.organization || !campaign.test || !isDiagnosticCampaignAvailable(campaign)) {
     return buildPageMetadata({
       path: `/diagnostika/${campaignSlug}`,
-      title: "Диагностика недоступна — НЦФГ",
+      title: "Диагностика недоступна",
       description: "Страница диагностики недоступна.",
       robots: {
         index: false,
@@ -67,8 +67,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return buildPageMetadata({
     path: `/diagnostika/${campaignSlug}`,
-    title: `${campaign.title} — диагностика НЦФГ`,
-    description: `Диагностика для ${campaign.organization.name}.`,
+    title: campaign.title,
+    description: `Диагностика НЦФГ для сотрудников организации ${campaign.organization.name}.`,
     robots: {
       index: false,
       follow: false,

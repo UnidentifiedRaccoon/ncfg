@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { makeExcerpt, stripHtmlToText } from "./excerpt";
+import { normalizeInlineText, toAbsoluteUrl } from "./seo-utils";
 
 export const SITE_NAME = "НЦФГ";
 export const SITE_FULL_NAME = "Национальный центр финансовой грамотности";
@@ -6,18 +8,29 @@ export const SITE_THEME_COLOR = "#1E3A5F";
 export const DEFAULT_SITE_URL = "https://ncfg.ru";
 export const DEFAULT_OG_IMAGE = "/logo.svg";
 const DEFAULT_LOCALE = "ru_RU";
+const TITLE_DELIMITER = " | ";
+const TITLE_SITE_SUFFIX_PATTERN = /(?:\s*(?:\||—|-)\s*НЦФГ\s*)+$/u;
 
 interface BuildPageMetadataInput {
   path: string;
   title: string;
   description: string;
-  openGraphTitle?: string;
-  openGraphDescription?: string;
   openGraphType?: "website" | "article";
   imagePath?: string;
   locale?: string;
   publishedTime?: string;
   robots?: Metadata["robots"];
+}
+
+interface BlogPostDescriptionInput {
+  title: string;
+  body?: string | null;
+  category?: { title?: string | null } | null;
+}
+
+interface ServiceDescriptionInput {
+  title: string;
+  shortDescription?: string | null;
 }
 
 function normalizeSiteUrl(value: string | undefined): string {
@@ -38,21 +51,18 @@ function normalizeSiteUrl(value: string | undefined): string {
   }
 }
 
-function normalizePath(path: string): string {
-  const trimmed = path.trim();
-  if (!trimmed || trimmed === "/") {
-    return "/";
-  }
-
-  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+function looksLikeSentence(value: string): boolean {
+  return /[.!?…]$/u.test(value);
 }
 
-function toAbsoluteUrl(value: string, siteUrl: string): string {
-  if (/^https?:\/\//i.test(value)) {
-    return value;
+export function formatPageTitle(subject: string): string {
+  const normalizedSubject = normalizeInlineText(subject).replace(TITLE_SITE_SUFFIX_PATTERN, "").trim();
+
+  if (!normalizedSubject || normalizedSubject === SITE_NAME) {
+    return SITE_NAME;
   }
 
-  return new URL(normalizePath(value), `${siteUrl}/`).toString();
+  return `${normalizedSubject}${TITLE_DELIMITER}${SITE_NAME}`;
 }
 
 export function getSiteUrl(): string {
@@ -63,12 +73,42 @@ export function getMetadataBase(): URL {
   return new URL(`${getSiteUrl()}/`);
 }
 
+export function buildBlogPostDescription(post: BlogPostDescriptionInput): string {
+  const bodyExcerpt = makeExcerpt(stripHtmlToText(post.body ?? ""), 170);
+  if (bodyExcerpt) {
+    return bodyExcerpt;
+  }
+
+  const title = normalizeInlineText(post.title);
+  const categoryTitle = normalizeInlineText(post.category?.title);
+
+  if (!title) {
+    return "Материал НЦФГ с практическими выводами и рекомендациями.";
+  }
+
+  const categoryFragment = categoryTitle ? ` в рубрике «${categoryTitle}»` : "";
+  return `Материал НЦФГ «${title}»${categoryFragment} с практическими выводами и рекомендациями.`;
+}
+
+export function buildServiceDescription(service: ServiceDescriptionInput): string {
+  const normalizedShortDescription = normalizeInlineText(service.shortDescription);
+
+  if (normalizedShortDescription && looksLikeSentence(normalizedShortDescription)) {
+    return normalizedShortDescription;
+  }
+
+  const title = normalizeInlineText(service.title);
+  if (!title) {
+    return "Услуга НЦФГ для компаний, которым нужна программа финансовой грамотности и финансового благополучия сотрудников.";
+  }
+
+  return `Услуга НЦФГ «${title}» для компаний, которым нужна программа финансовой грамотности и финансового благополучия сотрудников.`;
+}
+
 export function buildPageMetadata({
   path,
   title,
   description,
-  openGraphTitle,
-  openGraphDescription,
   openGraphType = "website",
   imagePath = DEFAULT_OG_IMAGE,
   locale = DEFAULT_LOCALE,
@@ -78,11 +118,10 @@ export function buildPageMetadata({
   const siteUrl = getSiteUrl();
   const canonicalUrl = toAbsoluteUrl(path, siteUrl);
   const imageUrl = toAbsoluteUrl(imagePath, siteUrl);
-  const ogTitle = openGraphTitle ?? title;
-  const ogDescription = openGraphDescription ?? description;
+  const formattedTitle = formatPageTitle(title);
   const openGraph = {
-    title: ogTitle,
-    description: ogDescription,
+    title: formattedTitle,
+    description,
     type: openGraphType,
     siteName: SITE_NAME,
     locale,
@@ -92,7 +131,7 @@ export function buildPageMetadata({
   };
 
   return {
-    title,
+    title: formattedTitle,
     description,
     alternates: {
       canonical: canonicalUrl,
@@ -100,8 +139,8 @@ export function buildPageMetadata({
     openGraph,
     twitter: {
       card: "summary",
-      title: ogTitle,
-      description: ogDescription,
+      title: formattedTitle,
+      description,
       images: [imageUrl],
     },
     robots,

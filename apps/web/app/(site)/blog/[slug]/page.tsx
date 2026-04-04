@@ -6,16 +6,21 @@ import {
   fetchNewsArticles,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
-import { makeExcerpt, stripHtmlToText } from "@/shared/lib/excerpt";
-import { buildPageMetadata } from "@/shared/lib/metadata";
+import {
+  buildBlogPostDescription,
+  buildPageMetadata,
+} from "@/shared/lib/metadata";
+import {
+  buildBlogPostingStructuredData,
+  buildBreadcrumbList,
+} from "@/shared/lib/structured-data";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 const BLOG_POST_NOT_FOUND_DESCRIPTION = "Материал блога не найден или недоступен.";
-const BLOG_POST_FALLBACK_DESCRIPTION =
-  "Материал НЦФГ о финансовой грамотности для сотрудников и частных лиц.";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
@@ -34,11 +39,6 @@ async function safeFetchNewsArticle(slug: string) {
   }
 }
 
-function getBlogDescription(body: string): string {
-  const plainText = stripHtmlToText(body);
-  return makeExcerpt(plainText, 170) || BLOG_POST_FALLBACK_DESCRIPTION;
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await safeFetchNewsArticle(slug);
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!post) {
     return buildPageMetadata({
       path: `/blog/${slug}`,
-      title: "Статья не найдена — НЦФГ",
+      title: "Статья не найдена",
       description: BLOG_POST_NOT_FOUND_DESCRIPTION,
       robots: {
         index: false,
@@ -55,16 +55,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
-  const description = getBlogDescription(post.body);
+  const description = buildBlogPostDescription(post);
 
   return buildPageMetadata({
     path: `/blog/${post.slug}`,
-    title: `${post.title} — НЦФГ`,
+    title: post.title,
     description,
-    openGraphTitle: post.title,
     openGraphType: "article",
     publishedTime: post.createdAt,
-    imagePath: post.postImage ?? undefined,
+    imagePath: post.postImage ?? post.anonsImage ?? undefined,
   });
 }
 
@@ -80,8 +79,27 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "Блог", path: "/blog" },
+    { name: post.title, path: `/blog/${post.slug}` },
+  ]);
+  const description = buildBlogPostDescription(post);
+  const blogPostingStructuredData = buildBlogPostingStructuredData({
+    title: post.title,
+    slug: post.slug,
+    category: post.category,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    postImage: post.postImage ?? null,
+    anonsImage: post.anonsImage ?? null,
+    description,
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
+      <StructuredDataScript data={breadcrumbStructuredData} />
+      <StructuredDataScript data={blogPostingStructuredData} />
       <main className="flex-1">
         <Post post={post} allPosts={allPosts} />
       </main>

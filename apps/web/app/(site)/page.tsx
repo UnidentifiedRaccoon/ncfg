@@ -9,7 +9,6 @@ import {
   LeadForm,
   Footer,
 } from "@/widgets";
-import { buildPageMetadata } from "@/shared/lib/metadata";
 import {
   fetchHomePageData,
   fetchLatestNewsArticles,
@@ -17,14 +16,18 @@ import {
   fetchServicesData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
+import { buildPageMetadata } from "@/shared/lib/metadata";
+import {
+  buildOrganizationStructuredData,
+  buildWebsiteStructuredData,
+} from "@/shared/lib/structured-data";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/",
-  title: "НЦФГ — Национальный центр финансовой грамотности",
+  title: "Национальный центр финансовой грамотности",
   description:
-    "Более 20 лет реализуем проекты по финансовой грамотности. 30 миллионов участников, 84 региона, программы для компаний и частных лиц.",
-  openGraphDescription:
-    "Более 20 лет реализуем проекты по финансовой грамотности. 30 миллионов участников, 84 региона.",
+    "НЦФГ помогает компаниям и частным лицам развивать финансовую грамотность через программы, обучение и практические материалы.",
 });
 
 function makeHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) {
@@ -105,8 +108,19 @@ export default async function Home() {
     more: { href: "/rekomendacii" },
   };
 
+  const websiteStructuredData = buildWebsiteStructuredData();
+  const organizationStructuredData = buildOrganizationStructuredData({
+    organizationFullName: siteSetting.organizationFullName,
+    organizationShortName: siteSetting.organizationShortName,
+    contactsPhone: siteSetting.contactsPhone,
+    contactsEmail: siteSetting.contactsEmail,
+    socialLinks: siteSetting.socialLinks,
+  });
+
   return (
     <>
+      <StructuredDataScript data={websiteStructuredData} />
+      <StructuredDataScript data={organizationStructuredData} />
       <main>
         <Hero
           headline={hero?.headline ?? ""}
