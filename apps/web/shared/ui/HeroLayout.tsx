@@ -174,8 +174,8 @@ export function HeroLayout({
                     src={imageSrc}
                     alt={imageAlt}
                     fill
-                    priority
-                    sizes="(min-width: 1024px) 560px, 90vw"
+                    loading="lazy"
+                    sizes="(min-width: 1024px) 560px, 0px"
                     className="pointer-events-none object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)] scale-[1.5]"
                   />
                 </div>
