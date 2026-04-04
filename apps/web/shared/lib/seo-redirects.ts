@@ -38,7 +38,23 @@ interface CanonicalRequestContext {
 }
 
 export function getSeoRedirectPathname(pathname: string): string {
-  return LEGACY_REDIRECTS.get(pathname) ?? pathname;
+  const normalizedPathname =
+    pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  const exactRedirect = LEGACY_REDIRECTS.get(normalizedPathname);
+
+  if (exactRedirect) {
+    return exactRedirect;
+  }
+
+  if (normalizedPathname.startsWith("/news/")) {
+    const legacySlug = normalizedPathname.slice("/news/".length);
+
+    if (legacySlug.length > 0 && !legacySlug.includes("/")) {
+      return `/blog/${legacySlug}`;
+    }
+  }
+
+  return pathname;
 }
 
 export function isSeoGonePath(pathname: string): boolean {

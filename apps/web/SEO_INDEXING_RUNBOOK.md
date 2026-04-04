@@ -22,19 +22,22 @@ After deployment confirm:
 cd apps/web
 npm run seo:check -- https://ncfg.ru
 
-# Optional mirror + blocked direct URL validation:
-SEO_MIRROR_URLS="https://www.ncfg.ru,https://d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net" \
+# Add gateway mirror + blocked direct URL validation:
+SEO_MIRROR_URLS="https://d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net" \
 SEO_BLOCKED_URLS="https://bban3i4dgt9p00m87f90.containers.yandexcloud.net" \
   npm run seo:check -- https://ncfg.ru
 
 # or basic spot-check:
-curl -I https://ncfg.ru/robots.txt
-curl -I https://ncfg.ru/sitemap.xml
+curl -sL https://ncfg.ru/robots.txt
+curl -sL https://ncfg.ru/sitemap.xml
 ```
 
 Expected:
 - `robots.txt` -> `200`
+- `robots.txt` contains `Sitemap` and does not contain `Host`
 - `sitemap.xml` -> `200`
+- `sitemap.xml` contains `<lastmod>` for `/`, `/companies`, `/individuals`, `/about`, `/blog`
+- default `seo:check` verifies `http://ncfg.ru`, `http://www.ncfg.ru`, and `https://www.ncfg.ru` as mirrors
 
 Then submit `https://ncfg.ru/sitemap.xml` in:
 - Google Search Console -> `Sitemaps`
@@ -46,6 +49,8 @@ Production runtime requirement:
 ## 3) Verify canonical mirror
 
 ```bash
+curl -I http://ncfg.ru/companies
+curl -I http://www.ncfg.ru/companies
 curl -I https://www.ncfg.ru/
 curl -I https://www.ncfg.ru/news
 curl -I https://www.ncfg.ru/robots.txt
@@ -55,7 +60,13 @@ curl -I https://d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net/
 
 Expected:
 - `https://ncfg.ru/` -> `200`
-- every public mirror -> `301` to `https://ncfg.ru/...`
+- `http://ncfg.ru/...` -> single `301` to `https://ncfg.ru/...`
+- `http://www.ncfg.ru/...` -> single `301` to `https://ncfg.ru/...`
+- every HTTPS public mirror -> `301` to `https://ncfg.ru/...`
+
+Important:
+- if `http://www.ncfg.ru/...` first redirects to `https://www.ncfg.ru/...`, the extra hop happens before Next.js;
+- fix that on the public edge/domain layer, because app-level canonicalization only starts after the HTTPS request reaches the gateway.
 
 ## 4) Verify blocked direct container
 
@@ -77,6 +88,7 @@ Priority URLs:
 - `https://ncfg.ru/`
 - `https://ncfg.ru/companies`
 - `https://ncfg.ru/individuals`
+- `https://ncfg.ru/about`
 - `https://ncfg.ru/blog`
 
 Use:

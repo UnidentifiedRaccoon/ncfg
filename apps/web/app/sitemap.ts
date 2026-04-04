@@ -1,5 +1,15 @@
 import type { MetadataRoute } from "next";
-import { fetchNewsArticles, fetchServicesData } from "@/shared/api/data-provider";
+import {
+  fetchAboutPageData,
+  fetchBlogPageData,
+  fetchCompaniesPageData,
+  fetchHomePageData,
+  fetchIndividualsPageData,
+  fetchNewsArticles,
+  fetchPortfolioPageData,
+  fetchServicesData,
+} from "@/shared/api/data-provider";
+import { pickLatestDate } from "@/shared/lib/date-values";
 import { getSiteUrl } from "@/shared/lib/metadata";
 
 export const revalidate = 3600; // Refresh sitemap hourly.
@@ -13,11 +23,27 @@ const STATIC_ROUTES = [
   { path: "/portfolio", priority: 0.8, changeFrequency: "monthly" },
   { path: "/rekomendacii", priority: 0.8, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.8, changeFrequency: "daily" },
-  { path: "/politika-konfidencialnosti", priority: 0.4, changeFrequency: "yearly" },
-  { path: "/polzovatelskoe-soglashenie", priority: 0.4, changeFrequency: "yearly" },
 ] as const;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
+
+const KEY_STATIC_ROUTE_LASTMOD_LOADERS = [
+  { path: "/", load: fetchHomePageData },
+  { path: "/companies", load: fetchCompaniesPageData },
+  { path: "/individuals", load: fetchIndividualsPageData },
+  { path: "/about", load: fetchAboutPageData },
+  {
+    path: "/history",
+    load: async () => ({
+      updatedAt: pickLatestDate(
+        [(await fetchAboutPageData()).updatedAt, (await fetchPortfolioPageData()).updatedAt],
+        "history page sitemap"
+      ),
+    }),
+  },
+  { path: "/portfolio", load: fetchPortfolioPageData },
+  { path: "/blog", load: fetchBlogPageData },
+] as const;
 
 function toAbsoluteUrl(path: string, siteUrl: string): string {
   return new URL(path, `${siteUrl}/`).toString();
@@ -42,6 +68,28 @@ function dedupeEntries(entries: SitemapEntry[]): SitemapEntry[] {
   }
 
   return Array.from(byUrl.values()).sort((a, b) => a.url.localeCompare(b.url));
+}
+
+async function getStaticRouteLastModified(): Promise<Map<string, Date>> {
+  const settled = await Promise.allSettled(
+    KEY_STATIC_ROUTE_LASTMOD_LOADERS.map(async ({ path, load }) => ({
+      path,
+      lastModified: new Date((await load()).updatedAt),
+    }))
+  );
+  const byPath = new Map<string, Date>();
+
+  for (const result of settled) {
+    if (result.status === "fulfilled") {
+      byPath.set(result.value.path, result.value.lastModified);
+      continue;
+    }
+
+    const details = result.reason instanceof Error ? result.reason.message : String(result.reason);
+    console.error(`[sitemap] Failed to resolve static route lastModified: ${details}`);
+  }
+
+  return byPath;
 }
 
 async function getServiceEntries(siteUrl: string): Promise<SitemapEntry[]> {
@@ -84,16 +132,21 @@ async function getBlogEntries(siteUrl: string): Promise<SitemapEntry[]> {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
 
-  const staticEntries: SitemapEntry[] = STATIC_ROUTES.map((route) => ({
-    url: toAbsoluteUrl(route.path, siteUrl),
-    changeFrequency: route.changeFrequency,
-    priority: route.priority,
-  }));
-
-  const [serviceEntries, blogEntries] = await Promise.all([
+  const [staticRouteLastModified, serviceEntries, blogEntries] = await Promise.all([
+    getStaticRouteLastModified(),
     getServiceEntries(siteUrl),
     getBlogEntries(siteUrl),
   ]);
+  const staticEntries: SitemapEntry[] = STATIC_ROUTES.map((route) => {
+    const lastModified = staticRouteLastModified.get(route.path);
+
+    return {
+      url: toAbsoluteUrl(route.path, siteUrl),
+      changeFrequency: route.changeFrequency,
+      priority: route.priority,
+      ...(lastModified ? { lastModified } : {}),
+    };
+  });
 
   return dedupeEntries([...staticEntries, ...serviceEntries, ...blogEntries]);
 }

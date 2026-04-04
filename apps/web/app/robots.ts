@@ -11,7 +11,6 @@ export default function robots(): MetadataRoute.Robots {
     return {
       rules: [{ userAgent: "*", disallow: "/" }],
       sitemap: sitemapUrl,
-      host: siteUrl,
     };
   }
 
@@ -24,6 +23,5 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: sitemapUrl,
-    host: siteUrl,
   };
 }

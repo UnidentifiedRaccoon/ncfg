@@ -19,6 +19,7 @@ import {
   transformToLegacyRecommendation,
   type LegacyRecommendation,
 } from './recommendations';
+import { pickLatestDate } from '@/shared/lib/date-values';
 import { getServicesDataLegacy } from './services';
 import type {
   StrapiAboutPage,
@@ -513,11 +514,10 @@ export async function fetchPortfolioPageData(): Promise<StrapiPortfolioPage> {
 export async function fetchAboutPageData(): Promise<StrapiAboutPage> {
   const howWeWork = (await import('@/public/content/ncfg_how_we_work.json')).default as unknown as FallbackHowWeWorkJson;
   const principles = (await import('@/public/content/ncfg_principles.json')).default as unknown as FallbackPrinciplesJson;
-  const updatedAt = howWeWork.meta?.updatedAt;
-
-  if (!updatedAt) {
-    throw new Error('Missing updatedAt in ncfg_how_we_work.json');
-  }
+  const updatedAt = pickLatestDate(
+    [howWeWork.meta?.updatedAt, principles.meta?.updatedAt],
+    'about page content'
+  );
 
   return {
     id: 1,

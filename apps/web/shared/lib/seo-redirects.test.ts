@@ -9,6 +9,10 @@ import {
 
 test("getSeoRedirectPathname rewrites only supported legacy paths", () => {
   assert.equal(getSeoRedirectPathname("/news"), "/blog");
+  assert.equal(getSeoRedirectPathname("/news/"), "/blog");
+  assert.equal(getSeoRedirectPathname("/news/20-let-v-puti"), "/blog/20-let-v-puti");
+  assert.equal(getSeoRedirectPathname("/news/20-let-v-puti/"), "/blog/20-let-v-puti");
+  assert.equal(getSeoRedirectPathname("/news/archive/2024"), "/news/archive/2024");
   assert.equal(getSeoRedirectPathname("/companies"), "/companies");
 });
 
@@ -44,6 +48,30 @@ test("buildCanonicalRedirectUrl normalizes /news on canonical host in one hop", 
   assert.equal(target?.toString(), "https://ncfg.ru/blog?utm=1");
 });
 
+test("buildCanonicalRedirectUrl normalizes /news/ with trailing slash in one hop", () => {
+  const target = buildCanonicalRedirectUrl("https://ncfg.ru/news/?utm=1", "https://ncfg.ru");
+
+  assert.equal(target?.toString(), "https://ncfg.ru/blog?utm=1");
+});
+
+test("buildCanonicalRedirectUrl rewrites legacy news article slugs to blog slugs", () => {
+  const target = buildCanonicalRedirectUrl(
+    "https://ncfg.ru/news/20-let-v-puti?utm=1",
+    "https://ncfg.ru"
+  );
+
+  assert.equal(target?.toString(), "https://ncfg.ru/blog/20-let-v-puti?utm=1");
+});
+
+test("buildCanonicalRedirectUrl rewrites legacy news article slugs with trailing slash", () => {
+  const target = buildCanonicalRedirectUrl(
+    "https://ncfg.ru/news/20-let-v-puti/?utm=1",
+    "https://ncfg.ru"
+  );
+
+  assert.equal(target?.toString(), "https://ncfg.ru/blog/20-let-v-puti?utm=1");
+});
+
 test("buildCanonicalRedirectUrl ignores internal port on canonical host", () => {
   const target = buildCanonicalRedirectUrl("https://ncfg.ru:8080/companies?tab=all", "https://ncfg.ru");
 
@@ -72,6 +100,24 @@ test("buildCanonicalRedirectUrl strips port from forwarded canonical host", () =
   });
 
   assert.equal(target, null);
+});
+
+test("buildCanonicalRedirectUrl upgrades forwarded http apex host to canonical https in one hop", () => {
+  const target = buildCanonicalRedirectUrl("http://127.0.0.1:8080/companies?tab=all", "https://ncfg.ru", {
+    host: "ncfg.ru",
+    protocol: "http",
+  });
+
+  assert.equal(target?.toString(), "https://ncfg.ru/companies?tab=all");
+});
+
+test("buildCanonicalRedirectUrl upgrades forwarded http www host to canonical apex https in one hop", () => {
+  const target = buildCanonicalRedirectUrl("http://127.0.0.1:8080/companies?tab=all", "https://ncfg.ru", {
+    host: "www.ncfg.ru",
+    protocol: "http",
+  });
+
+  assert.equal(target?.toString(), "https://ncfg.ru/companies?tab=all");
 });
 
 test("buildCanonicalRedirectUrl rewrites forwarded mirror host to canonical", () => {

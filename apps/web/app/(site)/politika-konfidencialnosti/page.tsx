@@ -9,6 +9,10 @@ export const metadata: Metadata = buildPageMetadata({
   title: "Политика конфиденциальности",
   description:
     "Здесь описано, как сайт НЦФГ собирает, использует и защищает персональные данные пользователей.",
+  robots: {
+    index: false,
+    follow: true,
+  },
 });
 
 export const revalidate = 60;

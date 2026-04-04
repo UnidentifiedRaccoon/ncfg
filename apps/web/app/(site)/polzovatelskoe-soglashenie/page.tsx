@@ -9,6 +9,10 @@ export const metadata: Metadata = buildPageMetadata({
   title: "Пользовательское соглашение",
   description:
     "На странице опубликованы правила использования сайта НЦФГ, права пользователей и условия работы с сервисами.",
+  robots: {
+    index: false,
+    follow: true,
+  },
 });
 
 export const revalidate = 60;

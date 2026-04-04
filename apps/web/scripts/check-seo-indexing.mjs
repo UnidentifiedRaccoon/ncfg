@@ -28,7 +28,46 @@ function parseUrlList(value, envName) {
   }
 }
 
-mirrorUrls = parseUrlList(mirrorArgs, "SEO_MIRROR_URLS");
+function dedupeUrls(urls) {
+  const byOrigin = new Map();
+
+  for (const url of urls) {
+    byOrigin.set(url.origin, url);
+  }
+
+  return Array.from(byOrigin.values());
+}
+
+function deriveDefaultMirrorUrls(base) {
+  if (base.protocol !== "https:") {
+    return [];
+  }
+
+  const hostname = base.hostname;
+  if (
+    hostname === "localhost" ||
+    hostname.endsWith(".localhost") ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1"
+  ) {
+    return [];
+  }
+
+  const apexHostname = hostname.startsWith("www.") ? hostname.slice(4) : hostname;
+  const candidates = [
+    new URL(`http://${apexHostname}`),
+    new URL(`https://${apexHostname}`),
+    new URL(`http://www.${apexHostname}`),
+    new URL(`https://www.${apexHostname}`),
+  ];
+
+  return dedupeUrls(candidates.filter((candidate) => candidate.origin !== base.origin));
+}
+
+mirrorUrls = dedupeUrls([
+  ...deriveDefaultMirrorUrls(baseUrl),
+  ...parseUrlList(mirrorArgs, "SEO_MIRROR_URLS"),
+]);
 blockedUrls = parseUrlList(blockedArgs, "SEO_BLOCKED_URLS");
 
 function toUrl(pathname, origin = baseUrl) {
@@ -83,9 +122,22 @@ function locationOriginAndPathname(locationHeaderValue, origin) {
   }
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function hasSitemapEntryWithLastmod(body, url) {
+  const escapedUrl = escapeRegExp(url);
+  return new RegExp(
+    `<url>\\s*<loc>${escapedUrl}</loc>[\\s\\S]*?<lastmod>[^<]+</lastmod>[\\s\\S]*?</url>`,
+    "i"
+  ).test(body);
+}
+
 const redirectChecks = [{ from: "/news", to: "/blog" }];
 const mirrorChecks = [
   { from: "/", to: "/" },
+  { from: "/companies", to: "/companies" },
   { from: "/news", to: "/blog" },
   { from: "/robots.txt", to: "/robots.txt" },
   { from: "/sitemap.xml", to: "/sitemap.xml" },
@@ -120,7 +172,12 @@ async function checkRobots() {
     return;
   }
 
-  ok("/robots.txt is available and contains sitemap directive");
+  if (/^\s*host:/im.test(body)) {
+    fail("/robots.txt should not contain Host directive");
+    return;
+  }
+
+  ok("/robots.txt is available, contains sitemap directive, and omits Host directive");
 }
 
 async function checkSitemap() {
@@ -142,6 +199,17 @@ async function checkSitemap() {
   }
 
   ok("/sitemap.xml is available and valid-looking");
+
+  for (const pathname of ["/", "/companies", "/individuals", "/about", "/blog"]) {
+    const url = toUrl(pathname);
+
+    if (!hasSitemapEntryWithLastmod(body, url)) {
+      fail(`/sitemap.xml is missing <lastmod> for ${url}`);
+      continue;
+    }
+
+    ok(`/sitemap.xml includes <lastmod> for ${url}`);
+  }
 }
 
 async function checkRedirects() {

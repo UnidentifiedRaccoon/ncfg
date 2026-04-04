@@ -6,10 +6,24 @@ const isPreview = process.env.DEPLOY_ENV === 'preview';
 const nextConfig: NextConfig = {
   output: 'standalone',
   async headers() {
-    if (!isPreview) return [];
+    const headers = [
+      {
+        source: '/docs/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+      {
+        source: '/_next/image',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+    ];
+
+    if (!isPreview) {
+      return headers;
+    }
 
     // Prevent search engines from indexing ephemeral PR preview deployments.
     return [
+      ...headers,
       {
         source: '/:path*',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
