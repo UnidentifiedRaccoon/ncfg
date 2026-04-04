@@ -7,6 +7,8 @@ import {
 } from "@/shared/api/data-provider";
 import { isBlogRubricSlug } from "@/shared/lib/blog-rubrics";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import { buildBreadcrumbList } from "@/shared/lib/structured-data";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/blog",
@@ -36,9 +38,14 @@ export default async function BlogPage({ searchParams }: PageProps) {
     fetchBlogPageData().catch(() => null),
     fetchNewsArticles({ category: selectedCategory }),
   ]);
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "Блог", path: "/blog" },
+  ]);
 
   return (
     <>
+      <StructuredDataScript data={breadcrumbStructuredData} />
       <main>
         <BlogPosts
           title={blogPage?.title ?? "Блог"}

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Footer, PortfolioShowcase } from "@/widgets";
 import { fetchPortfolioPageData, fetchSiteSettings } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import { buildBreadcrumbList } from "@/shared/lib/structured-data";
 import { Container } from "@/shared/ui/Container";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/portfolio",
@@ -16,9 +18,14 @@ export default async function PortfolioPage() {
     fetchSiteSettings(),
     fetchPortfolioPageData(),
   ]);
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "Портфолио", path: "/portfolio" },
+  ]);
 
   return (
     <>
+      <StructuredDataScript data={breadcrumbStructuredData} />
       <main className="pb-10 md:pb-12">
         <section data-scroll-reveal="" className="pt-10 md:pt-14">
           <Container>

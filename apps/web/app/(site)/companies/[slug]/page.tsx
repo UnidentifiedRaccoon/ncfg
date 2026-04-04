@@ -17,7 +17,10 @@ import {
   buildPageMetadata,
   buildServiceDescription,
 } from "@/shared/lib/metadata";
-import { buildBreadcrumbList } from "@/shared/lib/structured-data";
+import {
+  buildBreadcrumbList,
+  buildFAQPageStructuredData,
+} from "@/shared/lib/structured-data";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 import type { Service, ServicesData } from "@/shared/api/types/service";
 
@@ -150,6 +153,7 @@ export default async function ServicePage({ params }: PageProps) {
     { name: "Компаниям", path: "/companies" },
     { name: service.title, path: `/companies/${slug}` },
   ]);
+  const faqStructuredData = buildFAQPageStructuredData(faqItems);
 
   // Transform howWeWork string[] to Step[] for HowWeWork widget
   const howWeWorkSteps = (service.howWeWork ?? []).map((step, index) => ({
@@ -160,6 +164,7 @@ export default async function ServicePage({ params }: PageProps) {
   return (
     <>
       <StructuredDataScript data={breadcrumbStructuredData} />
+      {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
         <ServiceHero
           title={service.title}

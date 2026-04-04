@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { fetchRecommendations, fetchSiteSettings } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import { buildBreadcrumbList } from "@/shared/lib/structured-data";
 import { Container } from "@/shared/ui/Container";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 import { Footer, RecommendationsShowcase } from "@/widgets";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -27,9 +29,14 @@ export default async function RecommendationsPage() {
         company: item.company,
         quote: item.fullQuote ?? item.quote,
       }));
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "Рекомендации", path: "/rekomendacii" },
+  ]);
 
   return (
     <>
+      <StructuredDataScript data={breadcrumbStructuredData} />
       <main className="pb-10 md:pb-12">
         <section data-scroll-reveal="" className="pt-10 md:pt-14">
           <Container>

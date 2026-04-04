@@ -40,6 +40,11 @@ export interface BreadcrumbItem {
   path: string;
 }
 
+interface FAQPageItemInput {
+  question: string;
+  answer: string;
+}
+
 function buildSchemaId(fragment: string, siteUrl: string): string {
   return `${siteUrl}/${fragment}`;
 }
@@ -115,6 +120,35 @@ export function buildBreadcrumbList(items: BreadcrumbItem[]): StructuredDataSche
       name: normalizeInlineText(item.name),
       item: toAbsoluteUrl(item.path, siteUrl),
     })),
+  };
+}
+
+export function buildFAQPageStructuredData(
+  items: FAQPageItemInput[]
+): StructuredDataSchema | null {
+  const mainEntity = items
+    .map((item) => ({
+      question: normalizeInlineText(item.question),
+      answer: normalizeInlineText(item.answer),
+    }))
+    .filter((item) => item.question.length > 0 && item.answer.length > 0)
+    .map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    }));
+
+  if (mainEntity.length === 0) {
+    return null;
+  }
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "FAQPage",
+    mainEntity,
   };
 }
 

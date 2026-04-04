@@ -12,6 +12,11 @@ import {
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import {
+  buildBreadcrumbList,
+  buildFAQPageStructuredData,
+} from "@/shared/lib/structured-data";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/companies",
@@ -44,9 +49,16 @@ export default async function CompaniesPage() {
   const faqItems = [...companiesPage.faqItems]
     .sort((a, b) => a.order - b.order)
     .map((item) => ({ question: item.question, answer: item.answer }));
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "Компаниям", path: "/companies" },
+  ]);
+  const faqStructuredData = buildFAQPageStructuredData(faqItems);
 
   return (
     <>
+      <StructuredDataScript data={breadcrumbStructuredData} />
+      {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
         <HeroCompanies
           headline={hero?.headline ?? ""}

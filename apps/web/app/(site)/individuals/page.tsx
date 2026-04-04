@@ -8,6 +8,11 @@ import {
 } from "@/widgets";
 import { fetchIndividualsPageData, fetchSiteSettings } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import {
+  buildBreadcrumbList,
+  buildFAQPageStructuredData,
+} from "@/shared/lib/structured-data";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/individuals",
@@ -34,9 +39,16 @@ export default async function IndividualsPage() {
   const faqItems = [...individualsPage.faqItems]
     .sort((a, b) => a.order - b.order)
     .map((item) => ({ question: item.question, answer: item.answer }));
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "Частным лицам", path: "/individuals" },
+  ]);
+  const faqStructuredData = buildFAQPageStructuredData(faqItems);
 
   return (
     <>
+      <StructuredDataScript data={breadcrumbStructuredData} />
+      {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
         <HeroIndividuals
           headline={hero?.headline ?? ""}

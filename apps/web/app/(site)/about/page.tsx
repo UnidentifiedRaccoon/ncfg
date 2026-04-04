@@ -16,6 +16,11 @@ import {
 } from "@/shared/api/data-provider";
 import { ABOUT_HERO_LEAD, pickAboutHeroMetrics } from "@/shared/lib/about-hero";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import {
+  buildBreadcrumbList,
+  buildFAQPageStructuredData,
+} from "@/shared/lib/structured-data";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/about",
@@ -56,13 +61,20 @@ export default async function AboutPage() {
     }));
 
   const faqItems = [...aboutPage.faqItems]
-      .sort((a, b) => a.order - b.order)
-      .map((item) => ({ question: item.question, answer: item.answer }));
+    .sort((a, b) => a.order - b.order)
+    .map((item) => ({ question: item.question, answer: item.answer }));
 
   const heroMetrics = pickAboutHeroMetrics(siteSetting.metrics);
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "О центре", path: "/about" },
+  ]);
+  const faqStructuredData = buildFAQPageStructuredData(faqItems);
 
   return (
     <>
+      <StructuredDataScript data={breadcrumbStructuredData} />
+      {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
         <Hero
           headline={aboutPage.heroHeadline ?? ""}

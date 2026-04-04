@@ -11,7 +11,9 @@ import {
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import { buildBreadcrumbList } from "@/shared/lib/structured-data";
 import { ABOUT_HERO_LEAD, pickAboutHeroMetrics } from "@/shared/lib/about-hero";
+import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 import { Container } from "@/shared/ui/Container";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -59,9 +61,14 @@ export default async function HistoryPage() {
   ]);
 
   const heroMetrics = pickAboutHeroMetrics(siteSetting.metrics);
+  const breadcrumbStructuredData = buildBreadcrumbList([
+    { name: "Главная", path: "/" },
+    { name: "История", path: "/history" },
+  ]);
 
   return (
     <>
+      <StructuredDataScript data={breadcrumbStructuredData} />
       <main className="pb-10 md:pb-12">
         <Hero
           noSentinel

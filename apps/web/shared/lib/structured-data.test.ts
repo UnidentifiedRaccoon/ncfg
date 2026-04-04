@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   buildBlogPostingStructuredData,
   buildBreadcrumbList,
+  buildFAQPageStructuredData,
   buildOrganizationStructuredData,
   buildWebsiteStructuredData,
 } from "./structured-data";
@@ -111,6 +112,53 @@ test("buildBreadcrumbList returns schema.org data with absolute URLs", () => {
       }
     );
   });
+});
+
+test("buildFAQPageStructuredData returns a FAQPage schema with normalized questions and answers", () => {
+  assert.deepEqual(
+    buildFAQPageStructuredData([
+      {
+        question: "  Как начать сотрудничество?  ",
+        answer: " Оставьте заявку на сайте или позвоните нам. ",
+      },
+      {
+        question: "Сколько времени занимает подготовка проекта?",
+        answer: "Типовые решения можем запустить за 1-2 недели.",
+      },
+    ]),
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Как начать сотрудничество?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Оставьте заявку на сайте или позвоните нам.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Сколько времени занимает подготовка проекта?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Типовые решения можем запустить за 1-2 недели.",
+          },
+        },
+      ],
+    }
+  );
+});
+
+test("buildFAQPageStructuredData skips empty or whitespace-only questions and answers", () => {
+  assert.equal(
+    buildFAQPageStructuredData([
+      { question: "  ", answer: "Ответ" },
+      { question: "Вопрос", answer: "   " },
+    ]),
+    null
+  );
 });
 
 test("buildBlogPostingStructuredData uses the article image fallback order and organization publisher", () => {
