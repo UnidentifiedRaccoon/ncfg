@@ -1,5 +1,36 @@
 const LEGACY_REDIRECTS = new Map([["/news", "/blog"]]);
 const GONE_PATHS = new Set(["/wp-login.php", "/xmlrpc.php", "/feed"]);
+const STATIC_ASSET_EXTENSIONS = new Set([
+  "avif",
+  "bmp",
+  "css",
+  "doc",
+  "docx",
+  "gif",
+  "ico",
+  "icns",
+  "jpg",
+  "jpeg",
+  "js",
+  "json",
+  "map",
+  "mjs",
+  "mp3",
+  "mp4",
+  "otf",
+  "pdf",
+  "png",
+  "svg",
+  "ttf",
+  "wav",
+  "webm",
+  "webmanifest",
+  "webp",
+  "woff",
+  "woff2",
+  "xml.gz",
+  "zip",
+]);
 
 interface CanonicalRequestContext {
   host?: string | null;
@@ -12,6 +43,24 @@ export function getSeoRedirectPathname(pathname: string): string {
 
 export function isSeoGonePath(pathname: string): boolean {
   return GONE_PATHS.has(pathname);
+}
+
+export function isStaticAssetPathname(pathname: string): boolean {
+  const lastSegment = pathname.split("/").pop();
+
+  if (!lastSegment || !lastSegment.includes(".")) {
+    return false;
+  }
+
+  const lowerSegment = lastSegment.toLowerCase();
+
+  for (const extension of STATIC_ASSET_EXTENSIONS) {
+    if (lowerSegment.endsWith(`.${extension}`)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function normalizeProtocol(protocol: string | null | undefined, fallback: string): string {

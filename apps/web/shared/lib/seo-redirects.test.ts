@@ -4,6 +4,7 @@ import {
   buildCanonicalRedirectUrl,
   getSeoRedirectPathname,
   isSeoGonePath,
+  isStaticAssetPathname,
 } from "./seo-redirects";
 
 test("getSeoRedirectPathname rewrites only supported legacy paths", () => {
@@ -16,6 +17,16 @@ test("isSeoGonePath matches bot and feed leftovers", () => {
   assert.equal(isSeoGonePath("/xmlrpc.php"), true);
   assert.equal(isSeoGonePath("/feed"), true);
   assert.equal(isSeoGonePath("/news"), false);
+});
+
+test("isStaticAssetPathname matches public assets but keeps SEO routes dynamic", () => {
+  assert.equal(isStaticAssetPathname("/heroV2.minified.png"), true);
+  assert.equal(isStaticAssetPathname("/docs/ustav-ncfg.pdf"), true);
+  assert.equal(isStaticAssetPathname("/manifest.webmanifest"), true);
+  assert.equal(isStaticAssetPathname("/companies"), false);
+  assert.equal(isStaticAssetPathname("/robots.txt"), false);
+  assert.equal(isStaticAssetPathname("/sitemap.xml"), false);
+  assert.equal(isStaticAssetPathname("/wp-login.php"), false);
 });
 
 test("buildCanonicalRedirectUrl keeps canonical requests untouched", () => {

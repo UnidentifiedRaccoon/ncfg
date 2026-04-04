@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getSiteUrl } from "@/shared/lib/metadata";
-import { buildCanonicalRedirectUrl, isSeoGonePath } from "@/shared/lib/seo-redirects";
+import { buildCanonicalRedirectUrl, isSeoGonePath, isStaticAssetPathname } from "@/shared/lib/seo-redirects";
 
 function firstHeaderValue(value: string | null): string | null {
   if (!value) {
@@ -15,6 +15,10 @@ function firstHeaderValue(value: string | null): string | null {
 }
 
 export function proxy(request: NextRequest) {
+  if (isStaticAssetPathname(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   const redirectUrl = buildCanonicalRedirectUrl(request.url, getSiteUrl(), {
     host: firstHeaderValue(request.headers.get("x-forwarded-host")) ?? firstHeaderValue(request.headers.get("host")),
     protocol: firstHeaderValue(request.headers.get("x-forwarded-proto")),
