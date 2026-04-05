@@ -15,6 +15,8 @@ import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
+import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
+import { getUtmParams } from "@/shared/lib/utm";
 
 interface FormData {
   name: string;
@@ -100,6 +102,7 @@ export function LeadForm() {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [consent, setConsent] = useState(false);
+  const [formStarted, setFormStarted] = useState(false);
   const consentId = useId();
   const errorId = useId();
 
@@ -158,6 +161,7 @@ export function LeadForm() {
       }
 
       setStatus("success");
+      reachGoal(YM_GOALS.LEAD_FORM_SUBMIT, getUtmParams());
       setFormData({ name: "", email: "", phone: "", company: "", message: "" });
     } catch (error) {
       setStatus("error");
@@ -171,6 +175,13 @@ export function LeadForm() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     clearError();
+  };
+
+  const handleFormFieldFocus = () => {
+    if (!formStarted) {
+      setFormStarted(true);
+      reachGoal(YM_GOALS.LEAD_FORM_START);
+    }
   };
 
   if (status === "success") {
@@ -343,7 +354,7 @@ export function LeadForm() {
         </div>
 
         <LeadFormCard className="lg:sticky lg:top-28">
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit} onFocus={handleFormFieldFocus} className="space-y-5" noValidate>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-lg font-semibold text-[#1E3A5F]">

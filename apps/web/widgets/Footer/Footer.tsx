@@ -234,6 +234,7 @@ export function Footer({ data }: FooterProps) {
                   href={ctaHref}
                   variant="secondary"
                   size="md"
+                  data-ym-goal="cta_click"
                   className={ctaButtonClassName}
                 >
                   Оставить заявку
@@ -245,6 +246,7 @@ export function Footer({ data }: FooterProps) {
 
                 <a
                   href={`tel:${phoneSanitized}`}
+                  data-ym-goal="phone_click"
                   className={cn(
                     "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
                     "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
@@ -256,6 +258,7 @@ export function Footer({ data }: FooterProps) {
 
                 <a
                   href={`mailto:${data.contacts.email}`}
+                  data-ym-goal="email_click"
                   className={cn(
                     "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
                     "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
@@ -306,6 +309,7 @@ export function Footer({ data }: FooterProps) {
                 <div className={cn("mt-5 space-y-2", mutedTextClassName)}>
                   <a
                     href={`tel:${phoneSanitized}`}
+                    data-ym-goal="phone_click"
                     className={cn(
                       "flex items-center gap-2 transition-colors",
                       "text-white/70 hover:text-white"
@@ -316,6 +320,7 @@ export function Footer({ data }: FooterProps) {
                   </a>
                   <a
                     href={`mailto:${data.contacts.email}`}
+                    data-ym-goal="email_click"
                     className={cn(
                       "flex items-center gap-2 transition-colors",
                       "text-white/70 hover:text-white"
@@ -328,6 +333,7 @@ export function Footer({ data }: FooterProps) {
                     href={officeAddressHref}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-ym-goal="map_click"
                     className={cn(
                       "flex items-start gap-2 transition-colors",
                       "text-white/70 hover:text-white"
@@ -367,7 +373,7 @@ export function Footer({ data }: FooterProps) {
                 <ul className="mt-4 space-y-3">
                   {data.social.map((item) => (
                     <li key={item.href}>
-                      <a href={item.href} className={linkClassName} target="_blank" rel="noopener noreferrer">
+                      <a href={item.href} className={linkClassName} target="_blank" rel="noopener noreferrer" data-ym-goal="social_click">
                         {item.label}
                       </a>
                     </li>
@@ -425,6 +431,7 @@ export function Footer({ data }: FooterProps) {
                             href={doc.href}
                             target="_blank"
                             rel="noopener noreferrer"
+                            data-ym-goal="document_download"
                             className={cn(linkClassName, "flex-1")}
                           >
                             {doc.label}

@@ -20,6 +20,7 @@ export function BentoCard({
   return (
     <Link
       href={href}
+      data-ym-goal="service_click"
       className={cn(
         "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out [will-change:transform]",
         "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",

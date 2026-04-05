@@ -109,12 +109,19 @@
 }
 
 html {
+  scroll-behavior: smooth;
   scroll-padding-top: 80px; /* Header height (h-16=64px mobile, h-20=80px desktop) + small buffer */
 }
 
 @media (max-width: 767px) {
   html {
     scroll-padding-top: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
@@ -141,6 +148,7 @@ body {
   transition:
     opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
     transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -371,13 +379,19 @@ body {
   }
 }
 
+@keyframes tabProgress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   [class*="animate-[minimalSlideIn"],
   [class*="animate-[cardIn"],
   [class*="animate-[bubbleIn"],
   [class*="animate-[chatBounce"],
   [class*="animate-[blobDrift"],
-  [class*="animate-[textGlow"] {
+  [class*="animate-[textGlow"],
+  [class*="animate-[tabProgress"] {
     animation: none !important;
   }
 }

@@ -5,6 +5,7 @@ import { ChevronDown, Send, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
+import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 
 interface PostQuestionFormProps {
   postTitle: string;
@@ -60,6 +61,7 @@ export function PostQuestionForm({
       }
 
       setStatus("success");
+      reachGoal(YM_GOALS.QUESTION_FORM_SUBMIT);
       setFormData({ question: "", name: "", email: "" });
     } catch (error) {
       setStatus("error");
@@ -111,7 +113,7 @@ export function PostQuestionForm({
               </p>
               <Button
                 variant="secondary"
-                onClick={() => setIsExpanded(true)}
+                onClick={() => { setIsExpanded(true); reachGoal(YM_GOALS.QUESTION_FORM_EXPAND); }}
                 className="inline-flex items-center gap-2"
               >
                 Задать вопрос
@@ -244,6 +246,7 @@ export function PostQuestionForm({
                   </a>
                   <a
                     href="tel:+74995011173"
+                    data-ym-goal="phone_click"
                     className="text-[#3B82F6] hover:underline"
                   >
                     +7 (499) 501-11-73

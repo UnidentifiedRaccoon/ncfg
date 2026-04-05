@@ -47,7 +47,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
     if ("href" in props && props.href) {
       const { href, ...linkProps } = props as ButtonAsLink;
 
-      // Use native <a> for anchor links (handled by SmoothAnchor)
+      // Use native <a> for anchor links (smooth scroll via CSS scroll-behavior)
       if (href.startsWith("#")) {
         return (
           <a

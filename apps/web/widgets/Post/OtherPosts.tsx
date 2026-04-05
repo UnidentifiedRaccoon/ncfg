@@ -16,7 +16,9 @@ export function OtherPosts({ posts }: OtherPostsProps) {
         </h2>
         <div className="flex flex-col items-center gap-6">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <div key={post.id} data-ym-goal="related_article_click">
+              <PostCard post={post} />
+            </div>
           ))}
         </div>
         <div className="mt-8">

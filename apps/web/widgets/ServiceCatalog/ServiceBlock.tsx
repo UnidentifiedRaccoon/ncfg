@@ -122,6 +122,7 @@ export function ServiceBlock({
               href={banner.href}
               target="_blank"
               rel="noopener noreferrer"
+              data-ym-goal="pdf_download"
               className="relative z-10 inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#BFDBFE] bg-white/85 px-6 text-base font-semibold text-[#2563EB] transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8]"
             >
               {banner.ctaLabel}

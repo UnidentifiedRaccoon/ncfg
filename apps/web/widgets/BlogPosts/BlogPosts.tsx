@@ -67,6 +67,7 @@ function PillsNav({
               <Link
                 key={item.slug ?? "all"}
                 href={href}
+                data-ym-goal="blog_category_click"
                 className={cn(
                   "group inline-flex shrink-0 items-center rounded-full border px-4 py-1.5 text-xs font-semibold tracking-wide",
                   "transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
@@ -107,6 +108,7 @@ function RailNav({
             <Link
               key={item.slug ?? "all"}
               href={href}
+              data-ym-goal="blog_category_click"
               className={cn(
                 "text-xl font-semibold tracking-tight transition-colors duration-150",
                 "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3B82F6]",

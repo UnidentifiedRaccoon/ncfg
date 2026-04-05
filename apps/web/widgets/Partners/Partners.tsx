@@ -17,6 +17,7 @@ import {
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
+import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 
 interface Logo {
   id: number;
@@ -54,10 +55,6 @@ interface PartnersProps {
   clientsCarousel: {
     title: string;
     categories: Category[];
-    archiveCta: {
-      label: string;
-      href: string;
-    };
   };
   testimonials: {
     title: string;
@@ -74,12 +71,20 @@ function CategoryTabs({
   onChange,
   panelId,
   tabsBaseId,
+  canShowProgress,
+  isAutoplayPaused,
+  progressKey,
+  onProgressComplete,
 }: {
   categories: Category[];
   activeIndex: number;
   onChange: (nextIndex: number) => void;
   panelId: string;
   tabsBaseId: string;
+  canShowProgress: boolean;
+  isAutoplayPaused: boolean;
+  progressKey: number;
+  onProgressComplete: () => void;
 }) {
   return (
     <div
@@ -105,7 +110,7 @@ function CategoryTabs({
             onClick={() => onChange(index)}
             className={cn(
               // Keep geometry stable: constant border width prevents "jumping" when active tab changes.
-              "snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full border border-transparent",
+              "relative overflow-hidden snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full border border-transparent",
               "transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
               isActive
@@ -113,7 +118,18 @@ function CategoryTabs({
                 : "text-[#475569] hover:text-[#1E3A5F] hover:bg-white/60 hover:border-[#E2E8F0]/60"
             )}
           >
-            {category.name}
+            {isActive && canShowProgress && (
+              <span
+                key={progressKey}
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 origin-left rounded-full bg-[#3B82F6]/[0.08] animate-[tabProgress_5s_linear_1_both]"
+                style={{
+                  animationPlayState: isAutoplayPaused ? "paused" : "running",
+                }}
+                onAnimationEnd={onProgressComplete}
+              />
+            )}
+            <span className="relative z-[1]">{category.name}</span>
           </button>
         );
       })}
@@ -151,7 +167,7 @@ function LogoTile({ logo }: { logo: Logo }) {
 
   if (isLink && logo.href) {
     return (
-      <Link href={logo.href} className={tileClassName} title={logo.title}>
+      <Link href={logo.href} className={tileClassName} title={logo.title} onClick={() => reachGoal(YM_GOALS.PARTNER_CLICK)}>
         {content}
       </Link>
     );
@@ -313,7 +329,7 @@ function TestimonialCard({
             </div>
           )}
 
-          <Button href={more.href} variant="ghost" size="sm">
+          <Button href={more.href} variant="ghost" size="sm" data-ym-goal="recommendations_click">
             Все рекомендации
             <ArrowRight size={16} className="ml-2" />
           </Button>
@@ -383,6 +399,7 @@ function AwardsStrip({ awards }: { awards: AwardItem[] }) {
 export function Partners({ awards, clientsCarousel, testimonials }: PartnersProps) {
   const [activeCategory, setActiveCategory] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [progressKey, setProgressKey] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [hasFocusWithin, setHasFocusWithin] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
@@ -405,10 +422,13 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
 
   const categories = clientsCarousel.categories ?? [];
   const isInteractionPaused = isHovered || hasFocusWithin;
-  const canAutoplayCategories =
+  const shouldRenderProgress =
+    categories.length > 1 && !prefersReducedMotion && isDocumentVisible;
+  const isProgressPaused = isInteractionPaused;
+  const canAutoplayWithInterval =
     categories.length > 1 &&
     !isInteractionPaused &&
-    !prefersReducedMotion &&
+    prefersReducedMotion &&
     isDocumentVisible;
   const safeActiveCategory = Math.min(activeCategory, Math.max(categories.length - 1, 0));
   const currentCategory = categories[safeActiveCategory];
@@ -453,10 +473,9 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
     };
   }, []);
 
+  // Reduced-motion fallback: auto-rotate via interval when animation is suppressed
   useEffect(() => {
-    if (!canAutoplayCategories) {
-      return;
-    }
+    if (!canAutoplayWithInterval) return;
 
     const intervalId = window.setInterval(() => {
       setActiveCategory((prev) => (prev + 1) % categories.length);
@@ -465,7 +484,12 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [canAutoplayCategories, categories.length]);
+  }, [canAutoplayWithInterval, categories.length]);
+
+  const handleProgressComplete = () => {
+    setActiveCategory((prev) => (prev + 1) % categories.length);
+    setProgressKey((k) => k + 1);
+  };
 
   const handleAutoplayBlur = (event: ReactFocusEvent<HTMLDivElement>) => {
     const nextFocused = event.relatedTarget;
@@ -511,9 +535,16 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                 <CategoryTabs
                   categories={categories}
                   activeIndex={safeActiveCategory}
-                  onChange={(nextIndex) => setActiveCategory(nextIndex)}
+                  onChange={(nextIndex) => {
+                    setActiveCategory(nextIndex);
+                    setProgressKey((k) => k + 1);
+                  }}
                   panelId={panelId}
                   tabsBaseId={tabsBaseId}
+                  canShowProgress={shouldRenderProgress}
+                  isAutoplayPaused={isProgressPaused}
+                  progressKey={progressKey}
+                  onProgressComplete={handleProgressComplete}
                 />
 
                 <div
@@ -530,17 +561,6 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                       ))}
                     </div>
                   </div>
-
-                  <div className="mt-6 flex items-center justify-end">
-                    <Button
-                      href={clientsCarousel.archiveCta.href}
-                      variant="ghost"
-                      size="sm"
-                    >
-                      Все клиенты
-                      <ArrowRight size={16} className="ml-2" />
-                    </Button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -553,15 +573,17 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
             items={testimonialItems}
             more={testimonials.more}
             activeIndex={safeActiveTestimonial}
-            onPrev={() =>
+            onPrev={() => {
               setActiveTestimonial(
                 (prev) => (prev - 1 + testimonialItems.length) % testimonialItems.length
-              )
-            }
-            onNext={() =>
-              setActiveTestimonial((prev) => (prev + 1) % testimonialItems.length)
-            }
-            onSelect={(nextIndex) => setActiveTestimonial(nextIndex)}
+              );
+              reachGoal(YM_GOALS.TESTIMONIAL_NAV);
+            }}
+            onNext={() => {
+              setActiveTestimonial((prev) => (prev + 1) % testimonialItems.length);
+              reachGoal(YM_GOALS.TESTIMONIAL_NAV);
+            }}
+            onSelect={(nextIndex) => { setActiveTestimonial(nextIndex); reachGoal(YM_GOALS.TESTIMONIAL_NAV); }}
           />
         </div>
 

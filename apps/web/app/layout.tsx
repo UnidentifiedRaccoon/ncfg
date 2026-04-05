@@ -4,8 +4,10 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { SITE_NAME, getMetadataBase } from "@/shared/lib/metadata";
 import { ScrollRevealObserver } from "@/shared/ui/ScrollRevealObserver";
-import { SmoothAnchor } from "@/shared/ui/SmoothAnchor";
 import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
+import { YandexMetrikaGoalTracker } from "@/shared/ui/YandexMetrikaGoalTracker";
+import { ScrollDepthTracker } from "@/shared/ui/ScrollDepthTracker";
+import { UtmCapture } from "@/shared/ui/UtmCapture";
 import "./globals.css";
 
 const inter = Inter({
@@ -54,7 +56,7 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         {isMetrikaEnabled ? (
           <>
-            <Script id="yandex-metrika" strategy="beforeInteractive">
+            <Script id="yandex-metrika" strategy="afterInteractive">
               {`
 (function(m,e,t,r,i,k,a){
   m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -79,9 +81,11 @@ ym(${ymCounterId}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"d
             <Suspense fallback={null}>
               <YandexMetrikaRouteTracker counterId={ymCounterId} />
             </Suspense>
+            <YandexMetrikaGoalTracker />
+            <ScrollDepthTracker />
+            <UtmCapture />
           </>
         ) : null}
-        <SmoothAnchor />
         <ScrollRevealObserver />
         {children}
       </body>

@@ -89,6 +89,7 @@ function ProductTileLink({
         className={className}
         target="_blank"
         rel="noopener noreferrer"
+        data-ym-goal="product_click"
       >
         {children}
       </a>
@@ -96,7 +97,7 @@ function ProductTileLink({
   }
 
   return (
-    <Link href={href} className={className}>
+    <Link href={href} className={className} data-ym-goal="product_click">
       {children}
     </Link>
   );

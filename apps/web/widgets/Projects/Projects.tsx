@@ -30,6 +30,7 @@ export function Projects() {
             href={project.href}
             target="_blank"
             rel="noopener noreferrer"
+            data-ym-goal="project_click"
             className={cn(
               "group relative isolate overflow-hidden rounded-2xl border border-[#E2E8F0]/80 bg-white p-6 shadow-sm",
               "transition-all duration-300 ease-out [will-change:transform]",

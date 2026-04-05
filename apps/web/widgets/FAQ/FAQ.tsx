@@ -40,7 +40,7 @@ function FAQAccordionItem({
         className="pointer-events-none absolute top-6 bottom-6 left-0 w-[2px] rounded-full bg-gradient-to-b from-[#58A8E0] via-[#3B82F6] to-transparent opacity-0 transition-opacity duration-200 group-open:opacity-100"
       />
 
-      <summary className="faq-summary flex cursor-pointer select-none items-start justify-between gap-4 px-5 py-5 text-left md:px-6">
+      <summary data-ym-goal="faq_open" className="faq-summary flex cursor-pointer select-none items-start justify-between gap-4 px-5 py-5 text-left md:px-6">
         <span className="text-[15px] font-semibold leading-snug text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6] md:text-lg">
           {item.question}
         </span>

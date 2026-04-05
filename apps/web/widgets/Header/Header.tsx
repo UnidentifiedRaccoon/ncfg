@@ -9,6 +9,7 @@ import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { Button } from "@/shared/ui/Button";
 import { Container } from "@/shared/ui/Container";
 import { cn } from "@/shared/lib/cn";
+import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 
 const NAV_ITEMS = [
   { label: "Частным лицам", href: "/individuals" },
@@ -185,7 +186,7 @@ export function Header() {
             <Link
               href="/"
               className="relative z-10 flex shrink-0 items-center gap-1 pl-3 pr-1"
-              aria-label="НЦФГ — на главную"
+              aria-label="НЦФГ"
             >
               <Image
                 src="/logo.svg"
@@ -214,6 +215,7 @@ export function Header() {
             <div className="relative z-10 ml-auto flex items-center gap-2">
               <Button
                 href={ctaHref}
+                onClick={() => reachGoal(YM_GOALS.CTA_CLICK)}
                 className={cn(
                   "hidden h-10 px-5 text-[15px] sm:inline-flex lg:h-11 lg:px-6 lg:text-base rounded-full",
                   isHeroTone
@@ -332,7 +334,7 @@ export function Header() {
                   href={ctaHref}
                   className="h-11 w-full rounded-full text-base"
                   tabIndex={mobileMenuOpen ? 0 : -1}
-                  onClick={closeMobileMenu}
+                  onClick={() => { closeMobileMenu(); reachGoal(YM_GOALS.CTA_CLICK); }}
                 >
                   Оставить заявку
                 </Button>

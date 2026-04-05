@@ -131,7 +131,7 @@ export function HeroCenteredSpotlight({
           )}
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Button href={primaryAction.href} size="lg">
+            <Button href={primaryAction.href} size="lg" data-ym-goal="cta_click">
               {primaryAction.label}
             </Button>
             {secondaryAction && (

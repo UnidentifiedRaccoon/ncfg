@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import {
   Hero,
   Products,
   Projects,
   Services,
-  Partners,
   News,
-  LeadForm,
   Footer,
 } from "@/widgets";
+
+const Partners = dynamic(() =>
+  import("@/widgets/Partners").then((m) => ({ default: m.Partners }))
+);
+const LeadForm = dynamic(() =>
+  import("@/widgets/LeadForm").then((m) => ({ default: m.LeadForm }))
+);
 import {
   fetchHomePageData,
   fetchLatestNewsArticles,
@@ -82,18 +88,11 @@ export default async function Home() {
             unit: category.moreUnit ?? "",
           },
         })),
-        archiveCta: clientsCarousel.archiveCta
-          ? {
-              label: clientsCarousel.archiveCta.label,
-              href: clientsCarousel.archiveCta.href,
-            }
-          : { label: "Все клиенты", href: "/companies" },
       }
     : {
-        title: "",
-        categories: [],
-        archiveCta: { label: "Все клиенты", href: "/companies" },
-      };
+      title: "",
+      categories: [],
+    };
 
   const mappedTestimonials = {
     title: "Рекомендации",

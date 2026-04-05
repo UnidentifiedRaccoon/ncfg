@@ -9,6 +9,8 @@ import type {
   DiagnosticSubmitResponse,
 } from "@/shared/api/types/diagnostic";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
+import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
+import { getUtmParams } from "@/shared/lib/utm";
 
 export interface RespondentFormData {
   fullName: string;
@@ -326,8 +328,10 @@ export function useDiagnosticSurvey({
       return;
     }
 
-    setCurrentStep((prev) => prev + 1);
+    const nextStep = currentStep + 1;
+    setCurrentStep(nextStep);
     clearError();
+    reachGoal(YM_GOALS.DIAGNOSTIC_STEP, { step: nextStep + 1, total: questions.length });
   };
 
   const goToPreviousStep = () => {
@@ -406,6 +410,7 @@ export function useDiagnosticSurvey({
       setEmailDeliveryStatus(payload.data.emailDeliveryStatus);
       setSubmissionDocumentId(payload.data.documentId ?? submissionDocumentId);
       setStatus("success");
+      reachGoal(YM_GOALS.DIAGNOSTIC_COMPLETE, getUtmParams());
     } catch (error) {
       setStatus("error");
       setErrorMessage(
