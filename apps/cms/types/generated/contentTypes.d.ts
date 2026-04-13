@@ -962,6 +962,10 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     cta: Schema.Attribute.Component<'shared.call-to-action', false>;
     examples: Schema.Attribute.Component<'service.service-example', true>;
+    examplesTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
     fullDescription: Schema.Attribute.RichText;
     fullDescriptionTitle: Schema.Attribute.String &
       Schema.Attribute.SetMinMaxLength<{

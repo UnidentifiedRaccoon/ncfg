@@ -72,6 +72,10 @@
     "htmlSectionAfter": {
       "type": "richtext"
     },
+    "examplesTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
     "examples": {
       "type": "component",
       "repeatable": true,

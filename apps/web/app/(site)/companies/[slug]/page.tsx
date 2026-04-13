@@ -202,7 +202,10 @@ export default async function ServicePage({ params }: PageProps) {
           id="html-section-after"
           html={service.htmlSectionAfter}
         />
-        <ServiceExamples examples={service.examples ?? []} />
+        <ServiceExamples
+          title={service.examplesTitle || "Примеры работ"}
+          examples={service.examples ?? []}
+        />
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />
       </main>

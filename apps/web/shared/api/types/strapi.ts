@@ -146,6 +146,7 @@ export interface StrapiService {
   howWeWork: StrapiTextItem[];
   webinarsTitle: string | null;
   webinars: StrapiServiceWebinar[];
+  examplesTitle: string | null;
   examples: StrapiServiceExample[];
   cta: StrapiCallToAction | null;
   category: StrapiServiceCategory | null;

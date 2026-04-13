@@ -422,6 +422,7 @@ async function main() {
           webinarsTitle: service.webinarsTitle ?? null,
           webinars: mapWebinars(service.webinars),
           htmlSectionAfter: service.htmlSectionAfter ?? null,
+          examplesTitle: service.examplesTitle ?? null,
           examples: mapExamples(service.examples),
           cta: mapCta(service.cta),
           category: categoryDocumentId ? { documentId: categoryDocumentId } : null,

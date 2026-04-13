@@ -122,6 +122,7 @@ function transformToLegacyService(service: StrapiService): Service {
     howWeWorkTitle: normalizeOptionalText(service.howWeWorkTitle),
     webinarsTitle: normalizeOptionalText(service.webinarsTitle),
     webinars: extractWebinars(service.webinars),
+    examplesTitle: normalizeOptionalText(service.examplesTitle),
     examples,
     howWeWork: extractTextItems(service.howWeWork),
     cta,

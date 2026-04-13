@@ -32,6 +32,7 @@ export interface Service {
   howWeWorkTitle?: string;
   webinarsTitle?: string;
   webinars?: ServiceWebinar[];
+  examplesTitle?: string;
   examples?: ServiceExample[];
   howWeWork?: string[];
   cta: ServiceCTA;
