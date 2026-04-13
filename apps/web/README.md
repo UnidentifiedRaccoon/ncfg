@@ -66,7 +66,7 @@ Required GitHub Actions secrets:
 - `YC_LOCKBOX_SECRET_ID` = Lockbox secret with runtime tokens and CMS credentials
 - `YC_LOCKBOX_VERSION_ID` = active Lockbox version used by build/deploy workflows
 - `STRAPI_URL` = `https://admin.ncfg.ru`
-- `REVALIDATE_TOKEN` = shared secret for Strapi webhook -> `POST /api/revalidate/strapi`
+- `REVALIDATE_TOKEN` = shared secret for Strapi webhooks -> `POST /api/revalidate/strapi`, `POST /api/revalidate/diagnostics`, `POST /api/revalidate/services`
 - `NEXT_PUBLIC_SITE_URL` = exact canonical public site URL `https://ncfg.ru` (used for metadata, mirror redirects, and health-checks)
 - `POSTBOX_API_KEY_ID` = Postbox API key ID
 - `POSTBOX_API_KEY_SECRET` = Postbox API key secret
@@ -126,6 +126,45 @@ curl -i -X POST "https://ncfg.ru/api/revalidate/strapi" \
   -H "content-type: application/json" \
   -H "x-revalidate-token: ${REVALIDATE_TOKEN}" \
   -d '{"event":"entry.publish","model":"api::news-article.news-article","entry":{"slug":"test-slug"}}'
+```
+
+Expected responses:
+- `200` + `{"ok":true,"revalidated":[...]}` -> cache invalidated.
+- `200` + `{"ok":true,"revalidated":[],"reason":"no-op: ..."}` -> event/model payload does not match filter.
+- `401` -> missing or invalid token; check `REVALIDATE_TOKEN` in webhook header and web runtime env.
+
+Propagation expectations:
+- With webhook: usually visible on next request shortly after `entry.create|update|delete|publish|unpublish`.
+- Without webhook fallback: updates appear within about `60` seconds due to ISR.
+
+### Services cache revalidation (Strapi webhook)
+
+Services routes use shared Strapi ISR data:
+- `/` -> services teaser block from `fetchServicesData()`
+- `/companies` -> service catalog
+- `/companies/[slug]` -> service detail pages
+- Strapi fetch default -> `DEFAULT_REVALIDATE = 60`
+
+To invalidate faster on service edits, use webhook-driven revalidation.
+
+Strapi setup:
+- `Settings -> Webhooks -> Create webhook`
+- URL: `https://ncfg.ru/api/revalidate/services`
+- Method: `POST`
+- Header: `x-revalidate-token: <REVALIDATE_TOKEN>`
+- Events (`Entry`): `create`, `update`, `delete`, `publish`, `unpublish`
+- Model: `Service` (`api::service.service`)
+
+Add a second webhook with the same URL/header/events for:
+- Model: `Service Category` (`api::service-category.service-category`)
+
+Smoke test with `curl`:
+
+```bash
+curl -i -X POST "https://ncfg.ru/api/revalidate/services" \
+  -H "content-type: application/json" \
+  -H "x-revalidate-token: ${REVALIDATE_TOKEN}" \
+  -d '{"event":"entry.publish","model":"api::service.service","entry":{"slug":"tsikl-vebinarov-i-treningov"}}'
 ```
 
 Expected responses:
