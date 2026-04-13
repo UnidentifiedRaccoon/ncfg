@@ -14,6 +14,8 @@ export function ServiceDescription({
   benefitsTitle,
   benefits,
 }: ServiceDescriptionProps) {
+  const subsectionTitleClassName =
+    "mb-6 text-[28px] font-bold text-[#1E3A5F] md:text-4xl";
   const normalizedDescriptionMarkdown = descriptionMarkdown?.trim();
   const descriptionContent = normalizedDescriptionMarkdown ?? "";
   const normalizedBenefits = (benefits ?? [])
@@ -35,7 +37,7 @@ export function ServiceDescription({
       >
         {hasDescription && (
           <div className="max-w-3xl">
-            <h2 className="mb-6 text-[28px] font-bold text-[#1E3A5F] md:text-4xl">
+            <h2 className={subsectionTitleClassName}>
               {descriptionTitle?.trim() || "Описание услуги"}
             </h2>
             <MarkdownContent content={descriptionContent} className="post-content" />
@@ -44,7 +46,7 @@ export function ServiceDescription({
 
         {hasBenefits && (
           <div id="benefits" className="max-w-3xl">
-            <h2 className="mb-6 text-xl font-bold text-[#1E3A5F] md:text-2xl">
+            <h2 className={subsectionTitleClassName}>
               {benefitsTitle?.trim() || "Преимущества"}
             </h2>
             <ul className="space-y-4">
