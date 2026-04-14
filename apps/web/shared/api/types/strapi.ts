@@ -8,19 +8,30 @@
 // Generic Types
 // ==================
 
-export interface StrapiImage {
+export interface StrapiMediaFormat {
+  name: string;
+  hash: string;
+  ext: string;
+  mime: string;
+  width: number | null;
+  height: number | null;
+  size: number;
+  url: string;
+}
+
+export interface StrapiMedia {
   id: number;
   documentId: string;
   name: string;
   alternativeText: string | null;
   caption: string | null;
-  width: number;
-  height: number;
+  width: number | null;
+  height: number | null;
   formats: {
-    thumbnail?: StrapiImageFormat;
-    small?: StrapiImageFormat;
-    medium?: StrapiImageFormat;
-    large?: StrapiImageFormat;
+    thumbnail?: StrapiMediaFormat;
+    small?: StrapiMediaFormat;
+    medium?: StrapiMediaFormat;
+    large?: StrapiMediaFormat;
   } | null;
   hash: string;
   ext: string;
@@ -31,16 +42,7 @@ export interface StrapiImage {
   provider: string;
 }
 
-interface StrapiImageFormat {
-  name: string;
-  hash: string;
-  ext: string;
-  mime: string;
-  width: number;
-  height: number;
-  size: number;
-  url: string;
-}
+export type StrapiImage = StrapiMedia;
 
 // ==================
 // Blog Category (Rubric)
@@ -189,6 +191,22 @@ export interface StrapiRecommendation {
   logoImg: string | null;
   sourceLink: string | null;
   order: number;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+}
+
+export interface StrapiCertificate {
+  id: number;
+  documentId: string;
+  title: string;
+  slug: string;
+  company: string;
+  year: number | null;
+  fileType: string;
+  file: StrapiMedia | null;
+  order: number;
+  sourceFileId: string | null;
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;

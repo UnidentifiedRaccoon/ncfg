@@ -88,6 +88,7 @@ bash scripts/sync-prod-to-local.sh --help
 - **Service** - услуги
 - **Person** - команда и эксперты
 - **Recommendation** - рекомендации партнеров и клиентов
+- **Certificate** - благодарственные письма, дипломы и сертификаты
 
 ### Single Types
 
@@ -118,6 +119,7 @@ GET /api/service-categories?populate=services
 GET /api/services
 GET /api/people
 GET /api/recommendations
+GET /api/certificates
 GET /api/team-config
 GET /api/expert-config
 ```
