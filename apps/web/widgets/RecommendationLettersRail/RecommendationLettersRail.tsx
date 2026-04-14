@@ -400,7 +400,7 @@ export function RecommendationLettersRail({
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-center gap-2 md:mt-4">
+          <div className="flex items-center justify-center gap-2">
             <RailControlButton
               direction="prev"
               disabled={!canScrollPrev}
