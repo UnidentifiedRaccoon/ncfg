@@ -6,21 +6,28 @@ import {
 } from '../lib/strapi';
 import type { StrapiCertificate, StrapiMedia } from './types/strapi';
 
+export type CertificatePreviewKind = 'image' | 'pdf' | 'fallback';
+
 export interface CertificateData {
   id: string;
   title: string;
   company: string;
   year: string | null;
   fileType: string;
+  fileMime: string;
   fileUrl: string;
   previewImageUrl: string | null;
+  previewKind: CertificatePreviewKind;
   order: number;
 }
 
 function resolvePreviewImageUrl(file: StrapiMedia): string | null {
-  if (!file.mime.startsWith('image/')) {
-    return null;
+  const previewUrl = getStrapiMediaUrl(file.previewUrl);
+  if (previewUrl) {
+    return previewUrl;
   }
+
+  if (!file.mime.startsWith('image/')) return null;
 
   const candidates = [
     file.formats?.medium?.url,
@@ -37,6 +44,21 @@ function resolvePreviewImageUrl(file: StrapiMedia): string | null {
   }
 
   return null;
+}
+
+function resolvePreviewKind(
+  file: StrapiMedia,
+  previewImageUrl: string | null
+): CertificatePreviewKind {
+  if (previewImageUrl) {
+    return 'image';
+  }
+
+  if (file.mime === 'application/pdf') {
+    return 'pdf';
+  }
+
+  return 'fallback';
 }
 
 function normalizeFileType(fileType: string | null | undefined, file: StrapiMedia): string {
@@ -82,20 +104,25 @@ export function transformToCertificateData(certificate: StrapiCertificate): Cert
     throw new Error(`Certificate "${certificate.slug}" is missing file relation.`);
   }
 
-  const fileUrl = getStrapiMediaUrl(certificate.file.url);
+  const file = certificate.file;
+  const fileUrl = getStrapiMediaUrl(file.url);
 
   if (!fileUrl) {
     throw new Error(`Certificate "${certificate.slug}" is missing file.url.`);
   }
+
+  const previewImageUrl = resolvePreviewImageUrl(file);
 
   return {
     id: certificate.documentId,
     title: certificate.title,
     company: certificate.company,
     year: certificate.year ? String(certificate.year) : null,
-    fileType: normalizeFileType(certificate.fileType, certificate.file),
+    fileType: normalizeFileType(certificate.fileType, file),
+    fileMime: file.mime,
     fileUrl,
-    previewImageUrl: resolvePreviewImageUrl(certificate.file),
+    previewImageUrl,
+    previewKind: resolvePreviewKind(file, previewImageUrl),
     order: certificate.order,
   };
 }
