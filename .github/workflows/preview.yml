@@ -118,8 +118,8 @@ jobs:
             NEXT_PUBLIC_SITE_URL=${{ steps.preview.outputs.url }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
             DEPLOY_ENV=${{ env.PREVIEW_DEPLOY_ENV }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=web-preview
+          cache-to: type=gha,mode=max,scope=web-preview
 
       - name: Deploy to Yandex Serverless Container (scale-to-zero)
         uses: yc-actions/yc-sls-container-deploy@v2

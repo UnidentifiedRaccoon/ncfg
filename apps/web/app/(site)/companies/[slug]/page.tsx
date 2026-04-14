@@ -12,7 +12,11 @@ import {
 import { ServiceHero } from "@/widgets/ServiceHero";
 import { ServiceDescription } from "@/widgets/ServiceDescription";
 import { ServiceExamples } from "@/widgets/ServiceExamples";
-import { fetchServicesData, fetchSiteSettings } from "@/shared/api/data-provider";
+import {
+  fetchServiceById,
+  fetchServiceIds,
+  fetchSiteSettings,
+} from "@/shared/api/data-provider";
 import {
   buildPageMetadata,
   buildServiceDescription,
@@ -22,7 +26,7 @@ import {
   buildFAQPageStructuredData,
 } from "@/shared/lib/structured-data";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
-import type { Service, ServicesData } from "@/shared/api/types/service";
+import type { Service } from "@/shared/api/types/service";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -30,64 +34,34 @@ interface PageProps {
 
 const SERVICE_NOT_FOUND_DESCRIPTION = "Услуга не найдена или недоступна.";
 
-// Find service by ID across all categories
-function findServiceById(data: ServicesData, id: string): Service | null {
-  for (const category of data.serviceCategories) {
-    const service = category.services.find((s) => s.id === id);
-    if (service) {
-      return service;
-    }
-  }
-  return null;
-}
-
-// Get all published service IDs
-function getAllServiceIds(data: ServicesData): string[] {
-  const ids: string[] = [];
-  for (const category of data.serviceCategories) {
-    for (const service of category.services) {
-      ids.push(service.id);
-    }
-  }
-  return ids;
-}
-
-async function safeFetchServicesData(context: string): Promise<ServicesData | null> {
+async function safeFetchServiceIds(): Promise<string[]> {
   try {
-    return await fetchServicesData();
+    return await fetchServiceIds();
   } catch (error) {
     const details = error instanceof Error ? error.message : String(error);
-    console.error(`[companies/[slug]] Failed to fetch services data in ${context}: ${details}`);
+    console.error(`[companies/[slug]] Failed to fetch service ids: ${details}`);
+    return [];
+  }
+}
+
+async function safeFetchService(slug: string, context: string): Promise<Service | null> {
+  try {
+    return await fetchServiceById(slug);
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+    console.error(`[companies/[slug]] Failed to fetch service in ${context}: ${details}`);
     return null;
   }
 }
 
 export async function generateStaticParams() {
-  const servicesData = await safeFetchServicesData("generateStaticParams");
-  if (!servicesData) {
-    return [];
-  }
-
-  const ids = getAllServiceIds(servicesData);
+  const ids = await safeFetchServiceIds();
   return ids.map((id) => ({ slug: id }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const servicesData = await safeFetchServicesData("generateMetadata");
-  if (!servicesData) {
-    return buildPageMetadata({
-      path: `/companies/${slug}`,
-      title: "Услуга не найдена",
-      description: SERVICE_NOT_FOUND_DESCRIPTION,
-      robots: {
-        index: false,
-        follow: false,
-      },
-    });
-  }
-
-  const service = findServiceById(servicesData, slug);
+  const service = await safeFetchService(slug, "generateMetadata");
 
   if (!service) {
     return buildPageMetadata({
@@ -134,15 +108,10 @@ const faqItems = [
 export default async function ServicePage({ params }: PageProps) {
   const { slug } = await params;
 
-  const [servicesData, siteSetting] = await Promise.all([
-    safeFetchServicesData("ServicePage"),
+  const [service, siteSetting] = await Promise.all([
+    safeFetchService(slug, "ServicePage"),
     fetchSiteSettings(),
   ]);
-  if (!servicesData) {
-    notFound();
-  }
-
-  const service = findServiceById(servicesData, slug);
 
   if (!service) {
     notFound();
