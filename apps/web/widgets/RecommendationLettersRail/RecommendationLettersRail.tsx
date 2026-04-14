@@ -387,7 +387,7 @@ export function RecommendationLettersRail({
               id={railId}
               ref={trackRef}
               className={cn(
-                "flex gap-4 overflow-x-auto px-1 pt-2 pb-5 scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-5",
+                "flex gap-4 overflow-x-auto px-1 pt-2 pb-3 scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-5",
                 style.trackInset
               )}
             >
@@ -400,7 +400,7 @@ export function RecommendationLettersRail({
             </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-2 md:mt-6">
+          <div className="mt-3 flex items-center justify-center gap-2 md:mt-4">
             <RailControlButton
               direction="prev"
               disabled={!canScrollPrev}
