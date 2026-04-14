@@ -33,7 +33,7 @@ const GLASS_LEDGER_STYLE: RailVariantStyle = {
     "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/85 text-[#153153] shadow-[0_8px_24px_rgba(15,23,42,0.10)] backdrop-blur transition-colors duration-200 hover:border-[#93C5FD] hover:text-[#2563EB]",
   controlDisabled:
     "border-white/60 bg-white/70 text-[#9CB0C6] hover:border-white/60 hover:text-[#9CB0C6]",
-  trackInset: "px-0",
+  trackInset: "",
   itemWidth: "basis-[86%] sm:basis-[350px] lg:basis-[372px]",
   card:
     "border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(239,246,255,0.88))] shadow-[0_22px_60px_rgba(15,23,42,0.10)] hover:-translate-y-1.5 hover:shadow-[0_28px_72px_rgba(59,130,246,0.16)]",
@@ -51,6 +51,13 @@ const GLASS_LEDGER_STYLE: RailVariantStyle = {
   title:
     "text-[23px] leading-[1.16] tracking-tight text-[#153153] md:text-[25px]",
 };
+
+const PDF_PREVIEW_HASH = "#page=1&view=FitH&toolbar=0&navpanes=0&scrollbar=0";
+
+function buildPdfPreviewUrl(fileUrl: string): string {
+  const [baseUrl] = fileUrl.split("#", 1);
+  return `${baseUrl}${PDF_PREVIEW_HASH}`;
+}
 
 function RailControlButton({
   direction,
@@ -85,6 +92,36 @@ function RailControlButton({
   );
 }
 
+function DocumentPreviewFallback({
+  letter,
+  className,
+}: {
+  letter: CertificateData;
+  className?: string;
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center",
+        className
+      )}
+    >
+      <div className="rounded-full border border-white/80 bg-white/75 p-4 text-[#1E3A5F] shadow-[0_16px_40px_rgba(30,58,95,0.10)] backdrop-blur-sm">
+        <FileText className="h-10 w-10" aria-hidden="true" />
+      </div>
+      <div className="space-y-1">
+        <p className="text-[26px] font-semibold tracking-[0.08em] text-[#153153]">
+          {letter.fileType}
+        </p>
+        <p className="text-sm text-[#59708A]">
+          Открыть оригинал документа
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function LetterPreview({
   letter,
   style,
@@ -92,7 +129,57 @@ function LetterPreview({
   letter: CertificateData;
   style: RailVariantStyle;
 }) {
-  const hasImagePreview = Boolean(letter.previewImageUrl);
+  const pdfPreviewRef = useRef<HTMLDivElement | null>(null);
+  const [shouldRenderPdfPreview, setShouldRenderPdfPreview] = useState(
+    letter.previewKind !== "pdf"
+  );
+
+  useEffect(() => {
+    if (letter.previewKind !== "pdf" || shouldRenderPdfPreview) {
+      return;
+    }
+
+    const previewNode = pdfPreviewRef.current;
+
+    if (!previewNode) {
+      return;
+    }
+
+    if (typeof IntersectionObserver === "undefined") {
+      const frameId = window.requestAnimationFrame(() => {
+        setShouldRenderPdfPreview(true);
+      });
+
+      return () => {
+        window.cancelAnimationFrame(frameId);
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+
+        if (!entry?.isIntersecting) {
+          return;
+        }
+
+        setShouldRenderPdfPreview(true);
+        observer.disconnect();
+      },
+      { rootMargin: "240px 0px" }
+    );
+
+    observer.observe(previewNode);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [letter.previewKind, shouldRenderPdfPreview]);
+
+  const showImagePreview =
+    letter.previewKind === "image" && Boolean(letter.previewImageUrl);
+  const showPdfPreview = letter.previewKind === "pdf";
+  const showFallback = !showImagePreview && !showPdfPreview;
 
   return (
     <div className={style.previewShell}>
@@ -103,7 +190,7 @@ function LetterPreview({
           style.previewSurface
         )}
       >
-        {hasImagePreview ? (
+        {showImagePreview ? (
           <Image
             src={letter.previewImageUrl ?? letter.fileUrl}
             alt=""
@@ -111,21 +198,42 @@ function LetterPreview({
             sizes="(max-width: 640px) 88vw, (max-width: 1024px) 380px, 420px"
             className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.02]"
           />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
-            <div className="rounded-full border border-white/80 bg-white/75 p-4 text-[#1E3A5F] shadow-[0_16px_40px_rgba(30,58,95,0.10)] backdrop-blur-sm">
-              <FileText className="h-10 w-10" aria-hidden="true" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-[26px] font-semibold tracking-[0.08em] text-[#153153]">
-                {letter.fileType}
-              </p>
-              <p className="text-sm text-[#59708A]">
-                Открыть оригинал документа
-              </p>
-            </div>
+        ) : null}
+
+        {showPdfPreview ? (
+          <div
+            ref={pdfPreviewRef}
+            className="absolute inset-0 overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.03))]"
+          >
+            {shouldRenderPdfPreview ? (
+              <object
+                data={buildPdfPreviewUrl(letter.fileUrl)}
+                type="application/pdf"
+                aria-hidden="true"
+                tabIndex={-1}
+                className="pointer-events-none h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.01]"
+              >
+                <DocumentPreviewFallback
+                  letter={letter}
+                  className="bg-white/15"
+                />
+              </object>
+            ) : (
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.70),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.16),rgba(255,255,255,0)_58%,rgba(21,49,83,0.10))]"
+              />
+            )}
           </div>
-        )}
+        ) : null}
+
+        {showFallback ? (
+          <DocumentPreviewFallback
+            letter={letter}
+            className="absolute inset-0"
+          />
+        ) : null}
+
         <div aria-hidden="true" className={cn("absolute inset-0", style.previewMask)} />
 
         <div className="absolute inset-x-0 top-0 flex items-center justify-start p-3">
@@ -195,7 +303,7 @@ function RecommendationLetterCard({
   return (
     <article
       className={cn(
-        "snap-start shrink-0",
+        "snap-start shrink-0 py-2",
         style.itemWidth
       )}
     >
@@ -285,23 +393,12 @@ export function RecommendationLettersRail({
     <div className={cn("relative", className)}>
       <div className={cn("relative", style.shell)}>
         <div className="relative z-10">
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1D4ED8]">
-                Подборка документов
-              </div>
-              <p className="mt-1 text-sm text-[#59708A]">
-                {items.length} документов в архиве
-              </p>
-            </div>
-          </div>
-
-          <div className="relative">
+          <div className="relative -mx-1 -my-8 px-1 py-8">
             <div
               id={railId}
               ref={trackRef}
               className={cn(
-                "flex gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-5",
+                "flex gap-4 overflow-x-auto px-1 pt-3 pb-7 scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-5",
                 style.trackInset
               )}
             >
