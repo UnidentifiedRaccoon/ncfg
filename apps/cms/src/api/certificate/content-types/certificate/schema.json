@@ -1,0 +1,79 @@
+{
+  "kind": "collectionType",
+  "collectionName": "certificates",
+  "info": {
+    "singularName": "certificate",
+    "pluralName": "certificates",
+    "displayName": "Certificate",
+    "description": "Certificates, diplomas, and thank-you letters"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "config": {
+    "metadatas": {
+      "file": {
+        "edit": {
+          "description": "Загрузите оригинал документа. Для изображений сайт покажет превью самого файла."
+        },
+        "list": {}
+      },
+      "fileType": {
+        "edit": {
+          "description": "Нормализованный тип для бейджа на сайте, например PDF, JPG или PNG."
+        },
+        "list": {}
+      },
+      "year": {
+        "edit": {
+          "description": "Год выдачи документа, если он известен."
+        },
+        "list": {}
+      }
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "company": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "year": {
+      "type": "integer"
+    },
+    "fileType": {
+      "type": "string",
+      "required": true,
+      "maxLength": 32
+    },
+    "file": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    },
+    "sourceFileId": {
+      "type": "string",
+      "maxLength": 255,
+      "unique": true
+    }
+  }
+}
