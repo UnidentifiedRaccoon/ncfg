@@ -19,6 +19,11 @@ import {
   transformToLegacyRecommendation,
   type LegacyRecommendation,
 } from './recommendations';
+import {
+  getCertificates,
+  transformToCertificateData,
+  type CertificateData,
+} from './certificates';
 import { pickLatestDate } from '@/shared/lib/date-values';
 import { getServicesDataLegacy } from './services';
 import type {
@@ -221,6 +226,17 @@ export type RecommendationData = LegacyRecommendation;
 export async function fetchRecommendations(limit?: number): Promise<RecommendationData[]> {
   const recommendations = await getRecommendations(limit);
   return recommendations.map(transformToLegacyRecommendation);
+}
+
+// ==================
+// Certificates
+// ==================
+
+export type CertificatesData = CertificateData;
+
+export async function fetchCertificates(limit?: number): Promise<CertificatesData[]> {
+  const certificates = await getCertificates(limit);
+  return certificates.map(transformToCertificateData);
 }
 
 // ==================
