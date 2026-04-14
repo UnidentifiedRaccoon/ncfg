@@ -5,7 +5,7 @@ import {
   fetchNewsArticles,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
-import { isBlogRubricSlug } from "@/shared/lib/blog-rubrics";
+import { isBlogRubricSlug, type BlogRubricSlug } from "@/shared/lib/blog-rubrics";
 import { buildPageMetadata } from "@/shared/lib/metadata";
 import { buildBreadcrumbList } from "@/shared/lib/structured-data";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
@@ -25,6 +25,16 @@ interface PageProps {
   searchParams?: SearchParams | Promise<SearchParams>;
 }
 
+async function safeFetchNewsArticles(category?: BlogRubricSlug) {
+  try {
+    return await fetchNewsArticles({ category });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[blog] failed to fetch article list: ${message}`);
+    return [];
+  }
+}
+
 export default async function BlogPage({ searchParams }: PageProps) {
   const sp = await Promise.resolve(searchParams ?? {});
   const rawCategory = sp.category;
@@ -36,7 +46,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
     fetchSiteSettings(),
     // Blog meta is optional during Strapi setup; avoid failing the whole build on 404.
     fetchBlogPageData().catch(() => null),
-    fetchNewsArticles({ category: selectedCategory }),
+    safeFetchNewsArticles(selectedCategory),
   ]);
   const breadcrumbStructuredData = buildBreadcrumbList([
     { name: "Главная", path: "/" },
