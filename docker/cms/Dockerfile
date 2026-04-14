@@ -82,10 +82,9 @@ RUN apk add --no-cache libpq
 RUN addgroup --system --gid 1001 strapi && \
     adduser --system --uid 1001 strapi
 
-# Copy built application without duplicating admin assets under ./dist/build and ./build
-COPY --from=builder --chown=strapi:strapi /app/dist/config ./dist/config
-COPY --from=builder --chown=strapi:strapi /app/dist/src ./dist/src
-# Strapi serves the admin panel from the project root build directory in production.
+# Copy the full dist tree so production still has dist/build for the admin SPA.
+COPY --from=builder --chown=strapi:strapi /app/dist ./dist
+# Keep the root build directory too; some Strapi paths still resolve admin assets here.
 COPY --from=builder --chown=strapi:strapi /app/dist/build ./build
 COPY --from=prod-deps --chown=strapi:strapi /app/node_modules ./node_modules
 COPY --from=builder --chown=strapi:strapi /app/package.json ./

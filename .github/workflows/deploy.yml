@@ -609,3 +609,28 @@ jobs:
           done
           echo "CMS health check failed after retries"
           exit 1
+
+      - name: Check CMS admin UI
+        if: needs.deploy-cms.result == 'success'
+        run: |
+          admin_url="${{ secrets.STRAPI_URL }}/admin"
+
+          for i in $(seq 1 10); do
+            body_file="$(mktemp)"
+            status_code="$(curl -sS -L --max-time 30 -o "$body_file" -w "%{http_code}" "$admin_url" || echo "000")"
+
+            if [ "$status_code" = "200" ] && grep -q "<title>Strapi Admin</title>" "$body_file"; then
+              echo "CMS admin UI check passed"
+              rm -f "$body_file"
+              exit 0
+            fi
+
+            snippet="$(tr '\n' ' ' < "$body_file" | head -c 160)"
+            echo "CMS admin UI check attempt $i/10 failed with status: $status_code"
+            echo "Response snippet: $snippet"
+            rm -f "$body_file"
+            sleep 8
+          done
+
+          echo "CMS admin UI check failed after retries"
+          exit 1
