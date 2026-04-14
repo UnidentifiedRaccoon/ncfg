@@ -1,9 +1,10 @@
 /**
  * Services API Functions
- * 
+ *
  * Fetch functions for services and service categories from Strapi CMS.
  */
 
+import { cache } from 'react';
 import { fetchAPI, buildQueryString, StrapiResponse } from '../lib/strapi';
 import type {
   StrapiService,
@@ -141,9 +142,9 @@ function transformToLegacyCategory(category: StrapiServiceCategory): ServiceCate
   };
 }
 
-export async function getServicesDataLegacy(): Promise<ServicesData> {
+export const getServicesDataLegacy = cache(async (): Promise<ServicesData> => {
   const categories = await getServiceCategories();
-  
+
   return {
     meta: {
       contentType: 'services-catalog',
@@ -154,4 +155,4 @@ export async function getServicesDataLegacy(): Promise<ServicesData> {
     },
     serviceCategories: categories.map(transformToLegacyCategory),
   };
-}
+});

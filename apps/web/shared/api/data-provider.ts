@@ -6,6 +6,7 @@
  * - Static page content from local JSON files (no Strapi requests).
  */
 
+import { cache } from 'react';
 import {
   getLatestNews,
   getNews,
@@ -30,7 +31,7 @@ import type {
   StrapiPortfolioPage,
   StrapiSiteSetting,
 } from './types/strapi';
-import type { ServicesData } from './types/service';
+import type { Service, ServicesData } from './types/service';
 
 function stripEllipsis(text: string): string {
   return text.replace(/\.{2,}$/, '');
@@ -194,22 +195,49 @@ interface FallbackPortfolioJson {
 
 export type NewsArticleData = LegacyNewsArticle;
 
+const getCachedNewsArticles = cache(
+  async (category?: string): Promise<NewsArticleData[]> => {
+    const { articles } = await getNews({ pageSize: 100, category });
+    return articles.map(transformToLegacyNews);
+  }
+);
+
+const getCachedNewsArticle = cache(
+  async (slug: string): Promise<NewsArticleData | null> => {
+    const article = await getNewsArticle(slug);
+    return article ? transformToLegacyNews(article) : null;
+  }
+);
+
+const getCachedLatestNewsArticles = cache(
+  async (limit: number, category?: string): Promise<NewsArticleData[]> => {
+    const articles = await getLatestNews(limit, category ? { category } : {});
+    return articles.map(transformToLegacyNews);
+  }
+);
+
+const getCachedNewsArticleSlugs = cache(async (): Promise<string[]> => {
+  const posts = await getCachedNewsArticles();
+  return posts.map((post) => post.slug);
+});
+
 export async function fetchNewsArticles(options: { category?: string } = {}): Promise<NewsArticleData[]> {
-  const { articles } = await getNews({ pageSize: 100, category: options.category });
-  return articles.map(transformToLegacyNews);
+  return getCachedNewsArticles(options.category);
 }
 
 export async function fetchNewsArticle(slug: string): Promise<NewsArticleData | null> {
-  const article = await getNewsArticle(slug);
-  return article ? transformToLegacyNews(article) : null;
+  return getCachedNewsArticle(slug);
+}
+
+export async function fetchNewsArticleSlugs(): Promise<string[]> {
+  return getCachedNewsArticleSlugs();
 }
 
 export async function fetchLatestNewsArticles(
   limit: number = 5,
   options: { category?: string } = {}
 ): Promise<NewsArticleData[]> {
-  const articles = await getLatestNews(limit, options);
-  return articles.map(transformToLegacyNews);
+  return getCachedLatestNewsArticles(limit, options.category);
 }
 
 // ==================
@@ -227,8 +255,41 @@ export async function fetchRecommendations(limit?: number): Promise<Recommendati
 // Services
 // ==================
 
+interface ServicesLookup {
+  serviceById: Map<string, Service>;
+  serviceIds: string[];
+  servicesData: ServicesData;
+}
+
+const getCachedServicesLookup = cache(async (): Promise<ServicesLookup> => {
+  const servicesData = await getServicesDataLegacy();
+  const serviceById = new Map<string, Service>();
+  const serviceIds: string[] = [];
+
+  for (const category of servicesData.serviceCategories) {
+    for (const service of category.services) {
+      serviceById.set(service.id, service);
+      serviceIds.push(service.id);
+    }
+  }
+
+  return {
+    serviceById,
+    serviceIds,
+    servicesData,
+  };
+});
+
 export async function fetchServicesData(): Promise<ServicesData> {
-  return await getServicesDataLegacy();
+  return (await getCachedServicesLookup()).servicesData;
+}
+
+export async function fetchServiceIds(): Promise<string[]> {
+  return (await getCachedServicesLookup()).serviceIds;
+}
+
+export async function fetchServiceById(id: string): Promise<Service | null> {
+  return (await getCachedServicesLookup()).serviceById.get(id) ?? null;
 }
 
 // ==================

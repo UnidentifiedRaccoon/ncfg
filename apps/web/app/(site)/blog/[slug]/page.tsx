@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Post, Footer } from "@/widgets";
 import {
   fetchNewsArticle,
+  fetchNewsArticleSlugs,
   fetchNewsArticles,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
@@ -25,8 +26,8 @@ const BLOG_POST_NOT_FOUND_DESCRIPTION = "Материал блога не най
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export async function generateStaticParams() {
-  const posts = await fetchNewsArticles();
-  return posts.map((post) => ({ slug: post.slug }));
+  const slugs = await fetchNewsArticleSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 async function safeFetchNewsArticle(slug: string) {
@@ -69,11 +70,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const [siteSetting, allPosts] = await Promise.all([
+  const [siteSetting, allPosts, post] = await Promise.all([
     fetchSiteSettings(),
     fetchNewsArticles(),
+    safeFetchNewsArticle(slug),
   ]);
-  const post = await safeFetchNewsArticle(slug);
 
   if (!post) {
     notFound();
