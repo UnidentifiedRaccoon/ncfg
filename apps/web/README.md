@@ -71,7 +71,7 @@ Required GitHub Actions secrets:
 - `POSTBOX_API_KEY_ID` = Postbox API key ID
 - `POSTBOX_API_KEY_SECRET` = Postbox API key secret
 - `POSTBOX_FROM_EMAIL` = verified sender email (recommended: `no-reply@ncfg.ru`)
-- `LEADS_RECIPIENT_EMAILS` = `aedengina@ncfg.ru,yura.posledov@yandex.ru`
+- `LEADS_RECIPIENT_EMAILS` = `aedengina@ncfg.ru,yura.posledov@yandex.ru,Zvs@ncfg.ru`
 
 Required Lockbox keys:
 - `STRAPI_API_TOKEN` = read-only token for web -> Strapi content fetches
@@ -186,9 +186,10 @@ Propagation expectations:
 4. Deploy `main` and submit:
    - one `lead` form (`/api/lead`)
    - one `question` form (`/api/question`)
-5. Confirm both emails are delivered to:
+5. Confirm emails are delivered to:
    - `aedengina@ncfg.ru`
    - `yura.posledov@yandex.ru`
+   - `Zvs@ncfg.ru`
 
 For task-oriented intake in GetCourse (`/pl/tasks/resp`), configure at least:
 - `GETCOURSE_DEAL_FIELD_MESSAGE`

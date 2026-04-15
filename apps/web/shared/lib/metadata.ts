@@ -28,6 +28,15 @@ interface BlogPostDescriptionInput {
   category?: { title?: string | null } | null;
 }
 
+interface VacancyDescriptionInput {
+  title: string;
+  lead?: string | null;
+  department?: { title?: string | null } | null;
+  location?: string | null;
+  employmentTypeLabel?: string | null;
+  workFormatLabel?: string | null;
+}
+
 interface ServiceDescriptionInput {
   title: string;
   shortDescription?: string | null;
@@ -88,6 +97,29 @@ export function buildBlogPostDescription(post: BlogPostDescriptionInput): string
 
   const categoryFragment = categoryTitle ? ` в рубрике «${categoryTitle}»` : "";
   return `Материал НЦФГ «${title}»${categoryFragment} с практическими выводами и рекомендациями.`;
+}
+
+export function buildVacancyPageDescription(vacancy: VacancyDescriptionInput): string {
+  const lead = normalizeInlineText(vacancy.lead);
+  if (lead) {
+    return lead;
+  }
+
+  const title = normalizeInlineText(vacancy.title);
+  if (!title) {
+    return 'Открытая вакансия НЦФГ.';
+  }
+
+  const fragments = [
+    normalizeInlineText(vacancy.department?.title),
+    normalizeInlineText(vacancy.employmentTypeLabel),
+    normalizeInlineText(vacancy.workFormatLabel),
+    normalizeInlineText(vacancy.location),
+  ].filter((item) => item.length > 0);
+
+  return fragments.length > 0
+    ? `Вакансия НЦФГ «${title}»: ${fragments.join(', ')}.`
+    : `Вакансия НЦФГ «${title}».`;
 }
 
 export function buildServiceDescription(service: ServiceDescriptionInput): string {

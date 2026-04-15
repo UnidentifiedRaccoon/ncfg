@@ -50,6 +50,7 @@ const navigation = [
   { label: "Диагностика", href: "/diagnostika/financial-wellbeing" },
   { label: "Портфолио", href: "/portfolio" },
   { label: "О центре", href: "/about" },
+  { label: "Карьера", href: "/career" },
   { label: "История", href: "/history" },
   { label: "Блог", href: "/blog" },
   { label: "Рекомендации", href: "/rekomendacii" },

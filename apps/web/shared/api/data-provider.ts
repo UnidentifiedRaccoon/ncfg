@@ -14,6 +14,13 @@ import {
   transformToLegacyNews,
   type LegacyNewsArticle,
 } from './news';
+import {
+  getLatestVacancies,
+  getVacancies,
+  getVacancy,
+  getVacancySlugs,
+  transformToVacancyData,
+} from './vacancies';
 import { getPeople, transformToLegacyPerson, type LegacyPerson } from './people';
 import {
   getRecommendations,
@@ -38,6 +45,7 @@ import type {
   StrapiSiteSetting,
 } from './types/strapi';
 import type { Service, ServicesData } from './types/service';
+import type { CareerPageData, VacancyData } from './types/vacancy';
 
 function stripEllipsis(text: string): string {
   return text.replace(/\.{2,}$/, '');
@@ -179,6 +187,16 @@ interface FallbackBlogJson {
   meta?: { updatedAt?: string; title?: string; lead?: string };
 }
 
+interface FallbackCareerJson {
+  meta?: {
+    updatedAt?: string;
+    title?: string;
+    lead?: string;
+    emptyTitle?: string;
+    emptyDescription?: string;
+  };
+}
+
 interface FallbackPortfolioJson {
   meta?: { updatedAt?: string };
   title?: string;
@@ -244,6 +262,43 @@ export async function fetchLatestNewsArticles(
   options: { category?: string } = {}
 ): Promise<NewsArticleData[]> {
   return getCachedLatestNewsArticles(limit, options.category);
+}
+
+// ==================
+// Vacancies
+// ==================
+
+const getCachedVacancies = cache(async (): Promise<VacancyData[]> => {
+  const { vacancies } = await getVacancies({ pageSize: 100 });
+  return vacancies.map(transformToVacancyData);
+});
+
+const getCachedVacancy = cache(async (slug: string): Promise<VacancyData | null> => {
+  const vacancy = await getVacancy(slug);
+  return vacancy ? transformToVacancyData(vacancy) : null;
+});
+
+const getCachedLatestVacancies = cache(async (limit: number): Promise<VacancyData[]> => {
+  const vacancies = await getLatestVacancies(limit);
+  return vacancies.map(transformToVacancyData);
+});
+
+const getCachedVacancySlugs = cache(async (): Promise<string[]> => getVacancySlugs());
+
+export async function fetchVacancies(): Promise<VacancyData[]> {
+  return getCachedVacancies();
+}
+
+export async function fetchVacancy(slug: string): Promise<VacancyData | null> {
+  return getCachedVacancy(slug);
+}
+
+export async function fetchLatestVacancies(limit: number = 3): Promise<VacancyData[]> {
+  return getCachedLatestVacancies(limit);
+}
+
+export async function fetchVacancySlugs(): Promise<string[]> {
+  return getCachedVacancySlugs();
 }
 
 // ==================
@@ -648,6 +703,24 @@ export async function fetchBlogPageData(): Promise<StrapiBlogPage> {
     createdAt: updatedAt,
     updatedAt: updatedAt,
     publishedAt: updatedAt,
+  };
+}
+
+export async function fetchCareerPageData(): Promise<CareerPageData> {
+  const career =
+    (await import('@/public/content/career.json')).default as unknown as FallbackCareerJson;
+  const updatedAt = career.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in career.json');
+  }
+
+  return {
+    title: career.meta?.title ?? '',
+    lead: career.meta?.lead ?? null,
+    emptyTitle: career.meta?.emptyTitle ?? '',
+    emptyDescription: career.meta?.emptyDescription ?? '',
+    updatedAt,
   };
 }
 

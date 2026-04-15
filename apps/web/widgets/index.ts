@@ -14,6 +14,8 @@ export { FAQ } from "./FAQ";
 export { LeadForm } from "./LeadForm";
 export { BlogPosts } from "./BlogPosts";
 export { Post } from "./Post";
+export { CareerVacancies } from "./CareerVacancies";
+export { Vacancy } from "./Vacancy";
 export { Footer } from "./Footer";
 export { HowWeWork } from "./HowWeWork";
 export { Principles } from "./Principles";
