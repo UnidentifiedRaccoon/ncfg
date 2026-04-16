@@ -185,19 +185,15 @@ export function VacancyApplicationForm({
     >
       <div className="rounded-2xl border border-[#E2E8F0]/80 bg-[#F8FAFC] p-6 shadow-[0_18px_56px_rgba(15,23,42,0.06)] md:p-8">
         {status === "success" ? (
-          <div className="rounded-2xl border border-emerald-200 bg-white p-6 md:p-8">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="mt-0.5 h-6 w-6 shrink-0 text-[#10B981]" />
-              <div>
-                <h2 className="text-2xl font-semibold text-[#1E3A5F]">
-                  Отклик отправлен
-                </h2>
-                <p className="mt-3 text-base leading-relaxed text-[#475569]">
-                  Спасибо за интерес к вакансии «{vacancyTitle}». Мы получили отклик и
-                  отправили короткое подтверждение на указанный email.
-                </p>
-              </div>
-            </div>
+          <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-6 py-8 text-center md:px-8 md:py-10">
+            <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[#10B981]" />
+            <h2 className="text-xl font-semibold text-[#1E3A5F] md:text-2xl">
+              Отклик отправлен!
+            </h2>
+            <p className="mx-auto mt-3 max-w-[38rem] text-base leading-relaxed text-[#475569] md:text-lg">
+              Спасибо за интерес к вакансии «{vacancyTitle}». Мы свяжемся с вами в
+              ближайшее время.
+            </p>
           </div>
         ) : (
           <div className="space-y-6">
