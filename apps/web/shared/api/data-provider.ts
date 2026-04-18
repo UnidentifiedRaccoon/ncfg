@@ -6,7 +6,6 @@
  * - Static page content from local JSON files (no Strapi requests).
  */
 
-import { cache } from 'react';
 import {
   getLatestNews,
   getNews,
@@ -219,86 +218,52 @@ interface FallbackPortfolioJson {
 
 export type NewsArticleData = LegacyNewsArticle;
 
-const getCachedNewsArticles = cache(
-  async (category?: string): Promise<NewsArticleData[]> => {
-    const { articles } = await getNews({ pageSize: 100, category });
-    return articles.map(transformToLegacyNews);
-  }
-);
-
-const getCachedNewsArticle = cache(
-  async (slug: string): Promise<NewsArticleData | null> => {
-    const article = await getNewsArticle(slug);
-    return article ? transformToLegacyNews(article) : null;
-  }
-);
-
-const getCachedLatestNewsArticles = cache(
-  async (limit: number, category?: string): Promise<NewsArticleData[]> => {
-    const articles = await getLatestNews(limit, category ? { category } : {});
-    return articles.map(transformToLegacyNews);
-  }
-);
-
-const getCachedNewsArticleSlugs = cache(async (): Promise<string[]> => {
-  const posts = await getCachedNewsArticles();
-  return posts.map((post) => post.slug);
-});
-
-export async function fetchNewsArticles(options: { category?: string } = {}): Promise<NewsArticleData[]> {
-  return getCachedNewsArticles(options.category);
+export async function fetchNewsArticles(
+  options: { category?: string } = {}
+): Promise<NewsArticleData[]> {
+  const { articles } = await getNews({ pageSize: 100, category: options.category });
+  return articles.map(transformToLegacyNews);
 }
 
 export async function fetchNewsArticle(slug: string): Promise<NewsArticleData | null> {
-  return getCachedNewsArticle(slug);
+  const article = await getNewsArticle(slug);
+  return article ? transformToLegacyNews(article) : null;
 }
 
 export async function fetchNewsArticleSlugs(): Promise<string[]> {
-  return getCachedNewsArticleSlugs();
+  const { articles } = await getNews({ pageSize: 100 });
+  return articles.map((article) => article.slug);
 }
 
 export async function fetchLatestNewsArticles(
   limit: number = 5,
   options: { category?: string } = {}
 ): Promise<NewsArticleData[]> {
-  return getCachedLatestNewsArticles(limit, options.category);
+  const articles = await getLatestNews(limit, options.category ? { category: options.category } : {});
+  return articles.map(transformToLegacyNews);
 }
 
 // ==================
 // Vacancies
 // ==================
 
-const getCachedVacancies = cache(async (): Promise<VacancyData[]> => {
+export async function fetchVacancies(): Promise<VacancyData[]> {
   const { vacancies } = await getVacancies({ pageSize: 100 });
   return vacancies.map(transformToVacancyData);
-});
-
-const getCachedVacancy = cache(async (slug: string): Promise<VacancyData | null> => {
-  const vacancy = await getVacancy(slug);
-  return vacancy ? transformToVacancyData(vacancy) : null;
-});
-
-const getCachedLatestVacancies = cache(async (limit: number): Promise<VacancyData[]> => {
-  const vacancies = await getLatestVacancies(limit);
-  return vacancies.map(transformToVacancyData);
-});
-
-const getCachedVacancySlugs = cache(async (): Promise<string[]> => getVacancySlugs());
-
-export async function fetchVacancies(): Promise<VacancyData[]> {
-  return getCachedVacancies();
 }
 
 export async function fetchVacancy(slug: string): Promise<VacancyData | null> {
-  return getCachedVacancy(slug);
+  const vacancy = await getVacancy(slug);
+  return vacancy ? transformToVacancyData(vacancy) : null;
 }
 
 export async function fetchLatestVacancies(limit: number = 3): Promise<VacancyData[]> {
-  return getCachedLatestVacancies(limit);
+  const vacancies = await getLatestVacancies(limit);
+  return vacancies.map(transformToVacancyData);
 }
 
 export async function fetchVacancySlugs(): Promise<string[]> {
-  return getCachedVacancySlugs();
+  return getVacancySlugs();
 }
 
 // ==================
@@ -333,7 +298,7 @@ interface ServicesLookup {
   servicesData: ServicesData;
 }
 
-const getCachedServicesLookup = cache(async (): Promise<ServicesLookup> => {
+async function getServicesLookup(): Promise<ServicesLookup> {
   const servicesData = await getServicesDataLegacy();
   const serviceById = new Map<string, Service>();
   const serviceIds: string[] = [];
@@ -350,18 +315,18 @@ const getCachedServicesLookup = cache(async (): Promise<ServicesLookup> => {
     serviceIds,
     servicesData,
   };
-});
+}
 
 export async function fetchServicesData(): Promise<ServicesData> {
-  return (await getCachedServicesLookup()).servicesData;
+  return (await getServicesLookup()).servicesData;
 }
 
 export async function fetchServiceIds(): Promise<string[]> {
-  return (await getCachedServicesLookup()).serviceIds;
+  return (await getServicesLookup()).serviceIds;
 }
 
 export async function fetchServiceById(id: string): Promise<Service | null> {
-  return (await getCachedServicesLookup()).serviceById.get(id) ?? null;
+  return (await getServicesLookup()).serviceById.get(id) ?? null;
 }
 
 // ==================

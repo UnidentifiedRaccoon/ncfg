@@ -3,6 +3,7 @@ export { Header } from "./Header";
 export { AboutHistoryTimeline } from "./AboutHistoryTimeline";
 export { HeroIndividuals } from "./HeroIndividuals";
 export { HeroCompanies } from "./HeroCompanies";
+export { MissionLedgerAlliance } from "./MissionLedgerAlliance";
 export { Products } from "./Products";
 export { ProductShowcase } from "./ProductShowcase";
 export { Projects } from "./Projects";

@@ -25,8 +25,7 @@ export async function getRecommendations(limit?: number): Promise<StrapiRecommen
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiRecommendation[]>>(
-    `/recommendations${query}`,
-    { tags: ['recommendations'] }
+    `/recommendations${query}`
   );
 
   return response.data;

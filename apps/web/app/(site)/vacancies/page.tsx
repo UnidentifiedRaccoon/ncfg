@@ -11,15 +11,15 @@ import { buildBreadcrumbList } from "@/shared/lib/structured-data";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
-  path: "/career",
-  title: "Карьера",
+  path: "/vacancies",
+  title: "Вакансии",
   description:
-    "Открытые роли в НЦФГ для тех, кто хочет делать сильные образовательные и социальные проекты.",
+    "Открытые роли в НЦФГ для тех, кто хочет делать сильные образовательные и социальные проекты в области финансовой грамотности и культуры.",
 });
 
 export const revalidate = 60;
 
-export default async function CareerPage() {
+export default async function VacanciesPage() {
   const [siteSetting, careerPage, vacancies] = await Promise.all([
     fetchSiteSettings(),
     fetchCareerPageData(),
@@ -28,7 +28,7 @@ export default async function CareerPage() {
 
   const breadcrumbStructuredData = buildBreadcrumbList([
     { name: "Главная", path: "/" },
-    { name: "Карьера", path: "/career" },
+    { name: "Вакансии", path: "/vacancies" },
   ]);
 
   return (

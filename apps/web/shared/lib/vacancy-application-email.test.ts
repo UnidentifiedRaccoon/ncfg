@@ -19,7 +19,7 @@ test("buildVacancyApplicationInboxEmail includes vacancy, candidate and request 
       resumeUrl: "https://example.com/resume",
       telegram: "@candidate",
       message: "Готов рассказать о релевантном опыте",
-      sourcePageUrl: "https://ncfg.test/career/editor-educational-programs",
+      sourcePageUrl: "https://ncfg.test/vacancies/editor-educational-programs",
     },
     {
       requestId: "req-123",
@@ -44,7 +44,7 @@ test("buildVacancyApplicationConfirmationEmail renders short confirmation with v
     email: "candidate@example.com",
     vacancySlug: "editor-educational-programs",
     vacancyTitle: "Редактор образовательных программ",
-    sourcePageUrl: "https://ncfg.test/career/editor-educational-programs#vacancy-application",
+    sourcePageUrl: "https://ncfg.test/vacancies/editor-educational-programs#vacancy-application",
   });
 
   assert.equal(
@@ -55,9 +55,12 @@ test("buildVacancyApplicationConfirmationEmail renders short confirmation with v
   assert.match(email.html, /Редактор образовательных программ/);
   assert.match(
     email.html,
-    /https:\/\/ncfg\.test\/career\/editor-educational-programs/
+    /https:\/\/ncfg\.test\/vacancies\/editor-educational-programs/
   );
-  assert.match(email.text, /Открыть вакансию: https:\/\/ncfg\.test\/career\/editor-educational-programs/);
+  assert.match(
+    email.text,
+    /Открыть вакансию: https:\/\/ncfg\.test\/vacancies\/editor-educational-programs/
+  );
 });
 
 test("buildVacancyApplicationConfirmationEmail falls back to canonical vacancy page url", () => {
@@ -70,6 +73,6 @@ test("buildVacancyApplicationConfirmationEmail falls back to canonical vacancy p
 
   assert.match(
     email.text,
-    /Открыть вакансию: https:\/\/ncfg\.test\/career\/editor-educational-programs/
+    /Открыть вакансию: https:\/\/ncfg\.test\/vacancies\/editor-educational-programs/
   );
 });

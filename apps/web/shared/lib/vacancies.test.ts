@@ -119,7 +119,7 @@ test("buildVacancyPageDescription synthesizes fallback metadata copy", () => {
 test("fetchCareerPageData reads local career json", async () => {
   const page = await fetchCareerPageData();
 
-  assert.equal(page.title, "Карьера");
+  assert.equal(page.title, "Вакансии");
   assert.match(page.lead ?? "", /НЦФГ/u);
   assert.equal(page.emptyTitle, "Сейчас открытых вакансий нет.");
 });

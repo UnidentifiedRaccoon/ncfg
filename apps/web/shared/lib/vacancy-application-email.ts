@@ -37,7 +37,7 @@ function resolveVacancyPageUrl(
 ): string | undefined {
   return (
     normalizeSourcePageUrl(sourcePageUrl) ??
-    new URL(`/career/${vacancySlug}`, `${getSiteUrl()}/`).toString()
+    new URL(`/vacancies/${vacancySlug}`, `${getSiteUrl()}/`).toString()
   );
 }
 

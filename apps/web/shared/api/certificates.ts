@@ -101,8 +101,7 @@ export async function getCertificates(limit?: number): Promise<StrapiCertificate
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiCertificate[]>>(
-    `/certificates${query}`,
-    { tags: ['certificates'] }
+    `/certificates${query}`
   );
 
   return response.data;

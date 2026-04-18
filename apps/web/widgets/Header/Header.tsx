@@ -26,11 +26,15 @@ function getHeaderHeightPx() {
   return window.matchMedia("(min-width: 1024px)").matches ? 80 : 64;
 }
 
+function isVacanciesPath(pathname: string | null): boolean {
+  return pathname?.startsWith("/vacancies") || false;
+}
+
 function computeDockTone(pathname: string | null): DockTone {
   if (typeof window === "undefined") return "hero";
   if (
     pathname?.startsWith("/blog") ||
-    pathname?.startsWith("/career") ||
+    isVacanciesPath(pathname) ||
     pathname?.startsWith("/diagnostika")
   ) {
     return "surface";
@@ -122,7 +126,7 @@ export function Header() {
 
   const ctaHref =
     pathname?.startsWith("/blog") ||
-    pathname?.startsWith("/career") ||
+    isVacanciesPath(pathname) ||
     pathname?.startsWith("/diagnostika")
       ? "/#lead-form"
       : "#lead-form";
@@ -149,7 +153,7 @@ export function Header() {
     () => {
       if (
         pathname?.startsWith("/blog") ||
-        pathname?.startsWith("/career") ||
+        isVacanciesPath(pathname) ||
         pathname?.startsWith("/diagnostika")
       ) {
         return "surface";

@@ -20,7 +20,7 @@ export function CareerVacancies({
 }: CareerVacanciesProps) {
   return (
     <Section
-      id="career"
+      id="vacancies"
       title={title}
       lead={lead ?? undefined}
       background="gray"

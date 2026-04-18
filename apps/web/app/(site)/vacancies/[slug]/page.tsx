@@ -19,7 +19,7 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-const CAREER_VACANCY_NOT_FOUND_DESCRIPTION =
+const VACANCY_NOT_FOUND_DESCRIPTION =
   "Вакансия не найдена или больше не опубликована.";
 
 export const revalidate = 60;
@@ -34,7 +34,7 @@ async function safeFetchVacancy(slug: string) {
     return await fetchVacancy(slug);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(`[career/${slug}] failed to fetch vacancy from Strapi: ${message}`);
+    console.error(`[vacancies/${slug}] failed to fetch vacancy from Strapi: ${message}`);
     return null;
   }
 }
@@ -45,9 +45,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!vacancy) {
     return buildPageMetadata({
-      path: `/career/${slug}`,
+      path: `/vacancies/${slug}`,
       title: "Вакансия не найдена",
-      description: CAREER_VACANCY_NOT_FOUND_DESCRIPTION,
+      description: VACANCY_NOT_FOUND_DESCRIPTION,
       robots: {
         index: false,
         follow: false,
@@ -56,14 +56,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return buildPageMetadata({
-    path: `/career/${vacancy.slug}`,
+    path: `/vacancies/${vacancy.slug}`,
     title: vacancy.title,
     description: buildVacancyPageDescription(vacancy),
     imagePath: vacancy.coverImage ?? undefined,
   });
 }
 
-export default async function CareerVacancyPage({ params }: PageProps) {
+export default async function VacancyPage({ params }: PageProps) {
   const { slug } = await params;
   const [siteSetting, allVacancies, vacancy] = await Promise.all([
     fetchSiteSettings(),
@@ -77,8 +77,8 @@ export default async function CareerVacancyPage({ params }: PageProps) {
 
   const breadcrumbStructuredData = buildBreadcrumbList([
     { name: "Главная", path: "/" },
-    { name: "Карьера", path: "/career" },
-    { name: vacancy.title, path: `/career/${vacancy.slug}` },
+    { name: "Вакансии", path: "/vacancies" },
+    { name: vacancy.title, path: `/vacancies/${vacancy.slug}` },
   ]);
 
   return (

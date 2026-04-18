@@ -105,7 +105,7 @@ function VacancyCover({
 
       <div className="relative z-10 flex h-full flex-col justify-end p-4 text-white md:p-5">
         <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/70">
-          Карьера
+          Вакансии
         </div>
         <div className="mt-2 text-lg font-semibold tracking-tight text-white/92">НЦФГ</div>
       </div>
@@ -135,7 +135,7 @@ export function VacancyCard({ vacancy }: VacancyCardProps) {
   return (
     <article className="group relative w-full max-w-[680px] lg:max-w-[760px]">
       <Link
-        href={`/career/${vacancy.slug}`}
+        href={`/vacancies/${vacancy.slug}`}
         className="relative block overflow-hidden rounded-xl bg-white shadow-sm transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none md:hover:scale-[1.006] [backface-visibility:hidden] transform-gpu will-change-transform"
       >
         <div className="relative z-10 flex flex-col md:flex-row">

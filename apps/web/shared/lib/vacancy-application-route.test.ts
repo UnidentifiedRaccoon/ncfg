@@ -17,7 +17,7 @@ function createRequest(body: unknown) {
       "x-forwarded-for": "203.0.113.10",
       "x-request-id": "req-123",
       "user-agent": "Unit Test Agent",
-      referer: "https://ncfg.test/career/editor-educational-programs#details",
+      referer: "https://ncfg.test/vacancies/editor-educational-programs#details",
     },
     body: JSON.stringify(body),
   });
@@ -35,7 +35,7 @@ test("handleVacancyApplicationPost submits published vacancy applications", asyn
     resumeUrl: "https://example.com/resume",
     telegram: "@candidate",
     message: "Готов обсудить роль",
-    sourcePageUrl: "https://ncfg.test/career/editor-educational-programs#vacancy-application",
+    sourcePageUrl: "https://ncfg.test/vacancies/editor-educational-programs#vacancy-application",
   }), {
     async findVacancyBySlug(slug) {
       assert.equal(slug, "editor-educational-programs");
@@ -70,7 +70,7 @@ test("handleVacancyApplicationPost submits published vacancy applications", asyn
         resumeUrl: "https://example.com/resume",
         telegram: "@candidate",
         message: "Готов обсудить роль",
-        sourcePageUrl: "https://ncfg.test/career/editor-educational-programs",
+        sourcePageUrl: "https://ncfg.test/vacancies/editor-educational-programs",
       },
       ctx: {
         requestId: "req-123",
@@ -86,7 +86,7 @@ test("handleVacancyApplicationPost submits published vacancy applications", asyn
         email: "candidate@example.com",
         vacancySlug: "editor-educational-programs",
         vacancyTitle: "Редактор образовательных программ",
-        sourcePageUrl: "https://ncfg.test/career/editor-educational-programs",
+        sourcePageUrl: "https://ncfg.test/vacancies/editor-educational-programs",
       },
       ctx: {
         requestId: "req-123",

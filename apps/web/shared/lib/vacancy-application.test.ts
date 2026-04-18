@@ -76,7 +76,7 @@ test("parseVacancyApplicationPayload normalizes supported fields", () => {
     resumeUrl: " https://example.com/resume ",
     telegram: " @candidate ",
     message: " Готов рассказать подробнее ",
-    sourcePageUrl: " https://ncfg.test/career/editor-educational-programs#vacancy-application ",
+    sourcePageUrl: " https://ncfg.test/vacancies/editor-educational-programs#vacancy-application ",
   });
 
   assert.equal(result.ok, true);
@@ -90,6 +90,6 @@ test("parseVacancyApplicationPayload normalizes supported fields", () => {
     resumeUrl: "https://example.com/resume",
     telegram: "@candidate",
     message: "Готов рассказать подробнее",
-    sourcePageUrl: "https://ncfg.test/career/editor-educational-programs#vacancy-application",
+    sourcePageUrl: "https://ncfg.test/vacancies/editor-educational-programs#vacancy-application",
   });
 });

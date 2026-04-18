@@ -20,7 +20,7 @@ export function OtherVacancies({ vacancies }: OtherVacanciesProps) {
           ))}
         </div>
         <div className="mt-8">
-          <Button href="/career" variant="secondary" className="w-full">
+          <Button href="/vacancies" variant="secondary" className="w-full">
             Все вакансии
           </Button>
         </div>

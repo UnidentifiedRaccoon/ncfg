@@ -57,9 +57,7 @@ export async function getVacancies(options: GetVacanciesOptions = {}): Promise<{
       pagination: { page, pageSize },
     });
 
-    const response = await fetchAPI<StrapiResponse<StrapiVacancy[]>>(`/vacancies${query}`, {
-      tags: ['vacancies'],
-    });
+    const response = await fetchAPI<StrapiResponse<StrapiVacancy[]>>(`/vacancies${query}`);
 
     return {
       vacancies: response.data,
@@ -91,9 +89,7 @@ export async function getVacancy(slug: string): Promise<StrapiVacancy | null> {
       },
     });
 
-    const response = await fetchAPI<StrapiResponse<StrapiVacancy[]>>(`/vacancies${query}`, {
-      tags: ['vacancies', `vacancy-${slug}`],
-    });
+    const response = await fetchAPI<StrapiResponse<StrapiVacancy[]>>(`/vacancies${query}`);
 
     return response.data[0] || null;
   }, null);
@@ -108,9 +104,7 @@ export async function getLatestVacancies(limit: number = 3): Promise<StrapiVacan
       pagination: { limit },
     });
 
-    const response = await fetchAPI<StrapiResponse<StrapiVacancy[]>>(`/vacancies${query}`, {
-      tags: ['vacancies'],
-    });
+    const response = await fetchAPI<StrapiResponse<StrapiVacancy[]>>(`/vacancies${query}`);
 
     return response.data;
   }, []);
@@ -126,10 +120,7 @@ export async function getVacancySlugs(): Promise<string[]> {
     });
 
     const response = await fetchAPI<StrapiResponse<Array<Pick<StrapiVacancy, 'slug'>>>>(
-      `/vacancies${query}`,
-      {
-        tags: ['vacancies'],
-      }
+      `/vacancies${query}`
     );
 
     return response.data
@@ -152,9 +143,7 @@ export async function getPublishedVacancySummaryBySlug(
 
     const response = await fetchAPI<
       StrapiResponse<Array<Pick<StrapiVacancy, 'slug' | 'title' | 'publishedAt'>>>
-    >(`/vacancies${query}`, {
-      tags: ['vacancies', `vacancy-${slug}`],
-    });
+    >(`/vacancies${query}`);
 
     return response.data[0] || null;
   }, null);

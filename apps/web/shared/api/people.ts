@@ -19,8 +19,7 @@ export async function getPeople(): Promise<StrapiPerson[]> {
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiPerson[]>>(
-    `/people${query}`,
-    { tags: ['people'] }
+    `/people${query}`
   );
 
   return response.data;

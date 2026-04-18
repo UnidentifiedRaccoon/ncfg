@@ -25,7 +25,7 @@ const STATIC_ROUTES = [
   { path: "/portfolio", priority: 0.8, changeFrequency: "monthly" },
   { path: "/rekomendacii", priority: 0.8, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.8, changeFrequency: "daily" },
-  { path: "/career", priority: 0.75, changeFrequency: "weekly" },
+  { path: "/vacancies", priority: 0.75, changeFrequency: "weekly" },
 ] as const;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
@@ -46,7 +46,7 @@ const KEY_STATIC_ROUTE_LASTMOD_LOADERS = [
   },
   { path: "/portfolio", load: fetchPortfolioPageData },
   { path: "/blog", load: fetchBlogPageData },
-  { path: "/career", load: fetchCareerPageData },
+  { path: "/vacancies", load: fetchCareerPageData },
 ] as const;
 
 function toAbsoluteUrl(path: string, siteUrl: string): string {
@@ -138,7 +138,7 @@ async function getCareerEntries(siteUrl: string): Promise<SitemapEntry[]> {
     const vacancies = await fetchVacancies();
 
     return vacancies.map((vacancy) => ({
-      url: toAbsoluteUrl(`/career/${vacancy.slug}`, siteUrl),
+      url: toAbsoluteUrl(`/vacancies/${vacancy.slug}`, siteUrl),
       lastModified: new Date(vacancy.updatedAt || vacancy.publishedDate),
       changeFrequency: "weekly",
       priority: 0.6,

@@ -4,7 +4,6 @@
  * Fetch functions for services and service categories from Strapi CMS.
  */
 
-import { cache } from 'react';
 import { fetchAPI, buildQueryString, StrapiResponse } from '../lib/strapi';
 import type {
   StrapiService,
@@ -43,8 +42,7 @@ async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
     });
 
   const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
-    `/service-categories${buildCategoriesQuery(SERVICES_POPULATE)}`,
-    { tags: ['services'] }
+    `/service-categories${buildCategoriesQuery(SERVICES_POPULATE)}`
   );
 
   return response.data;
@@ -142,7 +140,7 @@ function transformToLegacyCategory(category: StrapiServiceCategory): ServiceCate
   };
 }
 
-export const getServicesDataLegacy = cache(async (): Promise<ServicesData> => {
+export async function getServicesDataLegacy(): Promise<ServicesData> {
   const categories = await getServiceCategories();
 
   return {
@@ -155,4 +153,4 @@ export const getServicesDataLegacy = cache(async (): Promise<ServicesData> => {
     },
     serviceCategories: categories.map(transformToLegacyCategory),
   };
-});
+}

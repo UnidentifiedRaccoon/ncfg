@@ -18,6 +18,8 @@ import {
 } from "@/shared/lib/structured-data";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = buildPageMetadata({
   path: "/companies",
   title: "Финансовая грамотность сотрудников для компаний",

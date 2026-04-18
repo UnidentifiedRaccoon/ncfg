@@ -60,7 +60,6 @@ export interface StrapiResponse<T> {
 
 interface FetchOptions extends RequestInit {
   revalidate?: number;
-  tags?: string[];
 }
 
 // In development, disable cache for instant updates from Strapi
@@ -118,7 +117,7 @@ export async function fetchAPI<T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<T> {
-  const { revalidate = DEFAULT_REVALIDATE, tags, ...fetchOptions } = options;
+  const { revalidate = DEFAULT_REVALIDATE, ...fetchOptions } = options;
   
   const { url: baseUrl, token } = getStrapiConfigOrThrow();
   const url = `${baseUrl}/api${endpoint}`;
@@ -136,7 +135,7 @@ export async function fetchAPI<T>(
       ...fetchOptions,
       headers,
       // In dev mode, don't cache; in prod, use ISR with revalidate
-      ...(isDev ? { cache: 'no-store' as const } : { next: { revalidate, tags } }),
+      ...(isDev ? { cache: 'no-store' as const } : { next: { revalidate } }),
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
