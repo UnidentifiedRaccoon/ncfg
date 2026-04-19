@@ -18,12 +18,19 @@ const projects = [
       "Медиа-проект о практиках развития финансового благополучия и финансовой культуры для людей и компаний",
     href: "https://культура-денег.рф",
   },
+  {
+    title: "День «ФинПривычки»",
+    label: "Методический проект",
+    description:
+      "Методический проект по развитию здоровых финансовых привычек у взрослых и детей: накопления, инвестиции, разумные траты и регулярные практики",
+    href: "http://finhabit52.ru/",
+  },
 ] as const;
 
 export function Projects() {
   return (
     <Section id="projects" title="Проекты" background="gray">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
         {projects.map((project) => (
           <a
             key={project.href}
@@ -32,7 +39,7 @@ export function Projects() {
             rel="noopener noreferrer"
             data-ym-goal="project_click"
             className={cn(
-              "group relative isolate overflow-hidden rounded-2xl border border-[#E2E8F0]/80 bg-white p-6 shadow-sm",
+              "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0]/80 bg-white p-6 shadow-sm",
               "transition-all duration-300 ease-out [will-change:transform]",
               "hover:-translate-y-1 hover:border-[#3B82F6]/25 hover:shadow-lg hover:shadow-blue-500/10",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
@@ -69,7 +76,7 @@ export function Projects() {
               {project.description}
             </p>
 
-            <div className="relative z-10 mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#3B82F6]">
+            <div className="relative z-10 mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-[#3B82F6]">
               Открыть
               <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </div>

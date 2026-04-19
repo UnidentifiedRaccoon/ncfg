@@ -3,15 +3,14 @@ import {
   ArrowUpRight,
   GraduationCap,
   TrendingUp,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 import { Section } from "@/shared/ui/Section";
 import { cn } from "@/shared/lib/cn";
 import type { ReactNode } from "react";
 
-type ProductIcon = "graduation-cap" | "trending-up" | "zap";
-type ProductAudience = "Дети" | "Взрослые" | "Все";
+type ProductIcon = "graduation-cap" | "trending-up";
+type ProductAudience = "Дети" | "Взрослые";
 
 interface Product {
   id: string;
@@ -25,7 +24,6 @@ interface Product {
 const iconMap: Record<ProductIcon, LucideIcon> = {
   "graduation-cap": GraduationCap,
   "trending-up": TrendingUp,
-  zap: Zap,
 };
 
 const products: Product[] = [
@@ -46,15 +44,6 @@ const products: Product[] = [
     href: "https://dengins.ru/",
     audience: "Дети",
     icon: "graduation-cap",
-  },
-  {
-    id: "fin_habit_day",
-    title: "День «ФинПривычки»",
-    description:
-      "Регулярная практика развития здоровых финансовых привычек у взрослых и детей: накопления, инвестиции, разумные траты и другие активности",
-    href: "http://finhabit52.ru/",
-    audience: "Все",
-    icon: "zap",
   },
 ];
 
@@ -118,11 +107,10 @@ function ProductTile({
       href={product.href}
       className={cn(
         "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out [will-change:transform]",
+        "bg-white border-[#F1F5F9]",
         "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
-        featured
-          ? "bg-[#F0F7FF] border-[#E2E8F0] p-6 md:p-8"
-          : "bg-white border-[#F1F5F9] p-5 md:p-6",
+        featured ? "p-6 md:p-8" : "p-5 md:p-6",
         "before:pointer-events-none before:absolute before:inset-x-6 before:top-0 before:z-0 before:h-px before:content-['']",
         "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
         "before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100",
@@ -139,17 +127,10 @@ function ProductTile({
       <div className="relative z-10 flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <span
-            className={cn(
-              "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-              featured ? "bg-[#3B82F6]/10" : "bg-[#1E3A5F]/10"
-            )}
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1E3A5F]/10"
             aria-hidden="true"
           >
-            <Icon
-              className={cn(
-                featured ? "h-4 w-4 text-[#3B82F6]" : "h-4 w-4 text-[#1E3A5F]"
-              )}
-            />
+            <Icon className="h-4 w-4 text-[#1E3A5F]" />
           </span>
 
           <span className="inline-flex h-8 w-24 shrink-0 items-center justify-center rounded-full bg-[#3B82F6]/10 px-0 py-1 text-xs font-semibold text-[#1E3A5F] whitespace-nowrap">
@@ -208,8 +189,8 @@ export function Products() {
       <div className="relative">
         <DecorativeBackground />
 
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 md:gap-6">
-          <div className="md:col-span-2 md:row-span-2">
+        <div className="relative z-10 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+          <div className="h-full">
             <ProductTile product={products[0]} featured />
           </div>
 
