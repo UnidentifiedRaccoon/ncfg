@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import { buildVacancyApplicationInboxEmail } from "./vacancy-application-email";
+import type { VacancyApplicationSubmission } from "./vacancy-application";
 
 type LeadSubmission = {
   name: string;
@@ -17,15 +19,19 @@ type QuestionSubmission = {
   sourcePageUrl?: string;
 };
 
-type ContactSinkContext = {
+export type ContactSinkContext = {
   requestId: string;
   clientIp: string;
   userAgent?: string;
 };
 
-interface ContactSink {
+export interface ContactSink {
   submitLead(data: LeadSubmission, ctx: ContactSinkContext): Promise<void>;
   submitQuestion(data: QuestionSubmission, ctx: ContactSinkContext): Promise<void>;
+  submitVacancyApplication(
+    data: VacancyApplicationSubmission,
+    ctx: ContactSinkContext
+  ): Promise<void>;
 }
 
 type GetCourseUserPayload = {
@@ -57,6 +63,7 @@ type GetCourseConfig = {
   deal: {
     productTitleLead: string;
     productTitleQuestion: string;
+    productTitleVacancyApplication: string;
     cost: number;
     status: string;
   };
@@ -90,6 +97,10 @@ class MissingContactSink implements ContactSink {
   }
 
   async submitQuestion() {
+    throw new Error(this.reason);
+  }
+
+  async submitVacancyApplication() {
     throw new Error(this.reason);
   }
 }
@@ -152,6 +163,17 @@ class PostboxEmailContactSink implements ContactSink {
     });
 
     console.log(`[${ctx.requestId}] Postbox question email sent for ${data.email}`);
+  }
+
+  async submitVacancyApplication(
+    data: VacancyApplicationSubmission,
+    ctx: ContactSinkContext
+  ) {
+    const email = buildVacancyApplicationInboxEmail(data, ctx);
+
+    await this.sendEmail(email);
+
+    console.log(`[${ctx.requestId}] Postbox vacancy application email sent for ${data.email}`);
   }
 
   private async sendEmail({
@@ -225,6 +247,37 @@ class GetCourseContactSink implements ContactSink {
         product_title: this.config.deal.productTitleQuestion,
         cost: this.config.deal.cost,
         deal_comment: this.buildQuestionComment(data, ctx),
+        addfields,
+      },
+      ctx
+    );
+  }
+
+  async submitVacancyApplication(
+    data: VacancyApplicationSubmission,
+    ctx: ContactSinkContext
+  ) {
+    const addfields = this.buildAddFields([
+      [this.config.fields.source, this.config.sourceValue],
+      [this.config.fields.requestId, ctx.requestId],
+      [this.config.fields.formType, "vacancy-application"],
+      [this.config.fields.message, data.message],
+      [this.config.fields.pageUrl, data.sourcePageUrl],
+    ]);
+    const inboxEmail = buildVacancyApplicationInboxEmail(data, ctx);
+
+    await this.submitDeal(
+      {
+        email: data.email,
+        name: data.name,
+        phone: data.phone,
+      },
+      {
+        deal_number: ctx.requestId,
+        deal_status: this.config.deal.status,
+        product_title: this.config.deal.productTitleVacancyApplication,
+        cost: this.config.deal.cost,
+        deal_comment: inboxEmail.text,
         addfields,
       },
       ctx
@@ -463,6 +516,9 @@ function createContactSink(): ContactSink {
       productTitleQuestion:
         asOptionalEnv(process.env.GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION) ||
         "Website Question",
+      productTitleVacancyApplication:
+        asOptionalEnv(process.env.GETCOURSE_DEAL_PRODUCT_TITLE_VACANCY_APPLICATION) ||
+        "Website Vacancy Application",
       cost: dealCost,
       status: asOptionalEnv(process.env.GETCOURSE_DEAL_STATUS) || "new",
     },

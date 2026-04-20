@@ -47,8 +47,7 @@ export async function getNews(options: GetNewsOptions = {}): Promise<{
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiNewsArticle[]>>(
-    `/news-articles${query}`,
-    { tags: ['news'] }
+    `/news-articles${query}`
   );
 
   return {
@@ -71,8 +70,7 @@ export async function getNewsArticle(slug: string): Promise<StrapiNewsArticle | 
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiNewsArticle[]>>(
-    `/news-articles${query}`,
-    { tags: ['news', `news-${slug}`] }
+    `/news-articles${query}`
   );
 
   return response.data[0] || null;
@@ -97,8 +95,7 @@ export async function getLatestNews(
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiNewsArticle[]>>(
-    `/news-articles${query}`,
-    { tags: ['news'] }
+    `/news-articles${query}`
   );
 
   return response.data;

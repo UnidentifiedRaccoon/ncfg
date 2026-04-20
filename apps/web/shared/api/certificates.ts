@@ -91,10 +91,7 @@ export async function getCertificates(limit?: number): Promise<StrapiCertificate
     ...(typeof limit === 'number' ? { pagination: { limit } } : {}),
   });
 
-  const response = await fetchAPI<StrapiResponse<StrapiCertificate[]>>(
-    `/certificates${query}`,
-    { tags: ['certificates'] }
-  );
+  const response = await fetchAPI<StrapiResponse<StrapiCertificate[]>>(`/certificates${query}`);
 
   return response.data;
 }

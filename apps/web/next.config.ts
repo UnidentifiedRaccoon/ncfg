@@ -35,6 +35,16 @@ const nextConfig: NextConfig = {
     // Keep unoptimized in dev for faster iteration.
     unoptimized: isDev,
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
       // Yandex Cloud Object Storage
       {
         protocol: 'https',

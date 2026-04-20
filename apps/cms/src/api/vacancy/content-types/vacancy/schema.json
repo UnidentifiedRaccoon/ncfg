@@ -1,0 +1,74 @@
+{
+  "kind": "collectionType",
+  "collectionName": "vacancies",
+  "info": {
+    "singularName": "vacancy",
+    "pluralName": "vacancies",
+    "displayName": "Vacancy",
+    "description": "Career openings"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "config": {
+    "metadatas": {
+      "coverImage": {
+        "edit": {
+          "description": "Рекомендуемое соотношение сторон: 16:9 (например, 1600x900)."
+        },
+        "list": {}
+      }
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "lead": {
+      "type": "text"
+    },
+    "body": {
+      "type": "richtext",
+      "required": true
+    },
+    "department": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::vacancy-department.vacancy-department",
+      "inversedBy": "vacancies"
+    },
+    "employmentType": {
+      "type": "enumeration",
+      "enum": ["full-time", "part-time", "project", "internship"]
+    },
+    "workFormat": {
+      "type": "enumeration",
+      "enum": ["remote", "hybrid", "office"]
+    },
+    "location": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "salaryText": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "publishedDate": {
+      "type": "date"
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

@@ -82,6 +82,44 @@ export interface StrapiNewsArticle {
 }
 
 // ==================
+// Vacancy Department
+// ==================
+
+export interface StrapiVacancyDepartment {
+  id: number;
+  documentId: string;
+  slug: string;
+  title: string;
+  order: number;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ==================
+// Vacancy
+// ==================
+
+export interface StrapiVacancy {
+  id: number;
+  documentId: string;
+  title: string;
+  slug: string;
+  lead: string | null;
+  body: string | null;
+  department: StrapiVacancyDepartment | null;
+  employmentType: 'full-time' | 'part-time' | 'project' | 'internship' | null;
+  workFormat: 'remote' | 'hybrid' | 'office' | null;
+  location: string | null;
+  salaryText: string | null;
+  publishedDate: string | null;
+  coverImage: StrapiImage | null;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+}
+
+// ==================
 // Service Category
 // ==================
 

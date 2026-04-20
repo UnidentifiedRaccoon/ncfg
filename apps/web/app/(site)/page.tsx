@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import {
   Hero,
+  MissionLedgerAlliance,
   Products,
   Projects,
   Services,
@@ -28,6 +29,8 @@ import {
   buildWebsiteStructuredData,
 } from "@/shared/lib/structured-data";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/",
@@ -132,6 +135,7 @@ export default async function Home() {
           }
           metrics={heroMetrics}
         />
+        <MissionLedgerAlliance />
         <Services
           title={homePage.servicesTitle ?? "Услуги"}
           services={servicesData.serviceCategories.slice(0, 3).map((category) => ({

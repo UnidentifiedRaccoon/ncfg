@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "vacancy_departments",
+  "info": {
+    "singularName": "vacancy-department",
+    "pluralName": "vacancy-departments",
+    "displayName": "Vacancy Department",
+    "description": "Career departments for vacancies"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "maxLength": 100
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    },
+    "description": {
+      "type": "text"
+    },
+    "vacancies": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::vacancy.vacancy",
+      "mappedBy": "department"
+    }
+  }
+}

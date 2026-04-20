@@ -1,6 +1,6 @@
 /**
  * Services API Functions
- * 
+ *
  * Fetch functions for services and service categories from Strapi CMS.
  */
 
@@ -42,8 +42,7 @@ async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
     });
 
   const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
-    `/service-categories${buildCategoriesQuery(SERVICES_POPULATE)}`,
-    { tags: ['services'] }
+    `/service-categories${buildCategoriesQuery(SERVICES_POPULATE)}`
   );
 
   return response.data;
@@ -143,7 +142,7 @@ function transformToLegacyCategory(category: StrapiServiceCategory): ServiceCate
 
 export async function getServicesDataLegacy(): Promise<ServicesData> {
   const categories = await getServiceCategories();
-  
+
   return {
     meta: {
       contentType: 'services-catalog',

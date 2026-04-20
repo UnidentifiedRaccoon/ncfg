@@ -2,12 +2,14 @@ import type { MetadataRoute } from "next";
 import {
   fetchAboutPageData,
   fetchBlogPageData,
+  fetchCareerPageData,
   fetchCompaniesPageData,
   fetchHomePageData,
   fetchIndividualsPageData,
   fetchNewsArticles,
   fetchPortfolioPageData,
   fetchServicesData,
+  fetchVacancies,
 } from "@/shared/api/data-provider";
 import { pickLatestDate } from "@/shared/lib/date-values";
 import { getSiteUrl } from "@/shared/lib/metadata";
@@ -23,6 +25,7 @@ const STATIC_ROUTES = [
   { path: "/portfolio", priority: 0.8, changeFrequency: "monthly" },
   { path: "/rekomendacii", priority: 0.8, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.8, changeFrequency: "daily" },
+  { path: "/vacancies", priority: 0.75, changeFrequency: "weekly" },
 ] as const;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
@@ -43,6 +46,25 @@ const KEY_STATIC_ROUTE_LASTMOD_LOADERS = [
   },
   { path: "/portfolio", load: fetchPortfolioPageData },
   { path: "/blog", load: fetchBlogPageData },
+  {
+    path: "/vacancies",
+    load: async () => {
+      const [careerPage, vacancies] = await Promise.all([
+        fetchCareerPageData(),
+        fetchVacancies().catch(() => []),
+      ]);
+
+      return {
+        updatedAt: pickLatestDate(
+          [
+            careerPage.updatedAt,
+            ...vacancies.flatMap((vacancy) => [vacancy.updatedAt, vacancy.publishedDate]),
+          ],
+          "vacancies page sitemap"
+        ),
+      };
+    },
+  },
 ] as const;
 
 function toAbsoluteUrl(path: string, siteUrl: string): string {
@@ -129,14 +151,33 @@ async function getBlogEntries(siteUrl: string): Promise<SitemapEntry[]> {
   }
 }
 
+async function getCareerEntries(siteUrl: string): Promise<SitemapEntry[]> {
+  try {
+    const vacancies = await fetchVacancies();
+
+    return vacancies.map((vacancy) => ({
+      url: toAbsoluteUrl(`/vacancies/${vacancy.slug}`, siteUrl),
+      lastModified: new Date(vacancy.updatedAt || vacancy.publishedDate),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    }));
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+    console.error(`[sitemap] Failed to fetch vacancies for sitemap: ${details}`);
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
 
-  const [staticRouteLastModified, serviceEntries, blogEntries] = await Promise.all([
-    getStaticRouteLastModified(),
-    getServiceEntries(siteUrl),
-    getBlogEntries(siteUrl),
-  ]);
+  const [staticRouteLastModified, serviceEntries, blogEntries, careerEntries] =
+    await Promise.all([
+      getStaticRouteLastModified(),
+      getServiceEntries(siteUrl),
+      getBlogEntries(siteUrl),
+      getCareerEntries(siteUrl),
+    ]);
   const staticEntries: SitemapEntry[] = STATIC_ROUTES.map((route) => {
     const lastModified = staticRouteLastModified.get(route.path);
 
@@ -148,5 +189,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  return dedupeEntries([...staticEntries, ...serviceEntries, ...blogEntries]);
+  return dedupeEntries([
+    ...staticEntries,
+    ...serviceEntries,
+    ...blogEntries,
+    ...careerEntries,
+  ]);
 }

@@ -22,6 +22,15 @@ type ButtonAsLink = ButtonBaseProps &
 
 type ButtonProps = ButtonAsButton | ButtonAsLink;
 
+function shouldRenderNativeAnchor(href: string): boolean {
+  return (
+    href.startsWith("#") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:") ||
+    /^https?:\/\//i.test(href)
+  );
+}
+
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
     "bg-[#5485d5] text-white hover:bg-[#4874c4] hover:shadow-[0_4px_12px_rgba(84,133,213,0.3)] active:bg-[#3d65b3] active:scale-[0.98]",
@@ -47,8 +56,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
     if ("href" in props && props.href) {
       const { href, ...linkProps } = props as ButtonAsLink;
 
-      // Use native <a> for anchor links (smooth scroll via CSS scroll-behavior)
-      if (href.startsWith("#")) {
+      if (shouldRenderNativeAnchor(href)) {
         return (
           <a
             href={href}

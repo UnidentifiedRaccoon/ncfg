@@ -11,6 +11,8 @@ interface PageProps {
   params: Promise<{ campaignSlug: string }>;
 }
 
+export const revalidate = 60;
+
 async function loadDiagnosticCampaign(campaignSlug: string) {
   try {
     return await getDiagnosticCampaignBySlug(campaignSlug);

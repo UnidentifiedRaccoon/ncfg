@@ -13,6 +13,13 @@ import {
   transformToLegacyNews,
   type LegacyNewsArticle,
 } from './news';
+import {
+  getLatestVacancies,
+  getVacancies,
+  getVacancy,
+  getVacancySlugs,
+  transformToVacancyData,
+} from './vacancies';
 import { getPeople, transformToLegacyPerson, type LegacyPerson } from './people';
 import {
   getRecommendations,
@@ -35,7 +42,8 @@ import type {
   StrapiPortfolioPage,
   StrapiSiteSetting,
 } from './types/strapi';
-import type { ServicesData } from './types/service';
+import type { Service, ServicesData } from './types/service';
+import type { CareerPageData, VacancyData } from './types/vacancy';
 
 function stripEllipsis(text: string): string {
   return text.replace(/\.{2,}$/, '');
@@ -177,6 +185,16 @@ interface FallbackBlogJson {
   meta?: { updatedAt?: string; title?: string; lead?: string };
 }
 
+interface FallbackCareerJson {
+  meta?: {
+    updatedAt?: string;
+    title?: string;
+    lead?: string;
+    emptyTitle?: string;
+    emptyDescription?: string;
+  };
+}
+
 interface FallbackPortfolioJson {
   meta?: { updatedAt?: string };
   title?: string;
@@ -199,7 +217,9 @@ interface FallbackPortfolioJson {
 
 export type NewsArticleData = LegacyNewsArticle;
 
-export async function fetchNewsArticles(options: { category?: string } = {}): Promise<NewsArticleData[]> {
+export async function fetchNewsArticles(
+  options: { category?: string } = {}
+): Promise<NewsArticleData[]> {
   const { articles } = await getNews({ pageSize: 100, category: options.category });
   return articles.map(transformToLegacyNews);
 }
@@ -209,12 +229,40 @@ export async function fetchNewsArticle(slug: string): Promise<NewsArticleData | 
   return article ? transformToLegacyNews(article) : null;
 }
 
+export async function fetchNewsArticleSlugs(): Promise<string[]> {
+  const { articles } = await getNews({ pageSize: 100 });
+  return articles.map((article) => article.slug);
+}
+
 export async function fetchLatestNewsArticles(
   limit: number = 5,
   options: { category?: string } = {}
 ): Promise<NewsArticleData[]> {
-  const articles = await getLatestNews(limit, options);
+  const articles = await getLatestNews(limit, options.category ? { category: options.category } : {});
   return articles.map(transformToLegacyNews);
+}
+
+// ==================
+// Vacancies
+// ==================
+
+export async function fetchVacancies(): Promise<VacancyData[]> {
+  const { vacancies } = await getVacancies({ pageSize: 100 });
+  return vacancies.map(transformToVacancyData);
+}
+
+export async function fetchVacancy(slug: string): Promise<VacancyData | null> {
+  const vacancy = await getVacancy(slug);
+  return vacancy ? transformToVacancyData(vacancy) : null;
+}
+
+export async function fetchLatestVacancies(limit: number = 3): Promise<VacancyData[]> {
+  const vacancies = await getLatestVacancies(limit);
+  return vacancies.map(transformToVacancyData);
+}
+
+export async function fetchVacancySlugs(): Promise<string[]> {
+  return getVacancySlugs();
 }
 
 // ==================
@@ -243,8 +291,41 @@ export async function fetchCertificates(limit?: number): Promise<CertificatesDat
 // Services
 // ==================
 
+interface ServicesLookup {
+  serviceById: Map<string, Service>;
+  serviceIds: string[];
+  servicesData: ServicesData;
+}
+
+async function getServicesLookup(): Promise<ServicesLookup> {
+  const servicesData = await getServicesDataLegacy();
+  const serviceById = new Map<string, Service>();
+  const serviceIds: string[] = [];
+
+  for (const category of servicesData.serviceCategories) {
+    for (const service of category.services) {
+      serviceById.set(service.id, service);
+      serviceIds.push(service.id);
+    }
+  }
+
+  return {
+    serviceById,
+    serviceIds,
+    servicesData,
+  };
+}
+
 export async function fetchServicesData(): Promise<ServicesData> {
-  return await getServicesDataLegacy();
+  return (await getServicesLookup()).servicesData;
+}
+
+export async function fetchServiceIds(): Promise<string[]> {
+  return (await getServicesLookup()).serviceIds;
+}
+
+export async function fetchServiceById(id: string): Promise<Service | null> {
+  return (await getServicesLookup()).serviceById.get(id) ?? null;
 }
 
 // ==================
@@ -586,6 +667,24 @@ export async function fetchBlogPageData(): Promise<StrapiBlogPage> {
     createdAt: updatedAt,
     updatedAt: updatedAt,
     publishedAt: updatedAt,
+  };
+}
+
+export async function fetchCareerPageData(): Promise<CareerPageData> {
+  const career =
+    (await import('@/public/content/career.json')).default as unknown as FallbackCareerJson;
+  const updatedAt = career.meta?.updatedAt;
+
+  if (!updatedAt) {
+    throw new Error('Missing updatedAt in career.json');
+  }
+
+  return {
+    title: career.meta?.title ?? '',
+    lead: career.meta?.lead ?? null,
+    emptyTitle: career.meta?.emptyTitle ?? '',
+    emptyDescription: career.meta?.emptyDescription ?? '',
+    updatedAt,
   };
 }
 

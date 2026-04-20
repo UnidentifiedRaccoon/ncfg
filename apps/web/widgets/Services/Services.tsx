@@ -204,19 +204,7 @@ export function Services({ title, services }: ServicesProps) {
   if (!featured) return null;
 
   return (
-    <Section
-      id="services"
-      title={title}
-      background="gray"
-      className={cn(
-        "relative isolate overflow-hidden",
-        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-[380px] before:content-['']",
-        "before:[background-image:radial-gradient(640px_circle_at_12%_20%,rgba(88,168,224,0.18),transparent_55%),radial-gradient(560px_circle_at_88%_12%,rgba(59,130,246,0.14),transparent_60%),radial-gradient(760px_circle_at_50%_-10%,rgba(30,58,95,0.10),transparent_65%)]",
-        "before:[mask-image:linear-gradient(to_bottom,black,transparent_92%)] before:-z-10",
-        "after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:opacity-[0.18] after:content-['']",
-        "after:[background-image:linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] after:[background-size:32px_32px]"
-      )}
-    >
+    <Section id="services" title={title}>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
         <ServiceTile
           service={featured}

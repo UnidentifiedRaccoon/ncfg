@@ -66,12 +66,11 @@ Required GitHub Actions secrets:
 - `YC_LOCKBOX_SECRET_ID` = Lockbox secret with runtime tokens and CMS credentials
 - `YC_LOCKBOX_VERSION_ID` = active Lockbox version used by build/deploy workflows
 - `STRAPI_URL` = `https://admin.ncfg.ru`
-- `REVALIDATE_TOKEN` = shared secret for Strapi webhooks -> `POST /api/revalidate/strapi`, `POST /api/revalidate/diagnostics`, `POST /api/revalidate/services`
 - `NEXT_PUBLIC_SITE_URL` = exact canonical public site URL `https://ncfg.ru` (used for metadata, mirror redirects, and health-checks)
 - `POSTBOX_API_KEY_ID` = Postbox API key ID
 - `POSTBOX_API_KEY_SECRET` = Postbox API key secret
 - `POSTBOX_FROM_EMAIL` = verified sender email (recommended: `no-reply@ncfg.ru`)
-- `LEADS_RECIPIENT_EMAILS` = `aedengina@ncfg.ru,yura.posledov@yandex.ru`
+- `LEADS_RECIPIENT_EMAILS` = `aedengina@ncfg.ru,yura.posledov@yandex.ru,Zvs@ncfg.ru`
 
 Required Lockbox keys:
 - `STRAPI_API_TOKEN` = read-only token for web -> Strapi content fetches
@@ -92,6 +91,7 @@ Optional GitHub Actions secrets (GetCourse fallback/enrichment):
 - `GETCOURSE_SOURCE_VALUE` (example: `fgrm.ncfg.ru`)
 - `GETCOURSE_DEAL_PRODUCT_TITLE_LEAD` (default: `Website Lead`)
 - `GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION` (default: `Website Question`)
+- `GETCOURSE_DEAL_PRODUCT_TITLE_VACANCY_APPLICATION` (default: `Website Vacancy Application`)
 - `GETCOURSE_DEAL_COST` (default: `0`)
 - `GETCOURSE_DEAL_STATUS` (default: `new`)
 - `GETCOURSE_DEAL_FIELD_SOURCE`
@@ -102,79 +102,12 @@ Optional GitHub Actions secrets (GetCourse fallback/enrichment):
 - `GETCOURSE_DEAL_FIELD_REQUEST_ID`
 - `GETCOURSE_DEAL_FIELD_FORM_TYPE`
 
-### Blog cache revalidation (Strapi webhook)
+### Cache and revalidation
 
-Blog routes use ISR with a fixed interval of `60` seconds:
-- `/blog` -> `revalidate = 60`
-- `/blog/[slug]` -> `revalidate = 60`
-- Strapi fetch default -> `DEFAULT_REVALIDATE = 60`
-
-To invalidate faster on content edits, use webhook-driven revalidation.
-
-Strapi setup:
-- `Settings -> Webhooks -> Create webhook`
-- URL: `https://ncfg.ru/api/revalidate/strapi`
-- Method: `POST`
-- Header: `x-revalidate-token: <REVALIDATE_TOKEN>`
-- Events (`Entry`): `create`, `update`, `delete`, `publish`, `unpublish`
-- Model: `News Article` (`api::news-article.news-article`)
-
-Smoke test with `curl`:
-
-```bash
-curl -i -X POST "https://ncfg.ru/api/revalidate/strapi" \
-  -H "content-type: application/json" \
-  -H "x-revalidate-token: ${REVALIDATE_TOKEN}" \
-  -d '{"event":"entry.publish","model":"api::news-article.news-article","entry":{"slug":"test-slug"}}'
-```
-
-Expected responses:
-- `200` + `{"ok":true,"revalidated":[...]}` -> cache invalidated.
-- `200` + `{"ok":true,"revalidated":[],"reason":"no-op: ..."}` -> event/model payload does not match filter.
-- `401` -> missing or invalid token; check `REVALIDATE_TOKEN` in webhook header and web runtime env.
-
-Propagation expectations:
-- With webhook: usually visible on next request shortly after `entry.create|update|delete|publish|unpublish`.
-- Without webhook fallback: updates appear within about `60` seconds due to ISR.
-
-### Services cache revalidation (Strapi webhook)
-
-Services routes use shared Strapi ISR data:
-- `/` -> services teaser block from `fetchServicesData()`
-- `/companies` -> service catalog
-- `/companies/[slug]` -> service detail pages
-- Strapi fetch default -> `DEFAULT_REVALIDATE = 60`
-
-To invalidate faster on service edits, use webhook-driven revalidation.
-
-Strapi setup:
-- `Settings -> Webhooks -> Create webhook`
-- URL: `https://ncfg.ru/api/revalidate/services`
-- Method: `POST`
-- Header: `x-revalidate-token: <REVALIDATE_TOKEN>`
-- Events (`Entry`): `create`, `update`, `delete`, `publish`, `unpublish`
-- Model: `Service` (`api::service.service`)
-
-Add a second webhook with the same URL/header/events for:
-- Model: `Service Category` (`api::service-category.service-category`)
-
-Smoke test with `curl`:
-
-```bash
-curl -i -X POST "https://ncfg.ru/api/revalidate/services" \
-  -H "content-type: application/json" \
-  -H "x-revalidate-token: ${REVALIDATE_TOKEN}" \
-  -d '{"event":"entry.publish","model":"api::service.service","entry":{"slug":"tsikl-vebinarov-i-treningov"}}'
-```
-
-Expected responses:
-- `200` + `{"ok":true,"revalidated":[...]}` -> cache invalidated.
-- `200` + `{"ok":true,"revalidated":[],"reason":"no-op: ..."}` -> event/model payload does not match filter.
-- `401` -> missing or invalid token; check `REVALIDATE_TOKEN` in webhook header and web runtime env.
-
-Propagation expectations:
-- With webhook: usually visible on next request shortly after `entry.create|update|delete|publish|unpublish`.
-- Without webhook fallback: updates appear within about `60` seconds due to ISR.
+All Strapi-backed content relies on time-based ISR with a 60-second window:
+- `DEFAULT_REVALIDATE = 60` in `shared/lib/strapi.ts` applies to every `fetchAPI` call.
+- Page-level `export const revalidate = 60` is set on every CMS-backed route for explicitness.
+- No webhook-driven invalidation: after an edit in Strapi, updates appear on the next request once the 60-second window has elapsed.
 
 ### Postbox runbook (temporary lead intake)
 
@@ -186,9 +119,10 @@ Propagation expectations:
 4. Deploy `main` and submit:
    - one `lead` form (`/api/lead`)
    - one `question` form (`/api/question`)
-5. Confirm both emails are delivered to:
+5. Confirm emails are delivered to:
    - `aedengina@ncfg.ru`
    - `yura.posledov@yandex.ru`
+   - `Zvs@ncfg.ru`
 
 For task-oriented intake in GetCourse (`/pl/tasks/resp`), configure at least:
 - `GETCOURSE_DEAL_FIELD_MESSAGE`
@@ -208,5 +142,6 @@ Detailed setup guide: `../../infra/getcourse-orders-intake.md`
    - `deal_status` is `new` (or your configured status from `GETCOURSE_DEAL_STATUS`)
 4. Add action `Create task` and include message/question/source/request_id in the task body.
 5. Add two branches by `form_type`:
-   - `lead` -> focus on `message`
-   - `question` -> focus on `question` + `post_title`
+    - `lead` -> focus on `message`
+    - `question` -> focus on `question` + `post_title`
+    - `vacancy-application` -> focus on `vacancy`, `resume`, `message`

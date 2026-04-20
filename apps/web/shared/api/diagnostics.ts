@@ -188,8 +188,7 @@ export async function getDiagnosticCampaignBySlug(
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiDiagnosticCampaign[]>>(
-    `/diagnostic-campaigns${query}`,
-    { tags: ["diagnostics", `diagnostic-campaign-${slug}`] }
+    `/diagnostic-campaigns${query}`
   );
 
   const campaign = response.data[0];

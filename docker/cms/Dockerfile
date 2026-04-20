@@ -61,7 +61,13 @@ RUN --mount=type=secret,id=DATABASE_HOST \
     npm run build; \
     npm run copy:schemas
 
-# Stage 3: Production runner
+# Stage 3: Prune dependencies for runtime
+FROM deps AS prod-deps
+WORKDIR /app
+
+RUN npm prune --omit=dev
+
+# Stage 4: Production runner
 FROM node:22-alpine AS runner
 WORKDIR /app
 
@@ -76,11 +82,11 @@ RUN apk add --no-cache libpq
 RUN addgroup --system --gid 1001 strapi && \
     adduser --system --uid 1001 strapi
 
-# Copy built application
+# Copy the full dist tree so production still has dist/build for the admin SPA.
 COPY --from=builder --chown=strapi:strapi /app/dist ./dist
-# Copy admin panel build to root (Strapi 5 expects it at ./build)
+# Keep the root build directory too; some Strapi paths still resolve admin assets here.
 COPY --from=builder --chown=strapi:strapi /app/dist/build ./build
-COPY --from=builder --chown=strapi:strapi /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=strapi:strapi /app/node_modules ./node_modules
 COPY --from=builder --chown=strapi:strapi /app/package.json ./
 COPY --from=builder --chown=strapi:strapi /app/tsconfig.json ./tsconfig.json
 COPY --from=builder --chown=strapi:strapi /app/config ./config

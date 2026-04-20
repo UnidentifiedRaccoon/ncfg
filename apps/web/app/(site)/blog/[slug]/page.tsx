@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Post, Footer } from "@/widgets";
 import {
   fetchNewsArticle,
+  fetchNewsArticleSlugs,
   fetchNewsArticles,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
@@ -34,9 +35,19 @@ async function safeFetchNewsArticles(context: string) {
   }
 }
 
+async function safeFetchNewsArticleSlugs() {
+  try {
+    return await fetchNewsArticleSlugs();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[blog/[slug]] failed to fetch article slugs: ${message}`);
+    return [];
+  }
+}
+
 export async function generateStaticParams() {
-  const posts = await safeFetchNewsArticles("generateStaticParams");
-  return posts.map((post) => ({ slug: post.slug }));
+  const slugs = await safeFetchNewsArticleSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 async function safeFetchNewsArticle(slug: string) {
@@ -79,11 +90,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const [siteSetting, allPosts] = await Promise.all([
+  const [siteSetting, allPosts, post] = await Promise.all([
     fetchSiteSettings(),
     safeFetchNewsArticles("BlogPostPage"),
+    safeFetchNewsArticle(slug),
   ]);
-  const post = await safeFetchNewsArticle(slug);
 
   if (!post) {
     notFound();

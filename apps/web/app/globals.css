@@ -315,6 +315,14 @@ body {
   color: var(--color-gray-600);
 }
 
+.vacancy-post-content > :first-child {
+  margin-top: 0;
+}
+
+.vacancy-post-content > :last-child {
+  margin-bottom: 0;
+}
+
 /* Diagnostic survey variant animations */
 @keyframes minimalSlideIn {
   from {
