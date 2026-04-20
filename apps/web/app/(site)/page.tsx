@@ -98,7 +98,7 @@ export default async function Home() {
     };
 
   const mappedTestimonials = {
-    title: "Рекомендации",
+    title: "Опыт клиентов",
     items: recommendations
       .filter((item) => item.quote.trim().length > 0)
       .map((item) => ({

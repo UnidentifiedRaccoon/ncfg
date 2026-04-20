@@ -53,7 +53,7 @@ const navigation = [
   { label: "Вакансии", href: "/vacancies" },
   { label: "История", href: "/history" },
   { label: "Блог", href: "/blog" },
-  { label: "Рекомендации", href: "/rekomendacii" },
+  { label: "Опыт клиентов", href: "/rekomendacii" },
 ] as const;
 
 function normalizeCopyrightLine(value: string): string {

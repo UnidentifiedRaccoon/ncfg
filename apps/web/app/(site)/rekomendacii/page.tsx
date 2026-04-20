@@ -9,7 +9,7 @@ import { RecommendationLettersRail } from "@/widgets/RecommendationLettersRail";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/rekomendacii",
-  title: "Рекомендации",
+  title: "Опыт клиентов",
   description:
     "На этой странице собраны отзывы и рекомендации партнеров и клиентов НЦФГ о совместной работе.",
 });
@@ -33,7 +33,7 @@ export default async function RecommendationsPage() {
       }));
   const breadcrumbStructuredData = buildBreadcrumbList([
     { name: "Главная", path: "/" },
-    { name: "Рекомендации", path: "/rekomendacii" },
+    { name: "Опыт клиентов", path: "/rekomendacii" },
   ]);
 
   return (
@@ -45,7 +45,7 @@ export default async function RecommendationsPage() {
             <div className="flex min-h-[280px] flex-col gap-8 px-6 py-6 md:min-h-[360px] md:px-10 md:py-8">
               <div className="mx-auto my-auto w-full max-w-5xl text-center">
                 <h1 className="text-4xl font-bold tracking-tight text-[#1E3A5F] sm:text-5xl md:text-6xl lg:text-[72px] lg:leading-[1.0]">
-                  Рекомендации
+                  Опыт клиентов
                 </h1>
                 <p className="mx-auto mt-5 max-w-4xl text-base leading-relaxed text-[#3F5C86] sm:text-lg md:text-2xl lg:text-[38px] lg:leading-[1.2]">
                   Что говорят о нас наши партнёры и клиенты
