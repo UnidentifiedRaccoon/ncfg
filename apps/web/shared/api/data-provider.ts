@@ -28,7 +28,6 @@ import {
 } from './recommendations';
 import {
   getCertificates,
-  sortCertificatesByYear,
   transformToCertificateData,
   type CertificateData,
 } from './certificates';
@@ -285,7 +284,7 @@ export type CertificatesData = CertificateData;
 
 export async function fetchCertificates(limit?: number): Promise<CertificatesData[]> {
   const certificates = await getCertificates(limit);
-  return sortCertificatesByYear(certificates.map(transformToCertificateData));
+  return certificates.map(transformToCertificateData);
 }
 
 // ==================

@@ -25,8 +25,28 @@ const BLOG_POST_NOT_FOUND_DESCRIPTION = "Материал блога не най
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
+async function safeFetchNewsArticles(context: string) {
+  try {
+    return await fetchNewsArticles();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[blog/[slug]] failed to fetch article list in ${context}: ${message}`);
+    return [];
+  }
+}
+
+async function safeFetchNewsArticleSlugs() {
+  try {
+    return await fetchNewsArticleSlugs();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[blog/[slug]] failed to fetch article slugs: ${message}`);
+    return [];
+  }
+}
+
 export async function generateStaticParams() {
-  const slugs = await fetchNewsArticleSlugs();
+  const slugs = await safeFetchNewsArticleSlugs();
   return slugs.map((slug) => ({ slug }));
 }
 
@@ -72,7 +92,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
   const [siteSetting, allPosts, post] = await Promise.all([
     fetchSiteSettings(),
-    fetchNewsArticles(),
+    safeFetchNewsArticles("BlogPostPage"),
     safeFetchNewsArticle(slug),
   ]);
 

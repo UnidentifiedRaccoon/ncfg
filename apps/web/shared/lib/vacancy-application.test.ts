@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR,
   normalizeAbsoluteHttpUrl,
   parseVacancyApplicationPayload,
   VACANCY_APPLICATION_INVALID_EMAIL_ERROR,
@@ -25,6 +26,7 @@ test("normalizeAbsoluteHttpUrl accepts only absolute http and https links", () =
 test("parseVacancyApplicationPayload requires mandatory candidate fields", () => {
   const result = parseVacancyApplicationPayload({
     vacancySlug: "editor-educational-programs",
+    consentToProcessing: true,
     name: "  ",
     email: "candidate@example.com",
     phone: "+7 999 000 00 00",
@@ -41,6 +43,7 @@ test("parseVacancyApplicationPayload validates email and resume url", () => {
   assert.deepEqual(
     parseVacancyApplicationPayload({
       vacancySlug: "editor-educational-programs",
+      consentToProcessing: true,
       name: "Иван Петров",
       email: "invalid-email",
       phone: "+7 999 000 00 00",
@@ -55,6 +58,7 @@ test("parseVacancyApplicationPayload validates email and resume url", () => {
   assert.deepEqual(
     parseVacancyApplicationPayload({
       vacancySlug: "editor-educational-programs",
+      consentToProcessing: true,
       name: "Иван Петров",
       email: "candidate@example.com",
       phone: "+7 999 000 00 00",
@@ -70,6 +74,7 @@ test("parseVacancyApplicationPayload validates email and resume url", () => {
 test("parseVacancyApplicationPayload normalizes supported fields", () => {
   const result = parseVacancyApplicationPayload({
     vacancySlug: " editor-educational-programs ",
+    consentToProcessing: true,
     name: " Иван Петров ",
     email: " candidate@example.com ",
     phone: " +7 999 000 00 00 ",
@@ -84,6 +89,7 @@ test("parseVacancyApplicationPayload normalizes supported fields", () => {
 
   assert.deepEqual(result.data, {
     vacancySlug: "editor-educational-programs",
+    consentToProcessing: true,
     name: "Иван Петров",
     email: "candidate@example.com",
     phone: "+7 999 000 00 00",
@@ -92,4 +98,21 @@ test("parseVacancyApplicationPayload normalizes supported fields", () => {
     message: "Готов рассказать подробнее",
     sourcePageUrl: "https://ncfg.test/vacancies/editor-educational-programs#vacancy-application",
   });
+});
+
+test("parseVacancyApplicationPayload requires consent for personal data processing", () => {
+  assert.deepEqual(
+    parseVacancyApplicationPayload({
+      vacancySlug: "editor-educational-programs",
+      consentToProcessing: false,
+      name: "Иван Петров",
+      email: "candidate@example.com",
+      phone: "+7 999 000 00 00",
+      resumeUrl: "https://example.com/resume",
+    }),
+    {
+      ok: false,
+      error: VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR,
+    }
+  );
 });

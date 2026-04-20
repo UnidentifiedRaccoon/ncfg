@@ -91,6 +91,7 @@ Optional GitHub Actions secrets (GetCourse fallback/enrichment):
 - `GETCOURSE_SOURCE_VALUE` (example: `fgrm.ncfg.ru`)
 - `GETCOURSE_DEAL_PRODUCT_TITLE_LEAD` (default: `Website Lead`)
 - `GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION` (default: `Website Question`)
+- `GETCOURSE_DEAL_PRODUCT_TITLE_VACANCY_APPLICATION` (default: `Website Vacancy Application`)
 - `GETCOURSE_DEAL_COST` (default: `0`)
 - `GETCOURSE_DEAL_STATUS` (default: `new`)
 - `GETCOURSE_DEAL_FIELD_SOURCE`
@@ -141,5 +142,6 @@ Detailed setup guide: `../../infra/getcourse-orders-intake.md`
    - `deal_status` is `new` (or your configured status from `GETCOURSE_DEAL_STATUS`)
 4. Add action `Create task` and include message/question/source/request_id in the task body.
 5. Add two branches by `form_type`:
-   - `lead` -> focus on `message`
-   - `question` -> focus on `question` + `post_title`
+    - `lead` -> focus on `message`
+    - `question` -> focus on `question` + `post_title`
+    - `vacancy-application` -> focus on `vacancy`, `resume`, `message`

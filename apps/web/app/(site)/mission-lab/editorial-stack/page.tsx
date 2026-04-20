@@ -11,6 +11,10 @@ export const metadata: Metadata = buildPageMetadata({
   title: "Mission Lab: Editorial Stack",
   description:
     "Editorial Stack — demo-вариант блока миссии НЦФГ с последовательными карточками-манифестами и pinned stack подачей.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 });
 
 const comparisonPoints = [

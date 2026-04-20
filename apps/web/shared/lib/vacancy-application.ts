@@ -11,11 +11,14 @@ export const VACANCY_APPLICATION_REQUIRED_FIELDS_ERROR =
 export const VACANCY_APPLICATION_INVALID_EMAIL_ERROR = 'Некорректный формат email';
 export const VACANCY_APPLICATION_INVALID_RESUME_URL_ERROR =
   'Укажите корректную абсолютную ссылку на резюме';
+export const VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR =
+  'Подтвердите согласие на обработку персональных данных';
 export const VACANCY_APPLICATION_UNKNOWN_VACANCY_ERROR =
   'Вакансия не найдена или больше не опубликована';
 
 export interface VacancyApplicationPayload {
   vacancySlug?: string;
+  consentToProcessing: boolean;
   name: string;
   email: string;
   phone: string;
@@ -88,6 +91,7 @@ export function parseVacancyApplicationPayload(
   const email = asTrimmedString(record.email);
   const phone = asTrimmedString(record.phone);
   const resumeUrlRaw = asTrimmedString(record.resumeUrl);
+  const consentToProcessing = record.consentToProcessing === true;
 
   if (!name || !email || !phone || !resumeUrlRaw) {
     return {
@@ -111,10 +115,18 @@ export function parseVacancyApplicationPayload(
     };
   }
 
+  if (!consentToProcessing) {
+    return {
+      ok: false,
+      error: VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR,
+    };
+  }
+
   return {
     ok: true,
     data: {
       vacancySlug: asOptionalTrimmedString(record.vacancySlug),
+      consentToProcessing: true,
       name,
       email,
       phone,

@@ -11,6 +11,10 @@ export const metadata: Metadata = buildPageMetadata({
   title: "Mission Lab: вариант accordion-reveal",
   description:
     "Accordion Reveal — demo-вариант mission-блока со слоистой карточной подачей, hover/focus/tap reveal и практичным mobile UX.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 });
 
 const comparisonPoints = [

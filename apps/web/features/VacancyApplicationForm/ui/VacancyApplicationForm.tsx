@@ -8,6 +8,7 @@ import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 import {
+  VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR,
   normalizeAbsoluteHttpUrl,
   VACANCY_APPLICATION_INVALID_EMAIL_ERROR,
   VACANCY_APPLICATION_INVALID_RESUME_URL_ERROR,
@@ -126,7 +127,7 @@ export function VacancyApplicationForm({
 
     if (!consent) {
       setStatus("error");
-      setErrorMessage("Подтвердите согласие на обработку персональных данных");
+      setErrorMessage(VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR);
       return;
     }
 
@@ -142,6 +143,7 @@ export function VacancyApplicationForm({
         body: JSON.stringify({
           ...formData,
           vacancySlug,
+          consentToProcessing: consent,
           name,
           email,
           phone,

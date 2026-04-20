@@ -13,6 +13,7 @@ test("buildVacancyApplicationInboxEmail includes vacancy, candidate and request 
     {
       vacancySlug: "editor-educational-programs",
       vacancyTitle: "Редактор образовательных программ",
+      consentToProcessing: true,
       name: "Иван Петров",
       email: "candidate@example.com",
       phone: "+7 999 000 00 00",

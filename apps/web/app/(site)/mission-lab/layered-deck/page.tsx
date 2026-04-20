@@ -11,6 +11,10 @@ export const metadata: Metadata = buildPageMetadata({
   title: "Mission Lab — layered deck",
   description:
     "Standalone demo-страница layered deck для блока миссии НЦФГ: три видимых слоя, контролы и mobile fallback.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 });
 
 const checkpoints = [

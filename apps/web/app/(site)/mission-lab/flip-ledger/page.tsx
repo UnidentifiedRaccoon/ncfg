@@ -9,6 +9,10 @@ export const metadata: Metadata = buildPageMetadata({
   title: "Mission Lab: вариант flip-ledger",
   description:
     "Отдельная демонстрационная страница с restrained folio / cover-lift вариантом mission-блока для сравнения подходов.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 });
 
 const comparisonPoints = [

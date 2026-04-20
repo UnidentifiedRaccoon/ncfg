@@ -18,6 +18,7 @@ interface RailVariantStyle {
   trackInset: string;
   itemWidth: string;
   card: string;
+  cardBeam: string;
   previewShell: string;
   previewSurface: string;
   previewMask: string;
@@ -35,11 +36,13 @@ const GLASS_LEDGER_STYLE: RailVariantStyle = {
   trackInset: "",
   itemWidth: "basis-[86%] sm:basis-[350px] lg:basis-[372px]",
   card:
-    "border border-[#E2E8F0] bg-white motion-safe:hover:-translate-y-2",
+    "border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(239,246,255,0.88))] shadow-[0_22px_60px_rgba(15,23,42,0.10)] hover:-translate-y-1.5 hover:shadow-[0_28px_72px_rgba(59,130,246,0.16)]",
+  cardBeam:
+    "via-[#58A8E0]/80",
   previewShell:
-    "",
+    "rounded-[26px] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(255,255,255,0.60))] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-sm",
   previewSurface:
-    "rounded-[24px] border-2 border-[#E2E8F0] bg-[radial-gradient(circle_at_18%_14%,rgba(88,168,224,0.10),transparent_42%),linear-gradient(180deg,#FFFFFF_0%,#F5F8FC_100%)] shadow-[0_4px_14px_rgba(30,58,95,0.05)]",
+    "rounded-[20px] border border-white/80 bg-[radial-gradient(circle_at_18%_14%,rgba(88,168,224,0.20),transparent_42%),linear-gradient(180deg,#FCFEFF_0%,#E8F1FC_100%)] shadow-[0_12px_32px_rgba(30,58,95,0.10)]",
   previewMask:
     "bg-[linear-gradient(180deg,rgba(255,255,255,0.30)_0%,rgba(255,255,255,0)_34%,rgba(30,58,95,0.10)_100%)]",
   previewAspect: "aspect-[4/5]",
@@ -193,7 +196,7 @@ function LetterPreview({
             alt=""
             fill
             sizes="(max-width: 640px) 88vw, (max-width: 1024px) 380px, 420px"
-            className="object-cover object-top transition-transform duration-500 ease-out motion-safe:group-hover:scale-[1.03]"
+            className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.02]"
           />
         ) : null}
 
@@ -208,7 +211,7 @@ function LetterPreview({
                 type="application/pdf"
                 aria-hidden="true"
                 tabIndex={-1}
-                className="pointer-events-none h-full w-full transition-transform duration-500 ease-out motion-safe:group-hover:scale-[1.02]"
+                className="pointer-events-none h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.01]"
               >
                 <DocumentPreviewFallback
                   letter={letter}
@@ -282,7 +285,7 @@ function DefaultCardContent({
   style: RailVariantStyle;
 }) {
   return (
-    <div className="mt-3 flex flex-1 flex-col">
+    <div className="mt-4 flex flex-1 flex-col">
       <h3 className={cn("line-clamp-3 font-semibold", style.title)}>
         {letter.title}
       </h3>
@@ -300,7 +303,7 @@ function RecommendationLetterCard({
   return (
     <article
       className={cn(
-        "snap-start shrink-0 py-1.5",
+        "snap-start shrink-0 py-2",
         style.itemWidth
       )}
     >
@@ -314,7 +317,15 @@ function RecommendationLetterCard({
           style.card
         )}
       >
-        <div className="relative z-10 flex h-full flex-col p-[18px] sm:p-6">
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+            style.cardBeam
+          )}
+        />
+
+        <div className="relative z-10 flex h-full flex-col p-4 sm:p-5">
           <LetterPreview letter={letter} style={style} />
           <DefaultCardContent letter={letter} style={style} />
         </div>
@@ -382,12 +393,12 @@ export function RecommendationLettersRail({
     <div className={cn("relative", className)}>
       <div className={cn("relative", style.shell)}>
         <div className="relative z-10">
-          <div className="relative -mx-1 px-1 py-3">
+          <div className="relative -mx-1 -my-8 px-1 py-8">
             <div
               id={railId}
               ref={trackRef}
               className={cn(
-                "flex gap-4 overflow-x-auto px-1 pt-2 pb-3 scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-5",
+                "flex gap-4 overflow-x-auto px-1 pt-3 pb-7 scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-5",
                 style.trackInset
               )}
             >
@@ -400,7 +411,7 @@ export function RecommendationLettersRail({
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-2">
+          <div className="mt-5 flex items-center justify-center gap-2 md:mt-6">
             <RailControlButton
               direction="prev"
               disabled={!canScrollPrev}

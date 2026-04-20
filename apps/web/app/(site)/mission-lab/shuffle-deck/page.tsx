@@ -11,6 +11,10 @@ export const metadata: Metadata = buildPageMetadata({
   title: "Mission Lab: Shuffle Deck",
   description:
     "Demo-вариант блока миссии НЦФГ с restrained shuffle/fan deck feel, спокойным hover/focus/click-поведением и чистым mobile fallback.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 });
 
 const checkpoints = [

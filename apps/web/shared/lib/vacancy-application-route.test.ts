@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { handleVacancyApplicationPost } from "@/app/api/vacancy-application/route";
 import {
+  VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR,
   VACANCY_APPLICATION_INVALID_EMAIL_ERROR,
   VACANCY_APPLICATION_INVALID_RESUME_URL_ERROR,
   VACANCY_APPLICATION_REQUIRED_FIELDS_ERROR,
@@ -29,6 +30,7 @@ test("handleVacancyApplicationPost submits published vacancy applications", asyn
 
   const response = await handleVacancyApplicationPost(createRequest({
     vacancySlug: "editor-educational-programs",
+    consentToProcessing: true,
     name: "Иван Петров",
     email: "candidate@example.com",
     phone: "+7 999 000 00 00",
@@ -63,6 +65,7 @@ test("handleVacancyApplicationPost submits published vacancy applications", asyn
     {
       data: {
         vacancySlug: "editor-educational-programs",
+        consentToProcessing: true,
         vacancyTitle: "Редактор образовательных программ",
         name: "Иван Петров",
         email: "candidate@example.com",
@@ -98,6 +101,7 @@ test("handleVacancyApplicationPost submits published vacancy applications", asyn
 test("handleVacancyApplicationPost returns 400 for missing required fields", async () => {
   const response = await handleVacancyApplicationPost(createRequest({
     vacancySlug: "editor-educational-programs",
+    consentToProcessing: true,
     name: "Иван Петров",
     email: "candidate@example.com",
     phone: "",
@@ -123,6 +127,7 @@ test("handleVacancyApplicationPost returns 400 for missing required fields", asy
 test("handleVacancyApplicationPost returns 400 for invalid email", async () => {
   const response = await handleVacancyApplicationPost(createRequest({
     vacancySlug: "editor-educational-programs",
+    consentToProcessing: true,
     name: "Иван Петров",
     email: "invalid-email",
     phone: "+7 999 000 00 00",
@@ -148,6 +153,7 @@ test("handleVacancyApplicationPost returns 400 for invalid email", async () => {
 test("handleVacancyApplicationPost returns 400 for invalid resume url", async () => {
   const response = await handleVacancyApplicationPost(createRequest({
     vacancySlug: "editor-educational-programs",
+    consentToProcessing: true,
     name: "Иван Петров",
     email: "candidate@example.com",
     phone: "+7 999 000 00 00",
@@ -173,6 +179,7 @@ test("handleVacancyApplicationPost returns 400 for invalid resume url", async ()
 test("handleVacancyApplicationPost returns 400 for unknown vacancy slug", async () => {
   const response = await handleVacancyApplicationPost(createRequest({
     vacancySlug: "missing-vacancy",
+    consentToProcessing: true,
     name: "Иван Петров",
     email: "candidate@example.com",
     phone: "+7 999 000 00 00",
@@ -198,6 +205,7 @@ test("handleVacancyApplicationPost returns 400 for unknown vacancy slug", async 
 test("handleVacancyApplicationPost returns 400 for unpublished vacancy", async () => {
   const response = await handleVacancyApplicationPost(createRequest({
     vacancySlug: "draft-vacancy",
+    consentToProcessing: true,
     name: "Иван Петров",
     email: "candidate@example.com",
     phone: "+7 999 000 00 00",
@@ -230,6 +238,7 @@ test("handleVacancyApplicationPost keeps success response when confirmation emai
 
   const response = await handleVacancyApplicationPost(createRequest({
     vacancySlug: "editor-educational-programs",
+    consentToProcessing: true,
     name: "Иван Петров",
     email: "candidate@example.com",
     phone: "+7 999 000 00 00",
@@ -258,4 +267,30 @@ test("handleVacancyApplicationPost keeps success response when confirmation emai
   });
   assert.equal(consoleError.mock.calls.length, 1);
   assert.match(String(consoleError.mock.calls[0]?.arguments[0]), /req-123/);
+});
+
+test("handleVacancyApplicationPost returns 400 when consent is missing", async () => {
+  const response = await handleVacancyApplicationPost(createRequest({
+    vacancySlug: "editor-educational-programs",
+    consentToProcessing: false,
+    name: "Иван Петров",
+    email: "candidate@example.com",
+    phone: "+7 999 000 00 00",
+    resumeUrl: "https://example.com/resume",
+  }), {
+    async findVacancyBySlug() {
+      throw new Error("should not be called");
+    },
+    async submitVacancyApplication() {
+      throw new Error("should not be called");
+    },
+    async sendConfirmation() {
+      throw new Error("should not be called");
+    },
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), {
+    error: VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR,
+  });
 });

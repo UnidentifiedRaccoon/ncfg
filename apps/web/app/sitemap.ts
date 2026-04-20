@@ -46,7 +46,25 @@ const KEY_STATIC_ROUTE_LASTMOD_LOADERS = [
   },
   { path: "/portfolio", load: fetchPortfolioPageData },
   { path: "/blog", load: fetchBlogPageData },
-  { path: "/vacancies", load: fetchCareerPageData },
+  {
+    path: "/vacancies",
+    load: async () => {
+      const [careerPage, vacancies] = await Promise.all([
+        fetchCareerPageData(),
+        fetchVacancies().catch(() => []),
+      ]);
+
+      return {
+        updatedAt: pickLatestDate(
+          [
+            careerPage.updatedAt,
+            ...vacancies.flatMap((vacancy) => [vacancy.updatedAt, vacancy.publishedDate]),
+          ],
+          "vacancies page sitemap"
+        ),
+      };
+    },
+  },
 ] as const;
 
 function toAbsoluteUrl(path: string, siteUrl: string): string {

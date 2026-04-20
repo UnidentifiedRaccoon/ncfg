@@ -21,15 +21,6 @@ export interface CertificateData {
   order: number;
 }
 
-function parseCertificateYear(year: string | null): number | null {
-  if (!year) {
-    return null;
-  }
-
-  const parsedYear = Number.parseInt(year, 10);
-  return Number.isNaN(parsedYear) ? null : parsedYear;
-}
-
 function resolvePreviewImageUrl(file: StrapiMedia): string | null {
   const previewUrl = getStrapiMediaUrl(file.previewUrl);
   if (previewUrl) {
@@ -100,9 +91,7 @@ export async function getCertificates(limit?: number): Promise<StrapiCertificate
     ...(typeof limit === 'number' ? { pagination: { limit } } : {}),
   });
 
-  const response = await fetchAPI<StrapiResponse<StrapiCertificate[]>>(
-    `/certificates${query}`
-  );
+  const response = await fetchAPI<StrapiResponse<StrapiCertificate[]>>(`/certificates${query}`);
 
   return response.data;
 }
@@ -133,29 +122,4 @@ export function transformToCertificateData(certificate: StrapiCertificate): Cert
     previewKind: resolvePreviewKind(file, previewImageUrl),
     order: certificate.order,
   };
-}
-
-export function sortCertificatesByYear(certificates: CertificateData[]): CertificateData[] {
-  return [...certificates].sort((left, right) => {
-    const leftYear = parseCertificateYear(left.year);
-    const rightYear = parseCertificateYear(right.year);
-
-    if (leftYear !== rightYear) {
-      if (leftYear === null) {
-        return 1;
-      }
-
-      if (rightYear === null) {
-        return -1;
-      }
-
-      return rightYear - leftYear;
-    }
-
-    if (left.order !== right.order) {
-      return left.order - right.order;
-    }
-
-    return left.id.localeCompare(right.id);
-  });
 }

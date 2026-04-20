@@ -17,6 +17,10 @@ export const metadata: Metadata = buildPageMetadata({
   title: "Mission Lab",
   description:
     "Демо-страницы с разными UX-подходами для переработки блока миссии НЦФГ.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 });
 
 const variants = [
