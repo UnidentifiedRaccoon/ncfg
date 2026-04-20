@@ -6,7 +6,6 @@ import {
   Layers3,
   MousePointer2,
   PanelsTopLeft,
-  RefreshCcw,
   Sparkles,
 } from "lucide-react";
 
@@ -61,14 +60,6 @@ const variants = [
     icon: ArrowRight,
     accent: "from-[#E8F2FF] via-[#F7FAFF] to-white",
   },
-  {
-    slug: "deck-loop-fixes",
-    title: "Deck Loop Fixes",
-    summary: "Технический разбор трёх способов убрать jerk на циклическом переходе в Layered Deck и сохранить спокойный premium-motion.",
-    fit: "Не новый визуальный паттерн, а research note по исправлению текущей проблемы.",
-    icon: RefreshCcw,
-    accent: "from-[#EAF4FF] via-[#F7FBFF] to-white",
-  },
 ] as const;
 
 export default function MissionLabPage() {
@@ -94,8 +85,8 @@ export default function MissionLabPage() {
             <p className="mt-5 max-w-[46ch] text-base leading-7 text-[#52657D] md:text-lg">
               Здесь собраны отдельные demo-страницы с разными card-based паттернами. Все они
               тестируют одну и ту же задачу: как заменить нынешнюю простую подмену текста на
-              более выразительную, но всё ещё читабельную подачу. Ниже также есть research note
-              по jerk-проблеме на loop-переходе у Layered Deck.
+              более выразительную, но всё ещё читабельную подачу. Отдельная страница со stable
+              mission deck показывает уже выбранный продовый rollout для главной.
             </p>
 
             <div className="mt-8 rounded-[28px] border border-[#DCE7F3] bg-white/88 p-6 shadow-[0_18px_50px_rgba(21,49,83,0.07)]">
