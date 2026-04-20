@@ -63,13 +63,3 @@ export const missionDirections = [
     ],
   },
 ] satisfies readonly MissionDirection[];
-
-export const missionIntroTitle =
-  "Решаем комплексные задачи в области финансового благополучия";
-
-export const missionIntroHighlights = [
-  "Финансовая психология",
-  "Развитие детей",
-  "Поддержка взрослых",
-  "Здоровые привычки",
-] as const;

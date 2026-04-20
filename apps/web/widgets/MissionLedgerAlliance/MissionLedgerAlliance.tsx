@@ -24,7 +24,6 @@ interface MissionLedgerAllianceProps {
 
 interface LayerClassSet {
   card: string;
-  glow: string;
 }
 
 interface StableSlotLayout {
@@ -39,32 +38,24 @@ const STABLE_DOM_DURATION_S = 0.37;
 
 const desktopLayerClasses: Record<DeckDepth, LayerClassSet> = {
   0: {
-    card:
-      "border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.97)_0%,rgba(244,249,255,0.98)_100%)] shadow-[0_30px_80px_rgba(18,45,78,0.18)]",
-    glow: "opacity-100",
+    card: "border-[#BDD2EC] bg-[#F9FCFF]",
   },
   1: {
-    card:
-      "border-[#D7E5F6] bg-[linear-gradient(180deg,rgba(246,250,255,0.98)_0%,rgba(234,242,252,0.98)_100%)] shadow-[0_22px_55px_rgba(18,45,78,0.12)]",
-    glow: "opacity-70",
+    card: "border-[#D3E1F2] bg-[#F6FAFE]",
   },
   2: {
-    card:
-      "border-[#D5E0EF] bg-[linear-gradient(180deg,rgba(242,247,253,0.98)_0%,rgba(228,237,248,0.98)_100%)] shadow-[0_16px_40px_rgba(18,45,78,0.10)]",
-    glow: "opacity-45",
+    card: "border-[#D5E0EF] bg-[#F2F6FB]",
   },
   3: {
-    card:
-      "border-[#D5E0EF] bg-[linear-gradient(180deg,rgba(242,247,253,0.98)_0%,rgba(228,237,248,0.98)_100%)] shadow-[0_16px_40px_rgba(18,45,78,0.10)]",
-    glow: "opacity-0",
+    card: "border-[#D5E0EF] bg-[#F2F6FB]",
   },
 };
 
 const stableSlotLayouts: Record<DeckDepth, StableSlotLayout> = {
   0: { x: 0, y: 0, scale: 1, opacity: 1, zIndex: 30 },
-  1: { x: 20, y: 40, scale: 0.97, opacity: 0.95, zIndex: 20 },
-  2: { x: 40, y: 80, scale: 0.94, opacity: 0.8, zIndex: 10 },
-  3: { x: 60, y: 112, scale: 0.9, opacity: 0, zIndex: 0 },
+  1: { x: 16, y: 30, scale: 0.97, opacity: 1, zIndex: 20 },
+  2: { x: 32, y: 60, scale: 0.94, opacity: 1, zIndex: 10 },
+  3: { x: 48, y: 88, scale: 0.9, opacity: 0, zIndex: 0 },
 };
 
 function wrapIndex(index: number): number {
@@ -110,7 +101,7 @@ function MissionDirectionControls({
       role="group"
       aria-label="Направления миссии"
       aria-describedby={`${baseId}-hint`}
-      className="grid gap-3"
+      className="grid gap-2"
     >
       {missionDirections.map((direction, index) => {
         const isActive = index === activeIndex;
@@ -128,17 +119,27 @@ function MissionDirectionControls({
             onMouseEnter={() => onSelect(index)}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
-              "group w-full rounded-[24px] border px-4 py-4 text-left transition-all duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] motion-reduce:transition-none md:px-5",
+              "group w-full rounded-[24px] border px-4 py-3.5 text-left transition-[border-color,background-color,box-shadow] duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] motion-reduce:transition-none md:px-5",
               isActive
-                ? "border-[#BFD5EE] bg-[linear-gradient(180deg,#FFFFFF_0%,#F5F9FF_100%)] shadow-[0_16px_35px_rgba(18,45,78,0.10)]"
+                ? "border-[#9FBFE6] bg-[#F3F8FF] shadow-[0_12px_26px_rgba(18,45,78,0.10)]"
                 : "border-[#D8E4F2] bg-white/76 hover:border-[#BFD5EE] hover:bg-white"
             )}
           >
             <span className="block min-w-0">
-              <span className="block text-base font-semibold leading-6 text-[#163153] md:text-[17px]">
+              <span
+                className={cn(
+                  "block text-base font-semibold leading-6 md:text-[17px]",
+                  isActive ? "text-[#12325A]" : "text-[#163153]"
+                )}
+              >
                 {direction.label}
               </span>
-              <span className="mt-2 block text-sm leading-6 text-[#5E738E]">
+              <span
+                className={cn(
+                  "mt-1.5 block text-sm leading-[1.55]",
+                  isActive ? "text-[#486481]" : "text-[#5E738E]"
+                )}
+              >
                 {direction.summary}
               </span>
             </span>
@@ -161,33 +162,20 @@ function MissionLayerCard({
   const layerClass = desktopLayerClasses[depth];
 
   return (
-    <div className="relative h-[31rem] rounded-[34px] text-left" role="presentation">
-      <span
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute inset-x-[7%] top-[72%] h-24 rounded-full bg-[radial-gradient(circle,rgba(74,132,214,0.22)_0%,rgba(74,132,214,0)_74%)] blur-2xl transition-opacity duration-[340ms] motion-reduce:hidden",
-          layerClass.glow
-        )}
-      />
-
+    <div className="relative h-[25.5rem] rounded-[34px] text-left" role="presentation">
       <article
         className={cn(
-          "relative flex h-full flex-col overflow-hidden rounded-[34px] border p-6 transition-all duration-[340ms] motion-reduce:transition-none md:p-8",
+          "relative flex h-full flex-col overflow-hidden rounded-[34px] border p-6 transition-[border-color,background-color] duration-[340ms] motion-reduce:transition-none md:p-8",
           layerClass.card
         )}
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(88,168,224,0.16),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.15),transparent_46%)]" />
-
         <div className="relative flex h-full flex-col">
           <div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6E88A8]">
-                {direction.label}
-              </p>
               <h3
                 className={cn(
-                  "mt-3 max-w-[20ch] text-[26px] font-semibold leading-[1.02] tracking-[-0.045em] text-[#153153] transition-opacity duration-200 motion-reduce:transition-none",
-                  !isActive && "max-w-[16ch] text-[21px] leading-[1.08]"
+                  "max-w-[20ch] text-[32px] font-semibold leading-[1.02] tracking-[-0.045em] text-[#153153] transition-opacity duration-200 motion-reduce:transition-none",
+                  !isActive && "max-w-[16ch] text-[26px] leading-[1.08]"
                 )}
               >
                 {isActive ? direction.title : direction.label}
@@ -239,7 +227,13 @@ function MissionLedgerAlliancePanel({
   const activeDirection = missionDirections[activeIndex];
 
   function selectIndex(index: number) {
-    setActiveIndex(wrapIndex(index));
+    const nextIndex = wrapIndex(index);
+
+    if (nextIndex === activeIndex) {
+      return;
+    }
+
+    setActiveIndex(nextIndex);
   }
 
   function focusControl(index: number) {
@@ -276,18 +270,15 @@ function MissionLedgerAlliancePanel({
   }
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
       {renderHiddenHeading ? <Heading className="sr-only">Наша миссия</Heading> : null}
 
       <div className="order-2 xl:order-2">
         <div className="xl:hidden">
-          <div className="rounded-[30px] border border-[#DCE7F3] bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,249,255,0.95)_100%)] p-5 shadow-[0_18px_45px_rgba(18,45,78,0.07)] md:p-6">
+          <div className="rounded-[30px] border border-[#BDD2EC] bg-[#F9FCFF] p-5 md:p-6">
             <div aria-live="polite">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6E88A8]">
-                  {activeDirection.label}
-                </p>
-                <h3 className="mt-3 text-[25px] font-semibold leading-[1.04] tracking-[-0.045em] text-[#153153] md:text-[30px]">
+                <h3 className="text-[31px] font-semibold leading-[1.04] tracking-[-0.045em] text-[#153153] md:text-[38px]">
                   {activeDirection.title}
                 </h3>
               </div>
@@ -308,8 +299,8 @@ function MissionLedgerAlliancePanel({
           </div>
         </div>
 
-        <div className="relative hidden min-h-[38rem] xl:block">
-          <div className="relative h-full px-6 py-7">
+        <div className="relative hidden min-h-[28.5rem] xl:block">
+          <div className="relative h-full px-6 py-6">
             <p id={`${baseId}-hint`} className="sr-only">
               Навигация по четырём направлениям миссии. Наведите курсор, переведите фокус или
               нажмите на список слева, чтобы вынести карточку на передний план.
@@ -329,7 +320,7 @@ function MissionLedgerAlliancePanel({
                     y: layout.y,
                   }}
                   className={cn(
-                    "absolute inset-x-0 top-0 h-[31rem] origin-top-left rounded-[34px]",
+                    "absolute inset-x-0 top-0 h-[25.5rem] origin-top-left rounded-[34px]",
                     depth === 3 ? "pointer-events-none" : "cursor-pointer"
                   )}
                   initial={false}
