@@ -271,7 +271,7 @@ function MissionLedgerAlliancePanel({
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
-      {renderHiddenHeading ? <Heading className="sr-only">Наша миссия</Heading> : null}
+      {renderHiddenHeading ? <Heading className="sr-only">Наш подход</Heading> : null}
 
       <div className="order-2 xl:order-2">
         <div className="xl:hidden">
@@ -364,8 +364,8 @@ export function MissionLedgerAlliance({
     <Section
       id="mission"
       className="pt-8 pb-2 md:pt-10 md:pb-4 lg:pb-6"
-      title="Наша миссия"
-      lead="Решаем комплексные задачи в области финансового благополучия и финансовой культуры населения."
+      title="Наш подход"
+      lead="Решаем комплексные задачи в области финансового благополучия и финансовой культуры населения — через психологию, работу с детьми и взрослыми, создание поддерживающей среды и формирование устойчивых привычек."
     >
       <MissionLedgerAlliancePanel
         headingAs={headingAs}
