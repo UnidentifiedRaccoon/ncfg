@@ -174,8 +174,8 @@ function MissionLayerCard({
             <div>
               <h3
                 className={cn(
-                  "max-w-[20ch] text-[32px] font-semibold leading-[1.02] tracking-[-0.045em] text-[#153153] transition-opacity duration-200 motion-reduce:transition-none",
-                  !isActive && "max-w-[16ch] text-[26px] leading-[1.08]"
+                  "w-full max-w-none text-[32px] font-semibold leading-[1.02] tracking-[-0.045em] text-[#153153] transition-opacity duration-200 motion-reduce:transition-none",
+                  !isActive && "text-[26px] leading-[1.08]"
                 )}
               >
                 {isActive ? direction.title : direction.label}
@@ -186,7 +186,7 @@ function MissionLayerCard({
           <div className="mt-auto">
             {isActive ? (
               <>
-                <p className="max-w-[42ch] text-[15px] leading-7 text-[#52657D] md:text-base">
+                <p className="w-full max-w-none text-[15px] leading-7 text-[#52657D] md:text-base">
                   {direction.detail}
                 </p>
 
@@ -203,7 +203,9 @@ function MissionLayerCard({
 
               </>
             ) : (
-              <p className="max-w-[28ch] text-sm leading-6 text-[#5E738E]">{direction.summary}</p>
+              <p className="w-full max-w-none text-sm leading-6 text-[#5E738E]">
+                {direction.summary}
+              </p>
             )}
           </div>
         </div>
