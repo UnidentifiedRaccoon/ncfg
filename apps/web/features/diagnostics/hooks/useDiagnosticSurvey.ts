@@ -8,6 +8,7 @@ import type {
   DiagnosticResult,
   DiagnosticSubmitResponse,
 } from "@/shared/api/types/diagnostic";
+import { validateDiagnosticContact } from "@/features/form-core";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 import { getUtmParams } from "@/shared/lib/utm";
@@ -26,10 +27,6 @@ interface UseDiagnosticSurveyOptions {
   campaignSlug: string;
   questions: DiagnosticPublicQuestion[];
 }
-
-/* ------------------------------------------------------------------ */
-/*  localStorage draft helpers                                         */
-/* ------------------------------------------------------------------ */
 
 interface DraftState {
   currentStep: number;
@@ -89,7 +86,6 @@ function saveDraft(campaignSlug: string, state: DraftState): void {
   try {
     localStorage.setItem(draftKey(campaignSlug), JSON.stringify(state));
   } catch {
-    // quota exceeded — silently ignore
   }
 }
 
@@ -97,13 +93,8 @@ function clearDraft(campaignSlug: string): void {
   try {
     localStorage.removeItem(draftKey(campaignSlug));
   } catch {
-    // ignore
   }
 }
-
-/* ------------------------------------------------------------------ */
-/*  Hook                                                               */
-/* ------------------------------------------------------------------ */
 
 const EMPTY_RESPONDENT: RespondentFormData = { fullName: "", email: "", phone: "" };
 
@@ -138,7 +129,6 @@ export function useDiagnosticSurvey({
     : 100;
   const isSubmitted = status === "success" && result !== null;
 
-  /* ---- Hydration: check for existing draft ---- */
   const hydrationDone = useRef(false);
   useEffect(() => {
     if (hydrationDone.current) return;
@@ -151,7 +141,6 @@ export function useDiagnosticSurvey({
     setIsHydrated(true);
   }, [campaignSlug]);
 
-  /* ---- Autosave draft during survey / results phase ---- */
   useEffect(() => {
     if ((phase !== "survey" && phase !== "results") || !isHydrated || isSubmitted) return;
 
@@ -177,8 +166,6 @@ export function useDiagnosticSurvey({
     submissionDocumentId,
   ]);
 
-  /* ---- Preview fetch ---- */
-
   const fetchPreviewResult = async () => {
     const counter = ++previewCounter.current;
     setPreviewStatus("loading");
@@ -197,7 +184,6 @@ export function useDiagnosticSurvey({
         }),
       });
 
-      // Stale request guard
       if (counter !== previewCounter.current) return;
 
       const payload = (await response.json()) as DiagnosticPreviewResponse & { error?: string };
@@ -216,8 +202,6 @@ export function useDiagnosticSurvey({
       );
     }
   };
-
-  /* ---- Actions ---- */
 
   const clearError = () => {
     if (status === "error") {
@@ -259,13 +243,11 @@ export function useDiagnosticSurvey({
       setSubmissionDocumentId(draft.submissionDocumentId ?? null);
       setEmailDeliveryStatus(null);
 
-      // If draft was in results phase, restore and re-fetch preview
       if (draft.phase === "results") {
         setPhase("results");
         setStatus("idle");
         setErrorMessage("");
         setResult(null);
-        // fetchPreviewResult will be triggered by the effect below
         return;
       }
     }
@@ -276,15 +258,15 @@ export function useDiagnosticSurvey({
     setPhase("survey");
   };
 
-  // Auto-fetch preview when entering results phase from draft restore
   const prevPhaseRef = useRef<DiagnosticPhase>("intro");
+  const fetchPreviewResultRef = useRef(fetchPreviewResult);
+  fetchPreviewResultRef.current = fetchPreviewResult;
   useEffect(() => {
     if (phase === "results" && prevPhaseRef.current !== "results" && !previewResult && previewStatus === "idle") {
-      fetchPreviewResult();
+      void fetchPreviewResultRef.current();
     }
     prevPhaseRef.current = phase;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [phase, previewResult, previewStatus]);
 
   const startFromIntro = () => {
     clearDraft(campaignSlug);
@@ -320,7 +302,6 @@ export function useDiagnosticSurvey({
       return;
     }
 
-    // Last question → go to results phase
     if (currentStep === questions.length - 1) {
       setPhase("results");
       clearError();
@@ -358,22 +339,14 @@ export function useDiagnosticSurvey({
     const email = respondent.email.trim();
     const phone = respondent.phone.trim();
 
-    if (!fullName || !email) {
+    const validation = validateDiagnosticContact({
+      fullName,
+      email,
+      consent: consentAccepted,
+    });
+    if (validation) {
       setStatus("error");
-      setErrorMessage("Имя и email обязательны для заполнения");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setStatus("error");
-      setErrorMessage("Укажите корректный email");
-      return;
-    }
-
-    if (!consentAccepted) {
-      setStatus("error");
-      setErrorMessage("Подтвердите согласие на обработку персональных данных");
+      setErrorMessage(validation);
       return;
     }
 

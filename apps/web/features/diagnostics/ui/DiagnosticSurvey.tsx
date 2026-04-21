@@ -16,6 +16,12 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
+import {
+  FormErrorAlert,
+  FormFieldLabel,
+  FormPrivacyConsent,
+  formInputClassName,
+} from "@/shared/ui/form";
 import type { DiagnosticPublicQuestion } from "@/shared/api/types/diagnostic";
 import type { DiagnosticResult, DiagnosticResultInsight } from "@/shared/api/types/diagnostic";
 import { getDiagnosticResultPresentation } from "@/shared/lib/diagnostic-result-presentation";
@@ -39,14 +45,8 @@ interface DiagnosticSurveyProps {
   fillViewport?: boolean;
 }
 
-const inputClass = cn(
-  "w-full rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5",
-  "text-[#0F172A] placeholder:text-[#94A3B8]",
-  "focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[rgba(59,130,246,0.15)]",
-  "transition-all duration-150"
-);
+const contactInputClass = formInputClassName("xl");
 
-/** Card container: edge-to-edge on mobile, rounded with shadow on md+ */
 const cardClass = cn(
   "-mx-4 bg-white p-4",
   "md:mx-0 md:rounded-2xl md:border md:border-[#E2E8F0]/80 md:shadow-[0_18px_56px_rgba(15,23,42,0.08)]"
@@ -61,9 +61,6 @@ const primaryCtaClass = cn(
 const primaryCtaLargeClass = cn(primaryCtaClass, "px-8 py-3.5");
 const primaryCtaCompactClass = cn(primaryCtaClass, "px-6 py-3");
 
-/* ------------------------------------------------------------------ */
-/*  Sidebar step dot                                                   */
-/* ------------------------------------------------------------------ */
 function StepDot({ state }: { state: "active" | "done" | "pending" }) {
   return (
     <span
@@ -81,9 +78,6 @@ function StepDot({ state }: { state: "active" | "done" | "pending" }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Skeleton placeholder                                               */
-/* ------------------------------------------------------------------ */
 function SurveySkeleton({ fillViewport = false }: { fillViewport?: boolean }) {
   return (
     <div className={cn("relative text-[#0F172A]", fillViewport && "min-h-screen min-h-dvh")}>
@@ -107,9 +101,6 @@ function SurveySkeleton({ fillViewport = false }: { fillViewport?: boolean }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Animated counter                                                   */
-/* ------------------------------------------------------------------ */
 function useAnimatedCount(target: number, duration = 1200) {
   const [value, setValue] = useState(0);
   const rafRef = useRef<number>(0);
@@ -120,7 +111,6 @@ function useAnimatedCount(target: number, duration = 1200) {
     function tick(now: number) {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
-      // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(Math.round(eased * target));
 
@@ -159,7 +149,6 @@ function InsightCard({
         !isOpen && "hover:shadow-sm"
       )}
     >
-      {/* ---- Top: badge + question + answer + chevron ---- */}
       <button
         type="button"
         onClick={onToggle}
@@ -195,10 +184,8 @@ function InsightCard({
         />
       </button>
 
-      {/* ---- Divider (edge-to-edge) ---- */}
       <div className="h-px bg-[#E2E8F0]/70" />
 
-      {/* ---- Insight title (edge-to-edge, clickable) ---- */}
       <button
         type="button"
         onClick={onToggle}
@@ -209,7 +196,6 @@ function InsightCard({
         </h4>
       </button>
 
-      {/* ---- Expanded body ---- */}
       <div
         className={cn(
           "grid transition-[grid-template-rows] duration-300",
@@ -217,14 +203,12 @@ function InsightCard({
         )}
       >
         <div className="overflow-hidden">
-          {/* Insight text */}
           <div className="px-5 pb-4">
             <p className="text-sm leading-6 text-[#475569]">
               {insight.insightText}
             </p>
           </div>
 
-          {/* Practice step — edge-to-edge banner */}
           <div
             className={cn(
               "border-t border-[#E2E8F0]/60 px-5 py-4",
@@ -249,9 +233,6 @@ function InsightCard({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Result display (score + band + insights)                           */
-/* ------------------------------------------------------------------ */
 function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
   const [openInsight, setOpenInsight] = useState<number>(0);
   const animatedScore = useAnimatedCount(result.scorePercent);
@@ -264,7 +245,6 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
 
   return (
     <div>
-      {/* Score */}
       <div className="text-center">
         <div
           className={cn(
@@ -315,7 +295,6 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
         )}
       </div>
 
-      {/* Insight cards */}
       {result.insights.length > 0 && (
         <div className="mt-10 text-left">
           <h3 className="text-xl font-semibold text-[#1E3A5F] md:text-2xl">
@@ -341,13 +320,9 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Result skeleton (loading state)                                    */
-/* ------------------------------------------------------------------ */
 function ResultSkeleton() {
   return (
     <div className="text-center">
-      {/* Score circle skeleton */}
       <div className="mx-auto flex h-28 w-28 animate-pulse items-center justify-center rounded-full border-4 border-[#E2E8F0] bg-[#F8FAFC]">
         <div className="h-10 w-14 rounded bg-[#E2E8F0]" />
       </div>
@@ -355,7 +330,6 @@ function ResultSkeleton() {
       <div className="mx-auto mt-4 h-4 w-3/4 animate-pulse rounded bg-[#E2E8F0]" />
       <div className="mx-auto mt-2 h-4 w-1/2 animate-pulse rounded bg-[#E2E8F0]" />
 
-      {/* Insight skeletons */}
       <div className="mt-10 space-y-3 text-left">
         {[1, 2, 3].map((i) => (
           <div key={i} className="rounded-xl border border-[#E2E8F0]/80 bg-[#F8FAFC] p-5">
@@ -373,9 +347,6 @@ function ResultSkeleton() {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Main component                                                     */
-/* ------------------------------------------------------------------ */
 export function DiagnosticSurvey({
   campaignSlug,
   campaignTitle,
@@ -466,14 +437,12 @@ export function DiagnosticSurvey({
     setSidebarOpen(false);
   };
 
-  /* ---- Scroll to top on phase change to results or on submit ---- */
   useEffect(() => {
     if (phase === "results" || isSubmitted) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [phase, isSubmitted]);
 
-  /* ---- SSR skeleton ---- */
   if (!isHydrated) {
     return <SurveySkeleton fillViewport={fillViewport} />;
   }
@@ -482,14 +451,11 @@ export function DiagnosticSurvey({
   const showSidebar = phase === "survey" || phase === "results";
   const areAnswersLocked = phase === "results" || isSubmitted;
 
-  // The result to display: canonical (from submit) takes priority over preview
   const displayResult = isSubmitted && result ? result : previewResult;
 
   return (
     <div className={cn("relative text-[#0F172A]", fillViewport && "min-h-screen min-h-dvh")}>
-      {/* Background extending behind the sticky header */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 bg-[#F8FAFC]" />
-      {/* Animated background blobs */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 overflow-hidden">
         <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:64px_64px]" />
         <div className="absolute -top-40 left-[15%] h-[500px] w-[500px] rounded-full bg-[#3B82F6]/14 blur-3xl animate-[blobDrift_18s_ease-in-out_infinite]" />
@@ -497,18 +463,12 @@ export function DiagnosticSurvey({
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
-        {/* ============================================================ */}
-        {/*  Page heading                                                */}
-        {/* ============================================================ */}
         <div className="mb-8 text-center lg:mb-10">
           <h1 className="text-[28px] md:text-4xl lg:text-[48px] font-bold text-[#1E3A5F] leading-tight tracking-tight">
             {testTitle}
           </h1>
         </div>
 
-        {/* ============================================================ */}
-        {/*  INTRO SCREEN                                                */}
-        {/* ============================================================ */}
         {phase === "intro" && (
           <div className="mx-auto max-w-2xl animate-[cardIn_0.35s_ease-out]">
             <div className={cn(cardClass, "p-6 md:p-8")}>
@@ -567,12 +527,8 @@ export function DiagnosticSurvey({
           </div>
         )}
 
-        {/* ============================================================ */}
-        {/*  SURVEY + RESULTS PHASE                                      */}
-        {/* ============================================================ */}
         {(phase === "survey" || phase === "results") && (
           <>
-            {/* ---- MOBILE: collapsible progress header ---- */}
             <div className="mb-6 lg:hidden">
               <button
                 type="button"
@@ -641,7 +597,6 @@ export function DiagnosticSurvey({
                     );
                   })}
 
-                  {/* Result step (mobile sidebar) */}
                   <div
                     className={cn(
                       "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left",
@@ -674,9 +629,7 @@ export function DiagnosticSurvey({
               )}
             </div>
 
-            {/* ---- DESKTOP: two-column layout ---- */}
             <div className="grid gap-8 lg:grid-cols-[320px_1fr] lg:items-start">
-              {/* ---------- LEFT SIDEBAR (desktop only) ---------- */}
               {showSidebar && (
                 <aside className="hidden lg:sticky lg:top-24 lg:block">
                   <div className="rounded-2xl border border-[#E2E8F0]/80 bg-white p-4 shadow-[0_18px_56px_rgba(15,23,42,0.08)]">
@@ -687,7 +640,6 @@ export function DiagnosticSurvey({
                       {organizationName}
                     </p>
 
-                    {/* Progress bar */}
                     <div className="mt-6 rounded-xl border border-[#E2E8F0]/80 bg-[#F8FAFC] p-3">
                       <div className="flex items-center justify-between gap-4 text-sm">
                         <span className="text-[#475569]">Заполнено</span>
@@ -703,7 +655,6 @@ export function DiagnosticSurvey({
                       </div>
                     </div>
 
-                    {/* Question list */}
                     <nav className="mt-6 space-y-2" aria-label="Навигация по вопросам">
                       {questions.map((question, index) => {
                         const stepState =
@@ -759,7 +710,6 @@ export function DiagnosticSurvey({
                         );
                       })}
 
-                      {/* Result step */}
                       <div
                         className={cn(
                           "group flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-all duration-200",
@@ -802,7 +752,6 @@ export function DiagnosticSurvey({
                       </div>
                     </nav>
 
-                    {/* Privacy note */}
                     <div className="mt-6 flex items-start gap-3 rounded-xl border border-[#3B82F6]/20 bg-[#3B82F6]/[0.04] p-4 text-sm leading-6 text-[#475569]">
                       <ShieldCheck
                         className="mt-0.5 h-5 w-5 shrink-0 text-[#3B82F6]"
@@ -817,14 +766,9 @@ export function DiagnosticSurvey({
                 </aside>
               )}
 
-              {/* ---------- RIGHT: main content ---------- */}
               <div className={cn("min-w-0", !showSidebar && "lg:col-span-2")}>
-                {/* ============================================ */}
-                {/*  RESULTS PHASE                               */}
-                {/* ============================================ */}
                 {phase === "results" ? (
                   <div className="space-y-6 animate-[cardIn_0.35s_ease-out]">
-                    {/* Card 1: Results */}
                     <div className={cn(cardClass, "p-4 md:p-6")}>
                       {previewStatus === "loading" ? (
                         <ResultSkeleton />
@@ -853,11 +797,9 @@ export function DiagnosticSurvey({
                       ) : null}
                     </div>
 
-                    {/* Card 2: Contact form (only when preview is successful) */}
                     {(previewStatus === "success" || isSubmitted) && (
                       <div className={cn(cardClass, "p-4 md:p-6 animate-[cardIn_0.35s_ease-out]")}>
                         {isSubmitted ? (
-                          /* ---- Submitted confirmation ---- */
                           <div className="text-center py-4">
                             <div
                               className={cn(
@@ -899,7 +841,6 @@ export function DiagnosticSurvey({
                             </div>
                           </div>
                         ) : (
-                          /* ---- Contact form ---- */
                           <form onSubmit={handleSubmit}>
                             <h2 className="text-2xl font-semibold tracking-tight text-[#1E3A5F] md:text-3xl">
                               Контактные данные
@@ -908,35 +849,25 @@ export function DiagnosticSurvey({
                               Заполните форму, чтобы мы отправили копию результатов на почту
                             </p>
 
-                            {status === "error" && (
-                              <div
+                            {status === "error" ? (
+                              <FormErrorAlert
                                 id={errorId}
-                                role="alert"
-                                aria-live="polite"
-                                className="mt-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
-                              >
-                                <AlertCircle
-                                  className="mt-0.5 h-5 w-5 shrink-0"
-                                  aria-hidden="true"
-                                />
-                                <span className="text-sm leading-6">{errorMessage}</span>
-                              </div>
-                            )}
+                                className="mt-6"
+                                message={errorMessage}
+                              />
+                            ) : null}
 
                             <div className="mt-8 space-y-5">
                               <div>
-                                <label
-                                  className="mb-2 block text-sm font-medium text-[#1E3A5F]"
-                                  htmlFor="d-fullName"
-                                >
-                                  ФИО <span className="text-[#3B82F6]">*</span>
-                                </label>
+                                <FormFieldLabel htmlFor="d-fullName" required>
+                                  ФИО
+                                </FormFieldLabel>
                                 <input
                                   id="d-fullName"
                                   name="fullName"
                                   type="text"
                                   autoComplete="name"
-                                  className={inputClass}
+                                  className={contactInputClass}
                                   value={respondent.fullName}
                                   onChange={handleRespondentChange}
                                   aria-describedby={
@@ -947,18 +878,15 @@ export function DiagnosticSurvey({
                               </div>
                               <div className="grid gap-5 md:grid-cols-2">
                                 <div>
-                                  <label
-                                    className="mb-2 block text-sm font-medium text-[#1E3A5F]"
-                                    htmlFor="d-email"
-                                  >
-                                    Email <span className="text-[#3B82F6]">*</span>
-                                  </label>
+                                  <FormFieldLabel htmlFor="d-email" required>
+                                    Email
+                                  </FormFieldLabel>
                                   <input
                                     id="d-email"
                                     name="email"
                                     type="email"
                                     autoComplete="email"
-                                    className={inputClass}
+                                    className={contactInputClass}
                                     value={respondent.email}
                                     onChange={handleRespondentChange}
                                     aria-describedby={
@@ -968,18 +896,13 @@ export function DiagnosticSurvey({
                                   />
                                 </div>
                                 <div>
-                                  <label
-                                    className="mb-2 block text-sm font-medium text-[#1E3A5F]"
-                                    htmlFor="d-phone"
-                                  >
-                                    Телефон
-                                  </label>
+                                  <FormFieldLabel htmlFor="d-phone">Телефон</FormFieldLabel>
                                   <input
                                     id="d-phone"
                                     name="phone"
                                     type="tel"
                                     autoComplete="tel"
-                                    className={inputClass}
+                                    className={contactInputClass}
                                     value={respondent.phone}
                                     onChange={handleRespondentChange}
                                     placeholder="+7 (999) 123-45-67"
@@ -988,31 +911,13 @@ export function DiagnosticSurvey({
                               </div>
                             </div>
 
-                            <div className="mt-6 rounded-xl border border-[#E2E8F0]/80 bg-[#F8FAFC] p-4">
-                              <div className="flex items-start gap-3">
-                                <input
-                                  id={consentId}
-                                  type="checkbox"
-                                  checked={consentAccepted}
-                                  onChange={(e) => handleConsentChange(e.target.checked)}
-                                  className="mt-0.5 h-5 w-5 shrink-0 rounded border-[#E2E8F0] bg-white accent-[#3B82F6]"
-                                />
-                                <label
-                                  htmlFor={consentId}
-                                  className="text-sm leading-6 text-[#475569]"
-                                >
-                                  Согласен(на) на обработку персональных данных и
-                                  принимаю{" "}
-                                  <Link
-                                    href="/politika-konfidencialnosti"
-                                    className="font-medium text-[#3B82F6] hover:underline"
-                                  >
-                                    политику конфиденциальности
-                                  </Link>
-                                  .
-                                </label>
-                              </div>
-                            </div>
+                            <FormPrivacyConsent
+                              id={consentId}
+                              checked={consentAccepted}
+                              onCheckedChange={handleConsentChange}
+                              variant="compact"
+                              policyLinkClassName="font-medium text-[#3B82F6] hover:underline"
+                            />
 
                             <div className="mt-8 flex items-center justify-between">
                               <p className="text-sm leading-6 text-[#94A3B8]">
@@ -1038,9 +943,6 @@ export function DiagnosticSurvey({
                     )}
                   </div>
                 ) : (
-                  /* ============================================ */
-                  /*  SURVEY PHASE — questions                     */
-                  /* ============================================ */
                   <div>
                     <div
                       key={`step-${stepKey}`}
@@ -1064,20 +966,13 @@ export function DiagnosticSurvey({
                             </p>
                           )}
 
-                          {status === "error" && (
-                            <div
+                          {status === "error" ? (
+                            <FormErrorAlert
                               id={errorId}
-                              role="alert"
-                              aria-live="polite"
-                              className="mt-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
-                            >
-                              <AlertCircle
-                                className="mt-0.5 h-5 w-5 shrink-0"
-                                aria-hidden="true"
-                              />
-                              <span className="text-sm leading-6">{errorMessage}</span>
-                            </div>
-                          )}
+                              className="mt-6"
+                              message={errorMessage}
+                            />
+                          ) : null}
 
                           <div className="mt-8 space-y-3">
                             {currentQuestion.options.map((option, index) => {
@@ -1145,7 +1040,6 @@ export function DiagnosticSurvey({
                       ) : null}
                     </div>
 
-                    {/* Privacy note (mobile only, survey phase) */}
                     <div className="mt-6 flex items-start gap-3 rounded-xl border border-[#3B82F6]/20 bg-[#3B82F6]/[0.04] p-4 text-sm leading-6 text-[#475569] lg:hidden">
                       <ShieldCheck
                         className="mt-0.5 h-5 w-5 shrink-0 text-[#3B82F6]"

@@ -109,7 +109,6 @@ function CategoryTabs({
             aria-controls={panelId}
             onClick={() => onChange(index)}
             className={cn(
-              // Keep geometry stable: constant border width prevents "jumping" when active tab changes.
               "relative overflow-hidden snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full border border-transparent",
               "transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
@@ -234,7 +233,6 @@ function TestimonialCard({
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm lg:h-[500px]">
-      {/* Decorative background */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.55] bg-[radial-gradient(900px_420px_at_20%_0%,rgba(59,130,246,0.12),transparent_55%),radial-gradient(760px_420px_at_100%_40%,rgba(88,168,224,0.10),transparent_60%)]"
@@ -284,7 +282,6 @@ function TestimonialCard({
         <blockquote
           className={cn(
             "mt-5 pr-1 text-[#475569] text-[15px] leading-relaxed",
-            // Clean multi-line truncation with ellipsis.
             "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:10]",
             "md:[-webkit-line-clamp:11]"
           )}
@@ -402,20 +399,8 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
   const [progressKey, setProgressKey] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [hasFocusWithin, setHasFocusWithin] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-      return false;
-    }
-
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
-  const [isDocumentVisible, setIsDocumentVisible] = useState(() => {
-    if (typeof document === "undefined") {
-      return true;
-    }
-
-    return document.visibilityState === "visible";
-  });
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isDocumentVisible, setIsDocumentVisible] = useState(true);
 
   const tabsBaseId = useId();
   const panelId = `${tabsBaseId}-panel`;
@@ -446,6 +431,8 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
     }
 
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+
     const onMediaQueryChange = (event: MediaQueryListEvent) => {
       setPrefersReducedMotion(event.matches);
     };
@@ -462,6 +449,8 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
       return;
     }
 
+    setIsDocumentVisible(document.visibilityState === "visible");
+
     const onVisibilityChange = () => {
       setIsDocumentVisible(document.visibilityState === "visible");
     };
@@ -473,7 +462,6 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
     };
   }, []);
 
-  // Reduced-motion fallback: auto-rotate via interval when animation is suppressed
   useEffect(() => {
     if (!canAutoplayWithInterval) return;
 
@@ -512,7 +500,6 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
             onFocusCapture={() => setHasFocusWithin(true)}
             onBlurCapture={handleAutoplayBlur}
           >
-            {/* Decorative background */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-[0.55] bg-[radial-gradient(920px_460px_at_0%_0%,rgba(59,130,246,0.12),transparent_58%),radial-gradient(760px_420px_at_100%_45%,rgba(88,168,224,0.10),transparent_62%)]"
