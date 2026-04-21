@@ -1,10 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useId, useState, type ChangeEvent, type FormEvent } from "react";
-import { AlertCircle, CheckCircle, Send, ShieldCheck } from "lucide-react";
+import { CheckCircle, Send, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/shared/ui/Button";
+import {
+  FormErrorAlert,
+  FormFieldLabel,
+  FormPrivacyConsent,
+  formInputClassName,
+} from "@/shared/ui/form";
+import { postJsonOrThrow } from "@/features/form-core";
 import { cn } from "@/shared/lib/cn";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 import {
@@ -33,31 +39,7 @@ interface FormData {
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
-const fieldLabelClass = "mb-2 block text-sm font-medium text-[#1E3A5F]";
-const inputBaseClass = cn(
-  "w-full rounded-md border border-[#E2E8F0] bg-white px-4 py-3",
-  "text-[#0F172A] placeholder:text-[#94A3B8]",
-  "shadow-[0_1px_0_rgba(15,23,42,0.02)]",
-  "focus:border-[#3B82F6] focus:outline-none focus:ring-2 focus:ring-[rgba(59,130,246,0.15)]",
-  "transition-all duration-150"
-);
-
-function FieldLabel({
-  htmlFor,
-  children,
-  required,
-}: {
-  htmlFor: string;
-  children: string;
-  required?: boolean;
-}) {
-  return (
-    <label htmlFor={htmlFor} className={fieldLabelClass}>
-      {children}
-      {required ? <span className="text-[#3B82F6]"> *</span> : null}
-    </label>
-  );
-}
+const inputBaseClass = formInputClassName("md");
 
 export function VacancyApplicationForm({
   vacancySlug,
@@ -135,12 +117,9 @@ export function VacancyApplicationForm({
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/vacancy-application", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      await postJsonOrThrow(
+        "/api/vacancy-application",
+        {
           ...formData,
           vacancySlug,
           consentToProcessing: consent,
@@ -149,13 +128,9 @@ export function VacancyApplicationForm({
           phone,
           resumeUrl,
           sourcePageUrl: captureCurrentPageUrl(),
-        }),
-      });
-
-      const data = (await response.json()) as { error?: string; message?: string };
-      if (!response.ok) {
-        throw new Error(data.error || "Произошла ошибка при отправке отклика");
-      }
+        },
+        "Произошла ошибка при отправке отклика"
+      );
 
       setStatus("success");
       reachGoal(YM_GOALS.LEAD_FORM_SUBMIT, {
@@ -206,22 +181,14 @@ export function VacancyApplicationForm({
             <form onSubmit={handleSubmit} onFocus={handleFormFieldFocus} noValidate>
               <div className="space-y-5">
                 {status === "error" ? (
-                  <div
-                    id={errorId}
-                    role="alert"
-                    aria-live="polite"
-                    className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
-                  >
-                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-                    <span className="text-sm leading-relaxed">{errorMessage}</span>
-                  </div>
+                  <FormErrorAlert id={errorId} message={errorMessage} />
                 ) : null}
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <FieldLabel htmlFor="vacancy-application-name" required>
+                    <FormFieldLabel htmlFor="vacancy-application-name" required>
                       Имя
-                    </FieldLabel>
+                    </FormFieldLabel>
                     <input
                       id="vacancy-application-name"
                       name="name"
@@ -237,9 +204,9 @@ export function VacancyApplicationForm({
                   </div>
 
                   <div>
-                    <FieldLabel htmlFor="vacancy-application-email" required>
+                    <FormFieldLabel htmlFor="vacancy-application-email" required>
                       Email
-                    </FieldLabel>
+                    </FormFieldLabel>
                     <input
                       id="vacancy-application-email"
                       name="email"
@@ -257,9 +224,9 @@ export function VacancyApplicationForm({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <FieldLabel htmlFor="vacancy-application-phone" required>
+                    <FormFieldLabel htmlFor="vacancy-application-phone" required>
                       Телефон
-                    </FieldLabel>
+                    </FormFieldLabel>
                     <input
                       id="vacancy-application-phone"
                       name="phone"
@@ -276,9 +243,9 @@ export function VacancyApplicationForm({
                   </div>
 
                   <div>
-                    <FieldLabel htmlFor="vacancy-application-telegram">
+                    <FormFieldLabel htmlFor="vacancy-application-telegram">
                       Telegram
-                    </FieldLabel>
+                    </FormFieldLabel>
                     <input
                       id="vacancy-application-telegram"
                       name="telegram"
@@ -293,9 +260,9 @@ export function VacancyApplicationForm({
                 </div>
 
                 <div>
-                  <FieldLabel htmlFor="vacancy-application-resume-url" required>
+                  <FormFieldLabel htmlFor="vacancy-application-resume-url" required>
                     Ссылка на резюме или портфолио
-                  </FieldLabel>
+                  </FormFieldLabel>
                   <input
                     id="vacancy-application-resume-url"
                     name="resumeUrl"
@@ -311,50 +278,31 @@ export function VacancyApplicationForm({
                 </div>
 
                 <div>
-                  <FieldLabel htmlFor="vacancy-application-message">
+                  <FormFieldLabel htmlFor="vacancy-application-message">
                     Сопроводительное сообщение
-                  </FieldLabel>
+                  </FormFieldLabel>
                   <textarea
                     id="vacancy-application-message"
                     name="message"
                     rows={5}
                     value={formData.message}
                     onChange={handleChange}
-                    className={cn(inputBaseClass, "resize-none")}
+                    className={cn(formInputClassName("md"), "resize-none")}
                     placeholder="Коротко опишите релевантный опыт, формат занятости или вопросы по роли"
                   />
                 </div>
 
-                <div className="flex items-start gap-3 rounded-xl border border-[#E2E8F0]/80 bg-white p-4">
-                  <input
-                    id={consentId}
-                    type="checkbox"
-                    checked={consent}
-                    onChange={(event) => {
-                      setConsent(event.target.checked);
-                      clearError();
-                    }}
-                    className={cn(
-                      "mt-0.5 h-5 w-5 shrink-0 rounded border border-[#E2E8F0] bg-white",
-                      "accent-[#3B82F6]",
-                      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
-                    )}
-                    required
-                  />
-                  <label
-                    htmlFor={consentId}
-                    className="text-sm leading-relaxed text-[#475569]"
-                  >
-                    Согласен(на) на обработку персональных данных и принимаю{" "}
-                    <Link
-                      href="/politika-konfidencialnosti"
-                      className="font-semibold text-[#3B82F6] hover:underline"
-                    >
-                      политику конфиденциальности
-                    </Link>
-                    .
-                  </label>
-                </div>
+                <FormPrivacyConsent
+                  id={consentId}
+                  checked={consent}
+                  onCheckedChange={(next) => {
+                    setConsent(next);
+                    clearError();
+                  }}
+                  required
+                  variant="lead"
+                  className="bg-white"
+                />
 
                 <div className="flex flex-col gap-4 pt-1 sm:flex-row sm:items-center sm:justify-between">
                   <Button

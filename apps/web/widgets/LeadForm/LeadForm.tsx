@@ -1,11 +1,9 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
-import Link from "next/link";
 import {
   Send,
   CheckCircle,
-  AlertCircle,
   ShieldCheck,
   ListChecks,
   Sparkles,
@@ -14,6 +12,14 @@ import {
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
+import {
+  FormErrorAlert,
+  FormFieldLabel,
+  FormPrivacyConsent,
+  formInputClassName,
+  formTextareaClassName,
+} from "@/shared/ui/form";
+import { postJsonOrThrow, validateLeadBasics } from "@/features/form-core";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 import { getUtmParams } from "@/shared/lib/utm";
@@ -36,35 +42,10 @@ const TRUST_CHIPS = [
   "Марс",
 ] as const;
 
-const fieldLabelClass = "block text-sm font-medium text-[#1E3A5F]";
-
 const leadBadgeClass =
   "inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white/70 px-3 py-1 text-xs font-semibold text-[#1E3A5F] backdrop-blur";
 
-const inputBaseClass = cn(
-  "w-full rounded-md border border-[#E2E8F0] bg-white px-4 py-3",
-  "text-[#0F172A] placeholder:text-[#94A3B8]",
-  "shadow-[0_1px_0_rgba(15,23,42,0.02)]",
-  "focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[rgba(59,130,246,0.15)]",
-  "transition-all duration-150"
-);
-
-function FieldLabel({
-  htmlFor,
-  children,
-  required,
-}: {
-  htmlFor: string;
-  children: string;
-  required?: boolean;
-}) {
-  return (
-    <label htmlFor={htmlFor} className={cn(fieldLabelClass, "mb-2")}>
-      {children}
-      {required && <span className="text-[#3B82F6]"> *</span>}
-    </label>
-  );
-}
+const inputBaseClass = formInputClassName("md");
 
 function LeadFormCard({
   children,
@@ -81,7 +62,6 @@ function LeadFormCard({
         className
       )}
     >
-      {/* Premium top accent line */}
       <div
         aria-hidden="true"
         className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#58A8E0] via-[#3B82F6] to-transparent"
@@ -119,22 +99,14 @@ export function LeadForm() {
     const name = formData.name.trim();
     const email = formData.email.trim();
 
-    if (!name || !email) {
+    const validation = validateLeadBasics({
+      name,
+      email,
+      consent,
+    });
+    if (validation) {
       setStatus("error");
-      setErrorMessage("Имя и email обязательны для заполнения");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setStatus("error");
-      setErrorMessage("Некорректный формат email");
-      return;
-    }
-
-    if (!consent) {
-      setStatus("error");
-      setErrorMessage("Подтвердите согласие на обработку персональных данных");
+      setErrorMessage(validation);
       return;
     }
 
@@ -142,23 +114,16 @@ export function LeadForm() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/lead", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      await postJsonOrThrow(
+        "/api/lead",
+        {
           ...formData,
           name,
           email,
           sourcePageUrl: captureCurrentPageUrl(),
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Произошла ошибка при отправке");
-      }
+        },
+        "Произошла ошибка при отправке"
+      );
 
       setStatus("success");
       reachGoal(YM_GOALS.LEAD_FORM_SUBMIT, getUtmParams());
@@ -191,7 +156,6 @@ export function LeadForm() {
         background="gray"
         className="relative overflow-hidden"
       >
-        {/* Background atmosphere (subtle) */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:56px_56px]" />
           <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/16 blur-3xl" />
@@ -266,7 +230,6 @@ export function LeadForm() {
       background="gray"
       className="relative overflow-hidden"
     >
-      {/* Background atmosphere (subtle) */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:56px_56px]" />
         <div className="absolute -top-44 -left-44 h-[520px] w-[520px] rounded-full bg-[#3B82F6]/14 blur-3xl" />
@@ -366,23 +329,15 @@ export function LeadForm() {
               </div>
             </div>
 
-            {status === "error" && (
-              <div
-                id={errorId}
-                role="alert"
-                aria-live="polite"
-                className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
-              >
-                <AlertCircle size={18} className="mt-0.5 shrink-0" />
-                <span className="text-sm leading-relaxed">{errorMessage}</span>
-              </div>
-            )}
+            {status === "error" ? (
+              <FormErrorAlert id={errorId} message={errorMessage} />
+            ) : null}
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <FieldLabel htmlFor="name" required>
+                <FormFieldLabel htmlFor="name" required>
                   Имя
-                </FieldLabel>
+                </FormFieldLabel>
                 <input
                   type="text"
                   id="name"
@@ -398,9 +353,9 @@ export function LeadForm() {
               </div>
 
               <div>
-                <FieldLabel htmlFor="email" required>
+                <FormFieldLabel htmlFor="email" required>
                   Email
-                </FieldLabel>
+                </FormFieldLabel>
                 <input
                   type="email"
                   id="email"
@@ -418,7 +373,7 @@ export function LeadForm() {
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <FieldLabel htmlFor="phone">Телефон</FieldLabel>
+                <FormFieldLabel htmlFor="phone">Телефон</FormFieldLabel>
                 <input
                   type="tel"
                   id="phone"
@@ -433,7 +388,7 @@ export function LeadForm() {
               </div>
 
               <div>
-                <FieldLabel htmlFor="company">Компания</FieldLabel>
+                <FormFieldLabel htmlFor="company">Компания</FormFieldLabel>
                 <input
                   type="text"
                   id="company"
@@ -448,45 +403,28 @@ export function LeadForm() {
             </div>
 
             <div>
-              <FieldLabel htmlFor="message">Сообщение</FieldLabel>
+              <FormFieldLabel htmlFor="message">Сообщение</FormFieldLabel>
               <textarea
                 id="message"
                 name="message"
                 rows={4}
                 value={formData.message}
                 onChange={handleChange}
-                className={cn(inputBaseClass, "resize-none")}
+                className={formTextareaClassName("md")}
                 placeholder="Расскажите о вашем запросе..."
               />
             </div>
 
-            <div className="flex items-start gap-3 rounded-xl border border-[#E2E8F0]/80 bg-[#F8FAFC] p-4">
-              <input
-                id={consentId}
-                type="checkbox"
-                checked={consent}
-                onChange={(e) => {
-                  setConsent(e.target.checked);
-                  clearError();
-                }}
-                className={cn(
-                  "mt-0.5 h-5 w-5 shrink-0 rounded border border-[#E2E8F0] bg-white",
-                  "accent-[#3B82F6]",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
-                )}
-                required
-              />
-              <label htmlFor={consentId} className="text-sm text-[#475569] leading-relaxed">
-                Согласен(на) на обработку персональных данных и принимаю{" "}
-                <Link
-                  href="/politika-konfidencialnosti"
-                  className="font-semibold text-[#3B82F6] hover:underline"
-                >
-                  политику конфиденциальности
-                </Link>
-                .
-              </label>
-            </div>
+            <FormPrivacyConsent
+              id={consentId}
+              checked={consent}
+              onCheckedChange={(next) => {
+                setConsent(next);
+                clearError();
+              }}
+              required
+              variant="lead"
+            />
 
             <div className="pt-1">
               <Button

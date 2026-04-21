@@ -1,9 +1,16 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { ChevronDown, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { ChevronDown, Send, CheckCircle } from "lucide-react";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
+import {
+  FormErrorAlert,
+  FormFieldLabel,
+  formInputClassName,
+  formTextareaClassName,
+} from "@/shared/ui/form";
+import { postJsonOrThrow, validateBlogQuestion } from "@/features/form-core";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 
@@ -24,6 +31,9 @@ interface FormData {
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
+const inputClass = formInputClassName("lg");
+const textareaClass = formTextareaClassName("lg");
+
 export function PostQuestionForm({
   postTitle,
   questionFormConfig,
@@ -39,26 +49,31 @@ export function PostQuestionForm({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    const validation = validateBlogQuestion({
+      question: formData.question,
+      name: formData.name,
+      email: formData.email,
+    });
+    if (validation) {
+      setStatus("error");
+      setErrorMessage(validation);
+      return;
+    }
+
     setStatus("loading");
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/question", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      await postJsonOrThrow(
+        "/api/question",
+        {
           ...formData,
           postTitle,
           sourcePageUrl: captureCurrentPageUrl(),
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Произошла ошибка при отправке");
-      }
+        },
+        "Произошла ошибка при отправке"
+      );
 
       setStatus("success");
       reachGoal(YM_GOALS.QUESTION_FORM_SUBMIT);
@@ -75,6 +90,10 @@ export function PostQuestionForm({
     const { name, value } = e.target;
     if (name === "question" && value.length > 1000) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (status === "error") {
+      setStatus("idle");
+      setErrorMessage("");
+    }
   };
 
   if (!questionFormConfig.isVisible) {
@@ -113,7 +132,10 @@ export function PostQuestionForm({
               </p>
               <Button
                 variant="secondary"
-                onClick={() => { setIsExpanded(true); reachGoal(YM_GOALS.QUESTION_FORM_EXPAND); }}
+                onClick={() => {
+                  setIsExpanded(true);
+                  reachGoal(YM_GOALS.QUESTION_FORM_EXPAND);
+                }}
                 className="inline-flex items-center gap-2"
               >
                 Задать вопрос
@@ -121,27 +143,19 @@ export function PostQuestionForm({
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               <div className="text-center mb-6">
                 <h3 className="text-xl font-semibold text-[#1E3A5F] mb-2">
                   Задайте вопрос специалисту
                 </h3>
               </div>
 
-              {status === "error" && (
-                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                  <AlertCircle size={20} />
-                  <span>{errorMessage}</span>
-                </div>
-              )}
+              {status === "error" ? <FormErrorAlert message={errorMessage} /> : null}
 
               <div>
-                <label
-                  htmlFor="question"
-                  className="block text-sm font-medium text-[#1E3A5F] mb-2"
-                >
-                  Ваш вопрос *
-                </label>
+                <FormFieldLabel htmlFor="question" required>
+                  Ваш вопрос
+                </FormFieldLabel>
                 <div className="relative">
                   <textarea
                     id="question"
@@ -150,12 +164,7 @@ export function PostQuestionForm({
                     rows={4}
                     value={formData.question}
                     onChange={handleChange}
-                    className={cn(
-                      "w-full px-4 py-3 rounded-lg border border-[#E2E8F0] bg-white resize-none",
-                      "text-[#0F172A] placeholder:text-[#94A3B8]",
-                      "focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[rgba(59,130,246,0.15)]",
-                      "transition-all duration-150"
-                    )}
+                    className={cn(textareaClass, "pr-16")}
                     placeholder="Опишите ваш вопрос..."
                   />
                   <span className="absolute right-3 bottom-3 text-sm text-[#94A3B8]">
@@ -166,12 +175,9 @@ export function PostQuestionForm({
 
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-[#1E3A5F] mb-2"
-                  >
-                    Имя *
-                  </label>
+                  <FormFieldLabel htmlFor="name" required>
+                    Имя
+                  </FormFieldLabel>
                   <input
                     type="text"
                     id="name"
@@ -179,23 +185,15 @@ export function PostQuestionForm({
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className={cn(
-                      "w-full px-4 py-3 rounded-lg border border-[#E2E8F0] bg-white",
-                      "text-[#0F172A] placeholder:text-[#94A3B8]",
-                      "focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[rgba(59,130,246,0.15)]",
-                      "transition-all duration-150"
-                    )}
+                    className={inputClass}
                     placeholder="Иван Петров"
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-[#1E3A5F] mb-2"
-                  >
-                    Email *
-                  </label>
+                  <FormFieldLabel htmlFor="email" required>
+                    Email
+                  </FormFieldLabel>
                   <input
                     type="email"
                     id="email"
@@ -203,12 +201,7 @@ export function PostQuestionForm({
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className={cn(
-                      "w-full px-4 py-3 rounded-lg border border-[#E2E8F0] bg-white",
-                      "text-[#0F172A] placeholder:text-[#94A3B8]",
-                      "focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[rgba(59,130,246,0.15)]",
-                      "transition-all duration-150"
-                    )}
+                    className={inputClass}
                     placeholder="ivan@company.ru"
                   />
                 </div>
