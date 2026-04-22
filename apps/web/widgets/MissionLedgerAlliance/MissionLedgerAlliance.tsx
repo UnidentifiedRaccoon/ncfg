@@ -58,8 +58,20 @@ const stableSlotLayouts: Record<DeckDepth, StableSlotLayout> = {
   2: { x: 32, y: 60, scale: 0.94, opacity: 1, zIndex: 10 },
   3: { x: 48, y: 88, scale: 0.9, opacity: 0, zIndex: 0 },
 };
-const DECK_STACK_BOTTOM_OFFSET_PX = stableSlotLayouts[3].y;
 const DECK_MIN_HEIGHT_REM = 28.5;
+const DECK_MIN_HEIGHT_PX = DECK_MIN_HEIGHT_REM * 16;
+const visibleDesktopLayouts = Object.values(stableSlotLayouts).filter(
+  (layout) => layout.opacity > 0
+);
+
+function getDeckCardHeight(deckHeightPx: number): number {
+  const constrainedHeight = visibleDesktopLayouts.reduce(
+    (height, layout) => Math.min(height, (deckHeightPx - layout.y) / layout.scale),
+    deckHeightPx
+  );
+
+  return Math.max(0, constrainedHeight);
+}
 
 function wrapIndex(index: number): number {
   const total = missionDirections.length;
@@ -232,6 +244,8 @@ function MissionLedgerAlliancePanel({
   const [activeIndex, setActiveIndex] = useState(0);
   const [desktopDeckHeight, setDesktopDeckHeight] = useState<number | null>(null);
   const activeDirection = missionDirections[activeIndex];
+  const desktopDeckHeightPx = desktopDeckHeight ?? DECK_MIN_HEIGHT_PX;
+  const desktopCardHeightPx = getDeckCardHeight(desktopDeckHeightPx);
 
   useEffect(() => {
     const controlsColumn = controlsColumnRef.current;
@@ -337,7 +351,7 @@ function MissionLedgerAlliancePanel({
         <div
           className="relative hidden xl:block"
           style={{
-            height: desktopDeckHeight ? `${desktopDeckHeight}px` : `${DECK_MIN_HEIGHT_REM}rem`,
+            height: `${desktopDeckHeightPx}px`,
           }}
         >
           <div className="relative h-full px-6 py-6">
@@ -367,7 +381,7 @@ function MissionLedgerAlliancePanel({
                   onClick={depth === 3 ? undefined : () => selectIndex(cardIndex)}
                   style={{
                     zIndex: layout.zIndex,
-                    height: `calc(100% - ${DECK_STACK_BOTTOM_OFFSET_PX}px)`,
+                    height: `${desktopCardHeightPx}px`,
                   }}
                   transition={{
                     duration: prefersReducedMotion ? 0 : STABLE_DOM_DURATION_S,
