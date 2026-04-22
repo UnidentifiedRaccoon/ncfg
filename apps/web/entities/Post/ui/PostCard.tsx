@@ -1,8 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 
 export interface PostCardPost {
   id: string | number;
@@ -84,7 +84,7 @@ export function PostCard({ post }: PostCardProps) {
 
   return (
     <article className="group relative w-full max-w-[624px] overflow-hidden rounded-xl border border-[#E2E8F0]/80 bg-white shadow-sm transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:border-[#3B82F6]/25 hover:shadow-md transform-gpu will-change-transform md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none lg:max-w-[760px] after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-[#58A8E0]/70 after:via-[#3B82F6]/45 after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 group-hover:after:opacity-100">
-      <Link href={`/blog/${post.slug}`} className="block">
+      <CmsAwareLink href={`/blog/${post.slug}`} className="block">
         <div className="flex flex-col md:flex-row">
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F8FAFC] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/70 lg:w-[280px]">
             {hasImage ? (
@@ -148,7 +148,7 @@ export function PostCard({ post }: PostCardProps) {
             </div>
           </div>
         </div>
-      </Link>
+      </CmsAwareLink>
     </article>
   );
 }

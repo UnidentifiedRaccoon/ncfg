@@ -7,7 +7,6 @@ import {
   type FocusEvent as ReactFocusEvent,
 } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { cn } from "@/shared/lib/cn";
 import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 
@@ -167,9 +167,14 @@ function LogoTile({ logo }: { logo: Logo }) {
 
   if (isLink && logo.href) {
     return (
-      <Link href={logo.href} className={tileClassName} title={logo.title} onClick={() => reachGoal(YM_GOALS.PARTNER_CLICK)}>
+      <CmsAwareLink
+        href={logo.href}
+        className={tileClassName}
+        title={logo.title}
+        onClick={() => reachGoal(YM_GOALS.PARTNER_CLICK)}
+      >
         {content}
-      </Link>
+      </CmsAwareLink>
     );
   }
 

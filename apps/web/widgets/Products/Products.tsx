@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowUpRight,
   GraduationCap,
@@ -6,6 +5,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Section } from "@/shared/ui/Section";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { cn } from "@/shared/lib/cn";
 import type { ReactNode } from "react";
 
@@ -86,9 +86,9 @@ function ProductTileLink({
   }
 
   return (
-    <Link href={href} className={className} data-ym-goal="product_click">
+    <CmsAwareLink href={href} className={className} data-ym-goal="product_click">
       {children}
-    </Link>
+    </CmsAwareLink>
   );
 }
 

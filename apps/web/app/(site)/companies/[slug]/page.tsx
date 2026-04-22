@@ -34,7 +34,7 @@ interface PageProps {
 
 const SERVICE_NOT_FOUND_DESCRIPTION = "Услуга не найдена или недоступна.";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 async function safeFetchServiceIds(): Promise<string[]> {
   try {

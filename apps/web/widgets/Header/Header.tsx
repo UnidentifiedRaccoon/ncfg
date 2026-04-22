@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
 
 import { Button } from "@/shared/ui/Button";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { Container } from "@/shared/ui/Container";
 import { cn } from "@/shared/lib/cn";
 import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
@@ -92,7 +92,7 @@ function DesktopNav({
         const isActive = isActiveHref(pathname, item.href);
 
         return (
-          <Link
+          <CmsAwareLink
             key={item.href}
             href={item.href}
             className={cn(
@@ -109,7 +109,7 @@ function DesktopNav({
             aria-current={isActive ? "page" : undefined}
           >
             {item.label}
-          </Link>
+          </CmsAwareLink>
         );
       })}
     </div>
@@ -201,7 +201,7 @@ export function Header() {
               />
             </>
 
-            <Link
+            <CmsAwareLink
               href="/"
               className="relative z-10 flex shrink-0 items-center gap-1 pl-3 pr-1"
               aria-label="НЦФГ"
@@ -226,7 +226,7 @@ export function Header() {
               >
                 НЦФГ
               </span>
-            </Link>
+            </CmsAwareLink>
 
             <DesktopNav pathname={pathname} tone={dockTone} />
 
@@ -324,7 +324,7 @@ export function Header() {
               {NAV_ITEMS.map((item) => {
                 const isActive = isActiveHref(pathname, item.href);
                 return (
-                  <Link
+                  <CmsAwareLink
                     key={item.href}
                     href={item.href}
                     className={cn(
@@ -343,7 +343,7 @@ export function Header() {
                     tabIndex={mobileMenuOpen ? 0 : -1}
                   >
                     {item.label}
-                  </Link>
+                  </CmsAwareLink>
                 );
               })}
 

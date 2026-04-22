@@ -1,6 +1,6 @@
 import { cn } from "@/shared/lib/cn";
-import Link from "next/link";
 import { forwardRef, type ButtonHTMLAttributes, type AnchorHTMLAttributes } from "react";
+import { CmsAwareLink } from "./CmsAwareLink";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
@@ -21,15 +21,6 @@ type ButtonAsLink = ButtonBaseProps &
   };
 
 type ButtonProps = ButtonAsButton | ButtonAsLink;
-
-function shouldRenderNativeAnchor(href: string): boolean {
-  return (
-    href.startsWith("#") ||
-    href.startsWith("mailto:") ||
-    href.startsWith("tel:") ||
-    /^https?:\/\//i.test(href)
-  );
-}
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
@@ -56,28 +47,15 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
     if ("href" in props && props.href) {
       const { href, ...linkProps } = props as ButtonAsLink;
 
-      if (shouldRenderNativeAnchor(href)) {
-        return (
-          <a
-            href={href}
-            className={classes}
-            ref={ref as React.Ref<HTMLAnchorElement>}
-            {...linkProps}
-          >
-            {children}
-          </a>
-        );
-      }
-
       return (
-        <Link
+        <CmsAwareLink
           href={href}
           className={classes}
           ref={ref as React.Ref<HTMLAnchorElement>}
           {...linkProps}
         >
           {children}
-        </Link>
+        </CmsAwareLink>
       );
     }
 

@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import {
   ArrowUpRight,
   GraduationCap,
@@ -9,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import type { ReactNode } from "react";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 
 type IconType = "graduation-cap" | "trending-up" | "zap";
 
@@ -45,9 +45,9 @@ function ProductShowcaseLink({
   }
 
   return (
-    <Link href={href} className={className} aria-label={ariaLabel}>
+    <CmsAwareLink href={href} className={className} aria-label={ariaLabel}>
       {children}
-    </Link>
+    </CmsAwareLink>
   );
 }
 

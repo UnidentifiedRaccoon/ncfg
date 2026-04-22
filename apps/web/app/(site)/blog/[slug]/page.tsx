@@ -23,7 +23,7 @@ interface PageProps {
 
 const BLOG_POST_NOT_FOUND_DESCRIPTION = "Материал блога не найден или недоступен.";
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 0;
 
 async function safeFetchNewsArticles(context: string) {
   try {

@@ -17,7 +17,7 @@ export const metadata: Metadata = buildPageMetadata({
     "В блоге НЦФГ мы публикуем новости, практические материалы и рекомендации по финансовой грамотности для компаний и частных лиц.",
 });
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 0;
 
 type SearchParams = Record<string, string | string[] | undefined>;
 

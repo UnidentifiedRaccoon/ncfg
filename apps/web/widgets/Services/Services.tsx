@@ -1,7 +1,7 @@
 import { Section } from "@/shared/ui/Section";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { cn } from "@/shared/lib/cn";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 interface Service {
@@ -48,7 +48,7 @@ function OtherServicesCard({
   className?: string;
 }) {
   return (
-    <Link
+    <CmsAwareLink
       href={href}
       data-ym-goal="service_click"
       className={cn(
@@ -104,7 +104,7 @@ function OtherServicesCard({
           </div>
         </div>
       </div>
-    </Link>
+    </CmsAwareLink>
   );
 }
 
@@ -120,7 +120,7 @@ function ServiceTile({
   const image = resolveServiceImage(service);
 
   return (
-    <Link
+    <CmsAwareLink
       href={service.href}
       data-ym-goal="service_click"
       className={cn(
@@ -192,7 +192,7 @@ function ServiceTile({
         <span className="text-sm font-medium">Подробнее</span>
         <ArrowRight className={cn(featured ? "h-5 w-5" : "h-4 w-4")} aria-hidden="true" />
       </div>
-    </Link>
+    </CmsAwareLink>
   );
 }
 

@@ -17,7 +17,7 @@ export const metadata: Metadata = buildPageMetadata({
     "Открытые роли в НЦФГ для тех, кто хочет делать сильные образовательные и социальные проекты в области финансовой грамотности и культуры.",
 });
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 export default async function VacanciesPage() {
   const [siteSetting, careerPage, vacancies] = await Promise.all([

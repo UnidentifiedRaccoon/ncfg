@@ -1,7 +1,7 @@
 import { Section } from "@/shared/ui/Section";
-import Link from "next/link";
 import { ArrowRight, BookOpen, FlaskConical, Users, Award, Heart } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 
 interface Principle {
   id: string;
@@ -76,7 +76,7 @@ export function Principles({ title, lead, principles }: PrinciplesProps) {
                   </p>
 
                   {principle.href ? (
-                    <Link
+                    <CmsAwareLink
                       href={principle.href}
                       className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#2563EB] transition-colors hover:text-[#1D4ED8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
                     >
@@ -85,7 +85,7 @@ export function Principles({ title, lead, principles }: PrinciplesProps) {
                         className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
                         aria-hidden="true"
                       />
-                    </Link>
+                    </CmsAwareLink>
                   ) : null}
                 </div>
               </article>

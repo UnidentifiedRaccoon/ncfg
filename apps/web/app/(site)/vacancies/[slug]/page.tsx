@@ -22,7 +22,7 @@ interface PageProps {
 const VACANCY_NOT_FOUND_DESCRIPTION =
   "Вакансия не найдена или больше не опубликована.";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 export async function generateStaticParams() {
   const slugs = await fetchVacancySlugs();

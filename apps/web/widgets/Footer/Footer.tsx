@@ -1,7 +1,7 @@
-import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Mail, Phone, FileText, MapPin } from "lucide-react";
 import type { ReactNode } from "react";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { Container } from "@/shared/ui/Container";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
@@ -141,9 +141,9 @@ function FooterLink({
   }
 
   return (
-    <Link href={href} className={className}>
+    <CmsAwareLink href={href} className={className}>
       {children}
-    </Link>
+    </CmsAwareLink>
   );
 }
 
@@ -284,7 +284,7 @@ export function Footer({ data }: FooterProps) {
                   dividerClassName
                 )}
               >
-                <Link
+                <CmsAwareLink
                   href="/"
                   className="flex shrink-0 items-center gap-1"
                   aria-label="НЦФГ — на главную"
@@ -301,7 +301,7 @@ export function Footer({ data }: FooterProps) {
                   >
                     {data.organization.shortName}
                   </span>
-                </Link>
+                </CmsAwareLink>
 
                 <p className={cn("mt-4 leading-relaxed", mutedTextClassName)}>
                   {data.organization.fullName}
@@ -356,9 +356,9 @@ export function Footer({ data }: FooterProps) {
                 <ul className="mt-4 space-y-3">
                   {navigation.map((item) => (
                     <li key={item.href}>
-                      <Link href={item.href} className={linkClassName}>
+                      <CmsAwareLink href={item.href} className={linkClassName}>
                         {item.label}
-                      </Link>
+                      </CmsAwareLink>
                     </li>
                   ))}
                 </ul>

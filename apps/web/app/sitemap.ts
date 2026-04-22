@@ -14,7 +14,7 @@ import {
 import { pickLatestDate } from "@/shared/lib/date-values";
 import { getSiteUrl } from "@/shared/lib/metadata";
 
-export const revalidate = 3600; // Refresh sitemap hourly.
+export const revalidate = 0;
 
 const STATIC_ROUTES = [
   { path: "/", priority: 1, changeFrequency: "weekly" },

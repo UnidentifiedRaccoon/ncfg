@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { NotFoundTracker } from "@/shared/ui/NotFoundTracker";
 
 export default function NotFound() {
@@ -12,12 +12,12 @@ export default function NotFound() {
       <p className="mt-4 text-base text-[#475569]">
         Возможно, она была перемещена или удалена.
       </p>
-      <Link
+      <CmsAwareLink
         href="/"
         className="mt-8 inline-flex h-11 items-center justify-center rounded-lg bg-[#5485d5] px-6 text-base font-semibold text-white transition-colors hover:bg-[#4874c4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
       >
         На главную
-      </Link>
+      </CmsAwareLink>
     </div>
   );
 }

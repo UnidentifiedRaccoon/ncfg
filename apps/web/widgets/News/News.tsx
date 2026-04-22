@@ -1,9 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { cn } from "@/shared/lib/cn";
 import { makeExcerpt, stripHtmlToText } from "@/shared/lib/excerpt";
 
@@ -132,7 +132,7 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
       className="relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-[360px] before:content-[''] before:[background-image:radial-gradient(640px_circle_at_12%_20%,rgba(88,168,224,0.18),transparent_55%),radial-gradient(560px_circle_at_88%_12%,rgba(59,130,246,0.14),transparent_60%),radial-gradient(760px_circle_at_50%_-10%,rgba(30,58,95,0.10),transparent_65%)] before:[mask-image:linear-gradient(to_bottom,black,transparent_92%)] before:-z-10"
     >
       <div className="grid gap-4 md:gap-5 lg:grid-cols-12 lg:gap-6">
-        <Link
+        <CmsAwareLink
           href={`/blog/${featured.slug}`}
           className={cn(
             "group relative overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white shadow-sm",
@@ -195,14 +195,14 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[#58A8E0]/70 via-[#3B82F6]/45 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
           />
-        </Link>
+        </CmsAwareLink>
 
         <div className="lg:col-span-5 flex flex-col gap-4 md:gap-5 lg:h-full lg:justify-between">
           {compact.map((post) => {
             const categoryTitle = post.category?.title;
 
             return (
-              <Link
+              <CmsAwareLink
                 key={post.id}
                 href={`/blog/${post.slug}`}
                 className={cn(
@@ -252,7 +252,7 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[#58A8E0]/55 via-[#3B82F6]/35 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 />
-              </Link>
+              </CmsAwareLink>
             );
           })}
         </div>

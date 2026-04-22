@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 
 interface BentoCardProps {
   title: string;
@@ -18,7 +18,7 @@ export function BentoCard({
   className,
 }: BentoCardProps) {
   return (
-    <Link
+    <CmsAwareLink
       href={href}
       data-ym-goal="service_click"
       className={cn(
@@ -76,6 +76,6 @@ export function BentoCard({
           />
         </div>
       </div>
-    </Link>
+    </CmsAwareLink>
   );
 }

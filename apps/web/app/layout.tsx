@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { SITE_NAME, getMetadataBase } from "@/shared/lib/metadata";
+import { CmsFreshnessGuard } from "@/shared/ui/CmsFreshnessGuard";
 import { ScrollRevealObserver } from "@/shared/ui/ScrollRevealObserver";
 import { RouteScrollBehavior } from "@/shared/ui/RouteScrollBehavior";
 import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
@@ -55,6 +56,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${inter.variable} font-sans antialiased`}>
+        <CmsFreshnessGuard />
         <Suspense fallback={null}>
           <RouteScrollBehavior />
         </Suspense>

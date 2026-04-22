@@ -104,10 +104,18 @@ Optional GitHub Actions secrets (GetCourse fallback/enrichment):
 
 ### Cache and revalidation
 
-All Strapi-backed content relies on time-based ISR with a 60-second window:
-- `DEFAULT_REVALIDATE = 60` in `shared/lib/strapi.ts` applies to every `fetchAPI` call.
-- Page-level `export const revalidate = 60` is set on every CMS-backed route for explicitness.
-- No webhook-driven invalidation: after an edit in Strapi, updates appear on the next request once the 60-second window has elapsed.
+All Strapi-backed content must rely on one freshness source only: the 60-second Data Cache window in `shared/lib/strapi.ts`.
+- `DEFAULT_REVALIDATE = 60` in `shared/lib/strapi.ts` remains the canonical freshness policy for every `fetchAPI` call.
+- CMS-driven routes set `export const revalidate = 0` so page output does not outlive the Strapi fetch cache.
+- CMS-driven internal navigation must go through `isCmsDrivenPath` and `CmsAwareLink` (or `Button`) so the App Router client cache is bypassed for:
+  `/`, `/about`, `/blog`, `/blog/*`, `/companies`, `/companies/*`, `/rekomendacii`, `/vacancies`, `/vacancies/*`, `/diagnostika/*`.
+- CMS-driven pages also reload after BFCache restores (`pageshow.persisted`) to avoid serving stale browser snapshots.
+- No webhook-driven invalidation is used in this repo: after a Strapi edit, updates appear on the next request once the 60-second window has elapsed.
+
+When adding a new Strapi-backed route:
+- set `export const revalidate = 0` on the page or route segment,
+- add the route family to `shared/lib/cms-routes.ts`,
+- use `CmsAwareLink` or `Button` for internal links that navigate to it.
 
 ### Postbox runbook (temporary lead intake)
 

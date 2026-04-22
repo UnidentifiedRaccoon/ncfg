@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Section } from "@/shared/ui/Section";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { PostCard, type PostCardPost } from "@/entities/Post";
 import { Button } from "@/shared/ui/Button";
 
@@ -64,7 +63,7 @@ function PillsNav({
             const href = buildBlogHref({ category: item.slug });
 
             return (
-              <Link
+              <CmsAwareLink
                 key={item.slug ?? "all"}
                 href={href}
                 data-ym-goal="blog_category_click"
@@ -78,7 +77,7 @@ function PillsNav({
                 aria-current={isActive ? "page" : undefined}
               >
                 {item.title}
-              </Link>
+              </CmsAwareLink>
             );
           })}
         </div>
@@ -105,7 +104,7 @@ function RailNav({
           const href = buildBlogHref({ category: item.slug });
 
           return (
-            <Link
+            <CmsAwareLink
               key={item.slug ?? "all"}
               href={href}
               data-ym-goal="blog_category_click"
@@ -117,7 +116,7 @@ function RailNav({
               aria-current={isActive ? "page" : undefined}
             >
               {item.title}
-            </Link>
+            </CmsAwareLink>
           );
         })}
       </div>

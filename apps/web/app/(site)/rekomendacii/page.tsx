@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
     "На этой странице собраны отзывы и рекомендации партнеров и клиентов НЦФГ о совместной работе.",
 });
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 export default async function RecommendationsPage() {
   const [recommendations, certificates, siteSetting] = await Promise.all([

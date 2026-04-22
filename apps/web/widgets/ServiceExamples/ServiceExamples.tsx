@@ -1,7 +1,7 @@
 import { Section } from "@/shared/ui/Section";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { type ServiceExample } from "@/shared/api/types/service";
 import { ExternalLink, FileText, Lightbulb, Presentation } from "lucide-react";
-import Link from "next/link";
 
 interface ServiceExamplesProps {
   examples: ServiceExample[];
@@ -84,14 +84,14 @@ function ExampleCard({ example }: ExampleCardProps) {
 
   if (example.link) {
     return (
-      <Link
+      <CmsAwareLink
         href={example.link}
         target="_blank"
         rel="noopener noreferrer"
         className={cardClasses}
       >
         {CardContent}
-      </Link>
+      </CmsAwareLink>
     );
   }
 

@@ -1,8 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, MapPin, Wallet } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn";
+import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 
 export interface VacancyCardVacancy {
   id: string;
@@ -134,7 +134,7 @@ export function VacancyCard({ vacancy }: VacancyCardProps) {
 
   return (
     <article className="group relative w-full max-w-[680px] lg:max-w-[760px]">
-      <Link
+      <CmsAwareLink
         href={`/vacancies/${vacancy.slug}`}
         className="relative block overflow-hidden rounded-xl bg-white shadow-sm transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none md:hover:scale-[1.006] [backface-visibility:hidden] transform-gpu will-change-transform"
       >
@@ -178,7 +178,7 @@ export function VacancyCard({ vacancy }: VacancyCardProps) {
             </div>
           </div>
         </div>
-      </Link>
+      </CmsAwareLink>
     </article>
   );
 }

@@ -29,7 +29,7 @@ export const metadata: Metadata = buildPageMetadata({
     "На странице «О центре» вы узнаете, как НЦФГ работает с 2005 года, кто входит в команду и на каких принципах строятся наши проекты.",
 });
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 0;
 
 export default async function AboutPage() {
   const [siteSetting, aboutPage, peopleData] = await Promise.all([
