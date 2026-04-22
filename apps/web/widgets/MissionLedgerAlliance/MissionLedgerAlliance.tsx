@@ -57,7 +57,6 @@ const stableSlotLayouts: Record<DeckDepth, StableSlotLayout> = {
   2: { x: 32, y: 60, scale: 0.94, opacity: 1, zIndex: 10 },
   3: { x: 48, y: 88, scale: 0.9, opacity: 0, zIndex: 0 },
 };
-const DECK_STACK_BOTTOM_OFFSET_PX = stableSlotLayouts[3].y;
 
 function wrapIndex(index: number): number {
   const total = missionDirections.length;
@@ -328,10 +327,7 @@ function MissionLedgerAlliancePanel({
                   )}
                   initial={false}
                   onClick={depth === 3 ? undefined : () => selectIndex(cardIndex)}
-                  style={{
-                    zIndex: layout.zIndex,
-                    height: `calc(100% - ${DECK_STACK_BOTTOM_OFFSET_PX}px)`,
-                  }}
+                  style={{ zIndex: layout.zIndex, height: "100%" }}
                   transition={{
                     duration: prefersReducedMotion ? 0 : STABLE_DOM_DURATION_S,
                     ease: [0.22, 1, 0.36, 1],
