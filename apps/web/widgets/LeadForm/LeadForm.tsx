@@ -210,7 +210,7 @@ export function LeadForm() {
               Заявка отправлена
             </h2>
             <p className="mt-4 text-lg md:text-xl text-[#475569] leading-relaxed">
-              Спасибо за обращение. Мы свяжемся с вами в ближайшее время и уточним
+              Спасибо за обращение. Мы свяжемся с вами в ближайшее время и уточним
               детали.
             </p>
 
@@ -289,7 +289,7 @@ export function LeadForm() {
 	                aria-hidden="true"
 	                className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]"
 	              />
-	              Ответим в течение 1 дня
+	              Ответим в течение 1 дня
 	            </div>
 	          </div>
 
@@ -297,7 +297,7 @@ export function LeadForm() {
 	            Оставить заявку
 	          </h2>
 	          <p className="mt-4 text-lg md:text-xl text-[#475569] leading-relaxed">
-            Заполните форму, и мы свяжемся с вами, чтобы уточнить задачу и предложить
+            Заполните форму, и мы свяжемся с вами, чтобы уточнить задачу и предложить
             подходящий формат сотрудничества.
           </p>
 
@@ -309,7 +309,7 @@ export function LeadForm() {
               <div>
                 <div className="font-semibold text-[#1E3A5F]">Уточним задачу</div>
                 <div className="mt-1 text-sm text-[#475569] leading-relaxed">
-                  Поймём аудиторию, формат и сроки. Без лишних созвонов.
+                  Поймём аудиторию, формат и сроки. Без лишних созвонов.
                 </div>
               </div>
             </div>
@@ -333,7 +333,7 @@ export function LeadForm() {
               <div>
                 <div className="font-semibold text-[#1E3A5F]">Ответим быстро</div>
                 <div className="mt-1 text-sm text-[#475569] leading-relaxed">
-                  Обычно в течение 1 рабочего дня. Можно начать с письма.
+                  Обычно в течение 1 рабочего дня. Можно начать с письма.
                 </div>
               </div>
             </div>
@@ -361,7 +361,7 @@ export function LeadForm() {
                   Контактные данные
                 </div>
                 <div className="mt-1 text-sm text-[#475569]">
-                  Ответим в течение 1 рабочего дня
+                  Ответим в течение 1 рабочего дня
                 </div>
               </div>
             </div>
@@ -456,7 +456,7 @@ export function LeadForm() {
                 value={formData.message}
                 onChange={handleChange}
                 className={cn(inputBaseClass, "resize-none")}
-                placeholder="Расскажите о вашем запросе..."
+                placeholder="Расскажите о вашем запросе..."
               />
             </div>
 
@@ -477,7 +477,7 @@ export function LeadForm() {
                 required
               />
               <label htmlFor={consentId} className="text-sm text-[#475569] leading-relaxed">
-                Согласен(на) на обработку персональных данных и принимаю{" "}
+                Согласен(на) на обработку персональных данных и принимаю{" "}
                 <Link
                   href="/politika-konfidencialnosti"
                   className="font-semibold text-[#3B82F6] hover:underline"
@@ -506,8 +506,8 @@ export function LeadForm() {
             </div>
 
             <p className="text-xs text-[#94A3B8] leading-relaxed">
-              Мы используем ваши данные только для связи по обращению. Без рассылок и
-              передачи третьим лицам.
+              Мы используем ваши данные только для связи по обращению. Без рассылок и передачи
+              третьим лицам.
             </p>
           </form>
         </LeadFormCard>

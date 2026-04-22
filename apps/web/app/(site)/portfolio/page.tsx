@@ -10,7 +10,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/portfolio",
   title: "Портфолио",
   description:
-    "В портфолио НЦФГ собраны ключевые проекты и инициативы по финансовой грамотности федерального и регионального уровня.",
+    "В портфолио НЦФГ собраны ключевые проекты и инициативы по финансовой грамотности федерального и регионального уровня.",
 });
 
 export default async function PortfolioPage() {

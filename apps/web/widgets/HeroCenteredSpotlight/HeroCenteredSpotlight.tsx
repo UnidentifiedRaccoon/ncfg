@@ -23,7 +23,7 @@ interface HeroCenteredSpotlightProps {
   className?: string;
 }
 
-const DEFAULT_EYEBROW = "С 2005 года. Проекты по всей России";
+const DEFAULT_EYEBROW = "С 2005 года. Проекты по всей России";
 const DEFAULT_TRUST_CHIPS = [
   "Лемана ПРО",
   "Газпромнефть",

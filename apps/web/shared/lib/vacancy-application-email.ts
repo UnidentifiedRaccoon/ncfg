@@ -86,7 +86,7 @@ export function buildVacancyApplicationConfirmationEmail(
           Здравствуйте, ${escapeHtml(greetingName)}!
         </p>
         <p style="margin:16px 0 0;font-size:16px;line-height:24px;color:#475569;">
-          Спасибо за отклик на вакансию «${escapeHtml(vacancyTitle)}». Мы получили вашу заявку и вернёмся к вам, если понадобится уточнить детали.
+          Спасибо за отклик на вакансию «${escapeHtml(vacancyTitle)}». Мы получили вашу заявку и вернёмся к вам, если понадобится уточнить детали.
         </p>
         ${
           vacancyLink
@@ -115,7 +115,7 @@ export function buildVacancyApplicationConfirmationEmail(
     `Здравствуйте, ${greetingName}!`,
     '',
     `Спасибо за отклик на вакансию «${vacancyTitle}».`,
-    'Мы получили вашу заявку и вернёмся к вам, если понадобится уточнить детали.',
+    'Мы получили вашу заявку и вернёмся к вам, если понадобится уточнить детали.',
     ...(vacancyPageUrl ? ['', `Открыть вакансию: ${vacancyPageUrl}`] : []),
     '',
     'Это автоматическое письмо-подтверждение от НЦФГ.',

@@ -42,7 +42,7 @@ export function ServiceCatalog({
     <Section
       id={idBase}
       title="Наши услуги"
-      lead="Готовые решения для повышения финансовой грамотности и развития финансовой культуры в компании"
+      lead="Готовые решения для повышения финансовой грамотности и развития финансовой культуры в компании"
     >
       <div className="mx-auto max-w-6xl">
         <div className="space-y-10 md:space-y-12">

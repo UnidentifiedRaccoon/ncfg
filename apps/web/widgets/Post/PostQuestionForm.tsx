@@ -91,7 +91,7 @@ export function PostQuestionForm({
               Вопрос отправлен!
             </h3>
             <p className="text-[#475569]">
-              Спасибо за обращение. Мы ответим вам в ближайшее время.
+              Спасибо за обращение. Мы ответим вам в ближайшее время.
             </p>
           </div>
         </div>
@@ -233,7 +233,7 @@ export function PostQuestionForm({
 
               <div className="pt-4 border-t border-[#E2E8F0]">
                 <p className="text-sm text-[#94A3B8] mb-2">
-                  Или свяжитесь с нами напрямую:
+                  Или свяжитесь с нами напрямую:
                 </p>
                 <div className="flex flex-wrap gap-4 text-sm">
                   <a

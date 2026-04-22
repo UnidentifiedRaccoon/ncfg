@@ -14,7 +14,7 @@ import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 const NAV_ITEMS = [
   { label: "Частным лицам", href: "/individuals" },
   { label: "Компаниям", href: "/companies" },
-  { label: "О центре", href: "/about" },
+  { label: "О центре", href: "/about" },
   { label: "Блог", href: "/blog" },
 ] as const;
 

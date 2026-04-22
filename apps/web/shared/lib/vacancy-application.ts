@@ -7,7 +7,7 @@ import {
 const MAX_URL_LENGTH = 2048;
 
 export const VACANCY_APPLICATION_REQUIRED_FIELDS_ERROR =
-  'Имя, email, телефон и ссылка на резюме обязательны для заполнения';
+  'Имя, email, телефон и ссылка на резюме обязательны для заполнения';
 export const VACANCY_APPLICATION_INVALID_EMAIL_ERROR = 'Некорректный формат email';
 export const VACANCY_APPLICATION_INVALID_RESUME_URL_ERROR =
   'Укажите корректную абсолютную ссылку на резюме';

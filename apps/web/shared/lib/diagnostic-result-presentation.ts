@@ -2,7 +2,7 @@ import type { DiagnosticResult } from "../api/types/diagnostic";
 
 export const FALLBACK_DIAGNOSTIC_RESULT_TITLE = "Результаты готовы";
 export const FALLBACK_DIAGNOSTIC_RESULT_SUMMARY =
-  "Подробный анализ будет доступен после настройки диагностики. При необходимости специалисты НЦФГ свяжутся с вами по указанным контактам.";
+  "Подробный анализ будет доступен после настройки диагностики. При необходимости специалисты НЦФГ свяжутся с вами по указанным контактам.";
 
 export interface DiagnosticResultPresentation {
   title: string;

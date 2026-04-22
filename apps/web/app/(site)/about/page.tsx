@@ -24,9 +24,9 @@ import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 export const metadata: Metadata = buildPageMetadata({
   path: "/about",
-  title: "О центре",
+  title: "О центре",
   description:
-    "На странице «О центре» вы узнаете, как НЦФГ работает с 2005 года, кто входит в команду и на каких принципах строятся наши проекты.",
+    "На странице «О центре» вы узнаете, как НЦФГ работает с 2005 года, кто входит в команду и на каких принципах строятся наши проекты.",
 });
 
 export const revalidate = 60; // Revalidate every 60 seconds
@@ -67,7 +67,7 @@ export default async function AboutPage() {
   const heroMetrics = pickAboutHeroMetrics(siteSetting.metrics);
   const breadcrumbStructuredData = buildBreadcrumbList([
     { name: "Главная", path: "/" },
-    { name: "О центре", path: "/about" },
+    { name: "О центре", path: "/about" },
   ]);
   const faqStructuredData = buildFAQPageStructuredData(faqItems);
 

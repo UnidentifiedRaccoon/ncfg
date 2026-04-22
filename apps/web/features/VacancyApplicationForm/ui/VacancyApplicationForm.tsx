@@ -193,14 +193,14 @@ export function VacancyApplicationForm({
               Отклик отправлен!
             </h2>
             <p className="mx-auto mt-3 max-w-[38rem] text-base leading-relaxed text-[#475569] md:text-lg">
-              Спасибо за интерес к вакансии «{vacancyTitle}». Мы свяжемся с вами в
-              ближайшее время.
+              Спасибо за интерес к вакансии «{vacancyTitle}». Мы свяжемся с вами
+              в ближайшее время.
             </p>
           </div>
         ) : (
           <div className="space-y-6">
             <h2 className="mt-0 text-[28px] font-bold leading-tight text-[#1E3A5F] md:text-[32px]">
-              Расскажите о себе
+              Расскажите о себе
             </h2>
 
             <form onSubmit={handleSubmit} onFocus={handleFormFieldFocus} noValidate>
@@ -345,7 +345,7 @@ export function VacancyApplicationForm({
                     htmlFor={consentId}
                     className="text-sm leading-relaxed text-[#475569]"
                   >
-                    Согласен(на) на обработку персональных данных и принимаю{" "}
+                    Согласен(на) на обработку персональных данных и принимаю{" "}
                     <Link
                       href="/politika-konfidencialnosti"
                       className="font-semibold text-[#3B82F6] hover:underline"

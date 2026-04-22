@@ -49,7 +49,7 @@ const navigation = [
   { label: "Компаниям", href: "/companies" },
   { label: "Диагностика", href: "/diagnostika/financial-wellbeing" },
   { label: "Портфолио", href: "/portfolio" },
-  { label: "О центре", href: "/about" },
+  { label: "О центре", href: "/about" },
   { label: "Вакансии", href: "/vacancies" },
   { label: "История", href: "/history" },
   { label: "Блог", href: "/blog" },
@@ -226,7 +226,7 @@ export function Footer({ data }: FooterProps) {
                 <div
                   className="mt-1 text-sm text-white/65"
                 >
-                  Ответим в течение 1 дня
+                  Ответим в течение 1 дня
                 </div>
               </div>
 

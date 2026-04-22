@@ -11,7 +11,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/rekomendacii",
   title: "Опыт клиентов",
   description:
-    "На этой странице собраны отзывы и рекомендации партнеров и клиентов НЦФГ о совместной работе.",
+    "На этой странице собраны отзывы и рекомендации партнеров и клиентов НЦФГ о совместной работе.",
 });
 
 export const revalidate = 60;
@@ -48,7 +48,7 @@ export default async function RecommendationsPage() {
                   Опыт клиентов
                 </h1>
                 <p className="mx-auto mt-5 max-w-4xl text-base leading-relaxed text-[#3F5C86] sm:text-lg md:text-2xl lg:text-[38px] lg:leading-[1.2]">
-                  Что говорят о нас наши партнёры и клиенты
+                  Что говорят о нас наши партнёры и клиенты
                 </p>
               </div>
             </div>
@@ -66,7 +66,7 @@ export default async function RecommendationsPage() {
             <div className="space-y-8 md:space-y-10">
               <div className="mx-auto max-w-3xl text-center">
                 <h2 className="text-3xl font-bold tracking-tight text-[#1E3A5F] md:text-4xl">
-                  Благодарственные письма и дипломы
+                  Благодарственные письма и дипломы
                 </h2>
               </div>
 

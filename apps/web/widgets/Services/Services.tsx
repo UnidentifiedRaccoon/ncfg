@@ -92,7 +92,7 @@ function OtherServicesCard({
             Другие услуги
           </div>
           <div className="mt-2 max-w-[34ch] text-sm text-white/70 leading-relaxed">
-            Все направления для компаний, проекты и форматы сотрудничества.
+            Все направления для компаний, проекты и форматы сотрудничества.
           </div>
 
           <div className="mt-6 inline-flex items-center gap-2 text-white/90">

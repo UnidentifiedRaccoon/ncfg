@@ -92,11 +92,11 @@ export function buildBlogPostDescription(post: BlogPostDescriptionInput): string
   const categoryTitle = normalizeInlineText(post.category?.title);
 
   if (!title) {
-    return "Материал НЦФГ с практическими выводами и рекомендациями.";
+    return "Материал НЦФГ с практическими выводами и рекомендациями.";
   }
 
-  const categoryFragment = categoryTitle ? ` в рубрике «${categoryTitle}»` : "";
-  return `Материал НЦФГ «${title}»${categoryFragment} с практическими выводами и рекомендациями.`;
+  const categoryFragment = categoryTitle ? ` в рубрике «${categoryTitle}»` : "";
+  return `Материал НЦФГ «${title}»${categoryFragment} с практическими выводами и рекомендациями.`;
 }
 
 export function buildVacancyPageDescription(vacancy: VacancyDescriptionInput): string {
@@ -131,10 +131,10 @@ export function buildServiceDescription(service: ServiceDescriptionInput): strin
 
   const title = normalizeInlineText(service.title);
   if (!title) {
-    return "Услуга НЦФГ для компаний, которым нужна программа финансовой грамотности и финансового благополучия сотрудников.";
+    return "Услуга НЦФГ для компаний, которым нужна программа финансовой грамотности и финансового благополучия сотрудников.";
   }
 
-  return `Услуга НЦФГ «${title}» для компаний, которым нужна программа финансовой грамотности и финансового благополучия сотрудников.`;
+  return `Услуга НЦФГ «${title}» для компаний, которым нужна программа финансовой грамотности и финансового благополучия сотрудников.`;
 }
 
 export function buildPageMetadata({

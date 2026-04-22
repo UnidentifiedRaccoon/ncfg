@@ -159,7 +159,7 @@ export function BlogPosts({
             <div className="mx-auto w-full max-w-[760px] overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white/80 backdrop-blur-sm shadow-sm">
               <div className="p-6 md:p-8">
                 <p className="text-base md:text-lg font-semibold text-[#1E3A5F]">
-                  В этой рубрике пока нет материалов.
+                  В этой рубрике пока нет материалов.
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-[#475569]">
                   Попробуйте выбрать другую рубрику или вернитесь ко всем публикациям.

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { fetchSiteSettings } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import { applyRussianTypographyRules } from "@/shared/lib/russian-typography";
 import { Container } from "@/shared/ui/Container";
 import { Footer } from "@/widgets";
 
@@ -8,7 +9,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/politika-konfidencialnosti",
   title: "Политика конфиденциальности",
   description:
-    "Здесь описано, как сайт НЦФГ собирает, использует и защищает персональные данные пользователей.",
+    "Здесь описано, как сайт НЦФГ собирает, использует и защищает персональные данные пользователей.",
   robots: {
     index: false,
     follow: true,
@@ -17,7 +18,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export const revalidate = 60;
 
-const PRIVACY_POLICY_HTML = `
+const PRIVACY_POLICY_HTML = applyRussianTypographyRules(`
 <table border="0" cellpadding="0" cellspacing="0">
   <tbody>
     <tr>
@@ -262,7 +263,7 @@ const PRIVACY_POLICY_HTML = `
 <p>11.3. Адрес электронной почты и контакты для рассмотрения обращений по информации, материалам, продуктам, размещенным на Сайте, опубликованы на страницах Сайта.</p>
 
 <p>11.4. Адрес электронной почты для оказания технической поддержки Пользователю: <a href="mailto:info@finzdorov.pro">info@finzdorov.pro</a>, телефон: +7 (499) 501-11-73.</p>
-`;
+`);
 
 export default async function PrivacyPolicyPage() {
   const siteSetting = await fetchSiteSettings();

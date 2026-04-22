@@ -312,7 +312,7 @@ export function AccentCard({
 
       <div className="relative z-10 flex items-center justify-center h-full">
         <blockquote className="text-lg md:text-xl font-medium italic text-white/90 text-center max-w-2xl">
-          &ldquo;Объединяя экспертизу и современные технологии для решения сложных финансовых задач&rdquo;
+          &ldquo;Объединяя экспертизу и современные технологии для решения сложных финансовых задач&rdquo;
         </blockquote>
       </div>
     </motion.div>

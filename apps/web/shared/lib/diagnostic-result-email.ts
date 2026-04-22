@@ -208,7 +208,7 @@ export function buildDiagnosticResultEmail({
         ${renderInsightHtml(result)}
 
         <p style="margin:32px 0 0;font-size:14px;line-height:22px;color:#64748B;">
-          Это письмо сформировано автоматически на основе ваших ответов в диагностике.
+          Это письмо сформировано автоматически на основе ваших ответов в диагностике.
         </p>
       </div>
     </div>
@@ -228,7 +228,7 @@ export function buildDiagnosticResultEmail({
     ...(ctaHref && presentation.ctaLabel ? ["", `${presentation.ctaLabel}: ${ctaHref}`] : []),
     renderInsightText(result),
     "",
-    "Это письмо сформировано автоматически на основе ваших ответов в диагностике.",
+    "Это письмо сформировано автоматически на основе ваших ответов в диагностике.",
   ]
     .join("\n")
     .trim();

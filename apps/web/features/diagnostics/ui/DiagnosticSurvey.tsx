@@ -809,7 +809,7 @@ export function DiagnosticSurvey({
                         aria-hidden="true"
                       />
                       <span>
-                        Результаты сохраняются только для внутренней аналитики и связи
+                        Результаты сохраняются только для внутренней аналитики и связи
                         по итогам диагностики.
                       </span>
                     </div>
@@ -1001,8 +1001,7 @@ export function DiagnosticSurvey({
                                   htmlFor={consentId}
                                   className="text-sm leading-6 text-[#475569]"
                                 >
-                                  Согласен(на) на обработку персональных данных и
-                                  принимаю{" "}
+                                  Согласен(на) на обработку персональных данных и принимаю{" "}
                                   <Link
                                     href="/politika-konfidencialnosti"
                                     className="font-medium text-[#3B82F6] hover:underline"
@@ -1016,7 +1015,7 @@ export function DiagnosticSurvey({
 
                             <div className="mt-8 flex items-center justify-between">
                               <p className="text-sm leading-6 text-[#94A3B8]">
-                                После перехода к результату ответы фиксируются.
+                                После перехода к результату ответы фиксируются.
                               </p>
                               <button
                                 type="submit"
@@ -1134,9 +1133,9 @@ export function DiagnosticSurvey({
                               type="button"
                               onClick={goToNextStep}
                               className={primaryCtaCompactClass}
-                            >
-                              {currentStep === questions.length - 1
-                                ? "К результатам"
+                              >
+                                {currentStep === questions.length - 1
+                                ? "К результатам"
                                 : "Далее"}
                               <ArrowRight className="h-4 w-4" />
                             </button>
@@ -1152,7 +1151,7 @@ export function DiagnosticSurvey({
                         aria-hidden="true"
                       />
                       <span>
-                        Результаты сохраняются только для внутренней аналитики и связи
+                        Результаты сохраняются только для внутренней аналитики и связи
                         по итогам диагностики.
                       </span>
                     </div>

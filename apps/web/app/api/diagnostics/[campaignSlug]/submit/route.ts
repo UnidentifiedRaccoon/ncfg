@@ -115,7 +115,7 @@ export async function POST(
     const rawBody = await readJsonSafe(request);
     if (!rawBody.ok) {
       return NextResponse.json(
-        { error: "Некорректный JSON в теле запроса" },
+        { error: "Некорректный JSON в теле запроса" },
         { status: 400, headers: responseHeaders }
       );
     }
@@ -123,7 +123,7 @@ export async function POST(
     const data = parseSubmitPayload(rawBody.data);
     if (!data) {
       return NextResponse.json(
-        { error: "Ответы, имя, email и согласие обязательны" },
+        { error: "Ответы, имя, email и согласие обязательны" },
         { status: 400, headers: responseHeaders }
       );
     }

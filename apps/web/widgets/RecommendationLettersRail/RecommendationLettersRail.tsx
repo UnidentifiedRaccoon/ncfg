@@ -311,7 +311,7 @@ function RecommendationLetterCard({
         href={letter.fileUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`Открыть документ «${letter.title}» в новой вкладке`}
+        aria-label={`Открыть документ «${letter.title}» в новой вкладке`}
         className={cn(
           "group relative block h-full overflow-hidden rounded-[28px] transition-all duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3B82F6]",
           style.card

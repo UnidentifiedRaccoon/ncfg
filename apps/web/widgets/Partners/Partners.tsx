@@ -264,7 +264,7 @@ function TestimonialCard({
                       ? "bg-[#3B82F6]"
                       : "bg-[#E2E8F0] hover:bg-[#94A3B8]"
                   )}
-                  aria-label={`Перейти к рекомендации ${idx + 1}`}
+                  aria-label={`Перейти к рекомендации ${idx + 1}`}
                   aria-current={idx === activeIndex ? "true" : undefined}
                   onClick={() => onSelect(idx)}
                 />
@@ -527,7 +527,7 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <h3 className="text-xl md:text-2xl font-bold text-[#1E3A5F] tracking-tight">
-                      Клиенты и партнеры
+                      Клиенты и партнеры
                     </h3>
                   </div>
                 </div>

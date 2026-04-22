@@ -72,7 +72,7 @@ export async function handleVacancyApplicationPost(
     const rawBody = await readJsonSafe(request);
     if (!rawBody.ok) {
       return NextResponse.json(
-        { error: "Некорректный JSON в теле запроса" },
+        { error: "Некорректный JSON в теле запроса" },
         { status: 400, headers: responseHeaders }
       );
     }

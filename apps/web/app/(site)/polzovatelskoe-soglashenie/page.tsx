@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { fetchSiteSettings } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
+import { applyRussianTypographyRules } from "@/shared/lib/russian-typography";
 import { Container } from "@/shared/ui/Container";
 import { Footer } from "@/widgets";
 
@@ -8,7 +9,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/polzovatelskoe-soglashenie",
   title: "Пользовательское соглашение",
   description:
-    "На странице опубликованы правила использования сайта НЦФГ, права пользователей и условия работы с сервисами.",
+    "На странице опубликованы правила использования сайта НЦФГ, права пользователей и условия работы с сервисами.",
   robots: {
     index: false,
     follow: true,
@@ -17,7 +18,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export const revalidate = 60;
 
-const USER_AGREEMENT_HTML = `
+const USER_AGREEMENT_HTML = applyRussianTypographyRules(`
 <h2>Определение терминов</h2>
 <p><strong>«Сайт» — </strong>интернет-ресурс, предназначенный для повышения уровня финансовой грамотности и развития финансового образования взрослого, работающего населения, расположенный на доменном имени <a href="https://ncfg.ru/">ncfg.ru</a>.</p>
 <p><strong>«Администрация Сайта» (далее Администрация)</strong> — владелец домена или уполномоченные им лица на управление Сайтом и иные действия, связанные с его использованием.</p>
@@ -118,7 +119,7 @@ const USER_AGREEMENT_HTML = `
 <h2>7. Дополнительные положения</h2>
 <p>7.1. Администрация не принимает встречные предложения от Пользователя относительно изменений Соглашения.</p>
 <p>7.2. Пользователь, принимая Соглашение, считается уведомленным, обязуется ознакомиться и согласен с применением положений, содержащихся в Политике конфиденциальности, размещенной по ссылке: <a href="https://ncfg.ru">https://ncfg.ru</a>. Дата размещения Соглашения указана в правом верхнем углу первого листа Соглашения. Новая редакция Соглашения вступает в силу с момента ее размещения на Сайте, если иное не будет предусмотрено в тексте новой редакции Соглашения.</p>
-`;
+`);
 
 export default async function UserAgreementPage() {
   const siteSetting = await fetchSiteSettings();

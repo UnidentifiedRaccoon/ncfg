@@ -121,7 +121,7 @@ export function FAQ({
           defaultOpenFirst={defaultOpenFirst}
           footer={
             <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-              <p>Не нашли ответ? Оставьте заявку, и мы свяжемся с вами.</p>
+              <p>Не нашли ответ? Оставьте заявку, и мы свяжемся с вами.</p>
               <Button variant="secondary" size="sm" href="#lead-form">
                 Оставить заявку
               </Button>
