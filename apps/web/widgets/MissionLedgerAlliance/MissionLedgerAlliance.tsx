@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   type KeyboardEvent,
   type MutableRefObject,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -226,9 +227,39 @@ function MissionLedgerAlliancePanel({
   const Heading = headingAs;
   const baseId = useId();
   const controlRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const controlsColumnRef = useRef<HTMLDivElement | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [desktopDeckHeight, setDesktopDeckHeight] = useState<number | null>(null);
   const activeDirection = missionDirections[activeIndex];
+
+  useEffect(() => {
+    const controlsColumn = controlsColumnRef.current;
+
+    if (!controlsColumn || typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    const updateDeckHeight = () => {
+      const nextHeight = Math.ceil(controlsColumn.getBoundingClientRect().height);
+
+      setDesktopDeckHeight((currentHeight) =>
+        currentHeight === nextHeight ? currentHeight : nextHeight
+      );
+    };
+
+    updateDeckHeight();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateDeckHeight();
+    });
+
+    resizeObserver.observe(controlsColumn);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   function selectIndex(index: number) {
     const nextIndex = wrapIndex(index);
@@ -303,7 +334,12 @@ function MissionLedgerAlliancePanel({
           </div>
         </div>
 
-        <div className="relative hidden min-h-[28.5rem] xl:block xl:h-full">
+        <div
+          className="relative hidden xl:block"
+          style={{
+            height: desktopDeckHeight ? `${desktopDeckHeight}px` : `${DECK_MIN_HEIGHT_REM}rem`,
+          }}
+        >
           <div className="relative h-full px-6 py-6">
             <p id={`${baseId}-hint`} className="sr-only">
               Навигация по направлениям миссии. Наведите курсор, переведите фокус или нажмите
@@ -332,7 +368,6 @@ function MissionLedgerAlliancePanel({
                   style={{
                     zIndex: layout.zIndex,
                     height: `calc(100% - ${DECK_STACK_BOTTOM_OFFSET_PX}px)`,
-                    minHeight: `calc(${DECK_MIN_HEIGHT_REM}rem - ${DECK_STACK_BOTTOM_OFFSET_PX}px)`,
                   }}
                   transition={{
                     duration: prefersReducedMotion ? 0 : STABLE_DOM_DURATION_S,
@@ -347,7 +382,7 @@ function MissionLedgerAlliancePanel({
         </div>
       </div>
 
-      <div className="order-1 xl:order-1 xl:sticky xl:top-20">
+      <div ref={controlsColumnRef} className="order-1 xl:order-1 xl:sticky xl:top-20">
         <MissionDirectionControls
           activeIndex={activeIndex}
           baseId={baseId}
