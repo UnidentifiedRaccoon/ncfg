@@ -113,6 +113,10 @@ html {
   scroll-padding-top: 80px; /* Header height (h-16=64px mobile, h-20=80px desktop) + small buffer */
 }
 
+html[data-instant-route-scroll="true"] {
+  scroll-behavior: auto;
+}
+
 @media (max-width: 767px) {
   html {
     scroll-padding-top: 64px;

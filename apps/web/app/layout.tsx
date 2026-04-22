@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { SITE_NAME, getMetadataBase } from "@/shared/lib/metadata";
 import { ScrollRevealObserver } from "@/shared/ui/ScrollRevealObserver";
+import { RouteScrollBehavior } from "@/shared/ui/RouteScrollBehavior";
 import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
 import { YandexMetrikaGoalTracker } from "@/shared/ui/YandexMetrikaGoalTracker";
 import { ScrollDepthTracker } from "@/shared/ui/ScrollDepthTracker";
@@ -54,6 +55,9 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${inter.variable} font-sans antialiased`}>
+        <Suspense fallback={null}>
+          <RouteScrollBehavior />
+        </Suspense>
         {isMetrikaEnabled ? (
           <>
             <Script id="yandex-metrika" strategy="afterInteractive">
