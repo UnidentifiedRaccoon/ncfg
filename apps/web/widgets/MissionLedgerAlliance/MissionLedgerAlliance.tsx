@@ -57,6 +57,8 @@ const stableSlotLayouts: Record<DeckDepth, StableSlotLayout> = {
   2: { x: 32, y: 60, scale: 0.94, opacity: 1, zIndex: 10 },
   3: { x: 48, y: 88, scale: 0.9, opacity: 0, zIndex: 0 },
 };
+const DECK_STACK_BOTTOM_OFFSET_PX = stableSlotLayouts[3].y;
+const DECK_MIN_HEIGHT_REM = 28.5;
 
 function wrapIndex(index: number): number {
   const total = missionDirections.length;
@@ -162,7 +164,7 @@ function MissionLayerCard({
   const layerClass = desktopLayerClasses[depth];
 
   return (
-    <div className="relative h-full min-h-[25.5rem] rounded-[34px] text-left" role="presentation">
+    <div className="relative h-full min-h-0 rounded-[34px] text-left" role="presentation">
       <article
         className={cn(
           "relative flex h-full flex-col overflow-hidden rounded-[34px] border p-6 transition-[border-color,background-color] duration-[340ms] motion-reduce:transition-none md:p-8",
@@ -327,7 +329,11 @@ function MissionLedgerAlliancePanel({
                   )}
                   initial={false}
                   onClick={depth === 3 ? undefined : () => selectIndex(cardIndex)}
-                  style={{ zIndex: layout.zIndex, height: "100%" }}
+                  style={{
+                    zIndex: layout.zIndex,
+                    height: `calc(100% - ${DECK_STACK_BOTTOM_OFFSET_PX}px)`,
+                    minHeight: `calc(${DECK_MIN_HEIGHT_REM}rem - ${DECK_STACK_BOTTOM_OFFSET_PX}px)`,
+                  }}
                   transition={{
                     duration: prefersReducedMotion ? 0 : STABLE_DOM_DURATION_S,
                     ease: [0.22, 1, 0.36, 1],
