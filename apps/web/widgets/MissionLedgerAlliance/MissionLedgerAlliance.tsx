@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   type KeyboardEvent,
   type MutableRefObject,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -57,6 +58,20 @@ const stableSlotLayouts: Record<DeckDepth, StableSlotLayout> = {
   2: { x: 32, y: 60, scale: 0.94, opacity: 1, zIndex: 10 },
   3: { x: 48, y: 88, scale: 0.9, opacity: 0, zIndex: 0 },
 };
+const DECK_MIN_HEIGHT_REM = 28.5;
+const DECK_MIN_HEIGHT_PX = DECK_MIN_HEIGHT_REM * 16;
+const visibleDesktopLayouts = Object.values(stableSlotLayouts).filter(
+  (layout) => layout.opacity > 0
+);
+
+function getDeckCardHeight(deckHeightPx: number): number {
+  const constrainedHeight = visibleDesktopLayouts.reduce(
+    (height, layout) => Math.min(height, (deckHeightPx - layout.y) / layout.scale),
+    deckHeightPx
+  );
+
+  return Math.max(0, constrainedHeight);
+}
 
 function wrapIndex(index: number): number {
   const total = missionDirections.length;
@@ -162,19 +177,21 @@ function MissionLayerCard({
   const layerClass = desktopLayerClasses[depth];
 
   return (
-    <div className="relative h-[25.5rem] rounded-[34px] text-left" role="presentation">
+    <div className="relative h-full min-h-0 rounded-[34px] text-left" role="presentation">
       <article
         className={cn(
           "relative flex h-full flex-col overflow-hidden rounded-[34px] border p-6 transition-[border-color,background-color] duration-[340ms] motion-reduce:transition-none md:p-8",
+          isActive && "pt-9 md:pt-12",
           layerClass.card
         )}
       >
-        <div className="relative flex h-full flex-col">
+        <div className="relative flex h-full flex-col justify-between gap-6">
           <div>
             <div>
               <h3
                 className={cn(
                   "w-full max-w-none text-[32px] font-semibold leading-[1.02] tracking-[-0.045em] text-[#153153] transition-opacity duration-200 motion-reduce:transition-none",
+                  isActive && "text-center",
                   !isActive && "text-[26px] leading-[1.08]"
                 )}
               >
@@ -183,31 +200,29 @@ function MissionLayerCard({
             </div>
           </div>
 
-          <div className="mt-auto">
-            {isActive ? (
-              <>
-                <p className="w-full max-w-none text-[15px] leading-7 text-[#52657D] md:text-base">
-                  {direction.detail}
-                </p>
-
-                <ul className="mt-6 grid gap-3 text-sm leading-6 text-[#234361] md:grid-cols-2 md:text-[15px]">
-                  {direction.outcomes.map((outcome) => (
-                    <li
-                      key={outcome}
-                      className="rounded-[20px] border border-[#D8E4F2] bg-white/78 px-4 py-3"
-                    >
-                      {outcome}
-                    </li>
-                  ))}
-                </ul>
-
-              </>
-            ) : (
-              <p className="w-full max-w-none text-sm leading-6 text-[#5E738E]">
-                {direction.summary}
+          {isActive ? (
+            <>
+              <p className="w-full max-w-none text-center text-[17px] leading-8 text-[#52657D] md:text-lg">
+                {direction.detail}
               </p>
-            )}
-          </div>
+
+              <ul className="grid gap-3 text-sm leading-6 text-[#234361] md:grid-cols-2 md:text-[15px]">
+                {direction.outcomes.map((outcome) => (
+                  <li
+                    key={outcome}
+                    className="rounded-[20px] border border-[#D8E4F2] bg-white/78 px-4 py-3"
+                  >
+                    {outcome}
+                  </li>
+                ))}
+              </ul>
+
+            </>
+          ) : (
+            <p className="w-full max-w-none text-sm leading-6 text-[#5E738E]">
+              {direction.summary}
+            </p>
+          )}
         </div>
       </article>
     </div>
@@ -224,9 +239,41 @@ function MissionLedgerAlliancePanel({
   const Heading = headingAs;
   const baseId = useId();
   const controlRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const controlsColumnRef = useRef<HTMLDivElement | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [desktopDeckHeight, setDesktopDeckHeight] = useState<number | null>(null);
   const activeDirection = missionDirections[activeIndex];
+  const desktopDeckHeightPx = desktopDeckHeight ?? DECK_MIN_HEIGHT_PX;
+  const desktopCardHeightPx = getDeckCardHeight(desktopDeckHeightPx);
+
+  useEffect(() => {
+    const controlsColumn = controlsColumnRef.current;
+
+    if (!controlsColumn || typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    const updateDeckHeight = () => {
+      const nextHeight = Math.ceil(controlsColumn.getBoundingClientRect().height);
+
+      setDesktopDeckHeight((currentHeight) =>
+        currentHeight === nextHeight ? currentHeight : nextHeight
+      );
+    };
+
+    updateDeckHeight();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateDeckHeight();
+    });
+
+    resizeObserver.observe(controlsColumn);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   function selectIndex(index: number) {
     const nextIndex = wrapIndex(index);
@@ -275,7 +322,7 @@ function MissionLedgerAlliancePanel({
     <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
       {renderHiddenHeading ? <Heading className="sr-only">Наш подход</Heading> : null}
 
-      <div className="order-2 xl:order-2">
+      <div className="order-2 xl:order-2 xl:self-stretch">
         <div className="xl:hidden">
           <div className="rounded-[30px] border border-[#BDD2EC] bg-[#F9FCFF] p-5 md:p-6">
             <div aria-live="polite">
@@ -301,11 +348,16 @@ function MissionLedgerAlliancePanel({
           </div>
         </div>
 
-        <div className="relative hidden min-h-[28.5rem] xl:block">
+        <div
+          className="relative hidden xl:block"
+          style={{
+            height: `${desktopDeckHeightPx}px`,
+          }}
+        >
           <div className="relative h-full px-6 py-6">
             <p id={`${baseId}-hint`} className="sr-only">
-              Навигация по четырём направлениям миссии. Наведите курсор, переведите фокус или
-              нажмите на список слева, чтобы вынести карточку на передний план.
+              Навигация по направлениям миссии. Наведите курсор, переведите фокус или нажмите
+              на список слева, чтобы вынести карточку на передний план.
             </p>
 
             {missionDirections.map((direction, cardIndex) => {
@@ -322,12 +374,15 @@ function MissionLedgerAlliancePanel({
                     y: layout.y,
                   }}
                   className={cn(
-                    "absolute inset-x-0 top-0 h-[25.5rem] origin-top-left rounded-[34px]",
+                    "absolute inset-x-0 top-0 origin-top-left rounded-[34px]",
                     depth === 3 ? "pointer-events-none" : "cursor-pointer"
                   )}
                   initial={false}
                   onClick={depth === 3 ? undefined : () => selectIndex(cardIndex)}
-                  style={{ zIndex: layout.zIndex }}
+                  style={{
+                    zIndex: layout.zIndex,
+                    height: `${desktopCardHeightPx}px`,
+                  }}
                   transition={{
                     duration: prefersReducedMotion ? 0 : STABLE_DOM_DURATION_S,
                     ease: [0.22, 1, 0.36, 1],
@@ -341,7 +396,7 @@ function MissionLedgerAlliancePanel({
         </div>
       </div>
 
-      <div className="order-1 xl:order-1 xl:sticky xl:top-20">
+      <div ref={controlsColumnRef} className="order-1 xl:order-1 xl:sticky xl:top-20">
         <MissionDirectionControls
           activeIndex={activeIndex}
           baseId={baseId}
@@ -367,7 +422,7 @@ export function MissionLedgerAlliance({
       id="mission"
       className="pt-8 pb-2 md:pt-10 md:pb-4 lg:pb-6"
       title="Наш подход"
-      lead="Решаем комплексные задачи в области финансового благополучия и финансовой культуры населения — через психологию, работу с детьми и взрослыми, создание поддерживающей среды и формирование устойчивых привычек."
+      lead="Решаем комплексные задачи в области финансового благополучия и финансовой культуры населения — через психологию, культурный код, работу с детьми и взрослыми, создание поддерживающей среды и формирование устойчивых привычек."
     >
       <MissionLedgerAlliancePanel
         headingAs={headingAs}

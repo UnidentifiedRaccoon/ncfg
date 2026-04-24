@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { getSiteUrl } from "@/shared/lib/metadata";
 import { buildCanonicalRedirectUrl, isSeoGonePath, isStaticAssetPathname } from "@/shared/lib/seo-redirects";
 
+const isPreviewDeployment = process.env.DEPLOY_ENV === "preview";
+
 function firstHeaderValue(value: string | null): string | null {
   if (!value) {
     return null;
@@ -19,10 +21,14 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const redirectUrl = buildCanonicalRedirectUrl(request.url, getSiteUrl(), {
-    host: firstHeaderValue(request.headers.get("x-forwarded-host")) ?? firstHeaderValue(request.headers.get("host")),
-    protocol: firstHeaderValue(request.headers.get("x-forwarded-proto")),
-  });
+  const redirectUrl = isPreviewDeployment
+    ? null
+    : buildCanonicalRedirectUrl(request.url, getSiteUrl(), {
+        host:
+          firstHeaderValue(request.headers.get("x-forwarded-host")) ??
+          firstHeaderValue(request.headers.get("host")),
+        protocol: firstHeaderValue(request.headers.get("x-forwarded-proto")),
+      });
 
   if (redirectUrl) {
     return NextResponse.redirect(redirectUrl, 301);
