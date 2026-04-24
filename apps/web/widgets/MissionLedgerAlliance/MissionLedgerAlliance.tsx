@@ -181,15 +181,17 @@ function MissionLayerCard({
       <article
         className={cn(
           "relative flex h-full flex-col overflow-hidden rounded-[34px] border p-6 transition-[border-color,background-color] duration-[340ms] motion-reduce:transition-none md:p-8",
+          isActive && "pt-9 md:pt-12",
           layerClass.card
         )}
       >
-        <div className="relative flex h-full flex-col">
+        <div className="relative flex h-full flex-col justify-between gap-6">
           <div>
             <div>
               <h3
                 className={cn(
                   "w-full max-w-none text-[32px] font-semibold leading-[1.02] tracking-[-0.045em] text-[#153153] transition-opacity duration-200 motion-reduce:transition-none",
+                  isActive && "text-center",
                   !isActive && "text-[26px] leading-[1.08]"
                 )}
               >
@@ -198,31 +200,29 @@ function MissionLayerCard({
             </div>
           </div>
 
-          <div className="mt-auto">
-            {isActive ? (
-              <>
-                <p className="w-full max-w-none text-[15px] leading-7 text-[#52657D] md:text-base">
-                  {direction.detail}
-                </p>
-
-                <ul className="mt-6 grid gap-3 text-sm leading-6 text-[#234361] md:grid-cols-2 md:text-[15px]">
-                  {direction.outcomes.map((outcome) => (
-                    <li
-                      key={outcome}
-                      className="rounded-[20px] border border-[#D8E4F2] bg-white/78 px-4 py-3"
-                    >
-                      {outcome}
-                    </li>
-                  ))}
-                </ul>
-
-              </>
-            ) : (
-              <p className="w-full max-w-none text-sm leading-6 text-[#5E738E]">
-                {direction.summary}
+          {isActive ? (
+            <>
+              <p className="w-full max-w-none text-center text-[17px] leading-8 text-[#52657D] md:text-lg">
+                {direction.detail}
               </p>
-            )}
-          </div>
+
+              <ul className="grid gap-3 text-sm leading-6 text-[#234361] md:grid-cols-2 md:text-[15px]">
+                {direction.outcomes.map((outcome) => (
+                  <li
+                    key={outcome}
+                    className="rounded-[20px] border border-[#D8E4F2] bg-white/78 px-4 py-3"
+                  >
+                    {outcome}
+                  </li>
+                ))}
+              </ul>
+
+            </>
+          ) : (
+            <p className="w-full max-w-none text-sm leading-6 text-[#5E738E]">
+              {direction.summary}
+            </p>
+          )}
         </div>
       </article>
     </div>
