@@ -14,6 +14,7 @@ interface NewsProps {
   lead?: string;
   posts: NewsArticleData[];
   archiveHref?: string;
+  archiveLabel?: string;
 }
 
 function formatDate(dateStr: string): string {
@@ -115,7 +116,13 @@ function Cover({
   );
 }
 
-export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
+export function News({
+  title,
+  lead,
+  posts,
+  archiveHref = "/blog",
+  archiveLabel = "На главную блога",
+}: NewsProps) {
   if (!Array.isArray(posts) || posts.length === 0) return null;
 
   const featured = posts[0];
@@ -260,7 +267,7 @@ export function News({ title, lead, posts, archiveHref = "/blog" }: NewsProps) {
 
       <div className="mt-10 flex justify-center">
         <Button href={archiveHref} variant="secondary" size="sm" className="group">
-          Все новости
+          {archiveLabel}
           <ArrowRight
             className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
             aria-hidden="true"
