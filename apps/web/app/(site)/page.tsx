@@ -154,10 +154,11 @@ export default async function Home() {
         />
         <LeadForm />
         <News
-          title={homePage.newsTitle ?? "Новости"}
+          title={homePage.newsTitle ?? "Блог"}
           lead={homePage.newsTeaser ?? undefined}
           posts={latestNews}
           archiveHref={homePage.newsArchiveLink?.href ?? "/blog"}
+          archiveLabel={homePage.newsArchiveLink?.label ?? "На главную блога"}
         />
       </main>
       <Footer
