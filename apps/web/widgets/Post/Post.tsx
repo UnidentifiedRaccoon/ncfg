@@ -15,6 +15,9 @@ interface PostProps {
       isVisible: boolean;
       title: string;
       description: string;
+      buttonText: string;
+      expandedTitle: string;
+      questionLabel: string;
     };
     createdAt: string;
   };

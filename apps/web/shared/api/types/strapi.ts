@@ -72,6 +72,9 @@ export interface StrapiNewsArticle {
   showQuestionForm: boolean | null;
   questionFormTitle: string | null;
   questionFormDescription: string | null;
+  questionFormButtonText: string | null;
+  questionFormExpandedTitle: string | null;
+  questionFormQuestionLabel: string | null;
   anonsImage: StrapiImage | null;
   postImage: StrapiImage | null;
   category: StrapiBlogCategory | null;

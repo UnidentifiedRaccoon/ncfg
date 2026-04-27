@@ -13,6 +13,9 @@ interface PostQuestionFormProps {
     isVisible: boolean;
     title: string;
     description: string;
+    buttonText: string;
+    expandedTitle: string;
+    questionLabel: string;
   };
 }
 
@@ -116,7 +119,7 @@ export function PostQuestionForm({
                 onClick={() => { setIsExpanded(true); reachGoal(YM_GOALS.QUESTION_FORM_EXPAND); }}
                 className="inline-flex items-center gap-2"
               >
-                Задать вопрос
+                {questionFormConfig.buttonText}
                 <ChevronDown size={18} />
               </Button>
             </div>
@@ -124,7 +127,7 @@ export function PostQuestionForm({
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="text-center mb-6">
                 <h3 className="text-xl font-semibold text-[#1E3A5F] mb-2">
-                  Задайте вопрос специалисту
+                  {questionFormConfig.expandedTitle}
                 </h3>
               </div>
 
@@ -140,7 +143,7 @@ export function PostQuestionForm({
                   htmlFor="question"
                   className="block text-sm font-medium text-[#1E3A5F] mb-2"
                 >
-                  Ваш вопрос *
+                  {questionFormConfig.questionLabel} *
                 </label>
                 <div className="relative">
                   <textarea
@@ -156,7 +159,7 @@ export function PostQuestionForm({
                       "focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[rgba(59,130,246,0.15)]",
                       "transition-all duration-150"
                     )}
-                    placeholder="Опишите ваш вопрос..."
+                    placeholder="Расскажите подробнее..."
                   />
                   <span className="absolute right-3 bottom-3 text-sm text-[#94A3B8]">
                     {formData.question.length}/1000

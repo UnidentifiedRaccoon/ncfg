@@ -52,6 +52,18 @@
     "questionFormDescription": {
       "type": "text"
     },
+    "questionFormButtonText": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "questionFormExpandedTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "questionFormQuestionLabel": {
+      "type": "string",
+      "maxLength": 255
+    },
     "anonsImage": {
       "type": "media",
       "multiple": false,

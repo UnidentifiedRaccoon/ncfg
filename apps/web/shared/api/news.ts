@@ -20,6 +20,9 @@ interface GetNewsOptions {
 const NEWS_ARTICLE_POPULATE = ['anonsImage', 'postImage', 'category'] as const;
 const DEFAULT_QUESTION_FORM_TITLE = 'Есть вопрос по другой теме?';
 const DEFAULT_QUESTION_FORM_DESCRIPTION = 'Задайте его специалисту НЦФГ';
+const DEFAULT_QUESTION_FORM_BUTTON_TEXT = 'Задать вопрос';
+const DEFAULT_QUESTION_FORM_EXPANDED_TITLE = 'Задайте вопрос специалисту';
+const DEFAULT_QUESTION_FORM_QUESTION_LABEL = 'Ваш вопрос';
 
 export async function getNews(options: GetNewsOptions = {}): Promise<{
   articles: StrapiNewsArticle[];
@@ -109,6 +112,9 @@ export interface LegacyNewsArticleQuestionForm {
   isVisible: boolean;
   title: string;
   description: string;
+  buttonText: string;
+  expandedTitle: string;
+  questionLabel: string;
 }
 
 export interface LegacyNewsArticle {
@@ -140,6 +146,15 @@ function getQuestionForm(article: StrapiNewsArticle): LegacyNewsArticleQuestionF
     description:
       normalizeOptionalText(article.questionFormDescription) ??
       DEFAULT_QUESTION_FORM_DESCRIPTION,
+    buttonText:
+      normalizeOptionalText(article.questionFormButtonText) ??
+      DEFAULT_QUESTION_FORM_BUTTON_TEXT,
+    expandedTitle:
+      normalizeOptionalText(article.questionFormExpandedTitle) ??
+      DEFAULT_QUESTION_FORM_EXPANDED_TITLE,
+    questionLabel:
+      normalizeOptionalText(article.questionFormQuestionLabel) ??
+      DEFAULT_QUESTION_FORM_QUESTION_LABEL,
   };
 }
 

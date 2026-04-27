@@ -834,7 +834,19 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     postImage: Schema.Attribute.Media<'images'>;
     publishedAt: Schema.Attribute.DateTime;
     publishedDate: Schema.Attribute.Date;
+    questionFormButtonText: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
     questionFormDescription: Schema.Attribute.Text;
+    questionFormExpandedTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    questionFormQuestionLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
     questionFormTitle: Schema.Attribute.String &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
