@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type ChangeEvent, type FormEvent } from "react";
 import { ChevronDown, Send, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/shared/ui/Button";
 import { cn } from "@/shared/lib/cn";
@@ -39,6 +39,12 @@ export function PostQuestionForm({
   });
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const formId = useId();
+  const questionId = `${formId}-question`;
+  const nameId = `${formId}-name`;
+  const emailId = `${formId}-email`;
+  const errorId = `${formId}-error`;
+  const describedBy = status === "error" ? errorId : undefined;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -73,7 +79,7 @@ export function PostQuestionForm({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     if (name === "question" && value.length > 1000) return;
@@ -132,7 +138,12 @@ export function PostQuestionForm({
               </div>
 
               {status === "error" && (
-                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                <div
+                  id={errorId}
+                  role="alert"
+                  aria-live="polite"
+                  className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700"
+                >
                   <AlertCircle size={20} />
                   <span>{errorMessage}</span>
                 </div>
@@ -140,16 +151,17 @@ export function PostQuestionForm({
 
               <div>
                 <label
-                  htmlFor="question"
+                  htmlFor={questionId}
                   className="block text-sm font-medium text-[#1E3A5F] mb-2"
                 >
                   {questionFormConfig.questionLabel} *
                 </label>
                 <div className="relative">
                   <textarea
-                    id="question"
+                    id={questionId}
                     name="question"
                     required
+                    aria-describedby={describedBy}
                     rows={4}
                     value={formData.question}
                     onChange={handleChange}
@@ -170,16 +182,17 @@ export function PostQuestionForm({
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label
-                    htmlFor="name"
+                    htmlFor={nameId}
                     className="block text-sm font-medium text-[#1E3A5F] mb-2"
                   >
                     Имя *
                   </label>
                   <input
                     type="text"
-                    id="name"
+                    id={nameId}
                     name="name"
                     required
+                    aria-describedby={describedBy}
                     value={formData.name}
                     onChange={handleChange}
                     className={cn(
@@ -194,16 +207,17 @@ export function PostQuestionForm({
 
                 <div>
                   <label
-                    htmlFor="email"
+                    htmlFor={emailId}
                     className="block text-sm font-medium text-[#1E3A5F] mb-2"
                   >
                     Email *
                   </label>
                   <input
                     type="email"
-                    id="email"
+                    id={emailId}
                     name="email"
                     required
+                    aria-describedby={describedBy}
                     value={formData.email}
                     onChange={handleChange}
                     className={cn(

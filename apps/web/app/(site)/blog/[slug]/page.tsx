@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Post, Footer } from "@/widgets";
+import { Post, Footer, mapSiteSettingsToFooterData } from "@/widgets";
 import {
   fetchNewsArticle,
   fetchNewsArticleSlugs,
@@ -124,33 +124,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       <main className="flex-1">
         <Post post={post} allPosts={allPosts} />
       </main>
-      <Footer
-        data={{
-          organization: {
-            fullName: siteSetting.organizationFullName,
-            shortName: siteSetting.organizationShortName,
-          },
-          contacts: {
-            phone: siteSetting.contactsPhone,
-            email: siteSetting.contactsEmail,
-          },
-          social: siteSetting.socialLinks.map((l) => ({ label: l.label, href: l.href })),
-          legalLinks: siteSetting.legalLinks.map((l) => ({ label: l.label, href: l.href })),
-          legalDocuments: {
-            title: siteSetting.legalDocumentsTitle ?? "Юридические документы",
-            items: siteSetting.legalDocuments.map((d) => ({
-              label: d.label,
-              href: d.href,
-              type: d.type,
-            })),
-          },
-          copyright: {
-            years: siteSetting.copyrightYears ?? "",
-            text: siteSetting.copyrightText ?? "",
-            notice: siteSetting.copyrightNotice ?? "",
-          },
-        }}
-      />
+      <Footer data={mapSiteSettingsToFooterData(siteSetting)} />
     </div>
   );
 }

@@ -17,7 +17,7 @@ export { BlogPosts } from "./BlogPosts";
 export { Post } from "./Post";
 export { CareerVacancies } from "./CareerVacancies";
 export { Vacancy } from "./Vacancy";
-export { Footer } from "./Footer";
+export { Footer, mapSiteSettingsToFooterData } from "./Footer";
 export { HowWeWork } from "./HowWeWork";
 export { Principles } from "./Principles";
 export { Team } from "./Team";

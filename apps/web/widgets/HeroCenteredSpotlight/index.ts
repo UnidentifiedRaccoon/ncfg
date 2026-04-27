@@ -1,0 +1,1 @@
+export { HeroCenteredSpotlight } from "./HeroCenteredSpotlight";

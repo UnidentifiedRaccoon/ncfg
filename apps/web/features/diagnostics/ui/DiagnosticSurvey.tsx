@@ -148,6 +148,7 @@ function InsightCard({
   onToggle: () => void;
 }) {
   const tone = getDiagnosticInsightTone(insight.weight);
+  const bodyId = useId();
 
   return (
     <div
@@ -163,6 +164,8 @@ function InsightCard({
       <button
         type="button"
         onClick={onToggle}
+        aria-expanded={isOpen}
+        aria-controls={bodyId}
         className="flex w-full items-start gap-4 px-5 py-4 text-left"
       >
         <span
@@ -202,6 +205,8 @@ function InsightCard({
       <button
         type="button"
         onClick={onToggle}
+        aria-expanded={isOpen}
+        aria-controls={bodyId}
         className="w-full px-5 py-3 text-left"
       >
         <h4 className="text-[15px] font-semibold leading-snug text-[#1E3A5F]">
@@ -211,6 +216,7 @@ function InsightCard({
 
       {/* ---- Expanded body ---- */}
       <div
+        id={bodyId}
         className={cn(
           "grid transition-[grid-template-rows] duration-300",
           isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
@@ -387,6 +393,7 @@ export function DiagnosticSurvey({
   const survey = useDiagnosticSurvey({ campaignSlug, questions });
   const consentId = useId();
   const errorId = useId();
+  const mobileProgressPanelId = useId();
   const [stepKey, setStepKey] = useState(0);
   const [hasNavigated, setHasNavigated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -577,6 +584,8 @@ export function DiagnosticSurvey({
               <button
                 type="button"
                 onClick={() => setSidebarOpen((o) => !o)}
+                aria-expanded={sidebarOpen}
+                aria-controls={mobileProgressPanelId}
                 className="-mx-4 flex w-[calc(100%+2rem)] items-center justify-between bg-white px-5 py-4 md:mx-0 md:w-full md:rounded-2xl md:border md:border-[#E2E8F0]/80 md:shadow-[0_18px_56px_rgba(15,23,42,0.08)]"
               >
                 <div className="flex items-center gap-4">
@@ -601,7 +610,7 @@ export function DiagnosticSurvey({
               </button>
 
               {sidebarOpen && (
-                <div className={cn(cardClass, "mt-3 space-y-2 p-4 animate-[cardIn_0.25s_ease-out]")}>
+                <div id={mobileProgressPanelId} className={cn(cardClass, "mt-3 space-y-2 p-4 animate-[cardIn_0.25s_ease-out]")}>
                   {questions.map((question, index) => {
                     const stepState =
                       answers[question.key]

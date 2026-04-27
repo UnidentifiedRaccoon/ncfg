@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { CareerVacancies, Footer } from "@/widgets";
+import { CareerVacancies, Footer, mapSiteSettingsToFooterData } from "@/widgets";
 import {
   fetchCareerPageData,
   fetchSiteSettings,
@@ -43,39 +43,7 @@ export default async function VacanciesPage() {
           emptyDescription={careerPage.emptyDescription}
         />
       </main>
-      <Footer
-        data={{
-          organization: {
-            fullName: siteSetting.organizationFullName,
-            shortName: siteSetting.organizationShortName,
-          },
-          contacts: {
-            phone: siteSetting.contactsPhone,
-            email: siteSetting.contactsEmail,
-          },
-          social: siteSetting.socialLinks.map((link) => ({
-            label: link.label,
-            href: link.href,
-          })),
-          legalLinks: siteSetting.legalLinks.map((link) => ({
-            label: link.label,
-            href: link.href,
-          })),
-          legalDocuments: {
-            title: siteSetting.legalDocumentsTitle ?? "Юридические документы",
-            items: siteSetting.legalDocuments.map((document) => ({
-              label: document.label,
-              href: document.href,
-              type: document.type,
-            })),
-          },
-          copyright: {
-            years: siteSetting.copyrightYears ?? "",
-            text: siteSetting.copyrightText ?? "",
-            notice: siteSetting.copyrightNotice ?? "",
-          },
-        }}
-      />
+      <Footer data={mapSiteSettingsToFooterData(siteSetting)} />
     </>
   );
 }
