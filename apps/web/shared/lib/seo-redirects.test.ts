@@ -25,7 +25,7 @@ test("isSeoGonePath matches bot and feed leftovers", () => {
 });
 
 test("isStaticAssetPathname matches public assets but keeps SEO routes dynamic", () => {
-  assert.equal(isStaticAssetPathname("/heroV2.minified.png"), true);
+  assert.equal(isStaticAssetPathname("/heroV2.webp"), true);
   assert.equal(isStaticAssetPathname("/docs/ustav-ncfg.pdf"), true);
   assert.equal(isStaticAssetPathname("/manifest.webmanifest"), true);
   assert.equal(isStaticAssetPathname("/companies"), false);

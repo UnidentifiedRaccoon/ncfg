@@ -20,7 +20,7 @@ export function HeroCompanies({ headline, lead, primaryCta }: HeroCompaniesProps
       lead={lead}
       primaryAction={primaryAction}
       secondaryAction={{ label: "Подробнее", href: "#services" }}
-      imageSrc="/heroV2.minified.png"
+      imageSrc="/heroV2.webp"
       imageAlt=""
     />
   );

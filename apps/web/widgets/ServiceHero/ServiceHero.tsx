@@ -16,7 +16,7 @@ export function ServiceHero({
       headline={title}
       lead={shortDescription}
       primaryAction={{ label: ctaLabel, href: "#lead-form" }}
-      imageSrc="/heroV2.minified.png"
+      imageSrc="/heroV2.webp"
       imageAlt=""
     />
   );

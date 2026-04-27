@@ -1,9 +1,9 @@
-import Image from "next/image";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn";
 import { Container } from "@/shared/ui/Container";
 import { Button } from "@/shared/ui/Button";
+import { HeroImage } from "@/shared/ui/HeroImage";
 import { HighlightedHeadline } from "@/shared/ui/HighlightedHeadline";
 
 interface HeroAction {
@@ -39,6 +39,8 @@ const DEFAULT_TRUST_CHIPS = [
   "ВТБ Мои Инвестиции",
   "Марс",
 ];
+const HERO_BLUR_DATA_URL =
+  "data:image/webp;base64,UklGRrgBAABXRUJQVlA4WAoAAAAQAAAAFwAADwAAQUxQSOwAAAANgCDbliHpJSqzbXus/W/Ftj2FLORv9xYiYgKwkIHz4tZBA/7v4/m9j/kMPJvJtDsqgKPF8+F9PA+sttlV1o1AUuXs3U0AgEFkCq1+MXwxBEYsm7c/BgBYeaOPj9gSADCCYJQAIltsd/JPLtEcMBBmi+tr8t1YwsrV7e63awlLExiQKWtLWDoxpDi4pMRi+cgwzXS79P1DtBShVIw+cju1x5AA0CIm+72/C1Vw/nxwBhDAZojrtPW8+ztPKe0opRwlHU7G/fxk3aJ7cfRpiQkppRRCcIqCIK6URfz9+mNMFEdxEieJJUidTwnGAFZQOCCmAAAAMAQAnQEqGAAQAD7dWqZMqKUjojAIARAbiWwAnTKAJa0Ljijxa5ds4l5YAP6l9QbM+Dibl64dtASG4q2kFpISSKzxkXGa+r1pOKWrYzAkL/k0oGIFU/+d/EPwrpXvDzIW2Ts9n2UPdTSr+vKpDfu9+iy1o3ZD3gn4ZbztGzgNANZqo3nX19zX9VKl+h+pv6ZAYhN3IwAoGtbx+oQ8oXZx/5oYQ4AAAA==";
 
 export function HeroLayout({
   headline,
@@ -171,12 +173,11 @@ export function HeroLayout({
             <div className="relative hidden lg:block">
               <div className="relative mx-auto w-full max-w-[560px]">
                 <div className="relative aspect-[4/3]">
-                  <Image
+                  <HeroImage
                     src={imageSrc}
                     alt={imageAlt}
-                    fill
-                    priority
-                    sizes="(min-width: 1024px) 560px, 0px"
+                    sizes="(min-width: 1024px) 840px, 0px"
+                    blurDataURL={HERO_BLUR_DATA_URL}
                     className="pointer-events-none object-contain drop-shadow-[0_40px_90px_rgba(0,0,0,0.65)] scale-[1.5]"
                   />
                 </div>

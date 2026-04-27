@@ -27,7 +27,7 @@ export function Hero({
   lead,
   primaryCta,
   metrics,
-  imageSrc = "/heroV2.minified.png",
+  imageSrc = "/heroV2.webp",
   imageAlt = "",
   noSentinel = false,
 }: HeroProps) {

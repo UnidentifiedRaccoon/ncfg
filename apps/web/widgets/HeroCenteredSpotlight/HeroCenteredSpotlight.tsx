@@ -69,13 +69,13 @@ export function HeroCenteredSpotlight({
 
       {/* === Content === */}
       <div className="relative z-10 mx-auto w-full max-w-[1320px] px-4 md:px-6 lg:px-8">
-        <div className="flex flex-col items-center py-14 text-center md:py-20 lg:py-24">
+        <div className="flex w-full min-w-0 flex-col items-center py-14 text-center md:py-20 lg:py-24">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60">
             <span className="h-1.5 w-1.5 rounded-full bg-[#58A8E0]" />
             {eyebrow}
           </div>
 
-          <h1 className="mt-6 max-w-4xl text-3xl font-bold tracking-tight text-white leading-[1.05] sm:text-4xl md:text-5xl lg:text-[72px]">
+          <h1 className="mt-6 w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] text-3xl font-bold tracking-tight text-white leading-[1.05] [overflow-wrap:anywhere] sm:w-full sm:max-w-4xl sm:text-4xl sm:[overflow-wrap:normal] md:text-5xl lg:text-[72px]">
             <HighlightedHeadline
               text={headline}
               accentWord={accentWord}
@@ -84,7 +84,7 @@ export function HeroCenteredSpotlight({
           </h1>
 
           {lead && (
-            <p className="mt-5 max-w-2xl text-base text-white/60 sm:text-lg leading-relaxed">
+            <p className="mt-5 w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] text-base text-white/60 sm:w-full sm:max-w-2xl sm:text-lg leading-relaxed">
               {lead}
             </p>
           )}
@@ -93,7 +93,7 @@ export function HeroCenteredSpotlight({
           {metrics.length > 0 && (
             <>
               {/* Mobile: 2×2 grid */}
-              <dl className="relative z-20 mt-8 grid w-full max-w-sm grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md md:hidden">
+              <dl className="relative z-20 mt-8 grid w-[calc(100vw-2rem)] max-w-sm grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md md:hidden">
                 {metrics.slice(0, 4).map((metric) => (
                   <div key={metric.label} className="bg-white/[0.03] px-4 py-5 text-center">
                     <dd className="text-2xl font-bold text-white">
@@ -130,7 +130,7 @@ export function HeroCenteredSpotlight({
             </>
           )}
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-8 flex w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] flex-wrap items-center justify-center gap-4 sm:w-full sm:max-w-full">
             <Button href={primaryAction.href} size="lg" data-ym-goal="cta_click">
               {primaryAction.label}
             </Button>
@@ -150,7 +150,7 @@ export function HeroCenteredSpotlight({
             )}
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs text-white/40">
+          <div className="mt-8 flex w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] flex-wrap items-center justify-center gap-2 text-xs text-white/40 sm:w-full sm:max-w-full">
             <ShieldCheck
               className="h-4 w-4 text-[#58A8E0]"
               aria-hidden="true"
