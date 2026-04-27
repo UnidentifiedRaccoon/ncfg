@@ -95,21 +95,6 @@ export async function getVacancy(slug: string): Promise<StrapiVacancy | null> {
   }, null);
 }
 
-export async function getLatestVacancies(limit: number = 3): Promise<StrapiVacancy[]> {
-  return withMissingVacancyEndpointFallback(async () => {
-    const query = buildQueryString({
-      populate: [...VACANCY_POPULATE],
-      publicationState: 'live',
-      sort: ['publishedDate:desc', 'createdAt:desc'],
-      pagination: { limit },
-    });
-
-    const response = await fetchAPI<StrapiResponse<StrapiVacancy[]>>(`/vacancies${query}`);
-
-    return response.data;
-  }, []);
-}
-
 export async function getVacancySlugs(): Promise<string[]> {
   return withMissingVacancyEndpointFallback(async () => {
     const query = buildQueryString({

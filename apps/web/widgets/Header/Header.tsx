@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { Button } from "@/shared/ui/Button";
 import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
@@ -21,6 +21,7 @@ const NAV_ITEMS = [
 type DockTone = "hero" | "surface";
 
 const HERO_END_SENTINEL_SELECTOR = "[data-header-hero-end]";
+const MOBILE_MENU_PANEL_ID = "site-mobile-menu";
 
 function getHeaderHeightPx() {
   return window.matchMedia("(min-width: 1024px)").matches ? 80 : 64;
@@ -118,7 +119,6 @@ function DesktopNav({
 
 export function Header() {
   const pathname = usePathname();
-  const mobileMenuPanelId = useId();
   const [mobileMenu, setMobileMenu] = useState<{
     open: boolean;
     openedOnPath: string | null;
@@ -265,7 +265,7 @@ export function Header() {
                 }
                 aria-label={mobileMenuOpen ? "Закрыть меню" : "Открыть меню"}
                 aria-expanded={mobileMenuOpen}
-                aria-controls={mobileMenuPanelId}
+                aria-controls={MOBILE_MENU_PANEL_ID}
               >
                 {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
@@ -287,7 +287,7 @@ export function Header() {
       />
 
       <div
-        id={mobileMenuPanelId}
+        id={MOBILE_MENU_PANEL_ID}
         aria-hidden={!mobileMenuOpen}
         className={cn(
           "lg:hidden absolute inset-x-0 top-full z-50 overflow-hidden transition-[max-height] duration-300",

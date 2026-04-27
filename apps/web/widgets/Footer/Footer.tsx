@@ -12,7 +12,7 @@ interface LegalDocument {
   type: string;
 }
 
-interface FooterData {
+export interface FooterData {
   organization: {
     fullName: string;
     shortName: string;

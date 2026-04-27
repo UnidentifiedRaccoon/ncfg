@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DiagnosticSurvey } from "@/features/diagnostics";
-import { Footer, Header } from "@/widgets";
+import { Footer, Header, mapSiteSettingsToFooterData } from "@/widgets";
 import { fetchSiteSettings } from "@/shared/api/data-provider";
 import { getDiagnosticCampaignBySlug } from "@/shared/api/diagnostics";
 import { buildPageMetadata } from "@/shared/lib/metadata";
@@ -21,34 +21,6 @@ async function loadDiagnosticCampaign(campaignSlug: string) {
     console.error(`[diagnostika/${campaignSlug}] Failed to fetch campaign: ${details}`);
     return null;
   }
-}
-
-function buildFooterData(siteSetting: Awaited<ReturnType<typeof fetchSiteSettings>>) {
-  return {
-    organization: {
-      fullName: siteSetting.organizationFullName,
-      shortName: siteSetting.organizationShortName,
-    },
-    contacts: {
-      phone: siteSetting.contactsPhone,
-      email: siteSetting.contactsEmail,
-    },
-    social: siteSetting.socialLinks.map((link) => ({ label: link.label, href: link.href })),
-    legalLinks: siteSetting.legalLinks.map((link) => ({ label: link.label, href: link.href })),
-    legalDocuments: {
-      title: siteSetting.legalDocumentsTitle ?? "Юридические документы",
-      items: siteSetting.legalDocuments.map((document) => ({
-        label: document.label,
-        href: document.href,
-        type: document.type,
-      })),
-    },
-    copyright: {
-      years: siteSetting.copyrightYears ?? "",
-      text: siteSetting.copyrightText ?? "",
-      notice: siteSetting.copyrightNotice ?? "",
-    },
-  };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -103,7 +75,7 @@ export default async function DiagnosticCampaignPage({ params }: PageProps) {
         />
       </main>
       {isNavigationLayoutVisible && siteSetting ? (
-        <Footer data={buildFooterData(siteSetting)} />
+        <Footer data={mapSiteSettingsToFooterData(siteSetting)} />
       ) : null}
     </>
   );

@@ -1,6 +1,6 @@
 // A/B test variants archived in ./hero-ab-variants.md
 import { HeroLayout } from "@/shared/ui/HeroLayout";
-import { HeroCenteredSpotlight } from "@/widgets/HeroCenteredSpotlight/HeroCenteredSpotlight";
+import { HeroCenteredSpotlight } from "@/widgets/HeroCenteredSpotlight";
 
 interface HeroMetric {
   value: string;

@@ -14,7 +14,6 @@ import {
   type LegacyNewsArticle,
 } from './news';
 import {
-  getLatestVacancies,
   getVacancies,
   getVacancy,
   getVacancySlugs,
@@ -254,11 +253,6 @@ export async function fetchVacancies(): Promise<VacancyData[]> {
 export async function fetchVacancy(slug: string): Promise<VacancyData | null> {
   const vacancy = await getVacancy(slug);
   return vacancy ? transformToVacancyData(vacancy) : null;
-}
-
-export async function fetchLatestVacancies(limit: number = 3): Promise<VacancyData[]> {
-  const vacancies = await getLatestVacancies(limit);
-  return vacancies.map(transformToVacancyData);
 }
 
 export async function fetchVacancySlugs(): Promise<string[]> {
