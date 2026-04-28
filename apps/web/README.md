@@ -76,6 +76,7 @@ Required Lockbox keys:
 - `STRAPI_API_TOKEN` = read-only token for web -> Strapi content fetches
 - `STRAPI_WRITE_API_TOKEN` = write token used by `POST /api/diagnostic-submissions/intake`
 - `NEXT_PUBLIC_YANDEX_METRIKA_ID` = production Yandex Metrika counter ID (`108387180`)
+- `BITRIX24_WEBHOOK_URL` = incoming webhook URL for website lead fan-out to Bitrix24
 
 GitHub Secrets are no longer the canonical source for Strapi tokens or the production Metrika counter ID. Production web deployments resolve them from the same Lockbox secret version, while preview deployments intentionally ship without Metrika enabled.
 

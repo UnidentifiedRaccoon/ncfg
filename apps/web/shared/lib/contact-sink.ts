@@ -89,6 +89,27 @@ type PostboxConfig = {
   recipients: string[];
 };
 
+export type Bitrix24LeadConfig = {
+  webhookUrl: string;
+  sourceId: string;
+  stageId: string;
+  title: string;
+  originatorId: string;
+  assignedById?: number;
+};
+
+type Bitrix24ApiResponse<T> = {
+  result?: T;
+  error?: string;
+  error_description?: string;
+};
+
+type Bitrix24LeadAddResult = {
+  item?: {
+    id?: number;
+  };
+};
+
 class MissingContactSink implements ContactSink {
   constructor(private readonly reason: string) {}
 
@@ -102,6 +123,87 @@ class MissingContactSink implements ContactSink {
 
   async submitVacancyApplication() {
     throw new Error(this.reason);
+  }
+}
+
+class LeadFanoutContactSink implements ContactSink {
+  constructor(
+    private readonly primary: ContactSink,
+    private readonly bitrix24LeadSink: ContactSink
+  ) {}
+
+  async submitLead(data: LeadSubmission, ctx: ContactSinkContext) {
+    await this.primary.submitLead(data, ctx);
+
+    try {
+      await this.bitrix24LeadSink.submitLead(data, ctx);
+    } catch (error) {
+      console.error(`[${ctx.requestId}] Bitrix24 lead sync failed:`, error);
+    }
+  }
+
+  submitQuestion(data: QuestionSubmission, ctx: ContactSinkContext) {
+    return this.primary.submitQuestion(data, ctx);
+  }
+
+  submitVacancyApplication(
+    data: VacancyApplicationSubmission,
+    ctx: ContactSinkContext
+  ) {
+    return this.primary.submitVacancyApplication(data, ctx);
+  }
+}
+
+class Bitrix24LeadContactSink implements ContactSink {
+  constructor(private readonly config: Bitrix24LeadConfig) {}
+
+  async submitLead(data: LeadSubmission, ctx: ContactSinkContext) {
+    const payload = buildBitrix24LeadAddPayload(data, ctx, this.config);
+    const result = await this.call<Bitrix24LeadAddResult>("crm.item.add", payload);
+    const leadId = result.item?.id;
+
+    console.log(
+      `[${ctx.requestId}] Bitrix24 lead synced${leadId ? `: ${leadId}` : ""}`
+    );
+  }
+
+  async submitQuestion() {
+    // Bitrix24 is enabled only for the primary website lead form during rollout.
+  }
+
+  async submitVacancyApplication() {
+    // Vacancy applications keep using the primary delivery channel for now.
+  }
+
+  private async call<T>(method: string, payload: unknown): Promise<T> {
+    const response = await fetch(`${this.config.webhookUrl}${method}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    });
+
+    const rawResponse = await response.text();
+    const parsedResponse = parseBitrix24Response<T>(rawResponse);
+
+    if (!response.ok) {
+      throw new Error(
+        `HTTP ${response.status}: ${extractBitrix24Error(parsedResponse, rawResponse)}`
+      );
+    }
+
+    const explicitError = extractBitrix24Error(parsedResponse, rawResponse);
+    if (explicitError) {
+      throw new Error(explicitError);
+    }
+
+    if (!parsedResponse?.result) {
+      throw new Error(rawResponse.slice(0, 300) || "Bitrix24 returned empty result");
+    }
+
+    return parsedResponse.result;
   }
 }
 
@@ -193,6 +295,51 @@ class PostboxEmailContactSink implements ContactSink {
       replyTo,
     });
   }
+}
+
+export function buildBitrix24LeadAddPayload(
+  data: LeadSubmission,
+  ctx: ContactSinkContext,
+  config: Bitrix24LeadConfig
+) {
+  return {
+    entityTypeId: 1,
+    fields: {
+      title: config.title,
+      name: data.name,
+      companyTitle: data.company,
+      sourceId: config.sourceId,
+      stageId: config.stageId,
+      opened: "Y",
+      comments: buildBitrix24LeadComment(data, ctx),
+      originatorId: config.originatorId,
+      originId: ctx.requestId,
+      assignedById: config.assignedById,
+      ufCrmFormname: "lead",
+      ufCrmTranid: ctx.requestId,
+      fm: [
+        { typeId: "EMAIL", valueType: "WORK", value: data.email },
+        data.phone
+          ? { typeId: "PHONE", valueType: "WORK", value: data.phone }
+          : undefined,
+      ].filter(Boolean),
+    },
+  };
+}
+
+function buildBitrix24LeadComment(data: LeadSubmission, ctx: ContactSinkContext) {
+  return [
+    "Форма: Заявка с сайта",
+    `Имя: ${data.name}`,
+    `Email: ${data.email}`,
+    `Телефон: ${data.phone || "не указан"}`,
+    `Компания: ${data.company || "не указана"}`,
+    `Сообщение: ${data.message || "не указано"}`,
+    `Страница: ${data.sourcePageUrl || "не указана"}`,
+    `Request ID: ${ctx.requestId}`,
+    `IP: ${ctx.clientIp}`,
+    `User-Agent: ${ctx.userAgent || "не указан"}`,
+  ].join("\n");
 }
 
 class GetCourseContactSink implements ContactSink {
@@ -379,12 +526,30 @@ function parseGetCourseResponse(rawResponse: string): GetCourseApiResponse | nul
   }
 }
 
+function parseBitrix24Response<T>(rawResponse: string): Bitrix24ApiResponse<T> | null {
+  try {
+    const parsed = JSON.parse(rawResponse) as Bitrix24ApiResponse<T>;
+    if (typeof parsed !== "object" || parsed === null) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 function extractGetCourseError(
   payload: GetCourseApiResponse | null,
   rawResponse: string
 ) {
   if (!payload) return rawResponse.slice(0, 300) || null;
   return payload.error_message || payload.error || null;
+}
+
+function extractBitrix24Error<T>(
+  payload: Bitrix24ApiResponse<T> | null,
+  rawResponse: string
+) {
+  if (!payload) return rawResponse.slice(0, 300) || null;
+  return payload.error_description || payload.error || null;
 }
 
 function isTruthy(value: boolean | number | string) {
@@ -425,6 +590,10 @@ function normalizeBaseUrl(value: string) {
   return `https://${trimmed}`;
 }
 
+function normalizeWebhookUrl(value: string) {
+  return `${normalizeBaseUrl(value)}/`;
+}
+
 function hostFromUrl(value: string) {
   try {
     return new URL(value).host;
@@ -463,7 +632,43 @@ function resolveRecipientEmails() {
   return [];
 }
 
-function createContactSink(): ContactSink {
+function isExplicitlyDisabled(value: string | undefined) {
+  const normalized = value?.trim().toLowerCase();
+  return (
+    normalized === "0" ||
+    normalized === "false" ||
+    normalized === "no" ||
+    normalized === "off"
+  );
+}
+
+function createBitrix24LeadSink(): ContactSink | null {
+  const webhookUrl = asOptionalEnv(process.env.BITRIX24_WEBHOOK_URL);
+  if (!webhookUrl || isExplicitlyDisabled(process.env.BITRIX24_LEAD_ENABLED)) {
+    return null;
+  }
+
+  return new Bitrix24LeadContactSink({
+    webhookUrl: normalizeWebhookUrl(webhookUrl),
+    sourceId: asOptionalEnv(process.env.BITRIX24_LEAD_SOURCE_ID) || "WEB",
+    stageId: asOptionalEnv(process.env.BITRIX24_LEAD_STAGE_ID) || "10",
+    title: asOptionalEnv(process.env.BITRIX24_LEAD_TITLE) || "Заявка с сайта NCFG",
+    originatorId:
+      asOptionalEnv(process.env.BITRIX24_LEAD_ORIGINATOR_ID) || "ncfg-website",
+    assignedById: asOptionalPositiveInteger(
+      process.env.BITRIX24_LEAD_ASSIGNED_BY_ID
+    ),
+  });
+}
+
+function withOptionalBitrix24LeadSink(primary: ContactSink) {
+  const bitrix24LeadSink = createBitrix24LeadSink();
+  if (!bitrix24LeadSink) return primary;
+
+  return new LeadFanoutContactSink(primary, bitrix24LeadSink);
+}
+
+function createPrimaryContactSink(): ContactSink {
   const recipientEmails = resolveRecipientEmails();
   const postboxApiKeyId = asOptionalEnv(process.env.POSTBOX_API_KEY_ID);
   const postboxApiKeySecret = asOptionalEnv(process.env.POSTBOX_API_KEY_SECRET);
@@ -533,6 +738,10 @@ function createContactSink(): ContactSink {
       formType: asOptionalEnv(process.env.GETCOURSE_DEAL_FIELD_FORM_TYPE),
     },
   });
+}
+
+function createContactSink(): ContactSink {
+  return withOptionalBitrix24LeadSink(createPrimaryContactSink());
 }
 
 export const contactSink: ContactSink = createContactSink();

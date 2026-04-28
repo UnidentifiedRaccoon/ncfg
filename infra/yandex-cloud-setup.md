@@ -161,6 +161,7 @@ Required Lockbox keys for web/CMS runtime:
 |-----|-------|-------------|
 | `STRAPI_API_TOKEN` | Strapi read-only Content API token | Token for web -> Strapi content fetches |
 | `STRAPI_WRITE_API_TOKEN` | Strapi custom write token | Token used by `POST /api/diagnostic-submissions/intake` |
+| `BITRIX24_WEBHOOK_URL` | Bitrix24 incoming webhook URL | Sends website lead form submissions to Bitrix24 CRM |
 
 Store Strapi tokens in Lockbox, not in GitHub Secrets. GitHub only keeps the Lockbox secret/version identifiers used by CI/CD.
 

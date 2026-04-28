@@ -310,6 +310,7 @@ jobs:
             STRAPI_API_TOKEN
             STRAPI_WRITE_API_TOKEN
             NEXT_PUBLIC_YANDEX_METRIKA_ID
+            BITRIX24_WEBHOOK_URL
           )
 
           for key in "${required_lockbox_keys[@]}"; do
@@ -341,11 +342,17 @@ jobs:
             STRAPI_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_API_TOKEN
             STRAPI_WRITE_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_WRITE_API_TOKEN
             NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/NEXT_PUBLIC_YANDEX_METRIKA_ID
+            BITRIX24_WEBHOOK_URL=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/BITRIX24_WEBHOOK_URL
           revision-env: |
             NODE_ENV=production
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
+            BITRIX24_LEAD_ENABLED=true
+            BITRIX24_LEAD_SOURCE_ID=WEB
+            BITRIX24_LEAD_STAGE_ID=10
+            BITRIX24_LEAD_TITLE=Заявка с сайта NCFG
+            BITRIX24_LEAD_ORIGINATOR_ID=ncfg-website
             POSTBOX_SMTP_HOST=${{ secrets.POSTBOX_SMTP_HOST || 'postbox.cloud.yandex.net' }}
             POSTBOX_SMTP_PORT=${{ secrets.POSTBOX_SMTP_PORT || '465' }}
             POSTBOX_API_KEY_ID=${{ secrets.POSTBOX_API_KEY_ID }}
