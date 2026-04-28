@@ -5,6 +5,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$REPO_ROOT/apps/web/.env.local"
 LOCKBOX_SECRET_NAME="ncfg-secrets"
 GITHUB_REPO="UnidentifiedRaccoon/ncfg"
+GITHUB_PRODUCTION_ENV="production"
 
 require_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -101,7 +102,8 @@ fi
 printf 'Lockbox version created: %s\n' "$new_version_id"
 
 gh secret set YC_LOCKBOX_VERSION_ID --repo "$GITHUB_REPO" --body "$new_version_id" >/dev/null
-printf 'GitHub YC_LOCKBOX_VERSION_ID updated.\n'
+gh secret set YC_LOCKBOX_VERSION_ID --repo "$GITHUB_REPO" --env "$GITHUB_PRODUCTION_ENV" --body "$new_version_id" >/dev/null
+printf 'GitHub YC_LOCKBOX_VERSION_ID updated for repository and %s environment.\n' "$GITHUB_PRODUCTION_ENV"
 
 export BITRIX24_WEBHOOK_URL
 export REQUEST_ID="codex-rotated-webhook-$(date -u +%Y%m%d%H%M%S)"

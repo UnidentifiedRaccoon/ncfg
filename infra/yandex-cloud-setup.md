@@ -146,7 +146,7 @@ Add the following secrets to your GitHub repository:
 | `YC_FOLDER_ID` | Your Yandex Cloud folder ID | Folder for resources |
 | `YC_CONTAINER_SA_ID` | SA ID from step 1.6 | Runtime service account |
 | `YC_LOCKBOX_SECRET_ID` | Secret ID from step 1.4 | Lockbox secret ID |
-| `YC_LOCKBOX_VERSION_ID` | Active Lockbox version ID | Secret version pinned by build/deploy workflows |
+| `YC_LOCKBOX_VERSION_ID` | Active Lockbox version ID | Secret version pinned by build/deploy workflows; set the same value in repository secrets and the `production` environment |
 | `STRAPI_URL` | `https://admin.ncfg.ru` | CMS URL for Next.js via API Gateway/custom domain |
 | `NEXT_PUBLIC_SITE_URL` | `https://ncfg.ru` | Canonical public site URL via web gateway/custom domain |
 | `NEXT_PUBLIC_YANDEX_METRIKA_ID` | `106842784` | Yandex.Metrika counter ID |
@@ -163,7 +163,7 @@ Required Lockbox keys for web/CMS runtime:
 | `STRAPI_WRITE_API_TOKEN` | Strapi custom write token | Token used by `POST /api/diagnostic-submissions/intake` |
 | `BITRIX24_WEBHOOK_URL` | Bitrix24 incoming webhook URL | Sends website lead form submissions to Bitrix24 CRM |
 
-Store Strapi tokens in Lockbox, not in GitHub Secrets. GitHub only keeps the Lockbox secret/version identifiers used by CI/CD.
+Store Strapi tokens and the Bitrix24 webhook in Lockbox, not in GitHub Secrets. GitHub only keeps the Lockbox secret/version identifiers used by CI/CD.
 
 Optional secrets for Postbox:
 

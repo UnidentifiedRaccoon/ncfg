@@ -64,7 +64,7 @@ Deployment is done via GitHub Actions to YC Serverless Containers.
 
 Required GitHub Actions secrets:
 - `YC_LOCKBOX_SECRET_ID` = Lockbox secret with runtime tokens and CMS credentials
-- `YC_LOCKBOX_VERSION_ID` = active Lockbox version used by build/deploy workflows
+- `YC_LOCKBOX_VERSION_ID` = active Lockbox version used by build/deploy workflows; keep repository and `production` environment secrets in sync
 - `STRAPI_URL` = `https://admin.ncfg.ru`
 - `NEXT_PUBLIC_SITE_URL` = exact canonical public site URL `https://ncfg.ru` (used for metadata, mirror redirects, and health-checks)
 - `POSTBOX_API_KEY_ID` = Postbox API key ID
