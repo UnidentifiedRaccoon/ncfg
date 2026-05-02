@@ -94,6 +94,7 @@ license.txt
 # ===================
 # Misc
 # ===================
+.agents/
 *.pem
 *.local
 apps/web/public/content/**/*.pptx
