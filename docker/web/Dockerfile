@@ -29,7 +29,7 @@ ENV NEXT_PUBLIC_YANDEX_METRIKA_ID=$NEXT_PUBLIC_YANDEX_METRIKA_ID
 ENV PORTFOLIO_PRESENTATION_URL=$PORTFOLIO_PRESENTATION_URL
 ENV DEPLOY_ENV=$DEPLOY_ENV
 
-RUN npm run build
+RUN npm run build-storybook:public && npm run build
 
 # Stage 3: Production runner
 FROM node:22-alpine AS runner

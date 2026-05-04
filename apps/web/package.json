@@ -7,6 +7,9 @@
     "dev:local": "STRAPI_SOURCE=local next dev",
     "dev:prod": "STRAPI_SOURCE=prod next dev",
     "build": "next build",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "build-storybook:public": "storybook build -o public/storybook",
     "start": "next start",
     "lint": "eslint",
     "test": "node --import tsx --test shared/lib/*.test.ts",
@@ -25,6 +28,8 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@storybook/addon-docs": "^10.3.6",
+    "@storybook/nextjs-vite": "^10.3.6",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/nodemailer": "^7.0.11",
@@ -33,8 +38,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.3",
     "postcss": "^8.4.41",
+    "storybook": "^10.3.6",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^8.0.10"
   }
 }

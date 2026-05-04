@@ -17,6 +17,19 @@ function firstHeaderValue(value: string | null): string | null {
 }
 
 export function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname === "/storybook") {
+    const redirectUrl = new URL(request.url);
+    redirectUrl.pathname = "/storybook/";
+
+    const response = NextResponse.redirect(redirectUrl, 308);
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
+  }
+
+  if (request.nextUrl.pathname.startsWith("/storybook/")) {
+    return NextResponse.next();
+  }
+
   if (isStaticAssetPathname(request.nextUrl.pathname)) {
     return NextResponse.next();
   }

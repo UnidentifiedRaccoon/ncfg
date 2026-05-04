@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
       {
+        source: '/storybook/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+      {
         source: '/_next/image',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
@@ -30,6 +34,16 @@ const nextConfig: NextConfig = {
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
     ];
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/storybook/',
+          destination: '/storybook/index.html',
+        },
+      ],
+    };
   },
   images: {
     // Keep unoptimized in dev for faster iteration.
