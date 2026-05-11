@@ -105,8 +105,9 @@ Optional GitHub Actions secrets (GetCourse fallback/enrichment):
 
 ### Cache and revalidation
 
-All Strapi-backed content must rely on one freshness source only: the 60-second Data Cache window in `shared/lib/strapi.ts`.
+Most Strapi-backed content must rely on one freshness source only: the 60-second Data Cache window in `shared/lib/strapi.ts`.
 - `DEFAULT_REVALIDATE = 60` in `shared/lib/strapi.ts` remains the canonical freshness policy for every `fetchAPI` call.
+- Blog article list/detail fetches are intentionally uncached (`revalidate: 0`) so Strapi publications are visible on `/blog`, category tabs, and `/blog/*` without waiting for Data Cache revalidation.
 - CMS-driven routes set `export const revalidate = 0` so page output does not outlive the Strapi fetch cache.
 - CMS-driven internal navigation must go through `isCmsDrivenPath` and `CmsAwareLink` (or `Button`) so the App Router client cache is bypassed for:
   `/`, `/about`, `/blog`, `/blog/*`, `/companies`, `/companies/*`, `/rekomendacii`, `/vacancies`, `/vacancies/*`, `/diagnostika/*`.

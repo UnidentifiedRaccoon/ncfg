@@ -20,6 +20,7 @@ interface GetNewsOptions {
 const NEWS_ARTICLE_POPULATE = ['anonsImage', 'postImage', 'category'] as const;
 const DEFAULT_QUESTION_FORM_TITLE = 'Есть вопрос по другой теме?';
 const DEFAULT_QUESTION_FORM_DESCRIPTION = 'Задайте его специалисту НЦФГ';
+const BLOG_CONTENT_REVALIDATE = 0;
 const DEFAULT_QUESTION_FORM_BUTTON_TEXT = 'Задать вопрос';
 const DEFAULT_QUESTION_FORM_EXPANDED_TITLE = 'Задайте вопрос специалисту';
 const DEFAULT_QUESTION_FORM_QUESTION_LABEL = 'Ваш вопрос';
@@ -50,7 +51,8 @@ export async function getNews(options: GetNewsOptions = {}): Promise<{
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiNewsArticle[]>>(
-    `/news-articles${query}`
+    `/news-articles${query}`,
+    { revalidate: BLOG_CONTENT_REVALIDATE }
   );
 
   return {
@@ -73,7 +75,8 @@ export async function getNewsArticle(slug: string): Promise<StrapiNewsArticle | 
   });
 
   const response = await fetchAPI<StrapiResponse<StrapiNewsArticle[]>>(
-    `/news-articles${query}`
+    `/news-articles${query}`,
+    { revalidate: BLOG_CONTENT_REVALIDATE }
   );
 
   return response.data[0] || null;
