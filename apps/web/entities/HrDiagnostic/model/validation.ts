@@ -1,12 +1,10 @@
-import {
-  HR_DIAGNOSTIC_QUESTIONS,
-  HR_TARGET_ROLE_KEYS,
-} from "./survey";
+import { HR_TARGET_ROLE_KEYS } from "./survey";
 import type {
   HrDiagnosticAnswerInput,
   HrDiagnosticNormalizedAnswer,
   HrDiagnosticQuestion,
   HrDiagnosticSegment,
+  HrDiagnosticTest,
   HrDiagnosticValidationResult,
 } from "./types";
 
@@ -44,12 +42,17 @@ function getSelectedOptionKeys(answer: HrDiagnosticAnswerInput | undefined): str
   return answer?.selectedOptionKeys ?? [];
 }
 
+function flattenQuestions(test: HrDiagnosticTest): HrDiagnosticQuestion[] {
+  return test.groups.flatMap((group) => group.questions);
+}
+
 export function getHrDiagnosticVisibleQuestions(
+  test: HrDiagnosticTest,
   answers: HrDiagnosticAnswerInput[]
 ): HrDiagnosticQuestion[] {
   const answerByQuestionKey = answerMapFromInputs(answers);
 
-  return HR_DIAGNOSTIC_QUESTIONS.filter((question) => {
+  return flattenQuestions(test).filter((question) => {
     if (!question.showWhen) {
       return true;
     }
@@ -188,10 +191,12 @@ function firstAnswerLabel(
 }
 
 export function validateHrDiagnosticSubmission(
+  test: HrDiagnosticTest,
   answers: HrDiagnosticAnswerInput[]
 ): HrDiagnosticValidationResult {
   const answerByQuestionKey = answerMapFromInputs(answers);
-  const visibleQuestions = getHrDiagnosticVisibleQuestions(answers);
+  const allQuestionKeys = new Set(flattenQuestions(test).map((question) => question.key));
+  const visibleQuestions = getHrDiagnosticVisibleQuestions(test, answers);
   const visibleQuestionKeys = new Set(visibleQuestions.map((question) => question.key));
   const errors: string[] = [];
   const normalizedAnswers: HrDiagnosticNormalizedAnswer[] = [];
@@ -211,12 +216,14 @@ export function validateHrDiagnosticSubmission(
   }
 
   for (const answer of answers) {
-    if (!visibleQuestionKeys.has(answer.questionKey)) {
+    const questionKey = answer.questionKey.trim();
+    if (!allQuestionKeys.has(questionKey)) {
+      errors.push("Обнаружен ответ на неизвестный вопрос");
       continue;
     }
 
-    if (!HR_DIAGNOSTIC_QUESTIONS.some((question) => question.key === answer.questionKey)) {
-      errors.push("Обнаружен ответ на неизвестный вопрос");
+    if (!visibleQuestionKeys.has(questionKey)) {
+      continue;
     }
   }
 

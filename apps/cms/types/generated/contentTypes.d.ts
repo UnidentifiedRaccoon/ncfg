@@ -769,6 +769,165 @@ export interface ApiDiagnosticTestDiagnosticTest
   };
 }
 
+export interface ApiHrDiagnosticSubmissionHrDiagnosticSubmission
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'hr_diagnostic_submissions';
+  info: {
+    description: 'Saved HR screening survey submission';
+    displayName: 'HR Diagnostic Submission';
+    pluralName: 'hr-diagnostic-submissions';
+    singularName: 'hr-diagnostic-submission';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    answers: Schema.Attribute.JSON & Schema.Attribute.Required;
+    attemptNumber: Schema.Attribute.Integer & Schema.Attribute.Required;
+    companySize: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    consentAcceptedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    emailNormalized: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    industry: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    industryOther: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::hr-diagnostic-submission.hr-diagnostic-submission'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    region: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    role: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    roleOther: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    sourcePageUrl: Schema.Attribute.Text;
+    submissionKey: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    submittedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    subscribeMaterials: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    surveyDocumentId: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    surveySlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    surveyVersion: Schema.Attribute.Integer & Schema.Attribute.Required;
+    targetSegment: Schema.Attribute.Enumeration<['target', 'non_target']> &
+      Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiHrDiagnosticTestHrDiagnosticTest
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'hr_diagnostic_tests';
+  info: {
+    description: 'Versioned CMS-driven HR questionnaire';
+    displayName: 'HR Diagnostic Test';
+    pluralName: 'hr-diagnostic-tests';
+    singularName: 'hr-diagnostic-test';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    anonymousNotice: Schema.Attribute.Text;
+    contactEmail: Schema.Attribute.Email &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    groups: Schema.Attribute.Component<'hr-diagnostic.group', true>;
+    guideHref: Schema.Attribute.Text;
+    interviewHref: Schema.Attribute.Text;
+    introBody: Schema.Attribute.Text;
+    introGiftText: Schema.Attribute.Text;
+    introLead: Schema.Attribute.Text;
+    isActive: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::hr-diagnostic-test.hr-diagnostic-test'
+    > &
+      Schema.Attribute.Private;
+    nonTargetCompletion: Schema.Attribute.Component<
+      'hr-diagnostic.completion-screen',
+      false
+    >;
+    projectTitle: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    targetCompletion: Schema.Attribute.Component<
+      'hr-diagnostic.completion-screen',
+      false
+    >;
+    testTitle: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    version: Schema.Attribute.Integer & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiExpertConfigExpertConfig extends Struct.SingleTypeSchema {
   collectionName: 'expert_configs';
   info: {
@@ -1713,6 +1872,8 @@ declare module '@strapi/strapi' {
       'api::diagnostic-organization.diagnostic-organization': ApiDiagnosticOrganizationDiagnosticOrganization;
       'api::diagnostic-submission.diagnostic-submission': ApiDiagnosticSubmissionDiagnosticSubmission;
       'api::diagnostic-test.diagnostic-test': ApiDiagnosticTestDiagnosticTest;
+      'api::hr-diagnostic-submission.hr-diagnostic-submission': ApiHrDiagnosticSubmissionHrDiagnosticSubmission;
+      'api::hr-diagnostic-test.hr-diagnostic-test': ApiHrDiagnosticTestHrDiagnosticTest;
       'api::expert-config.expert-config': ApiExpertConfigExpertConfig;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
       'api::person.person': ApiPersonPerson;

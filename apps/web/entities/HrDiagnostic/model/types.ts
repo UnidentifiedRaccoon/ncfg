@@ -5,6 +5,7 @@ export type HrDiagnosticSegment = "target" | "non_target";
 export interface HrDiagnosticOption {
   key: string;
   label: string;
+  order?: number;
 }
 
 export interface HrDiagnosticVisibilityCondition {
@@ -20,6 +21,7 @@ export interface HrDiagnosticQuestion {
   type: HrDiagnosticQuestionType;
   required: boolean;
   options?: HrDiagnosticOption[];
+  order?: number;
   maxSelections?: number;
   allowOther?: boolean;
   otherLabel?: string;
@@ -29,7 +31,37 @@ export interface HrDiagnosticQuestion {
 export interface HrDiagnosticGroup {
   key: string;
   title: string;
+  order?: number;
   questions: HrDiagnosticQuestion[];
+}
+
+export interface HrDiagnosticCompletionScreen {
+  title?: string;
+  body?: string;
+  giftTitle?: string;
+  giftBody?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  secondaryText?: string;
+}
+
+export interface HrDiagnosticTest {
+  documentId?: string;
+  slug: string;
+  version: number;
+  title: string;
+  testTitle: string;
+  projectTitle: string;
+  contactEmail?: string;
+  interviewHref?: string;
+  guideHref?: string;
+  introLead?: string;
+  introBody?: string;
+  introGiftText?: string;
+  anonymousNotice?: string;
+  groups: HrDiagnosticGroup[];
+  targetCompletion?: HrDiagnosticCompletionScreen;
+  nonTargetCompletion?: HrDiagnosticCompletionScreen;
 }
 
 export interface HrDiagnosticAnswerInput {

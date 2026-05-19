@@ -44,6 +44,10 @@
       "type": "integer",
       "required": true
     },
+    "surveyDocumentId": {
+      "type": "string",
+      "maxLength": 100
+    },
     "targetSegment": {
       "type": "enumeration",
       "enum": ["target", "non_target"],

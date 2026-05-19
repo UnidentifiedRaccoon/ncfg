@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_hr_diagnostic_completion_screens",
+  "info": {
+    "displayName": "HR Diagnostic Completion Screen",
+    "description": "Completion copy and CTA for HR diagnostic segments",
+    "icon": "check"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "text"
+    },
+    "body": {
+      "type": "text"
+    },
+    "giftTitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "giftBody": {
+      "type": "text"
+    },
+    "ctaLabel": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "ctaHref": {
+      "type": "text"
+    },
+    "secondaryText": {
+      "type": "text"
+    }
+  }
+}

@@ -13,6 +13,7 @@
     "seed:vacancies-demo": "npm run validate:env && node scripts/seed-vacancies-demo.mjs",
     "seed:certificates-prod": "node scripts/seed-certificates-prod.mjs",
     "seed:diagnostics-demo": "npm run validate:env && node scripts/seed-diagnostics-demo.mjs",
+    "seed:hr-diagnostic-prod": "node scripts/seed-hr-diagnostic-test-prod.mjs",
     "sync:prod-api-to-local": "npm run validate:env && node scripts/sync-prod-api-to-local.mjs",
     "sync:prod-to-local": "bash scripts/sync-prod-to-local.sh",
     "strapi": "strapi",

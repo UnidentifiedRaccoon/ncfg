@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_hr_diagnostic_options",
+  "info": {
+    "displayName": "HR Diagnostic Option",
+    "description": "Stable answer option for HR diagnostic questions",
+    "icon": "bulletList"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "label": {
+      "type": "text",
+      "required": true
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    }
+  }
+}

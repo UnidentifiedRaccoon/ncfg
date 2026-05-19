@@ -1,0 +1,56 @@
+{
+  "collectionName": "components_hr_diagnostic_questions",
+  "info": {
+    "displayName": "HR Diagnostic Question",
+    "description": "Stable HR diagnostic question. Keep key values unchanged after launch.",
+    "icon": "question"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "title": {
+      "type": "text",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["radio", "checkbox", "likert", "email"],
+      "required": true
+    },
+    "required": {
+      "type": "boolean",
+      "default": false
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    },
+    "allowOther": {
+      "type": "boolean",
+      "default": false
+    },
+    "otherLabel": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "maxSelections": {
+      "type": "integer"
+    },
+    "showWhen": {
+      "type": "json"
+    },
+    "options": {
+      "type": "component",
+      "repeatable": true,
+      "component": "hr-diagnostic.option"
+    }
+  }
+}

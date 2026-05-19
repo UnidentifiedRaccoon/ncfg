@@ -18,18 +18,13 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import {
-  HR_DIAGNOSTIC_CONTACT_EMAIL,
-  HR_DIAGNOSTIC_GROUPS,
-  HR_DIAGNOSTIC_GUIDE_HREF,
-  HR_DIAGNOSTIC_INTERVIEW_HREF,
-  HR_DIAGNOSTIC_PROJECT_TITLE,
-  HR_DIAGNOSTIC_TEST_TITLE,
   getHrDiagnosticVisibleQuestions,
   validateHrDiagnosticQuestionAnswer,
   validateHrDiagnosticSubmission,
   type HrDiagnosticAnswerInput,
   type HrDiagnosticQuestion,
   type HrDiagnosticSegment,
+  type HrDiagnosticTest,
 } from "@/entities/HrDiagnostic";
 import { captureCurrentPageUrl } from "@/shared/lib/source-page";
 import { cn } from "@/shared/lib/cn";
@@ -63,8 +58,11 @@ interface HrDiagnosticSubmitResponse {
   error?: string;
 }
 
+interface HrDiagnosticSurveyProps {
+  test: HrDiagnosticTest;
+}
+
 const OTHER_OPTION_KEY = "other";
-const DRAFT_KEY = "ncfg.hr-diagnostic.draft.v1";
 const EMPTY_ANSWER: AnswerDraft = {
   selectedOptionKeys: [],
   otherText: "",
@@ -123,9 +121,9 @@ function toAnswerInputs(answers: Record<string, AnswerDraft>): HrDiagnosticAnswe
   }));
 }
 
-function loadDraft(): DraftState | null {
+function loadDraft(draftKey: string): DraftState | null {
   try {
-    const raw = localStorage.getItem(DRAFT_KEY);
+    const raw = localStorage.getItem(draftKey);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<DraftState>;
     if (
@@ -149,17 +147,17 @@ function loadDraft(): DraftState | null {
   }
 }
 
-function saveDraft(state: DraftState) {
+function saveDraft(draftKey: string, state: DraftState) {
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+    localStorage.setItem(draftKey, JSON.stringify(state));
   } catch {
     // Ignore storage quota and private-mode failures.
   }
 }
 
-function clearDraft() {
+function clearDraft(draftKey: string) {
   try {
-    localStorage.removeItem(DRAFT_KEY);
+    localStorage.removeItem(draftKey);
   } catch {
     // Ignore storage failures.
   }
@@ -195,9 +193,9 @@ function isAnswered(question: HrDiagnosticQuestion, answer: AnswerDraft | undefi
   return answer.selectedOptionKeys.length > 0;
 }
 
-function getGroupTitle(questionKey: string) {
+function getGroupTitle(test: HrDiagnosticTest, questionKey: string) {
   return (
-    HR_DIAGNOSTIC_GROUPS.find((group) =>
+    test.groups.find((group) =>
       group.questions.some((question) => question.key === questionKey)
     )?.title ?? ""
   );
@@ -216,23 +214,37 @@ function getQuestionAnswerInput(
 }
 
 function IntroScreen({
+  test,
   hasDraft,
   onStart,
   onContinue,
 }: {
+  test: HrDiagnosticTest;
   hasDraft: boolean;
   onStart: () => void;
   onContinue: () => void;
 }) {
+  const questionCount = test.groups.reduce(
+    (count, group) => count + group.questions.length,
+    0
+  );
+  const introBodyBlocks = (test.introBody ?? "")
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  const introGiftText = test.introGiftText ?? "Подарок. В конце анкеты вас ждёт приятный бонус.";
+
   return (
     <div className="mx-auto max-w-2xl animate-[cardIn_0.35s_ease-out]">
       <div className={cn(cardClass, "p-6 md:p-8")}>
         <div className="text-center">
           <p className="text-lg font-medium text-[#475569]">
-            {HR_DIAGNOSTIC_PROJECT_TITLE}
+            {test.projectTitle}
           </p>
           <div className="mt-6 inline-flex items-center gap-4 rounded-xl border border-[#E2E8F0]/80 bg-[#F8FAFC] px-5 py-3 text-sm text-[#475569]">
-            <span className="font-semibold text-[#1E3A5F]">14 вопросов</span>
+            <span className="font-semibold text-[#1E3A5F]">
+              {questionCount} вопросов
+            </span>
             <span className="h-4 w-px bg-[#E2E8F0]" />
             <span className="inline-flex items-center gap-1.5">
               <Clock className="h-4 w-4 text-[#94A3B8]" aria-hidden="true" />
@@ -242,25 +254,19 @@ function IntroScreen({
 
           <div className="mt-7 space-y-4 text-left text-base leading-7 text-[#475569]">
             <p className="text-lg font-semibold leading-7 text-[#1E3A5F]">
-              Привет! Вы занимаетесь управлением персоналом или развитием сотрудников в своей компании?
+              {test.introLead ??
+                "Привет! Вы занимаетесь управлением персоналом или развитием сотрудников в своей компании?"}
             </p>
-            <p>
-              Национальный центр финансовой грамотности проводит исследование:
-              как российские компании работают с финансовым благополучием своих людей.
-            </p>
-            <p>
-              Анкета займёт 5-7 минут. Ваши ответы помогут разработать реально
-              полезные инструменты для HR-специалистов и руководителей.
-            </p>
+            {introBodyBlocks.map((block) => (
+              <p key={block}>{block}</p>
+            ))}
             <div className="flex items-start gap-3 rounded-xl border border-[#3B82F6]/20 bg-[#3B82F6]/[0.04] p-4">
               <Gift className="mt-0.5 h-5 w-5 shrink-0 text-[#3B82F6]" aria-hidden="true" />
-              <p>
-                <span className="font-semibold text-[#1E3A5F]">Подарок.</span>{" "}
-                В конце анкеты вас ждёт приятный бонус.
-              </p>
+              <p>{introGiftText}</p>
             </div>
             <p className="text-sm text-[#64748B]">
-              Все ответы анонимны и используются только в обобщённом виде.
+              {test.anonymousNotice ??
+                "Все ответы анонимны и используются только в обобщённом виде."}
             </p>
           </div>
 
@@ -289,8 +295,36 @@ function IntroScreen({
   );
 }
 
-function CompletionScreen({ segment, onRestart }: { segment: HrDiagnosticSegment; onRestart: () => void }) {
+function CompletionScreen({
+  test,
+  segment,
+  onRestart,
+}: {
+  test: HrDiagnosticTest;
+  segment: HrDiagnosticSegment;
+  onRestart: () => void;
+}) {
   const isTarget = segment === "target";
+  const completion = isTarget ? test.targetCompletion : test.nonTargetCompletion;
+  const completionTitle = completion?.title ?? "Большое спасибо за участие!";
+  const completionBody =
+    completion?.body ??
+    (isTarget
+      ? "Ваши ответы помогут нам разработать реально полезные инструменты для HR-сообщества."
+      : "Ваши ответы очень важны для нас. Мы учтём их в нашем исследовании.");
+  const giftTitle =
+    completion?.giftTitle ??
+    (isTarget ? "Подарок. Обещанный бонус - книга в подарок!" : "В подарок - гайд");
+  const giftBody =
+    completion?.giftBody ??
+    (isTarget
+      ? "Мы приглашаем вас на короткое личное интервью - 45-60 минут онлайн. Хотим глубже разобраться в вашем опыте и задачах. Интервью - не продажа. Нас интересует ваш реальный опыт и мнение."
+      : "Если вы хотите узнать о результатах исследования или материалах НЦФГ по теме финансового благополучия, напишите нам.");
+  const ctaHref = completion?.ctaHref ?? (isTarget ? test.interviewHref : test.guideHref);
+  const ctaLabel =
+    completion?.ctaLabel ??
+    (isTarget ? "Записаться на интервью и выбрать книгу" : "Получить гайд");
+  const secondaryText = completion?.secondaryText;
 
   return (
     <div className="mx-auto max-w-2xl animate-[cardIn_0.35s_ease-out]">
@@ -300,52 +334,39 @@ function CompletionScreen({ segment, onRestart }: { segment: HrDiagnosticSegment
         </div>
 
         <h2 className="mt-5 text-2xl font-semibold tracking-tight text-[#1E3A5F] md:text-3xl">
-          Большое спасибо за участие!
+          {completionTitle}
         </h2>
 
-        {isTarget ? (
-          <>
-            <p className="mt-4 text-base leading-7 text-[#475569]">
-              Ваши ответы помогут нам разработать реально полезные инструменты
-              для HR-сообщества.
+        <p className="mt-4 text-base leading-7 text-[#475569]">{completionBody}</p>
+        <div className="mt-6 rounded-xl border border-[#3B82F6]/20 bg-[#3B82F6]/[0.04] p-5 text-left">
+          <p className="font-semibold text-[#1E3A5F]">{giftTitle}</p>
+          <p className="mt-2 text-sm leading-6 text-[#475569]">{giftBody}</p>
+          {secondaryText ? (
+            <p className="mt-2 text-sm leading-6 text-[#475569]">{secondaryText}</p>
+          ) : null}
+          {!isTarget && test.contactEmail ? (
+            <p className="mt-2 text-sm leading-6 text-[#475569]">
+              Контакт:{" "}
+              <a
+                className="font-medium text-[#3B82F6] hover:underline"
+                href={`mailto:${test.contactEmail}`}
+              >
+                {test.contactEmail}
+              </a>
+              .
             </p>
-            <div className="mt-6 rounded-xl border border-[#3B82F6]/20 bg-[#3B82F6]/[0.04] p-5 text-left">
-              <p className="font-semibold text-[#1E3A5F]">
-                Подарок. Обещанный бонус - книга в подарок!
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#475569]">
-                Мы приглашаем вас на короткое личное интервью - 45-60 минут
-                онлайн. Хотим глубже разобраться в вашем опыте и задачах.
-                Интервью - не продажа. Нас интересует ваш реальный опыт и мнение.
-              </p>
-            </div>
-            <a href={HR_DIAGNOSTIC_INTERVIEW_HREF} className={cn("mt-7", primaryCtaLargeClass)}>
-              Записаться на интервью и выбрать книгу
+          ) : null}
+        </div>
+        {ctaHref ? (
+          <a href={ctaHref} className={cn("mt-7", primaryCtaLargeClass)}>
+            {ctaLabel}
+            {isTarget ? (
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </a>
-          </>
-        ) : (
-          <>
-            <p className="mt-4 text-base leading-7 text-[#475569]">
-              Ваши ответы очень важны для нас. Мы учтём их в нашем исследовании.
-            </p>
-            <div className="mt-6 rounded-xl border border-[#3B82F6]/20 bg-[#3B82F6]/[0.04] p-5 text-left">
-              <p className="font-semibold text-[#1E3A5F]">В подарок - гайд</p>
-              <p className="mt-2 text-sm leading-6 text-[#475569]">
-                Если вы хотите узнать о результатах исследования или материалах
-                НЦФГ по теме финансового благополучия, напишите нам на{" "}
-                <a className="font-medium text-[#3B82F6] hover:underline" href={`mailto:${HR_DIAGNOSTIC_CONTACT_EMAIL}`}>
-                  {HR_DIAGNOSTIC_CONTACT_EMAIL}
-                </a>
-                .
-              </p>
-            </div>
-            <a href={HR_DIAGNOSTIC_GUIDE_HREF} className={cn("mt-7", primaryCtaLargeClass)}>
-              Получить гайд
+            ) : (
               <Mail className="h-4 w-4" aria-hidden="true" />
-            </a>
-          </>
-        )}
+            )}
+          </a>
+        ) : null}
 
         <button type="button" onClick={onRestart} className={cn("mt-5", secondaryButtonClass)}>
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
@@ -504,11 +525,12 @@ function QuestionInfoMessage({ message }: { message: string }) {
   );
 }
 
-export function HrDiagnosticSurvey() {
+export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
   const questionKeys = useMemo(
-    () => HR_DIAGNOSTIC_GROUPS.flatMap((group) => group.questions.map((question) => question.key)),
-    []
+    () => test.groups.flatMap((group) => group.questions.map((question) => question.key)),
+    [test.groups]
   );
+  const draftKey = `ncfg.hr-diagnostic.${test.slug}.draft.v${test.version}`;
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
   const [phase, setPhase] = useState<Phase>("intro");
@@ -528,8 +550,8 @@ export function HrDiagnosticSurvey() {
 
   const answerInputs = useMemo(() => toAnswerInputs(answers), [answers]);
   const visibleQuestions = useMemo(
-    () => getHrDiagnosticVisibleQuestions(answerInputs),
-    [answerInputs]
+    () => getHrDiagnosticVisibleQuestions(test, answerInputs),
+    [answerInputs, test]
   );
   const currentQuestion = visibleQuestions[currentStep] ?? null;
   const isFinalStep = currentStep >= visibleQuestions.length;
@@ -564,23 +586,23 @@ export function HrDiagnosticSurvey() {
     if (hydrationDone.current) return;
     hydrationDone.current = true;
 
-    const draft = loadDraft();
+    const draft = loadDraft(draftKey);
     if (draft) {
       setHasDraft(true);
     }
     setIsHydrated(true);
-  }, []);
+  }, [draftKey]);
 
   useEffect(() => {
     if (!isHydrated || phase !== "survey" || status === "success") return;
-    saveDraft({
+    saveDraft(draftKey, {
       phase,
       currentStep,
       answers,
       consentAccepted,
       submissionKey,
     });
-  }, [answers, consentAccepted, currentStep, isHydrated, phase, status, submissionKey]);
+  }, [answers, consentAccepted, currentStep, draftKey, isHydrated, phase, status, submissionKey]);
 
   useEffect(() => {
     if (currentStep > visibleQuestions.length) {
@@ -596,7 +618,7 @@ export function HrDiagnosticSurvey() {
   };
 
   const startFresh = () => {
-    clearDraft();
+    clearDraft(draftKey);
     setAnswers(createEmptyDraft(questionKeys));
     setCurrentStep(0);
     setConsentAccepted(false);
@@ -609,7 +631,7 @@ export function HrDiagnosticSurvey() {
   };
 
   const continueDraft = () => {
-    const draft = loadDraft();
+    const draft = loadDraft(draftKey);
     if (!draft) {
       startFresh();
       return;
@@ -722,7 +744,7 @@ export function HrDiagnosticSurvey() {
   };
 
   const submitSurvey = async () => {
-    const validation = validateHrDiagnosticSubmission(answerInputs);
+    const validation = validateHrDiagnosticSubmission(test, answerInputs);
 
     if (!validation.valid) {
       setStatus("error");
@@ -756,7 +778,7 @@ export function HrDiagnosticSurvey() {
         throw new Error(payload.error || "Не удалось отправить анкету");
       }
 
-      clearDraft();
+      clearDraft(draftKey);
       setCompletedSegment(payload.data.targetSegment);
       setStatus("success");
       setPhase("complete");
@@ -800,16 +822,25 @@ export function HrDiagnosticSurvey() {
       <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
         <div className="mb-8 text-center lg:mb-10">
           <h1 className="text-[28px] font-bold leading-tight tracking-tight text-[#1E3A5F] md:text-4xl lg:text-[48px]">
-            {HR_DIAGNOSTIC_TEST_TITLE}
+            {test.testTitle}
           </h1>
         </div>
 
         {phase === "intro" ? (
-          <IntroScreen hasDraft={hasDraft} onStart={startFresh} onContinue={continueDraft} />
+          <IntroScreen
+            test={test}
+            hasDraft={hasDraft}
+            onStart={startFresh}
+            onContinue={continueDraft}
+          />
         ) : null}
 
         {phase === "complete" ? (
-          <CompletionScreen segment={completedSegment} onRestart={restartFromComplete} />
+          <CompletionScreen
+            test={test}
+            segment={completedSegment}
+            onRestart={restartFromComplete}
+          />
         ) : null}
 
         {phase === "survey" ? (
@@ -826,7 +857,7 @@ export function HrDiagnosticSurvey() {
                   </div>
                   <div className="text-left">
                     <div className="text-sm font-semibold text-[#1E3A5F]">
-                      {HR_DIAGNOSTIC_PROJECT_TITLE}
+                      {test.projectTitle}
                     </div>
                     <div className="text-xs text-[#475569]">
                       {isFinalStep
@@ -881,7 +912,7 @@ export function HrDiagnosticSurvey() {
               <aside className="hidden lg:sticky lg:top-24 lg:block">
                 <div className="rounded-2xl border border-[#E2E8F0]/80 bg-white p-4 shadow-[0_18px_56px_rgba(15,23,42,0.08)]">
                   <p className="text-lg font-medium leading-7 text-[#475569]">
-                    {HR_DIAGNOSTIC_PROJECT_TITLE}
+                    {test.projectTitle}
                   </p>
                   <p className="mt-1 text-lg leading-7 text-[#94A3B8]">
                     Исследование для HR-аудитории
@@ -934,7 +965,7 @@ export function HrDiagnosticSurvey() {
                                 stepState === "active" ? "text-[#3B82F6]" : "text-[#94A3B8]"
                               )}
                             >
-                              {getGroupTitle(question.key)}
+                              {getGroupTitle(test, question.key)}
                             </div>
                             <div
                               className={cn(

@@ -1,0 +1,594 @@
+{
+  "slug": "hr",
+  "version": 1,
+  "title": "Диагностика HR",
+  "testTitle": "Анкета-скрининг для HR",
+  "projectTitle": "Проект «ФинБлаго (корп)»",
+  "contactEmail": "info@finzdorov.pro",
+  "interviewHref": "mailto:info@finzdorov.pro?subject=%D0%97%D0%B0%D0%BF%D0%B8%D1%81%D1%8C%20%D0%BD%D0%B0%20HR-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%B2%D1%8C%D1%8E%20%D0%A4%D0%B8%D0%BD%D0%91%D0%BB%D0%B0%D0%B3%D0%BE",
+  "guideHref": "mailto:info@finzdorov.pro?subject=%D0%93%D0%B0%D0%B9%D0%B4%20%D0%BF%D0%BE%20%D1%84%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D0%BE%D0%B2%D0%BE%D0%BC%D1%83%20%D0%B1%D0%BB%D0%B0%D0%B3%D0%BE%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%8E",
+  "introLead": "Привет! Вы занимаетесь управлением персоналом или развитием сотрудников в своей компании?",
+  "introBody": "Национальный центр финансовой грамотности проводит исследование:\nкак российские компании работают с финансовым благополучием своих людей.\n\nАнкета займёт 5-7 минут. Ваши ответы помогут разработать реально полезные инструменты для HR-специалистов и руководителей.",
+  "introGiftText": "Подарок. В конце анкеты вас ждёт приятный бонус.",
+  "anonymousNotice": "Все ответы анонимны и используются только в обобщённом виде.",
+  "groups": [
+    {
+      "key": "company",
+      "title": "О вас и вашей компании",
+      "questions": [
+        {
+          "key": "role",
+          "title": "Какова ваша роль в компании?",
+          "type": "radio",
+          "required": true,
+          "allowOther": true,
+          "otherLabel": "Другое",
+          "options": [
+            {
+              "key": "hr_director",
+              "label": "HR-директор / CHRO",
+              "order": 1
+            },
+            {
+              "key": "hrbp",
+              "label": "HRBP / HR-генералист",
+              "order": 2
+            },
+            {
+              "key": "learning",
+              "label": "L&D / T&D (обучение и развитие)",
+              "order": 3
+            },
+            {
+              "key": "comp_benefits",
+              "label": "C&B (компенсации и льготы)",
+              "order": 4
+            },
+            {
+              "key": "wellbeing",
+              "label": "Well-being / корпоративное здоровье",
+              "order": 5
+            },
+            {
+              "key": "leader",
+              "label": "Руководитель / CEO / собственник",
+              "order": 6
+            }
+          ],
+          "order": 1
+        },
+        {
+          "key": "company_size",
+          "title": "Сколько сотрудников в вашей компании?",
+          "type": "radio",
+          "required": true,
+          "options": [
+            {
+              "key": "under_100",
+              "label": "До 100",
+              "order": 1
+            },
+            {
+              "key": "100_300",
+              "label": "100-300",
+              "order": 2
+            },
+            {
+              "key": "301_1000",
+              "label": "301-1 000",
+              "order": 3
+            },
+            {
+              "key": "1001_5000",
+              "label": "1 001-5 000",
+              "order": 4
+            },
+            {
+              "key": "over_5000",
+              "label": "Более 5 000",
+              "order": 5
+            }
+          ],
+          "order": 2
+        },
+        {
+          "key": "industry",
+          "title": "В какой отрасли работает ваша компания?",
+          "type": "radio",
+          "required": false,
+          "allowOther": true,
+          "otherLabel": "Другое",
+          "options": [
+            {
+              "key": "finance",
+              "label": "Финансы / банки / страхование",
+              "order": 1
+            },
+            {
+              "key": "manufacturing",
+              "label": "Производство / промышленность",
+              "order": 2
+            },
+            {
+              "key": "retail",
+              "label": "Ретейл / торговля",
+              "order": 3
+            },
+            {
+              "key": "it",
+              "label": "IT / технологии",
+              "order": 4
+            },
+            {
+              "key": "construction",
+              "label": "Строительство / девелопмент",
+              "order": 5
+            },
+            {
+              "key": "healthcare",
+              "label": "Здравоохранение / фармацевтика",
+              "order": 6
+            },
+            {
+              "key": "education",
+              "label": "Образование",
+              "order": 7
+            },
+            {
+              "key": "government",
+              "label": "Государственный сектор",
+              "order": 8
+            },
+            {
+              "key": "transport",
+              "label": "Транспорт / логистика",
+              "order": 9
+            }
+          ],
+          "order": 3
+        },
+        {
+          "key": "region",
+          "title": "В каком регионе базируется ваша компания (основной офис)?",
+          "type": "radio",
+          "required": false,
+          "options": [
+            {
+              "key": "moscow",
+              "label": "Москва",
+              "order": 1
+            },
+            {
+              "key": "spb",
+              "label": "Санкт-Петербург",
+              "order": 2
+            },
+            {
+              "key": "million_plus_city",
+              "label": "Другой город-миллионник (Екатеринбург, Новосибирск, Казань, Краснодар и др.)",
+              "order": 3
+            },
+            {
+              "key": "regional_center",
+              "label": "Региональный центр (до 1 млн жителей)",
+              "order": 4
+            },
+            {
+              "key": "federal_network",
+              "label": "Несколько регионов / федеральная сеть",
+              "order": 5
+            }
+          ],
+          "order": 4
+        }
+      ],
+      "order": 1
+    },
+    {
+      "key": "wellbeing",
+      "title": "Well-being и финансовое благополучие",
+      "questions": [
+        {
+          "key": "has_wellbeing_program",
+          "title": "Есть ли в вашей компании корпоративные программы благополучия (well-being) для сотрудников?",
+          "type": "radio",
+          "required": true,
+          "options": [
+            {
+              "key": "comprehensive",
+              "label": "Да, комплексная программа (физическое, ментальное, социальное, финансовое)",
+              "order": 1
+            },
+            {
+              "key": "partial",
+              "label": "Да, частичная - отдельные направления (например, ДМС и спорт)",
+              "order": 2
+            },
+            {
+              "key": "planning",
+              "label": "Нет, но планируем в ближайший год",
+              "order": 3
+            },
+            {
+              "key": "no_not_planning",
+              "label": "Нет, и пока не планируем",
+              "order": 4
+            },
+            {
+              "key": "unknown",
+              "label": "Не знаю / не в моей зоне ответственности",
+              "order": 5
+            }
+          ],
+          "order": 1
+        },
+        {
+          "key": "wellbeing_metrics",
+          "title": "Как вы измеряете результаты программ благополучия для сотрудников?",
+          "description": "Выберите все подходящие варианты",
+          "type": "checkbox",
+          "required": false,
+          "allowOther": true,
+          "otherLabel": "Другое",
+          "showWhen": {
+            "questionKey": "has_wellbeing_program",
+            "operator": "not_in",
+            "optionKeys": [
+              "no_not_planning",
+              "unknown"
+            ]
+          },
+          "options": [
+            {
+              "key": "engagement_surveys",
+              "label": "Опросы удовлетворённости / вовлечённости сотрудников (eNPS, пульс-опросы)",
+              "order": 1
+            },
+            {
+              "key": "turnover",
+              "label": "Показатели текучести персонала",
+              "order": 2
+            },
+            {
+              "key": "absenteeism",
+              "label": "Абсентеизм / уровень больничных",
+              "order": 3
+            },
+            {
+              "key": "stress_fin_health",
+              "label": "Диагностика уровня стресса или финансового здоровья",
+              "order": 4
+            },
+            {
+              "key": "event_feedback",
+              "label": "Обратная связь после мероприятий (реакция, анкеты)",
+              "order": 5
+            },
+            {
+              "key": "roi_business",
+              "label": "ROI и бизнес-метрики (продуктивность, ошибки, выручка)",
+              "order": 6
+            },
+            {
+              "key": "not_measured",
+              "label": "Не измеряем / нет системы измерения",
+              "order": 7
+            }
+          ],
+          "order": 2
+        },
+        {
+          "key": "financial_wellbeing_assets",
+          "title": "Есть ли в вашей компании что-то из следующего для сотрудников?",
+          "description": "Выберите всё, что подходит",
+          "type": "checkbox",
+          "required": false,
+          "allowOther": true,
+          "otherLabel": "Другое",
+          "options": [
+            {
+              "key": "webinars",
+              "label": "Вебинары / лекции по личным финансам",
+              "order": 1
+            },
+            {
+              "key": "online_course",
+              "label": "Онлайн-курс по финансовой грамотности",
+              "order": 2
+            },
+            {
+              "key": "advisor_consultations",
+              "label": "Консультации финансового советника",
+              "order": 3
+            },
+            {
+              "key": "eap_finance",
+              "label": "Программы помощи сотруднику (EAP) с финансовым блоком",
+              "order": 4
+            },
+            {
+              "key": "finance_app",
+              "label": "Корпоративный сервис / приложение по финансам",
+              "order": 5
+            },
+            {
+              "key": "preferential_credit",
+              "label": "Льготные условия кредитования через работодателя",
+              "order": 6
+            },
+            {
+              "key": "none",
+              "label": "Ничего из перечисленного",
+              "order": 7
+            }
+          ],
+          "order": 3
+        },
+        {
+          "key": "financial_stress_impact",
+          "title": "Насколько вы согласны с утверждением: «Финансовый стресс сотрудников напрямую влияет на их продуктивность и вовлечённость»?",
+          "type": "likert",
+          "required": true,
+          "options": [
+            {
+              "key": "1",
+              "label": "1 - Совсем не согласен(а)",
+              "order": 1
+            },
+            {
+              "key": "2",
+              "label": "2 - Скорее не согласен(а)",
+              "order": 2
+            },
+            {
+              "key": "3",
+              "label": "3 - Нейтрально",
+              "order": 3
+            },
+            {
+              "key": "4",
+              "label": "4 - Скорее согласен(а)",
+              "order": 4
+            },
+            {
+              "key": "5",
+              "label": "5 - Полностью согласен(а)",
+              "order": 5
+            }
+          ],
+          "order": 4
+        },
+        {
+          "key": "barriers",
+          "title": "Что является главным барьером для внедрения программ финансового благополучия в вашей компании?",
+          "description": "Выберите до 2 вариантов",
+          "type": "checkbox",
+          "required": false,
+          "maxSelections": 2,
+          "allowOther": true,
+          "otherLabel": "Другое",
+          "options": [
+            {
+              "key": "no_budget",
+              "label": "Нет бюджета",
+              "order": 1
+            },
+            {
+              "key": "roi_hard",
+              "label": "Сложно обосновать ROI перед руководством",
+              "order": 2
+            },
+            {
+              "key": "no_provider",
+              "label": "Нет подходящего провайдера или решения",
+              "order": 3
+            },
+            {
+              "key": "taboo",
+              "label": "Тема «личных финансов» - табу для корпоративной культуры",
+              "order": 4
+            },
+            {
+              "key": "no_employee_interest",
+              "label": "Сотрудники не заинтересованы в таком обучении",
+              "order": 5
+            },
+            {
+              "key": "no_owner",
+              "label": "Нет человека, который отвечает за это направление",
+              "order": 6
+            },
+            {
+              "key": "no_barriers",
+              "label": "Уже всё есть, барьеров нет",
+              "order": 7
+            }
+          ],
+          "order": 5
+        },
+        {
+          "key": "why_financial_literacy",
+          "title": "Зачем, по вашему мнению, компании нужна финансовая грамотность сотрудников?",
+          "description": "Выберите все подходящие варианты",
+          "type": "checkbox",
+          "required": false,
+          "allowOther": true,
+          "otherLabel": "Другое",
+          "options": [
+            {
+              "key": "productivity",
+              "label": "Повысить производительность и эффективность бизнеса",
+              "order": 1
+            },
+            {
+              "key": "engagement",
+              "label": "Повысить мотивацию и вовлеченность персонала",
+              "order": 2
+            },
+            {
+              "key": "reduce_stress",
+              "label": "Снизить финансовый стресс и его влияние на работоспособность",
+              "order": 3
+            },
+            {
+              "key": "reduce_risky_behavior",
+              "label": "Снизить риски нежелательного финансового поведения сотрудников",
+              "order": 4
+            },
+            {
+              "key": "retention",
+              "label": "Привлечь и удержать ценных сотрудников",
+              "order": 5
+            },
+            {
+              "key": "hr_brand",
+              "label": "Укрепить HR-бренд и привлекательность работодателя",
+              "order": 6
+            }
+          ],
+          "order": 6
+        }
+      ],
+      "order": 2
+    },
+    {
+      "key": "expectations",
+      "title": "Ваш запрос и ожидания",
+      "questions": [
+        {
+          "key": "importance_of_methods",
+          "title": "Насколько вам как HR-специалисту важно иметь доступ к методическим материалам по финансовому благополучию сотрудников?",
+          "type": "likert",
+          "required": true,
+          "options": [
+            {
+              "key": "1",
+              "label": "1 - Совсем не важно",
+              "order": 1
+            },
+            {
+              "key": "2",
+              "label": "2 - Скорее не важно",
+              "order": 2
+            },
+            {
+              "key": "3",
+              "label": "3 - Нейтрально",
+              "order": 3
+            },
+            {
+              "key": "4",
+              "label": "4 - Скорее важно",
+              "order": 4
+            },
+            {
+              "key": "5",
+              "label": "5 - Очень важно",
+              "order": 5
+            }
+          ],
+          "order": 1
+        },
+        {
+          "key": "valuable_formats",
+          "title": "Какие форматы поддержки для HR по теме финансового благополучия были бы для вас наиболее ценны?",
+          "description": "Выберите до 3 вариантов",
+          "type": "checkbox",
+          "required": false,
+          "maxSelections": 3,
+          "allowOther": true,
+          "otherLabel": "Другое",
+          "options": [
+            {
+              "key": "checklists",
+              "label": "Чек-листы и шаблоны для запуска программ",
+              "order": 1
+            },
+            {
+              "key": "research",
+              "label": "Исследования и аналитика рынка",
+              "order": 2
+            },
+            {
+              "key": "cases",
+              "label": "Кейсы других компаний",
+              "order": 3
+            },
+            {
+              "key": "roi_calculator",
+              "label": "Калькулятор ROI программ",
+              "order": 4
+            },
+            {
+              "key": "consulting",
+              "label": "Консультации и экспертная поддержка",
+              "order": 5
+            },
+            {
+              "key": "community",
+              "label": "Закрытое HR-сообщество (обмен опытом)",
+              "order": 6
+            },
+            {
+              "key": "webinars",
+              "label": "Вебинары и онлайн-встречи по теме",
+              "order": 7
+            },
+            {
+              "key": "employee_app",
+              "label": "Цифровое приложение для сотрудников",
+              "order": 8
+            }
+          ],
+          "order": 2
+        },
+        {
+          "key": "email",
+          "title": "Оставьте, пожалуйста, ваш email для получения результатов исследования",
+          "description": "Email используется только для отправки результатов исследования и, при желании, для связи по поводу интервью.",
+          "type": "email",
+          "required": false,
+          "order": 3,
+          "options": []
+        },
+        {
+          "key": "subscribe_materials",
+          "title": "Хотите получать полезные материалы НЦФГ по теме финансового благополучия сотрудников?",
+          "type": "radio",
+          "required": false,
+          "options": [
+            {
+              "key": "yes",
+              "label": "Да, хочу получать материалы",
+              "order": 1
+            },
+            {
+              "key": "no",
+              "label": "Нет, спасибо",
+              "order": 2
+            }
+          ],
+          "order": 4
+        }
+      ],
+      "order": 3
+    }
+  ],
+  "targetCompletion": {
+    "title": "Большое спасибо за участие!",
+    "body": "Ваши ответы помогут нам разработать реально полезные инструменты для HR-сообщества.",
+    "giftTitle": "Подарок. Обещанный бонус - книга в подарок!",
+    "giftBody": "Мы приглашаем вас на короткое личное интервью - 45-60 минут онлайн. Хотим глубже разобраться в вашем опыте и задачах. Интервью - не продажа. Нас интересует ваш реальный опыт и мнение.",
+    "ctaLabel": "Записаться на интервью и выбрать книгу",
+    "ctaHref": "mailto:info@finzdorov.pro?subject=%D0%97%D0%B0%D0%BF%D0%B8%D1%81%D1%8C%20%D0%BD%D0%B0%20HR-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%B2%D1%8C%D1%8E%20%D0%A4%D0%B8%D0%BD%D0%91%D0%BB%D0%B0%D0%B3%D0%BE"
+  },
+  "nonTargetCompletion": {
+    "title": "Большое спасибо за участие!",
+    "body": "Ваши ответы очень важны для нас. Мы учтём их в нашем исследовании.",
+    "giftTitle": "В подарок - гайд",
+    "giftBody": "Если вы хотите узнать о результатах исследования или материалах НЦФГ по теме финансового благополучия, свяжитесь с нами.",
+    "ctaLabel": "Получить гайд",
+    "ctaHref": "mailto:info@finzdorov.pro?subject=%D0%93%D0%B0%D0%B9%D0%B4%20%D0%BF%D0%BE%20%D1%84%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D0%BE%D0%B2%D0%BE%D0%BC%D1%83%20%D0%B1%D0%BB%D0%B0%D0%B3%D0%BE%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%8E"
+  },
+  "isActive": true
+}

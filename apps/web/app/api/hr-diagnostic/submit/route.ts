@@ -9,10 +9,12 @@ import {
 import { resolveSourcePageUrl } from "@/shared/lib/source-page";
 import { postStrapiWriteJSON } from "@/shared/lib/strapi-write";
 import {
+  getActiveHrDiagnosticTest,
   HR_DIAGNOSTIC_SLUG,
-  HR_DIAGNOSTIC_VERSION,
+  LEGACY_HR_DIAGNOSTIC_TEST,
   validateHrDiagnosticSubmission,
   type HrDiagnosticAnswerInput,
+  type HrDiagnosticTest,
 } from "@/entities/HrDiagnostic";
 
 interface SubmitPayload {
@@ -96,6 +98,18 @@ function normalizeEmail(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
+async function resolveHrDiagnosticTest(requestId: string): Promise<HrDiagnosticTest> {
+  try {
+    return (
+      (await getActiveHrDiagnosticTest(HR_DIAGNOSTIC_SLUG)) ??
+      LEGACY_HR_DIAGNOSTIC_TEST
+    );
+  } catch (error) {
+    console.warn(`[${requestId}] Falling back to legacy HR diagnostic test`, error);
+    return LEGACY_HR_DIAGNOSTIC_TEST;
+  }
+}
+
 export async function POST(request: Request) {
   const requestId = getOrCreateRequestId(request);
   const responseHeaders = { "x-request-id": requestId };
@@ -117,7 +131,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const validation = validateHrDiagnosticSubmission(data.answers);
+    const test = await resolveHrDiagnosticTest(requestId);
+    const validation = validateHrDiagnosticSubmission(test, data.answers);
     if (!validation.valid) {
       return NextResponse.json(
         { error: validation.errors[0] ?? "Проверьте ответы перед отправкой" },
@@ -132,8 +147,9 @@ export async function POST(request: Request) {
       "/hr-diagnostic-submissions/intake",
       {
         submissionKey: data.submissionKey,
-        surveySlug: HR_DIAGNOSTIC_SLUG,
-        surveyVersion: HR_DIAGNOSTIC_VERSION,
+        surveySlug: test.slug,
+        surveyVersion: test.version,
+        surveyDocumentId: test.documentId,
         targetSegment: validation.targetSegment,
         role: validation.fieldValues.role,
         roleOther: validation.fieldValues.roleOther,

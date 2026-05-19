@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_hr_diagnostic_groups",
+  "info": {
+    "displayName": "HR Diagnostic Group",
+    "description": "Ordered question group for the HR diagnostic",
+    "icon": "stack"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    },
+    "questions": {
+      "type": "component",
+      "repeatable": true,
+      "component": "hr-diagnostic.question"
+    }
+  }
+}

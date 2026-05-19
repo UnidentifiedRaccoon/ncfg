@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "hr_diagnostic_tests",
+  "info": {
+    "singularName": "hr-diagnostic-test",
+    "pluralName": "hr-diagnostic-tests",
+    "displayName": "HR Diagnostic Test",
+    "description": "Versioned CMS-driven HR questionnaire"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "slug": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "version": {
+      "type": "integer",
+      "required": true
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "testTitle": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "projectTitle": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "contactEmail": {
+      "type": "email",
+      "maxLength": 255
+    },
+    "interviewHref": {
+      "type": "text"
+    },
+    "guideHref": {
+      "type": "text"
+    },
+    "introLead": {
+      "type": "text"
+    },
+    "introBody": {
+      "type": "text"
+    },
+    "introGiftText": {
+      "type": "text"
+    },
+    "anonymousNotice": {
+      "type": "text"
+    },
+    "groups": {
+      "type": "component",
+      "repeatable": true,
+      "component": "hr-diagnostic.group"
+    },
+    "targetCompletion": {
+      "type": "component",
+      "repeatable": false,
+      "component": "hr-diagnostic.completion-screen"
+    },
+    "nonTargetCompletion": {
+      "type": "component",
+      "repeatable": false,
+      "component": "hr-diagnostic.completion-screen"
+    }
+  }
+}

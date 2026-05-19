@@ -1,6 +1,8 @@
 import { factories } from "@strapi/strapi";
 
 const SUBMISSION_UID = "api::hr-diagnostic-submission.hr-diagnostic-submission";
+const HR_TEST_UID = "api::hr-diagnostic-test.hr-diagnostic-test";
+const HR_DIAGNOSTIC_SLUG_FALLBACK = "hr";
 const HR_DIAGNOSTIC_VERSION_FALLBACK = 1;
 const OTHER_OPTION_KEY = "other";
 
@@ -17,6 +19,7 @@ interface HrIntakePayload {
   submissionKey: string;
   surveySlug: string;
   surveyVersion: number;
+  surveyDocumentId?: string;
   targetSegment: "target" | "non_target";
   role?: string;
   roleOther?: string;
@@ -43,7 +46,12 @@ interface ExportHrCsvInput {
   to?: string;
 }
 
-const HR_EXPORT_QUESTIONS = [
+interface HrExportQuestionColumn {
+  key: string;
+  title: string;
+}
+
+const LEGACY_HR_EXPORT_QUESTIONS = [
   { key: "role", title: "Какова ваша роль в компании?" },
   { key: "company_size", title: "Сколько сотрудников в вашей компании?" },
   { key: "industry", title: "В какой отрасли работает ваша компания?" },
@@ -198,6 +206,7 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
     submissionKey,
     surveySlug,
     surveyVersion,
+    surveyDocumentId: asOptionalTrimmedString(record.surveyDocumentId),
     targetSegment,
     role: asOptionalTrimmedString(record.role),
     roleOther: asOptionalTrimmedString(record.roleOther),
@@ -267,6 +276,19 @@ function buildCsv(rows: string[][], delimiter = ";") {
   return `\uFEFF${body}`;
 }
 
+function compareByOrderThenKey(
+  left: { order?: number | null; key?: string | null },
+  right: { order?: number | null; key?: string | null }
+) {
+  const leftOrder = Number(left.order ?? 0);
+  const rightOrder = Number(right.order ?? 0);
+  if (leftOrder !== rightOrder) {
+    return leftOrder - rightOrder;
+  }
+
+  return String(left.key ?? "").localeCompare(String(right.key ?? ""), "ru");
+}
+
 function mapAnswersForStorage(answers: HrIntakeAnswerPayload[]) {
   return answers.map((answer) => ({
     questionKey: answer.questionKey,
@@ -280,6 +302,44 @@ function mapAnswersForStorage(answers: HrIntakeAnswerPayload[]) {
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
+}
+
+function buildQuestionColumnsFromTest(test: any): HrExportQuestionColumn[] {
+  if (!Array.isArray(test?.groups)) {
+    return [];
+  }
+
+  const columns: HrExportQuestionColumn[] = [];
+  const groups = [...test.groups].sort(compareByOrderThenKey);
+
+  for (const group of groups) {
+    const questions = Array.isArray(group?.questions)
+      ? [...group.questions].sort(compareByOrderThenKey)
+      : [];
+
+    for (const question of questions) {
+      const key = asTrimmedString(question?.key);
+      const title = asTrimmedString(question?.title);
+      if (!key || !title) {
+        continue;
+      }
+
+      columns.push({ key, title });
+    }
+  }
+
+  return columns;
+}
+
+async function loadActiveQuestionColumns(strapi: any): Promise<HrExportQuestionColumn[]> {
+  const activeTest = await strapi
+    .service(HR_TEST_UID)
+    .findActiveBySlug(HR_DIAGNOSTIC_SLUG_FALLBACK);
+  const activeColumns = buildQuestionColumnsFromTest(activeTest);
+
+  return activeColumns.length > 0
+    ? activeColumns
+    : LEGACY_HR_EXPORT_QUESTIONS.map((question) => ({ ...question }));
 }
 
 function formatSegment(value: unknown) {
@@ -343,6 +403,36 @@ function buildAnswersByQuestionKey(answers: unknown) {
   return answersByQuestionKey;
 }
 
+function appendMissingQuestionColumns(
+  columns: HrExportQuestionColumn[],
+  submissions: any[]
+): HrExportQuestionColumn[] {
+  const result = [...columns];
+  const seenKeys = new Set(result.map((column) => column.key));
+
+  for (const submission of submissions) {
+    if (!Array.isArray(submission.answers)) {
+      continue;
+    }
+
+    for (const answer of submission.answers) {
+      const record = asRecord(answer);
+      const questionKey = asTrimmedString(record?.questionKey);
+      if (!questionKey || seenKeys.has(questionKey)) {
+        continue;
+      }
+
+      seenKeys.add(questionKey);
+      result.push({
+        key: questionKey,
+        title: asTrimmedString(record?.questionTitle) ?? questionKey,
+      });
+    }
+  }
+
+  return result;
+}
+
 export default factories.createCoreService(
   SUBMISSION_UID,
   ({ strapi }: { strapi: any }) => ({
@@ -360,6 +450,7 @@ export default factories.createCoreService(
           "sourcePageUrl",
           "surveySlug",
           "surveyVersion",
+          "surveyDocumentId",
           "emailNormalized",
         ],
         filters: {
@@ -409,6 +500,7 @@ export default factories.createCoreService(
         submissionKey: parsedPayload.submissionKey,
         surveySlug: parsedPayload.surveySlug,
         surveyVersion: parsedPayload.surveyVersion,
+        surveyDocumentId: parsedPayload.surveyDocumentId ?? null,
         targetSegment: parsedPayload.targetSegment,
         role: parsedPayload.role ?? null,
         roleOther: parsedPayload.roleOther ?? null,
@@ -495,6 +587,11 @@ export default factories.createCoreService(
         page += 1;
       }
 
+      const questionColumns = appendMissingQuestionColumns(
+        await loadActiveQuestionColumns(strapi),
+        submissions
+      );
+
       const headerRow = [
         "Дата прохождения",
         "Попытка",
@@ -508,7 +605,7 @@ export default factories.createCoreService(
         "Версия",
         "Страница",
         "Согласие",
-        ...HR_EXPORT_QUESTIONS.map((question) => question.title),
+        ...questionColumns.map((question) => question.title),
       ];
 
       const rows = submissions.map((submission: any) => {
@@ -535,7 +632,7 @@ export default factories.createCoreService(
           String(surveyVersion),
           String(submission.sourcePageUrl ?? ""),
           String(submission.consentAcceptedAt ?? ""),
-          ...HR_EXPORT_QUESTIONS.map((question) =>
+          ...questionColumns.map((question) =>
             formatAnswerLabel(answersByQuestionKey.get(question.key))
           ),
         ];

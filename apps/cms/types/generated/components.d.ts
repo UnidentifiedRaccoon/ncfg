@@ -140,6 +140,109 @@ export interface DiagnosticSubmissionAnswer extends Struct.ComponentSchema {
   };
 }
 
+export interface HrDiagnosticCompletionScreen extends Struct.ComponentSchema {
+  collectionName: 'components_hr_diagnostic_completion_screens';
+  info: {
+    description: 'Completion copy and CTA for HR diagnostic segments';
+    displayName: 'HR Diagnostic Completion Screen';
+    icon: 'check';
+  };
+  attributes: {
+    body: Schema.Attribute.Text;
+    ctaHref: Schema.Attribute.Text;
+    ctaLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    giftBody: Schema.Attribute.Text;
+    giftTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    secondaryText: Schema.Attribute.Text;
+    title: Schema.Attribute.Text;
+  };
+}
+
+export interface HrDiagnosticGroup extends Struct.ComponentSchema {
+  collectionName: 'components_hr_diagnostic_groups';
+  info: {
+    description: 'Ordered question group for the HR diagnostic';
+    displayName: 'HR Diagnostic Group';
+    icon: 'stack';
+  };
+  attributes: {
+    key: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    order: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    questions: Schema.Attribute.Component<'hr-diagnostic.question', true>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+  };
+}
+
+export interface HrDiagnosticOption extends Struct.ComponentSchema {
+  collectionName: 'components_hr_diagnostic_options';
+  info: {
+    description: 'Stable answer option for HR diagnostic questions';
+    displayName: 'HR Diagnostic Option';
+    icon: 'bulletList';
+  };
+  attributes: {
+    key: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    label: Schema.Attribute.Text & Schema.Attribute.Required;
+    order: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+  };
+}
+
+export interface HrDiagnosticQuestion extends Struct.ComponentSchema {
+  collectionName: 'components_hr_diagnostic_questions';
+  info: {
+    description: 'Stable HR diagnostic question. Keep key values unchanged after launch.';
+    displayName: 'HR Diagnostic Question';
+    icon: 'question';
+  };
+  attributes: {
+    allowOther: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    description: Schema.Attribute.Text;
+    key: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    maxSelections: Schema.Attribute.Integer;
+    options: Schema.Attribute.Component<'hr-diagnostic.option', true>;
+    order: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    otherLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    required: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    showWhen: Schema.Attribute.JSON;
+    title: Schema.Attribute.Text & Schema.Attribute.Required;
+    type: Schema.Attribute.Enumeration<
+      ['radio', 'checkbox', 'likert', 'email']
+    > &
+      Schema.Attribute.Required;
+  };
+}
+
 export interface ServiceServiceExample extends Struct.ComponentSchema {
   collectionName: 'components_service_service_examples';
   info: {
@@ -227,6 +330,10 @@ declare module '@strapi/strapi' {
       'diagnostic.question': DiagnosticQuestion;
       'diagnostic.result-band': DiagnosticResultBand;
       'diagnostic.submission-answer': DiagnosticSubmissionAnswer;
+      'hr-diagnostic.completion-screen': HrDiagnosticCompletionScreen;
+      'hr-diagnostic.group': HrDiagnosticGroup;
+      'hr-diagnostic.option': HrDiagnosticOption;
+      'hr-diagnostic.question': HrDiagnosticQuestion;
       'service.service-example': ServiceServiceExample;
       'service.webinar': ServiceWebinar;
       'shared.call-to-action': SharedCallToAction;

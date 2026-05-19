@@ -53,6 +53,7 @@ npm run dev:prod
 Create two Content API tokens in Strapi:
 - `Settings` -> `API Tokens` -> `Create new API Token`
 - Read token: `Read-only` (or `Custom` with read access to required content types)
+- Read token must include `hr-diagnostic-test` read access for `/diagnostika/hr`
 - Write token: `Custom` with access required by `POST /api/diagnostic-submissions/intake` and `POST /api/hr-diagnostic-submissions/intake`
 - Put the value into:
   - `STRAPI_LOCAL_API_TOKEN` / `STRAPI_LOCAL_WRITE_API_TOKEN` for `npm run dev:local`

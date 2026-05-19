@@ -1,25 +1,22 @@
 export {
-  HR_DIAGNOSTIC_CONTACT_EMAIL,
-  HR_DIAGNOSTIC_GROUPS,
-  HR_DIAGNOSTIC_GUIDE_HREF,
-  HR_DIAGNOSTIC_INTERVIEW_HREF,
-  HR_DIAGNOSTIC_PROJECT_TITLE,
-  HR_DIAGNOSTIC_QUESTIONS,
   HR_DIAGNOSTIC_SLUG,
-  HR_DIAGNOSTIC_TEST_TITLE,
-  HR_DIAGNOSTIC_TITLE,
   HR_DIAGNOSTIC_VERSION,
+  HR_TARGET_ROLE_KEYS,
 } from "./model/survey";
+export { LEGACY_HR_DIAGNOSTIC_TEST } from "./model/legacy-survey";
 export {
   getHrDiagnosticVisibleQuestions,
   validateHrDiagnosticQuestionAnswer,
   validateHrDiagnosticSubmission,
 } from "./model/validation";
+export { getActiveHrDiagnosticTest } from "./api/hr-diagnostic-test";
 export type {
   HrDiagnosticAnswerInput,
+  HrDiagnosticCompletionScreen,
   HrDiagnosticGroup,
   HrDiagnosticNormalizedAnswer,
   HrDiagnosticQuestion,
   HrDiagnosticSegment,
+  HrDiagnosticTest,
   HrDiagnosticValidationResult,
 } from "./model/types";
