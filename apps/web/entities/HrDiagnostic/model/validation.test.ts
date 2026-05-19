@@ -1,12 +1,121 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { LEGACY_HR_DIAGNOSTIC_TEST } from "./legacy-survey";
 import {
   getHrDiagnosticVisibleQuestions,
   validateHrDiagnosticSubmission,
 } from "./validation";
-import type { HrDiagnosticAnswerInput } from "./types";
+import type { HrDiagnosticAnswerInput, HrDiagnosticTest } from "./types";
+
+const TEST_HR_DIAGNOSTIC: HrDiagnosticTest = {
+  slug: "hr",
+  title: "HR diagnostic",
+  testTitle: "HR diagnostic test",
+  projectTitle: "HR project",
+  groups: [
+    {
+      key: "profile",
+      title: "Профиль",
+      order: 1,
+      questions: [
+        {
+          key: "role",
+          title: "Какова ваша роль в компании?",
+          type: "radio",
+          required: true,
+          order: 1,
+          options: [
+            { key: "hr_director", label: "HR-директор / CHRO", order: 1 },
+            { key: "other_employee", label: "Другая роль", order: 2 },
+          ],
+        },
+        {
+          key: "company_size",
+          title: "Сколько сотрудников в вашей компании?",
+          type: "radio",
+          required: true,
+          order: 2,
+          options: [
+            { key: "under_100", label: "До 100", order: 1 },
+            { key: "100_300", label: "100-300", order: 2 },
+          ],
+        },
+        {
+          key: "has_wellbeing_program",
+          title: "Есть ли программа благополучия?",
+          type: "radio",
+          required: true,
+          order: 3,
+          options: [
+            { key: "no_not_planning", label: "Нет и не планируем", order: 1 },
+            { key: "comprehensive", label: "Да, комплексная", order: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      key: "methods",
+      title: "Методика",
+      order: 2,
+      questions: [
+        {
+          key: "wellbeing_metrics",
+          title: "Как вы измеряете результаты программ?",
+          type: "checkbox",
+          required: false,
+          order: 1,
+          showWhen: {
+            questionKey: "has_wellbeing_program",
+            operator: "not_in",
+            optionKeys: ["no_not_planning"],
+          },
+          options: [{ key: "engagement", label: "Вовлеченность", order: 1 }],
+        },
+        {
+          key: "financial_stress_impact",
+          title: "Финансовый стресс влияет на продуктивность?",
+          type: "likert",
+          required: true,
+          order: 2,
+          options: [
+            { key: "1", label: "1", order: 1 },
+            { key: "2", label: "2", order: 2 },
+            { key: "3", label: "3", order: 3 },
+            { key: "4", label: "4", order: 4 },
+            { key: "5", label: "5", order: 5 },
+          ],
+        },
+        {
+          key: "barriers",
+          title: "Что мешает внедрению?",
+          type: "checkbox",
+          required: false,
+          order: 3,
+          maxSelections: 2,
+          options: [
+            { key: "no_budget", label: "Нет бюджета", order: 1 },
+            { key: "roi_hard", label: "Сложно доказать ROI", order: 2 },
+            { key: "no_provider", label: "Нет провайдера", order: 3 },
+          ],
+        },
+        {
+          key: "importance_of_methods",
+          title: "Насколько важны методические материалы?",
+          type: "likert",
+          required: true,
+          order: 4,
+          options: [
+            { key: "1", label: "1", order: 1 },
+            { key: "2", label: "2", order: 2 },
+            { key: "3", label: "3", order: 3 },
+            { key: "4", label: "4", order: 4 },
+            { key: "5", label: "5", order: 5 },
+          ],
+        },
+      ],
+    },
+  ],
+};
 
 const baseTargetAnswers: HrDiagnosticAnswerInput[] = [
   { questionKey: "role", selectedOptionKeys: ["hr_director"] },
@@ -17,7 +126,7 @@ const baseTargetAnswers: HrDiagnosticAnswerInput[] = [
 ];
 
 test("validateHrDiagnosticSubmission marks HR in 100+ company as target", () => {
-  const result = validateHrDiagnosticSubmission(LEGACY_HR_DIAGNOSTIC_TEST, baseTargetAnswers);
+  const result = validateHrDiagnosticSubmission(TEST_HR_DIAGNOSTIC, baseTargetAnswers);
 
   assert.equal(result.valid, true);
   assert.equal(result.targetSegment, "target");
@@ -26,7 +135,7 @@ test("validateHrDiagnosticSubmission marks HR in 100+ company as target", () => 
 
 test("validateHrDiagnosticSubmission routes under-100 companies to non-target", () => {
   const result = validateHrDiagnosticSubmission(
-    LEGACY_HR_DIAGNOSTIC_TEST,
+    TEST_HR_DIAGNOSTIC,
     [
       ...baseTargetAnswers.filter((answer) => answer.questionKey !== "company_size"),
       { questionKey: "company_size", selectedOptionKeys: ["under_100"] },
@@ -39,7 +148,7 @@ test("validateHrDiagnosticSubmission routes under-100 companies to non-target", 
 
 test("getHrDiagnosticVisibleQuestions hides metrics when wellbeing program is absent", () => {
   const visibleQuestions = getHrDiagnosticVisibleQuestions(
-    LEGACY_HR_DIAGNOSTIC_TEST,
+    TEST_HR_DIAGNOSTIC,
     [{ questionKey: "has_wellbeing_program", selectedOptionKeys: ["no_not_planning"] }]
   );
 
@@ -51,7 +160,7 @@ test("getHrDiagnosticVisibleQuestions hides metrics when wellbeing program is ab
 
 test("validateHrDiagnosticSubmission enforces checkbox max selections", () => {
   const result = validateHrDiagnosticSubmission(
-    LEGACY_HR_DIAGNOSTIC_TEST,
+    TEST_HR_DIAGNOSTIC,
     [
       ...baseTargetAnswers,
       {
@@ -67,8 +176,8 @@ test("validateHrDiagnosticSubmission enforces checkbox max selections", () => {
 
 test("validateHrDiagnosticSubmission uses question and option labels from the provided test", () => {
   const editedTest = {
-    ...LEGACY_HR_DIAGNOSTIC_TEST,
-    groups: LEGACY_HR_DIAGNOSTIC_TEST.groups.map((group) => ({
+    ...TEST_HR_DIAGNOSTIC,
+    groups: TEST_HR_DIAGNOSTIC.groups.map((group) => ({
       ...group,
       questions: group.questions.map((question) =>
         question.key === "role"
@@ -98,7 +207,7 @@ test("validateHrDiagnosticSubmission uses question and option labels from the pr
 
 test("validateHrDiagnosticSubmission ignores hidden question answers", () => {
   const result = validateHrDiagnosticSubmission(
-    LEGACY_HR_DIAGNOSTIC_TEST,
+    TEST_HR_DIAGNOSTIC,
     [
       { questionKey: "role", selectedOptionKeys: ["hr_director"] },
       { questionKey: "company_size", selectedOptionKeys: ["100_300"] },

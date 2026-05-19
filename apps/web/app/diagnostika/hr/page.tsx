@@ -6,7 +6,6 @@ import { fetchSiteSettings } from "@/shared/api/data-provider";
 import {
   getHrDiagnosticTest,
   HR_DIAGNOSTIC_SLUG,
-  LEGACY_HR_DIAGNOSTIC_TEST,
 } from "@/entities/HrDiagnostic";
 import { buildPageMetadata } from "@/shared/lib/metadata";
 import type { HrDiagnosticTest } from "@/entities/HrDiagnostic";
@@ -14,15 +13,12 @@ import type { HrDiagnosticTest } from "@/entities/HrDiagnostic";
 export const revalidate = 0;
 
 const getHrDiagnosticTestForPage = cache(async (): Promise<HrDiagnosticTest> => {
-  try {
-    return (
-      (await getHrDiagnosticTest(HR_DIAGNOSTIC_SLUG)) ??
-      LEGACY_HR_DIAGNOSTIC_TEST
-    );
-  } catch (error) {
-    console.warn("[hr-diagnostic] Falling back to legacy HR diagnostic test", error);
-    return LEGACY_HR_DIAGNOSTIC_TEST;
+  const test = await getHrDiagnosticTest(HR_DIAGNOSTIC_SLUG);
+  if (!test) {
+    throw new Error(`HR diagnostic test "${HR_DIAGNOSTIC_SLUG}" is not configured in Strapi`);
   }
+
+  return test;
 });
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -2,9 +2,7 @@ import { factories } from "@strapi/strapi";
 
 const SUBMISSION_UID = "api::hr-diagnostic-submission.hr-diagnostic-submission";
 const HR_TEST_UID = "api::hr-diagnostic-test.hr-diagnostic-test";
-const HR_DIAGNOSTIC_SLUG_FALLBACK = "hr";
-// Internal compatibility value for the existing submissions schema; the HR test itself is unversioned.
-const HR_DIAGNOSTIC_SUBMISSION_VERSION = 1;
+const HR_DIAGNOSTIC_SLUG = "hr";
 const OTHER_OPTION_KEY = "other";
 
 interface HrIntakeAnswerPayload {
@@ -19,7 +17,6 @@ interface HrIntakeAnswerPayload {
 interface HrIntakePayload {
   submissionKey: string;
   surveySlug: string;
-  surveyVersion: number;
   surveyDocumentId?: string;
   targetSegment: "target" | "non_target";
   role?: string;
@@ -52,53 +49,6 @@ interface HrExportQuestionColumn {
   title: string;
 }
 
-const LEGACY_HR_EXPORT_QUESTIONS = [
-  { key: "role", title: "Какова ваша роль в компании?" },
-  { key: "company_size", title: "Сколько сотрудников в вашей компании?" },
-  { key: "industry", title: "В какой отрасли работает ваша компания?" },
-  { key: "region", title: "В каком регионе базируется ваша компания (основной офис)?" },
-  {
-    key: "has_wellbeing_program",
-    title: "Есть ли в вашей компании корпоративные программы благополучия (well-being) для сотрудников?",
-  },
-  {
-    key: "wellbeing_metrics",
-    title: "Как вы измеряете результаты программ благополучия для сотрудников?",
-  },
-  {
-    key: "financial_wellbeing_assets",
-    title: "Есть ли в вашей компании что-то из следующего для сотрудников?",
-  },
-  {
-    key: "financial_stress_impact",
-    title: "Насколько вы согласны с утверждением: «Финансовый стресс сотрудников напрямую влияет на их продуктивность и вовлечённость»?",
-  },
-  {
-    key: "barriers",
-    title: "Что является главным барьером для внедрения программ финансового благополучия в вашей компании?",
-  },
-  {
-    key: "why_financial_literacy",
-    title: "Зачем, по вашему мнению, компании нужна финансовая грамотность сотрудников?",
-  },
-  {
-    key: "importance_of_methods",
-    title: "Насколько вам как HR-специалисту важно иметь доступ к методическим материалам по финансовому благополучию сотрудников?",
-  },
-  {
-    key: "valuable_formats",
-    title: "Какие форматы поддержки для HR по теме финансового благополучия были бы для вас наиболее ценны?",
-  },
-  {
-    key: "email",
-    title: "Оставьте, пожалуйста, ваш email для получения результатов исследования",
-  },
-  {
-    key: "subscribe_materials",
-    title: "Хотите получать полезные материалы НЦФГ по теме финансового благополучия сотрудников?",
-  },
-] as const;
-
 function asTrimmedString(value: unknown) {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -107,11 +57,6 @@ function asTrimmedString(value: unknown) {
 
 function asOptionalTrimmedString(value: unknown) {
   return asTrimmedString(value) ?? undefined;
-}
-
-function asFiniteInteger(value: unknown) {
-  if (typeof value !== "number" || !Number.isFinite(value)) return null;
-  return Math.trunc(value);
 }
 
 function parseSelectedOptionKeys(value: unknown): string[] | null {
@@ -175,7 +120,6 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
   const record = payload as Record<string, unknown>;
   const submissionKey = asTrimmedString(record.submissionKey);
   const surveySlug = asTrimmedString(record.surveySlug);
-  const surveyVersion = asFiniteInteger(record.surveyVersion) ?? HR_DIAGNOSTIC_SUBMISSION_VERSION;
   const targetSegment = parseTargetSegment(record.targetSegment);
   const consentAcceptedAt = asTrimmedString(record.consentAcceptedAt);
   const submittedAt = asTrimmedString(record.submittedAt);
@@ -205,7 +149,6 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
   return {
     submissionKey,
     surveySlug,
-    surveyVersion,
     surveyDocumentId: asOptionalTrimmedString(record.surveyDocumentId),
     targetSegment,
     role: asOptionalTrimmedString(record.role),
@@ -334,12 +277,9 @@ function buildQuestionColumnsFromTest(test: any): HrExportQuestionColumn[] {
 async function loadQuestionColumns(strapi: any): Promise<HrExportQuestionColumn[]> {
   const test = await strapi
     .service(HR_TEST_UID)
-    .findBySlug(HR_DIAGNOSTIC_SLUG_FALLBACK);
-  const columns = buildQuestionColumnsFromTest(test);
+    .findBySlug(HR_DIAGNOSTIC_SLUG);
 
-  return columns.length > 0
-    ? columns
-    : LEGACY_HR_EXPORT_QUESTIONS.map((question) => ({ ...question }));
+  return buildQuestionColumnsFromTest(test);
 }
 
 function formatSegment(value: unknown) {
@@ -449,7 +389,6 @@ export default factories.createCoreService(
           "submittedAt",
           "sourcePageUrl",
           "surveySlug",
-          "surveyVersion",
           "surveyDocumentId",
           "emailNormalized",
         ],
@@ -472,9 +411,6 @@ export default factories.createCoreService(
           filters: {
             surveySlug: {
               $eq: parsedPayload.surveySlug,
-            },
-            surveyVersion: {
-              $eq: parsedPayload.surveyVersion,
             },
             emailNormalized: {
               $eq: parsedPayload.emailNormalized,
@@ -499,7 +435,6 @@ export default factories.createCoreService(
       const data = {
         submissionKey: parsedPayload.submissionKey,
         surveySlug: parsedPayload.surveySlug,
-        surveyVersion: parsedPayload.surveyVersion,
         surveyDocumentId: parsedPayload.surveyDocumentId ?? null,
         targetSegment: parsedPayload.targetSegment,
         role: parsedPayload.role ?? null,

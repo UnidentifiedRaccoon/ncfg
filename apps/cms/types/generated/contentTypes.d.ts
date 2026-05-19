@@ -881,7 +881,6 @@ export interface ApiHrDiagnosticSubmissionHrDiagnosticSubmission
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 100;
       }>;
-    surveyVersion: Schema.Attribute.Integer & Schema.Attribute.Required;
     targetSegment: Schema.Attribute.Enumeration<['target', 'non_target']> &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;

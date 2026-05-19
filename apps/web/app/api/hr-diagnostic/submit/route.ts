@@ -11,10 +11,8 @@ import { postStrapiWriteJSON } from "@/shared/lib/strapi-write";
 import {
   getHrDiagnosticTest,
   HR_DIAGNOSTIC_SLUG,
-  LEGACY_HR_DIAGNOSTIC_TEST,
   validateHrDiagnosticSubmission,
   type HrDiagnosticAnswerInput,
-  type HrDiagnosticTest,
 } from "@/entities/HrDiagnostic";
 
 interface SubmitPayload {
@@ -98,15 +96,12 @@ function normalizeEmail(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-async function resolveHrDiagnosticTest(requestId: string): Promise<HrDiagnosticTest> {
+async function resolveHrDiagnosticTest(requestId: string) {
   try {
-    return (
-      (await getHrDiagnosticTest(HR_DIAGNOSTIC_SLUG)) ??
-      LEGACY_HR_DIAGNOSTIC_TEST
-    );
+    return await getHrDiagnosticTest(HR_DIAGNOSTIC_SLUG);
   } catch (error) {
-    console.warn(`[${requestId}] Falling back to legacy HR diagnostic test`, error);
-    return LEGACY_HR_DIAGNOSTIC_TEST;
+    console.error(`[${requestId}] Failed to load HR diagnostic test from Strapi`, error);
+    return null;
   }
 }
 
@@ -132,6 +127,13 @@ export async function POST(request: Request) {
     }
 
     const test = await resolveHrDiagnosticTest(requestId);
+    if (!test) {
+      return NextResponse.json(
+        { error: "HR-опрос временно недоступен: методика не настроена в CMS" },
+        { status: 503, headers: responseHeaders }
+      );
+    }
+
     const validation = validateHrDiagnosticSubmission(test, data.answers);
     if (!validation.valid) {
       return NextResponse.json(

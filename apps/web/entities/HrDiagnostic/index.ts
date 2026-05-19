@@ -2,7 +2,6 @@ export {
   HR_DIAGNOSTIC_SLUG,
   HR_TARGET_ROLE_KEYS,
 } from "./model/survey";
-export { LEGACY_HR_DIAGNOSTIC_TEST } from "./model/legacy-survey";
 export {
   getHrDiagnosticVisibleQuestions,
   validateHrDiagnosticQuestionAnswer,
