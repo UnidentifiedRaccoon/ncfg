@@ -64,5 +64,12 @@ jobs:
             exit 1
           fi
 
+          strapi_read_token="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key STRAPI_API_TOKEN)"
+          if [ -z "$strapi_read_token" ]; then
+            echo "::error::Lockbox key is empty: STRAPI_API_TOKEN"
+            exit 1
+          fi
+
           echo "::add-mask::$strapi_token"
-          STRAPI_TOKEN="$strapi_token" node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs
+          echo "::add-mask::$strapi_read_token"
+          STRAPI_TOKEN="$strapi_token" STRAPI_READ_TOKEN="$strapi_read_token" node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs

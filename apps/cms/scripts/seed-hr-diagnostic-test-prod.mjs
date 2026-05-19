@@ -15,6 +15,7 @@ import process from "node:process";
 
 const STRAPI_URL = process.env.STRAPI_URL?.replace(/\/+$/, "");
 const STRAPI_TOKEN = process.env.STRAPI_TOKEN;
+const STRAPI_READ_TOKEN = process.env.STRAPI_READ_TOKEN;
 const DATA_URL = new URL("./data/hr-diagnostic-v1.json", import.meta.url);
 
 if (!STRAPI_URL || !STRAPI_TOKEN) {
@@ -29,13 +30,18 @@ const headers = {
   Authorization: `Bearer ${STRAPI_TOKEN.replace(/^Bearer\s+/i, "")}`,
 };
 
+const readHeaders = {
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${(STRAPI_READ_TOKEN || STRAPI_TOKEN).replace(/^Bearer\s+/i, "")}`,
+};
+
 function encodeFilterValue(value) {
   return encodeURIComponent(String(value));
 }
 
-async function api(method, path, body) {
+async function api(method, path, body, { read = false } = {}) {
   const url = `${STRAPI_URL}${path}`;
-  const opts = { method, headers };
+  const opts = { method, headers: read ? readHeaders : headers };
   if (body !== undefined) {
     opts.body = JSON.stringify(body);
   }
@@ -59,7 +65,9 @@ async function findBySlugAndVersion(payload) {
     "GET",
     `/api/hr-diagnostic-tests?filters[slug][$eq]=${encodeFilterValue(
       payload.slug
-    )}&filters[version][$eq]=${encodeFilterValue(payload.version)}&pagination[pageSize]=10`
+    )}&filters[version][$eq]=${encodeFilterValue(payload.version)}&pagination[pageSize]=10`,
+    undefined,
+    { read: true }
   );
 }
 
@@ -72,7 +80,9 @@ async function deactivateOtherActiveTests(payload, activeDocumentId) {
     "GET",
     `/api/hr-diagnostic-tests?filters[slug][$eq]=${encodeFilterValue(
       payload.slug
-    )}&filters[isActive][$eq]=true&pagination[pageSize]=100`
+    )}&filters[isActive][$eq]=true&pagination[pageSize]=100`,
+    undefined,
+    { read: true }
   );
   const items = Array.isArray(data) ? data : [];
   const changed = [];
