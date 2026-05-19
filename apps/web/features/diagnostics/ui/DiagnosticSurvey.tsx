@@ -6,6 +6,7 @@ import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
+  Check,
   CheckCircle2,
   ChevronDown,
   Clock,
@@ -60,6 +61,42 @@ const primaryCtaClass = cn(
 
 const primaryCtaLargeClass = cn(primaryCtaClass, "px-8 py-3.5");
 const primaryCtaCompactClass = cn(primaryCtaClass, "px-6 py-3");
+
+function SelectionControl({
+  checked,
+  type,
+}: {
+  checked: boolean;
+  type: "checkbox" | "radio";
+}) {
+  const isCheckbox = type === "checkbox";
+
+  return (
+    <span
+      className={cn(
+        "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center border-2 bg-white transition-colors",
+        isCheckbox ? "rounded-md" : "rounded-full",
+        checked
+          ? isCheckbox
+            ? "border-[#3B82F6] bg-[#3B82F6] text-white"
+            : "border-[#3B82F6] text-[#3B82F6]"
+          : "border-[#CBD5E1] text-transparent group-hover:border-[#3B82F6]"
+      )}
+      aria-hidden="true"
+    >
+      {isCheckbox ? (
+        <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
+      ) : (
+        <span
+          className={cn(
+            "h-3 w-3 rounded-full transition-transform",
+            checked ? "scale-100 bg-[#3B82F6]" : "scale-0 bg-transparent"
+          )}
+        />
+      )}
+    </span>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Sidebar step dot                                                   */
@@ -387,6 +424,7 @@ export function DiagnosticSurvey({
   const survey = useDiagnosticSurvey({ campaignSlug, questions });
   const consentId = useId();
   const errorId = useId();
+  const questionInputName = useId();
   const [stepKey, setStepKey] = useState(0);
   const [hasNavigated, setHasNavigated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -995,11 +1033,20 @@ export function DiagnosticSurvey({
                                   type="checkbox"
                                   checked={consentAccepted}
                                   onChange={(e) => handleConsentChange(e.target.checked)}
-                                  className="mt-0.5 h-5 w-5 shrink-0 rounded border-[#E2E8F0] bg-white accent-[#3B82F6]"
+                                  className="peer sr-only"
                                 />
                                 <label
                                   htmlFor={consentId}
-                                  className="text-sm leading-6 text-[#475569]"
+                                  className="group flex cursor-pointer rounded-md focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#3B82F6] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#3B82F6]"
+                                >
+                                  <SelectionControl checked={consentAccepted} type="checkbox" />
+                                  <span className="sr-only">
+                                    Подтвердить согласие на обработку персональных данных
+                                  </span>
+                                </label>
+                                <label
+                                  htmlFor={consentId}
+                                  className="min-w-0 cursor-pointer text-sm leading-6 text-[#475569]"
                                 >
                                   Согласен(на) на обработку персональных данных и принимаю{" "}
                                   <Link
@@ -1078,46 +1125,41 @@ export function DiagnosticSurvey({
                             </div>
                           )}
 
-                          <div className="mt-8 space-y-3">
-                            {currentQuestion.options.map((option, index) => {
+                          <fieldset className="mt-8 space-y-3">
+                            <legend className="sr-only">{currentQuestion.title}</legend>
+                            {currentQuestion.options.map((option) => {
                               const isSelected =
                                 answers[currentQuestion.key] === option.key;
 
                               return (
-                                <button
+                                <label
                                   key={option.key}
-                                  type="button"
-                                  onClick={() =>
-                                    handleSelectAnswer(currentQuestion.key, option.key)
-                                  }
-                                  aria-pressed={isSelected}
                                   className={cn(
-                                    "group relative w-full rounded-xl border px-5 py-4 text-left transition-all duration-200",
-                                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
+                                    "group flex cursor-pointer items-start gap-4 rounded-xl border px-4 py-4 text-left transition-all duration-200",
+                                    "focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#3B82F6]",
                                     isSelected
-                                      ? "border-[#3B82F6]/40 bg-[#3B82F6]/[0.06]"
-                                      : "border-[#E2E8F0]/70 bg-white hover:border-[#3B82F6]/30 hover:shadow-sm"
+                                      ? "border-[#3B82F6]/45 bg-[#3B82F6]/[0.06]"
+                                      : "border-[#E2E8F0] bg-white hover:border-[#3B82F6]/30 hover:bg-[#F8FAFC] hover:shadow-sm"
                                   )}
                                 >
-                                  <div className="flex items-start gap-4">
-                                    <span
-                                      className={cn(
-                                        "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold transition-colors",
-                                        isSelected
-                                          ? "border-[#3B82F6] bg-[#3B82F6] text-white"
-                                          : "border-[#E2E8F0] bg-[#F8FAFC] text-[#475569]"
-                                      )}
-                                    >
-                                      {index + 1}
-                                    </span>
-                                    <span className="min-w-0 pt-0.5 text-base leading-7 text-[#1E3A5F]">
-                                      {option.label}
-                                    </span>
-                                  </div>
-                                </button>
+                                  <input
+                                    type="radio"
+                                    name={questionInputName}
+                                    value={option.key}
+                                    checked={isSelected}
+                                    onChange={() =>
+                                      handleSelectAnswer(currentQuestion.key, option.key)
+                                    }
+                                    className="peer sr-only"
+                                  />
+                                  <SelectionControl checked={isSelected} type="radio" />
+                                  <span className="min-w-0 pt-0.5 text-base leading-7 text-[#1E3A5F]">
+                                    {option.label}
+                                  </span>
+                                </label>
                               );
                             })}
-                          </div>
+                          </fieldset>
 
                           <div className="mt-8 flex items-center justify-between">
                             <button
