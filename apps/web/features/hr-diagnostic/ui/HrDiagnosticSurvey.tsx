@@ -213,6 +213,14 @@ function getQuestionAnswerInput(
   };
 }
 
+function getExclusiveOptionKeys(question: HrDiagnosticQuestion) {
+  return new Set(
+    question.options
+      ?.filter((option) => option.exclusive)
+      .map((option) => option.key) ?? []
+  );
+}
+
 function IntroScreen({
   test,
   hasDraft,
@@ -669,18 +677,28 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
   };
 
   const toggleCheckbox = (question: HrDiagnosticQuestion, optionKey: string) => {
-    const answer = answers[question.key] ?? { ...EMPTY_ANSWER };
-    const isSelected = answer.selectedOptionKeys.includes(optionKey);
-
-    if (!isSelected && question.maxSelections && answer.selectedOptionKeys.length >= question.maxSelections) {
-      clearError();
-      return;
-    }
+    const exclusiveOptionKeys = getExclusiveOptionKeys(question);
+    const isExclusiveOption = exclusiveOptionKeys.has(optionKey);
 
     setQuestionAnswer(question.key, (prev) => {
-      const nextKeys = isSelected
-        ? prev.selectedOptionKeys.filter((key) => key !== optionKey)
-        : [...prev.selectedOptionKeys, optionKey];
+      const isSelected = prev.selectedOptionKeys.includes(optionKey);
+      let nextKeys: string[];
+
+      if (isSelected) {
+        nextKeys = prev.selectedOptionKeys.filter((key) => key !== optionKey);
+      } else if (isExclusiveOption) {
+        nextKeys = [optionKey];
+      } else {
+        const retainedKeys = prev.selectedOptionKeys.filter(
+          (key) => !exclusiveOptionKeys.has(key)
+        );
+
+        if (question.maxSelections && retainedKeys.length >= question.maxSelections) {
+          return prev;
+        }
+
+        nextKeys = [...retainedKeys, optionKey];
+      }
 
       return {
         ...prev,

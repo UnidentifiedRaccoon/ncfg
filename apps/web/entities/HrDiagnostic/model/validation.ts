@@ -79,6 +79,26 @@ function optionLabelForKey(question: HrDiagnosticQuestion, optionKey: string): s
   return question.options?.find((option) => option.key === optionKey)?.label ?? null;
 }
 
+function hasExclusiveCheckboxConflict(
+  question: HrDiagnosticQuestion,
+  selectedOptionKeys: string[]
+) {
+  if (question.type !== "checkbox" || selectedOptionKeys.length < 2) {
+    return false;
+  }
+
+  const exclusiveOptionKeys = new Set(
+    question.options
+      ?.filter((option) => option.exclusive)
+      .map((option) => option.key) ?? []
+  );
+
+  return (
+    selectedOptionKeys.some((optionKey) => exclusiveOptionKeys.has(optionKey)) &&
+    selectedOptionKeys.some((optionKey) => !exclusiveOptionKeys.has(optionKey))
+  );
+}
+
 function normalizeAnswer(
   question: HrDiagnosticQuestion,
   answer: HrDiagnosticAnswerInput | undefined
@@ -163,6 +183,10 @@ export function validateHrDiagnosticQuestionAnswer(
     if (!optionLabelForKey(question, optionKey)) {
       return "Обнаружен недопустимый вариант ответа";
     }
+  }
+
+  if (hasExclusiveCheckboxConflict(question, selectedOptionKeys)) {
+    return "Этот вариант нельзя выбрать вместе с другими";
   }
 
   if (selectedOptionKeys.includes(OTHER_OPTION_KEY) && !trimOptional(answer?.otherText)) {

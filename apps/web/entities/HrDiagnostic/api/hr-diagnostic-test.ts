@@ -118,6 +118,7 @@ function normalizeOption(value: unknown): HrDiagnosticOption | null {
     key,
     label,
     order: normalizeInteger(record.order),
+    exclusive: Boolean(record.exclusive),
   };
 }
 

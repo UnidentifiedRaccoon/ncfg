@@ -197,6 +197,7 @@ export interface HrDiagnosticOption extends Struct.ComponentSchema {
     icon: 'bulletList';
   };
   attributes: {
+    exclusive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     key: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{

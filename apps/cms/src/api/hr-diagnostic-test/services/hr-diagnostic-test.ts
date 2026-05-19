@@ -71,6 +71,7 @@ function normalizeOption(value: unknown) {
     key,
     label,
     order: asInteger(record.order),
+    exclusive: Boolean(record.exclusive),
   };
 }
 

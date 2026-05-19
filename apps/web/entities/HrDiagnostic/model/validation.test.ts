@@ -96,6 +96,7 @@ const TEST_HR_DIAGNOSTIC: HrDiagnosticTest = {
             { key: "no_budget", label: "Нет бюджета", order: 1 },
             { key: "roi_hard", label: "Сложно доказать ROI", order: 2 },
             { key: "no_provider", label: "Нет провайдера", order: 3 },
+            { key: "no_barriers", label: "Барьеров нет", order: 4, exclusive: true },
           ],
         },
         {
@@ -172,6 +173,48 @@ test("validateHrDiagnosticSubmission enforces checkbox max selections", () => {
 
   assert.equal(result.valid, false);
   assert.match(result.errors.join("\n"), /не больше 2/);
+});
+
+test("validateHrDiagnosticSubmission enforces exclusive checkbox options", () => {
+  const exclusiveWithRegular = validateHrDiagnosticSubmission(
+    TEST_HR_DIAGNOSTIC,
+    [
+      ...baseTargetAnswers,
+      {
+        questionKey: "barriers",
+        selectedOptionKeys: ["no_barriers", "no_budget"],
+      },
+    ]
+  );
+
+  assert.equal(exclusiveWithRegular.valid, false);
+  assert.match(exclusiveWithRegular.errors.join("\n"), /нельзя выбрать вместе/);
+
+  const onlyExclusive = validateHrDiagnosticSubmission(
+    TEST_HR_DIAGNOSTIC,
+    [
+      ...baseTargetAnswers,
+      {
+        questionKey: "barriers",
+        selectedOptionKeys: ["no_barriers"],
+      },
+    ]
+  );
+
+  assert.equal(onlyExclusive.valid, true);
+
+  const regularOptions = validateHrDiagnosticSubmission(
+    TEST_HR_DIAGNOSTIC,
+    [
+      ...baseTargetAnswers,
+      {
+        questionKey: "barriers",
+        selectedOptionKeys: ["no_budget", "roi_hard"],
+      },
+    ]
+  );
+
+  assert.equal(regularOptions.valid, true);
 });
 
 test("validateHrDiagnosticSubmission uses question and option labels from the provided test", () => {

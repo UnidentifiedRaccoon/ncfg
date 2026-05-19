@@ -6,6 +6,7 @@ export interface HrDiagnosticOption {
   key: string;
   label: string;
   order?: number;
+  exclusive?: boolean;
 }
 
 export interface HrDiagnosticVisibilityCondition {
