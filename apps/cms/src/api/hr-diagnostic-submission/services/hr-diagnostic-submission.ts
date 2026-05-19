@@ -3,6 +3,7 @@ import { factories } from "@strapi/strapi";
 const SUBMISSION_UID = "api::hr-diagnostic-submission.hr-diagnostic-submission";
 const HR_TEST_UID = "api::hr-diagnostic-test.hr-diagnostic-test";
 const HR_DIAGNOSTIC_SLUG = "hr";
+const HR_DIAGNOSTIC_SUBMISSION_VERSION = 1;
 const OTHER_OPTION_KEY = "other";
 
 interface HrIntakeAnswerPayload {
@@ -17,6 +18,7 @@ interface HrIntakeAnswerPayload {
 interface HrIntakePayload {
   submissionKey: string;
   surveySlug: string;
+  surveyVersion: number;
   surveyDocumentId?: string;
   targetSegment: "target" | "non_target";
   role?: string;
@@ -57,6 +59,11 @@ function asTrimmedString(value: unknown) {
 
 function asOptionalTrimmedString(value: unknown) {
   return asTrimmedString(value) ?? undefined;
+}
+
+function asFiniteInteger(value: unknown) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.trunc(value);
 }
 
 function parseSelectedOptionKeys(value: unknown): string[] | null {
@@ -120,6 +127,7 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
   const record = payload as Record<string, unknown>;
   const submissionKey = asTrimmedString(record.submissionKey);
   const surveySlug = asTrimmedString(record.surveySlug);
+  const surveyVersion = asFiniteInteger(record.surveyVersion) ?? HR_DIAGNOSTIC_SUBMISSION_VERSION;
   const targetSegment = parseTargetSegment(record.targetSegment);
   const consentAcceptedAt = asTrimmedString(record.consentAcceptedAt);
   const submittedAt = asTrimmedString(record.submittedAt);
@@ -149,6 +157,7 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
   return {
     submissionKey,
     surveySlug,
+    surveyVersion,
     surveyDocumentId: asOptionalTrimmedString(record.surveyDocumentId),
     targetSegment,
     role: asOptionalTrimmedString(record.role),
@@ -389,6 +398,7 @@ export default factories.createCoreService(
           "submittedAt",
           "sourcePageUrl",
           "surveySlug",
+          "surveyVersion",
           "surveyDocumentId",
           "emailNormalized",
         ],
@@ -411,6 +421,9 @@ export default factories.createCoreService(
           filters: {
             surveySlug: {
               $eq: parsedPayload.surveySlug,
+            },
+            surveyVersion: {
+              $eq: parsedPayload.surveyVersion,
             },
             emailNormalized: {
               $eq: parsedPayload.emailNormalized,
@@ -435,6 +448,7 @@ export default factories.createCoreService(
       const data = {
         submissionKey: parsedPayload.submissionKey,
         surveySlug: parsedPayload.surveySlug,
+        surveyVersion: parsedPayload.surveyVersion,
         surveyDocumentId: parsedPayload.surveyDocumentId ?? null,
         targetSegment: parsedPayload.targetSegment,
         role: parsedPayload.role ?? null,
