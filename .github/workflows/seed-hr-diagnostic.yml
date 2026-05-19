@@ -73,3 +73,25 @@ jobs:
           echo "::add-mask::$strapi_token"
           echo "::add-mask::$strapi_read_token"
           STRAPI_TOKEN="$strapi_token" STRAPI_READ_TOKEN="$strapi_read_token" node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs
+
+          active_response="$(curl -sS -w '\n%{http_code}' \
+            -H "Authorization: Bearer $strapi_read_token" \
+            "$STRAPI_URL/api/hr-diagnostic-tests/active/hr")"
+          active_status="$(printf '%s' "$active_response" | tail -n 1)"
+          active_body="$(printf '%s' "$active_response" | sed '$d')"
+
+          if [ "$active_status" != "200" ]; then
+            echo "::error::Active HR diagnostic endpoint returned HTTP $active_status: $active_body"
+            exit 1
+          fi
+
+          node -e '
+            const fs = require("node:fs");
+            const payload = JSON.parse(fs.readFileSync(0, "utf8"));
+            const data = payload && payload.data;
+            if (!data || data.slug !== "hr" || data.version !== 1 || !Array.isArray(data.groups) || data.groups.length === 0) {
+              console.error("Invalid active HR diagnostic response");
+              process.exit(1);
+            }
+            console.log(`[seed-hr] active endpoint verified: ${data.documentId || "without-documentId"}`);
+          ' <<< "$active_body"
