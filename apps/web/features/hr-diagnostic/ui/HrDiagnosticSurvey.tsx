@@ -63,6 +63,7 @@ interface HrDiagnosticSurveyProps {
 }
 
 const OTHER_OPTION_KEY = "other";
+const SCALE_LABEL_PREFIX_PATTERN = /^\s*\d+\s*[-–—.:)]\s*/;
 const EMPTY_ANSWER: AnswerDraft = {
   selectedOptionKeys: [],
   otherText: "",
@@ -219,6 +220,12 @@ function getExclusiveOptionKeys(question: HrDiagnosticQuestion) {
       ?.filter((option) => option.exclusive)
       .map((option) => option.key) ?? []
   );
+}
+
+function getScaleEdgeLabel(label: string) {
+  const strippedLabel = label.replace(SCALE_LABEL_PREFIX_PATTERN, "").trim();
+
+  return strippedLabel || label;
 }
 
 function IntroScreen({
@@ -481,6 +488,74 @@ function QuestionOptions({
           </div>
         );
       })}
+    </fieldset>
+  );
+}
+
+function LikertScaleOptions({
+  question,
+  answer,
+  onSelectSingle,
+}: {
+  question: HrDiagnosticQuestion;
+  answer: AnswerDraft;
+  onSelectSingle: (optionKey: string) => void;
+}) {
+  const inputName = useId();
+  const options = question.options ?? [];
+  const firstOption = options[0];
+  const lastOption = options[options.length - 1];
+
+  if (options.length === 0) {
+    return null;
+  }
+
+  return (
+    <fieldset className="mt-8">
+      <legend className="sr-only">{question.title}</legend>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(42px,1fr))] gap-1 rounded-[8px] border border-[#DDE7F4] bg-[#E7EEF8] p-1 sm:grid-cols-[repeat(auto-fit,minmax(52px,1fr))]">
+        {options.map((option) => {
+          const isSelected = answer.selectedOptionKeys.includes(option.key);
+
+          return (
+            <label key={option.key} className="group block min-w-0 cursor-pointer">
+              <input
+                type="radio"
+                name={inputName}
+                value={option.key}
+                checked={isSelected}
+                onChange={() => onSelectSingle(option.key)}
+                aria-label={option.label}
+                className="peer sr-only"
+              />
+              <span
+                className={cn(
+                  "flex min-h-12 min-w-0 items-center justify-center rounded-[6px] border border-transparent bg-white px-2 text-center text-base font-semibold text-[#516780]",
+                  "transition-all duration-150 hover:bg-[#F8FBFF] hover:text-[#1E3A5F]",
+                  "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#3B82F6]",
+                  isSelected &&
+                    "border-[#3B82F6] bg-[#3B82F6] text-white shadow-[0_8px_18px_rgba(59,130,246,0.22)] hover:bg-[#3B82F6] hover:text-white"
+                )}
+              >
+                <span className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                  {option.key}
+                </span>
+              </span>
+            </label>
+          );
+        })}
+      </div>
+
+      {firstOption && lastOption && firstOption.key !== lastOption.key ? (
+        <div className="mt-3 grid grid-cols-2 gap-4 text-sm leading-5 text-[#526985]">
+          <span className="min-w-0 text-left">
+            {getScaleEdgeLabel(firstOption.label)}
+          </span>
+          <span className="min-w-0 text-right">
+            {getScaleEdgeLabel(lastOption.label)}
+          </span>
+        </div>
+      ) : null}
     </fieldset>
   );
 }
@@ -1038,6 +1113,12 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
                         <EmailQuestion
                           value={answers[currentQuestion.key]?.text ?? ""}
                           onChange={(value) => setTextAnswer(currentQuestion.key, value)}
+                        />
+                      ) : currentQuestion.type === "likert" ? (
+                        <LikertScaleOptions
+                          question={currentQuestion}
+                          answer={currentAnswer}
+                          onSelectSingle={(optionKey) => selectSingle(currentQuestion.key, optionKey)}
                         />
                       ) : (
                         <QuestionOptions
