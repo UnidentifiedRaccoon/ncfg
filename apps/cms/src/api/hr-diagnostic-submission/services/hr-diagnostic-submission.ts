@@ -3,7 +3,8 @@ import { factories } from "@strapi/strapi";
 const SUBMISSION_UID = "api::hr-diagnostic-submission.hr-diagnostic-submission";
 const HR_TEST_UID = "api::hr-diagnostic-test.hr-diagnostic-test";
 const HR_DIAGNOSTIC_SLUG_FALLBACK = "hr";
-const HR_DIAGNOSTIC_VERSION_FALLBACK = 1;
+// Internal compatibility value for the existing submissions schema; the HR test itself is unversioned.
+const HR_DIAGNOSTIC_SUBMISSION_VERSION = 1;
 const OTHER_OPTION_KEY = "other";
 
 interface HrIntakeAnswerPayload {
@@ -174,7 +175,7 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
   const record = payload as Record<string, unknown>;
   const submissionKey = asTrimmedString(record.submissionKey);
   const surveySlug = asTrimmedString(record.surveySlug);
-  const surveyVersion = asFiniteInteger(record.surveyVersion);
+  const surveyVersion = asFiniteInteger(record.surveyVersion) ?? HR_DIAGNOSTIC_SUBMISSION_VERSION;
   const targetSegment = parseTargetSegment(record.targetSegment);
   const consentAcceptedAt = asTrimmedString(record.consentAcceptedAt);
   const submittedAt = asTrimmedString(record.submittedAt);
@@ -183,7 +184,6 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
   if (
     !submissionKey ||
     !surveySlug ||
-    surveyVersion === null ||
     !targetSegment ||
     !consentAcceptedAt ||
     !submittedAt ||
@@ -331,14 +331,14 @@ function buildQuestionColumnsFromTest(test: any): HrExportQuestionColumn[] {
   return columns;
 }
 
-async function loadActiveQuestionColumns(strapi: any): Promise<HrExportQuestionColumn[]> {
-  const activeTest = await strapi
+async function loadQuestionColumns(strapi: any): Promise<HrExportQuestionColumn[]> {
+  const test = await strapi
     .service(HR_TEST_UID)
-    .findActiveBySlug(HR_DIAGNOSTIC_SLUG_FALLBACK);
-  const activeColumns = buildQuestionColumnsFromTest(activeTest);
+    .findBySlug(HR_DIAGNOSTIC_SLUG_FALLBACK);
+  const columns = buildQuestionColumnsFromTest(test);
 
-  return activeColumns.length > 0
-    ? activeColumns
+  return columns.length > 0
+    ? columns
     : LEGACY_HR_EXPORT_QUESTIONS.map((question) => ({ ...question }));
 }
 
@@ -588,7 +588,7 @@ export default factories.createCoreService(
       }
 
       const questionColumns = appendMissingQuestionColumns(
-        await loadActiveQuestionColumns(strapi),
+        await loadQuestionColumns(strapi),
         submissions
       );
 
@@ -602,7 +602,6 @@ export default factories.createCoreService(
         "Регион",
         "Email",
         "Подписка",
-        "Версия",
         "Страница",
         "Согласие",
         ...questionColumns.map((question) => question.title),
@@ -610,10 +609,6 @@ export default factories.createCoreService(
 
       const rows = submissions.map((submission: any) => {
         const answersByQuestionKey = buildAnswersByQuestionKey(submission.answers);
-        const surveyVersion =
-          typeof submission.surveyVersion === "number" && Number.isFinite(submission.surveyVersion)
-            ? Math.trunc(submission.surveyVersion)
-            : HR_DIAGNOSTIC_VERSION_FALLBACK;
         const attemptNumber =
           typeof submission.attemptNumber === "number" && Number.isFinite(submission.attemptNumber)
             ? Math.trunc(submission.attemptNumber)
@@ -629,7 +624,6 @@ export default factories.createCoreService(
           String(submission.region ?? ""),
           String(submission.email ?? ""),
           String(submission.subscribeMaterials ?? ""),
-          String(surveyVersion),
           String(submission.sourcePageUrl ?? ""),
           String(submission.consentAcceptedAt ?? ""),
           ...questionColumns.map((question) =>

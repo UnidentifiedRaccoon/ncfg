@@ -1,7 +1,6 @@
 import type { HrDiagnosticGroup, HrDiagnosticTest } from "./types";
 
 export const HR_DIAGNOSTIC_SLUG = "hr";
-export const HR_DIAGNOSTIC_VERSION = 1;
 export const HR_DIAGNOSTIC_TITLE = "Диагностика HR";
 export const HR_DIAGNOSTIC_TEST_TITLE = "Анкета-скрининг для HR";
 export const HR_DIAGNOSTIC_PROJECT_TITLE = "Проект «ФинБлаго (корп)»";
@@ -283,7 +282,6 @@ export const HR_DIAGNOSTIC_QUESTIONS = HR_DIAGNOSTIC_GROUPS.flatMap(
 
 export const LEGACY_HR_DIAGNOSTIC_TEST: HrDiagnosticTest = {
   slug: HR_DIAGNOSTIC_SLUG,
-  version: HR_DIAGNOSTIC_VERSION,
   title: HR_DIAGNOSTIC_TITLE,
   testTitle: HR_DIAGNOSTIC_TEST_TITLE,
   projectTitle: HR_DIAGNOSTIC_PROJECT_TITLE,

@@ -74,24 +74,24 @@ jobs:
           echo "::add-mask::$strapi_read_token"
           STRAPI_TOKEN="$strapi_token" STRAPI_READ_TOKEN="$strapi_read_token" node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs
 
-          active_response="$(curl -sS -w '\n%{http_code}' \
+          lookup_response="$(curl --globoff -sS -w '\n%{http_code}' \
             -H "Authorization: Bearer $strapi_read_token" \
-            "$STRAPI_URL/api/hr-diagnostic-tests/active/hr")"
-          active_status="$(printf '%s' "$active_response" | tail -n 1)"
-          active_body="$(printf '%s' "$active_response" | sed '$d')"
+            "$STRAPI_URL/api/hr-diagnostic-tests?filters[slug][\$eq]=hr&populate[groups][populate][questions][populate][options]=true&populate[targetCompletion]=true&populate[nonTargetCompletion]=true&pagination[pageSize]=1")"
+          lookup_status="$(printf '%s' "$lookup_response" | tail -n 1)"
+          lookup_body="$(printf '%s' "$lookup_response" | sed '$d')"
 
-          if [ "$active_status" != "200" ]; then
-            echo "::error::Active HR diagnostic endpoint returned HTTP $active_status: $active_body"
+          if [ "$lookup_status" != "200" ]; then
+            echo "::error::HR diagnostic test lookup returned HTTP $lookup_status: $lookup_body"
             exit 1
           fi
 
           node -e '
             const fs = require("node:fs");
             const payload = JSON.parse(fs.readFileSync(0, "utf8"));
-            const data = payload && payload.data;
-            if (!data || data.slug !== "hr" || data.version !== 1 || !Array.isArray(data.groups) || data.groups.length === 0) {
-              console.error("Invalid active HR diagnostic response");
+            const data = payload && Array.isArray(payload.data) ? payload.data[0] : null;
+            if (!data || data.slug !== "hr" || !Array.isArray(data.groups) || data.groups.length === 0) {
+              console.error("Invalid HR diagnostic test response");
               process.exit(1);
             }
-            console.log(`[seed-hr] active endpoint verified: ${data.documentId || "without-documentId"}`);
-          ' <<< "$active_body"
+            console.log(`[seed-hr] HR diagnostic test verified: ${data.documentId || "without-documentId"}`);
+          ' <<< "$lookup_body"

@@ -7,7 +7,8 @@
  *   STRAPI_URL=https://admin.ncfg.ru STRAPI_TOKEN=<token> node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs
  *
  * Required token permissions:
- *   hr-diagnostic-test: find, findOne, create, update
+ *   STRAPI_TOKEN: hr-diagnostic-test create, update
+ *   STRAPI_READ_TOKEN (optional): hr-diagnostic-test find
  */
 
 import { readFile } from "node:fs/promises";
@@ -16,7 +17,7 @@ import process from "node:process";
 const STRAPI_URL = process.env.STRAPI_URL?.replace(/\/+$/, "");
 const STRAPI_TOKEN = process.env.STRAPI_TOKEN;
 const STRAPI_READ_TOKEN = process.env.STRAPI_READ_TOKEN;
-const DATA_URL = new URL("./data/hr-diagnostic-v1.json", import.meta.url);
+const DATA_URL = new URL("./data/hr-diagnostic.json", import.meta.url);
 
 if (!STRAPI_URL || !STRAPI_TOKEN) {
   console.error(
@@ -60,56 +61,24 @@ async function loadPayload() {
   return JSON.parse(await readFile(DATA_URL, "utf8"));
 }
 
-async function findBySlugAndVersion(payload) {
+async function findBySlug(payload) {
   return api(
     "GET",
     `/api/hr-diagnostic-tests?filters[slug][$eq]=${encodeFilterValue(
       payload.slug
-    )}&filters[version][$eq]=${encodeFilterValue(payload.version)}&pagination[pageSize]=10`,
+    )}&pagination[pageSize]=10`,
     undefined,
     { read: true }
   );
-}
-
-async function deactivateOtherActiveTests(payload, activeDocumentId) {
-  if (!payload.isActive) {
-    return [];
-  }
-
-  const { data } = await api(
-    "GET",
-    `/api/hr-diagnostic-tests?filters[slug][$eq]=${encodeFilterValue(
-      payload.slug
-    )}&filters[isActive][$eq]=true&pagination[pageSize]=100`,
-    undefined,
-    { read: true }
-  );
-  const items = Array.isArray(data) ? data : [];
-  const changed = [];
-
-  for (const item of items) {
-    if (!item?.documentId || item.documentId === activeDocumentId) {
-      continue;
-    }
-
-    await api("PUT", `/api/hr-diagnostic-tests/${item.documentId}?status=published`, {
-      data: {
-        isActive: false,
-      },
-    });
-    changed.push(item.documentId);
-  }
-
-  return changed;
 }
 
 async function upsertTest(payload) {
-  const { data } = await findBySlugAndVersion(payload);
+  const { data } = await findBySlug(payload);
   const existing = Array.isArray(data) ? data : [];
 
   if (existing.length > 1) {
     console.warn(
-      `[seed-hr] Found ${existing.length} records for slug=${payload.slug} version=${payload.version}; updating the first one.`
+      `[seed-hr] Found ${existing.length} records for slug=${payload.slug}; updating the first one.`
     );
   }
 
@@ -118,16 +87,14 @@ async function upsertTest(payload) {
     await api("PUT", `/api/hr-diagnostic-tests/${docId}?status=published`, {
       data: payload,
     });
-    const deactivated = await deactivateOtherActiveTests(payload, docId);
-    return { action: "updated", documentId: docId, deactivated };
+    return { action: "updated", documentId: docId };
   }
 
   const created = await api("POST", "/api/hr-diagnostic-tests?status=published", {
     data: payload,
   });
   const docId = created?.data?.documentId;
-  const deactivated = docId ? await deactivateOtherActiveTests(payload, docId) : [];
-  return { action: "created", documentId: docId, deactivated };
+  return { action: "created", documentId: docId };
 }
 
 async function main() {
@@ -135,9 +102,6 @@ async function main() {
   const result = await upsertTest(payload);
 
   console.log(`[seed-hr] test ${result.action}: ${result.documentId}`);
-  if (result.deactivated.length > 0) {
-    console.log(`[seed-hr] deactivated older active tests: ${result.deactivated.join(", ")}`);
-  }
 }
 
 main().catch((error) => {

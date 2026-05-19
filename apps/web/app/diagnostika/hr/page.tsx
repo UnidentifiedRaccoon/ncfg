@@ -4,7 +4,7 @@ import { HrDiagnosticSurvey } from "@/features/hr-diagnostic";
 import { Footer, Header } from "@/widgets";
 import { fetchSiteSettings } from "@/shared/api/data-provider";
 import {
-  getActiveHrDiagnosticTest,
+  getHrDiagnosticTest,
   HR_DIAGNOSTIC_SLUG,
   LEGACY_HR_DIAGNOSTIC_TEST,
 } from "@/entities/HrDiagnostic";
@@ -16,7 +16,7 @@ export const revalidate = 0;
 const getHrDiagnosticTestForPage = cache(async (): Promise<HrDiagnosticTest> => {
   try {
     return (
-      (await getActiveHrDiagnosticTest(HR_DIAGNOSTIC_SLUG)) ??
+      (await getHrDiagnosticTest(HR_DIAGNOSTIC_SLUG)) ??
       LEGACY_HR_DIAGNOSTIC_TEST
     );
   } catch (error) {

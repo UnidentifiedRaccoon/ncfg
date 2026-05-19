@@ -9,7 +9,7 @@ import {
 import { resolveSourcePageUrl } from "@/shared/lib/source-page";
 import { postStrapiWriteJSON } from "@/shared/lib/strapi-write";
 import {
-  getActiveHrDiagnosticTest,
+  getHrDiagnosticTest,
   HR_DIAGNOSTIC_SLUG,
   LEGACY_HR_DIAGNOSTIC_TEST,
   validateHrDiagnosticSubmission,
@@ -101,7 +101,7 @@ function normalizeEmail(value: string | undefined): string | undefined {
 async function resolveHrDiagnosticTest(requestId: string): Promise<HrDiagnosticTest> {
   try {
     return (
-      (await getActiveHrDiagnosticTest(HR_DIAGNOSTIC_SLUG)) ??
+      (await getHrDiagnosticTest(HR_DIAGNOSTIC_SLUG)) ??
       LEGACY_HR_DIAGNOSTIC_TEST
     );
   } catch (error) {
@@ -148,7 +148,6 @@ export async function POST(request: Request) {
       {
         submissionKey: data.submissionKey,
         surveySlug: test.slug,
-        surveyVersion: test.version,
         surveyDocumentId: test.documentId,
         targetSegment: validation.targetSegment,
         role: validation.fieldValues.role,

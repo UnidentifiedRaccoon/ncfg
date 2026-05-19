@@ -48,7 +48,6 @@ export interface HrDiagnosticCompletionScreen {
 export interface HrDiagnosticTest {
   documentId?: string;
   slug: string;
-  version: number;
   title: string;
   testTitle: string;
   projectTitle: string;

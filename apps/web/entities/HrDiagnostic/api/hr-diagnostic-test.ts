@@ -1,4 +1,4 @@
-import { fetchAPI, type StrapiResponse } from "@/shared/lib/strapi";
+import { buildQueryString, fetchAPI, type StrapiResponse } from "@/shared/lib/strapi";
 
 import { HR_DIAGNOSTIC_SLUG } from "../model/survey";
 import type {
@@ -220,7 +220,6 @@ function normalizeTest(value: unknown): HrDiagnosticTest | null {
   return {
     documentId: normalizeOptionalString(record.documentId),
     slug,
-    version: normalizeInteger(record.version, 1),
     title,
     testTitle,
     projectTitle,
@@ -237,12 +236,38 @@ function normalizeTest(value: unknown): HrDiagnosticTest | null {
   };
 }
 
-export async function getActiveHrDiagnosticTest(
+export async function getHrDiagnosticTest(
   slug = HR_DIAGNOSTIC_SLUG
 ): Promise<HrDiagnosticTest | null> {
-  const response = await fetchAPI<StrapiResponse<unknown>>(
-    `/hr-diagnostic-tests/active/${encodeURIComponent(slug)}`
-  );
+  const query = buildQueryString({
+    filters: {
+      slug: {
+        $eq: slug,
+      },
+    },
+    populate: {
+      groups: {
+        populate: {
+          questions: {
+            populate: {
+              options: true,
+            },
+          },
+        },
+      },
+      targetCompletion: true,
+      nonTargetCompletion: true,
+    },
+    pagination: {
+      pageSize: 1,
+    },
+    sort: "updatedAt:desc",
+  });
 
-  return normalizeTest(response.data);
+  const response = await fetchAPI<StrapiResponse<unknown[]>>(
+    `/hr-diagnostic-tests?${query}`
+  );
+  const [entry] = Array.isArray(response.data) ? response.data : [];
+
+  return normalizeTest(entry);
 }

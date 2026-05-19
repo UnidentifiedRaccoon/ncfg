@@ -5,7 +5,7 @@
     "singularName": "hr-diagnostic-test",
     "pluralName": "hr-diagnostic-tests",
     "displayName": "HR Diagnostic Test",
-    "description": "Versioned CMS-driven HR questionnaire"
+    "description": "CMS-driven HR questionnaire"
   },
   "options": {
     "draftAndPublish": true
@@ -15,16 +15,8 @@
     "slug": {
       "type": "string",
       "required": true,
+      "unique": true,
       "maxLength": 100
-    },
-    "version": {
-      "type": "integer",
-      "required": true
-    },
-    "isActive": {
-      "type": "boolean",
-      "default": false,
-      "required": true
     },
     "title": {
       "type": "string",

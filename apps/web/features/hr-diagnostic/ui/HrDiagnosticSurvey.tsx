@@ -530,7 +530,7 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
     () => test.groups.flatMap((group) => group.questions.map((question) => question.key)),
     [test.groups]
   );
-  const draftKey = `ncfg.hr-diagnostic.${test.slug}.draft.v${test.version}`;
+  const draftKey = `ncfg.hr-diagnostic.${test.slug}.draft`;
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
   const [phase, setPhase] = useState<Phase>("intro");

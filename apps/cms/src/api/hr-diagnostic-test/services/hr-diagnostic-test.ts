@@ -169,8 +169,6 @@ function normalizeTest(entry: unknown) {
   return {
     documentId: asOptionalString(record.documentId),
     slug,
-    version: asInteger(record.version, 1),
-    isActive: Boolean(record.isActive),
     title,
     testTitle,
     projectTitle,
@@ -190,15 +188,12 @@ function normalizeTest(entry: unknown) {
 export default factories.createCoreService(
   TEST_UID,
   ({ strapi }: { strapi: any }) => ({
-    async findActiveBySlug(slug: string) {
+    async findBySlug(slug: string) {
       const entry = await strapi.documents(TEST_UID).findFirst({
         status: "published",
         filters: {
           slug: {
             $eq: slug,
-          },
-          isActive: {
-            $eq: true,
           },
         },
         populate: {
@@ -214,7 +209,6 @@ export default factories.createCoreService(
           targetCompletion: true,
           nonTargetCompletion: true,
         },
-        sort: ["version:desc"],
       });
 
       return normalizeTest(entry);

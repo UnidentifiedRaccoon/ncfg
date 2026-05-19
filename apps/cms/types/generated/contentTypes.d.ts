@@ -769,6 +769,40 @@ export interface ApiDiagnosticTestDiagnosticTest
   };
 }
 
+export interface ApiExpertConfigExpertConfig extends Struct.SingleTypeSchema {
+  collectionName: 'expert_configs';
+  info: {
+    description: 'Configuration for experts display';
+    displayName: 'Experts Configuration';
+    pluralName: 'expert-configs';
+    singularName: 'expert-config';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    experts: Schema.Attribute.Relation<'oneToMany', 'api::person.person'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::expert-config.expert-config'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }> &
+      Schema.Attribute.DefaultTo<'\u041D\u0430\u0448\u0438 \u044D\u043A\u0441\u043F\u0435\u0440\u0442\u044B'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiHrDiagnosticSubmissionHrDiagnosticSubmission
   extends Struct.CollectionTypeSchema {
   collectionName: 'hr_diagnostic_submissions';
@@ -860,7 +894,7 @@ export interface ApiHrDiagnosticTestHrDiagnosticTest
   extends Struct.CollectionTypeSchema {
   collectionName: 'hr_diagnostic_tests';
   info: {
-    description: 'Versioned CMS-driven HR questionnaire';
+    description: 'CMS-driven HR questionnaire';
     displayName: 'HR Diagnostic Test';
     pluralName: 'hr-diagnostic-tests';
     singularName: 'hr-diagnostic-test';
@@ -883,9 +917,6 @@ export interface ApiHrDiagnosticTestHrDiagnosticTest
     introBody: Schema.Attribute.Text;
     introGiftText: Schema.Attribute.Text;
     introLead: Schema.Attribute.Text;
-    isActive: Schema.Attribute.Boolean &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -904,6 +935,7 @@ export interface ApiHrDiagnosticTestHrDiagnosticTest
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.Unique &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 100;
       }>;
@@ -921,41 +953,6 @@ export interface ApiHrDiagnosticTestHrDiagnosticTest
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    version: Schema.Attribute.Integer & Schema.Attribute.Required;
-  };
-}
-
-export interface ApiExpertConfigExpertConfig extends Struct.SingleTypeSchema {
-  collectionName: 'expert_configs';
-  info: {
-    description: 'Configuration for experts display';
-    displayName: 'Experts Configuration';
-    pluralName: 'expert-configs';
-    singularName: 'expert-config';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    experts: Schema.Attribute.Relation<'oneToMany', 'api::person.person'>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::expert-config.expert-config'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    title: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }> &
-      Schema.Attribute.DefaultTo<'\u041D\u0430\u0448\u0438 \u044D\u043A\u0441\u043F\u0435\u0440\u0442\u044B'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1872,9 +1869,9 @@ declare module '@strapi/strapi' {
       'api::diagnostic-organization.diagnostic-organization': ApiDiagnosticOrganizationDiagnosticOrganization;
       'api::diagnostic-submission.diagnostic-submission': ApiDiagnosticSubmissionDiagnosticSubmission;
       'api::diagnostic-test.diagnostic-test': ApiDiagnosticTestDiagnosticTest;
+      'api::expert-config.expert-config': ApiExpertConfigExpertConfig;
       'api::hr-diagnostic-submission.hr-diagnostic-submission': ApiHrDiagnosticSubmissionHrDiagnosticSubmission;
       'api::hr-diagnostic-test.hr-diagnostic-test': ApiHrDiagnosticTestHrDiagnosticTest;
-      'api::expert-config.expert-config': ApiExpertConfigExpertConfig;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
       'api::person.person': ApiPersonPerson;
       'api::recommendation.recommendation': ApiRecommendationRecommendation;

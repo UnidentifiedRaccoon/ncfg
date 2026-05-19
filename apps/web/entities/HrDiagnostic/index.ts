@@ -1,6 +1,5 @@
 export {
   HR_DIAGNOSTIC_SLUG,
-  HR_DIAGNOSTIC_VERSION,
   HR_TARGET_ROLE_KEYS,
 } from "./model/survey";
 export { LEGACY_HR_DIAGNOSTIC_TEST } from "./model/legacy-survey";
@@ -9,7 +8,7 @@ export {
   validateHrDiagnosticQuestionAnswer,
   validateHrDiagnosticSubmission,
 } from "./model/validation";
-export { getActiveHrDiagnosticTest } from "./api/hr-diagnostic-test";
+export { getHrDiagnosticTest } from "./api/hr-diagnostic-test";
 export type {
   HrDiagnosticAnswerInput,
   HrDiagnosticCompletionScreen,
