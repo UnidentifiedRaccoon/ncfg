@@ -1,0 +1,68 @@
+name: Seed HR Diagnostic Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      strapi_url:
+        description: 'Production Strapi URL'
+        required: true
+        default: 'https://admin.ncfg.ru'
+      token_key:
+        description: 'Lockbox key with a Strapi API token allowed to upsert hr-diagnostic-test'
+        required: true
+        type: choice
+        default: STRAPI_WRITE_API_TOKEN
+        options:
+          - STRAPI_WRITE_API_TOKEN
+          - STRAPI_API_TOKEN
+
+permissions:
+  contents: read
+
+jobs:
+  seed:
+    name: Seed HR diagnostic test
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yc CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
+
+      - name: Configure yc CLI
+        env:
+          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+        run: |
+          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
+          yc config set service-account-key /tmp/sa.json
+          yc config set folder-id "$YC_FOLDER_ID"
+
+      - name: Run HR diagnostic seed
+        env:
+          STRAPI_URL: ${{ inputs.strapi_url }}
+          TOKEN_KEY: ${{ inputs.token_key }}
+          YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
+          YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
+        run: |
+          set -euo pipefail
+
+          case "$TOKEN_KEY" in
+            STRAPI_WRITE_API_TOKEN|STRAPI_API_TOKEN) ;;
+            *)
+              echo "::error::Unsupported token key: $TOKEN_KEY"
+              exit 1
+              ;;
+          esac
+
+          strapi_token="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$TOKEN_KEY")"
+          if [ -z "$strapi_token" ]; then
+            echo "::error::Lockbox key is empty: $TOKEN_KEY"
+            exit 1
+          fi
+
+          echo "::add-mask::$strapi_token"
+          STRAPI_TOKEN="$strapi_token" node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs
