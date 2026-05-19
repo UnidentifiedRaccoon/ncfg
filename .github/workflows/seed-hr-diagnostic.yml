@@ -74,7 +74,7 @@ jobs:
           echo "::add-mask::$strapi_read_token"
           STRAPI_TOKEN="$strapi_token" STRAPI_READ_TOKEN="$strapi_read_token" node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs
 
-          lookup_response="$(curl --globoff -sS -w '\n%{http_code}' \
+          lookup_response="$(curl --globoff --retry 3 --retry-all-errors --retry-delay 2 -sS -w '\n%{http_code}' \
             -H "Authorization: Bearer $strapi_read_token" \
             "$STRAPI_URL/api/hr-diagnostic-tests?filters[slug][\$eq]=hr&populate[groups][populate][questions][populate][options]=true&populate[targetCompletion]=true&populate[nonTargetCompletion]=true&pagination[pageSize]=1")"
           lookup_status="$(printf '%s' "$lookup_response" | tail -n 1)"

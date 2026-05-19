@@ -36,25 +36,52 @@ const readHeaders = {
   Authorization: `Bearer ${(STRAPI_READ_TOKEN || STRAPI_TOKEN).replace(/^Bearer\s+/i, "")}`,
 };
 
-function encodeFilterValue(value) {
-  return encodeURIComponent(String(value));
+const RETRY_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
+
+function buildQuery(params) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    query.set(key, String(value));
+  });
+
+  const queryString = query.toString();
+  return queryString ? `?${queryString}` : "";
 }
 
-async function api(method, path, body, { read = false } = {}) {
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function api(method, path, body, { read = false, retries = 3 } = {}) {
   const url = `${STRAPI_URL}${path}`;
   const opts = { method, headers: read ? readHeaders : headers };
   if (body !== undefined) {
     opts.body = JSON.stringify(body);
   }
 
-  const res = await fetch(url, opts);
-  const text = await res.text();
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const res = await fetch(url, opts);
+    const text = await res.text();
 
-  if (!res.ok) {
+    if (res.ok) {
+      return text ? JSON.parse(text) : null;
+    }
+
+    if (attempt < retries && RETRY_STATUSES.has(res.status)) {
+      const delayMs = 1000 * (attempt + 1);
+      console.warn(
+        `[seed-hr] ${method} ${path} returned ${res.status}; retrying in ${delayMs}ms`
+      );
+      await sleep(delayMs);
+      continue;
+    }
+
     throw new Error(`${method} ${path} -> ${res.status}: ${text}`);
   }
 
-  return text ? JSON.parse(text) : null;
+  return null;
 }
 
 async function loadPayload() {
@@ -62,11 +89,14 @@ async function loadPayload() {
 }
 
 async function findBySlug(payload) {
+  const query = buildQuery({
+    "filters[slug][$eq]": payload.slug,
+    "pagination[pageSize]": 10,
+  });
+
   return api(
     "GET",
-    `/api/hr-diagnostic-tests?filters[slug][$eq]=${encodeFilterValue(
-      payload.slug
-    )}&pagination[pageSize]=10`,
+    `/api/hr-diagnostic-tests${query}`,
     undefined,
     { read: true }
   );
