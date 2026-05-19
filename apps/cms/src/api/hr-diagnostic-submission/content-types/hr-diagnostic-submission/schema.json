@@ -1,0 +1,108 @@
+{
+  "kind": "collectionType",
+  "collectionName": "hr_diagnostic_submissions",
+  "info": {
+    "singularName": "hr-diagnostic-submission",
+    "pluralName": "hr-diagnostic-submissions",
+    "displayName": "HR Diagnostic Submission",
+    "description": "Saved HR screening survey submission"
+  },
+  "options": {},
+  "pluginOptions": {},
+  "config": {
+    "metadatas": {
+      "submissionKey": {
+        "edit": {
+          "visible": false
+        },
+        "list": {
+          "visible": false
+        }
+      },
+      "emailNormalized": {
+        "edit": {
+          "visible": false
+        },
+        "list": {
+          "visible": false
+        }
+      }
+    }
+  },
+  "attributes": {
+    "submissionKey": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "surveySlug": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "surveyVersion": {
+      "type": "integer",
+      "required": true
+    },
+    "targetSegment": {
+      "type": "enumeration",
+      "enum": ["target", "non_target"],
+      "required": true
+    },
+    "role": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "roleOther": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "companySize": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "industry": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "industryOther": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "region": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "email": {
+      "type": "email",
+      "maxLength": 255
+    },
+    "emailNormalized": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "subscribeMaterials": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "sourcePageUrl": {
+      "type": "text"
+    },
+    "attemptNumber": {
+      "type": "integer",
+      "required": true
+    },
+    "consentAcceptedAt": {
+      "type": "datetime",
+      "required": true
+    },
+    "submittedAt": {
+      "type": "datetime",
+      "required": true
+    },
+    "answers": {
+      "type": "json",
+      "required": true
+    }
+  }
+}

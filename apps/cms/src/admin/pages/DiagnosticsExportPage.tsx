@@ -20,6 +20,8 @@ interface CampaignOption {
   testLabel: string;
 }
 
+type ExportMode = "diagnostic" | "hr";
+
 function readCookie(name: string) {
   const prefix = `${name}=`;
   const cookie = document.cookie
@@ -95,6 +97,7 @@ function triggerDownload(blob: Blob, fileName: string) {
 export default function DiagnosticsExportPage() {
   const { get } = useFetchClient();
   const { toggleNotification } = useNotification();
+  const [exportMode, setExportMode] = React.useState<ExportMode>("diagnostic");
   const [campaigns, setCampaigns] = React.useState<CampaignOption[]>([]);
   const [selectedCampaignId, setSelectedCampaignId] = React.useState("");
   const [from, setFrom] = React.useState("");
@@ -149,9 +152,11 @@ export default function DiagnosticsExportPage() {
 
   const selectedCampaign =
     campaigns.find((item) => item.documentId === selectedCampaignId) ?? null;
+  const isDiagnosticMode = exportMode === "diagnostic";
+  const isExportDisabled = isExporting || (isDiagnosticMode && !selectedCampaignId);
 
   const handleExport = async () => {
-    if (!selectedCampaignId || isExporting) {
+    if (isExportDisabled) {
       return;
     }
 
@@ -161,9 +166,11 @@ export default function DiagnosticsExportPage() {
       const backendURL = (
         window as typeof window & { strapi: { backendURL: string } }
       ).strapi.backendURL;
-      const params = new URLSearchParams({
-        campaign: selectedCampaignId,
-      });
+      const params = new URLSearchParams();
+
+      if (isDiagnosticMode) {
+        params.set("campaign", selectedCampaignId);
+      }
 
       if (from) {
         params.set("from", from);
@@ -174,11 +181,18 @@ export default function DiagnosticsExportPage() {
       }
 
       const token = getAdminToken();
-      const response = await fetch(`${backendURL}/diagnostic-tools/export?${params.toString()}`, {
-        method: "GET",
-        credentials: "include",
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      });
+      const endpoint = isDiagnosticMode
+        ? "/diagnostic-tools/export"
+        : "/diagnostic-tools/hr-export";
+      const queryString = params.toString();
+      const response = await fetch(
+        `${backendURL}${endpoint}${queryString ? `?${queryString}` : ""}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -212,12 +226,12 @@ export default function DiagnosticsExportPage() {
       <Page.Title>Настройки - Экспорт диагностики</Page.Title>
       <Layouts.Header
         title="Экспорт диагностики"
-        subtitle="Скачивание CSV по кампании с опциональным диапазоном дат"
+        subtitle="Скачивание CSV по типу опроса с опциональным диапазоном дат"
         primaryAction={
           <Button
             startIcon={<Download />}
             onClick={handleExport}
-            disabled={!selectedCampaignId || isExporting}
+            disabled={isExportDisabled}
             loading={isExporting}
             size="S"
           >
@@ -241,7 +255,7 @@ export default function DiagnosticsExportPage() {
                 Параметры выгрузки
               </Typography>
               <Typography textColor="neutral600">
-                Выберите кампанию и при необходимости ограничьте период по дате прохождения.
+                Выберите тип опроса и при необходимости ограничьте период по дате прохождения.
               </Typography>
             </div>
 
@@ -260,22 +274,46 @@ export default function DiagnosticsExportPage() {
             <Flex direction="column" alignItems="stretch" gap={4}>
               <div>
                 <Typography variant="omega" textColor="neutral700">
-                  Кампания
+                  Тип выгрузки
                 </Typography>
                 <Box paddingTop={2}>
                   <SingleSelect
-                    value={selectedCampaignId}
-                    onChange={(value: string) => setSelectedCampaignId(value)}
-                    placeholder="Выберите кампанию"
+                    value={exportMode}
+                    onChange={(value: string) =>
+                      setExportMode(value === "hr" ? "hr" : "diagnostic")
+                    }
+                    placeholder="Выберите тип"
                   >
-                    {campaigns.map((campaign) => (
-                      <SingleSelectOption key={campaign.documentId} value={campaign.documentId}>
-                        {campaign.title} · {campaign.organizationName}
-                      </SingleSelectOption>
-                    ))}
+                    <SingleSelectOption value="diagnostic">
+                      Обычная диагностика
+                    </SingleSelectOption>
+                    <SingleSelectOption value="hr">
+                      HR-опрос
+                    </SingleSelectOption>
                   </SingleSelect>
                 </Box>
               </div>
+
+              {isDiagnosticMode ? (
+                <div>
+                  <Typography variant="omega" textColor="neutral700">
+                    Кампания
+                  </Typography>
+                  <Box paddingTop={2}>
+                    <SingleSelect
+                      value={selectedCampaignId}
+                      onChange={(value: string) => setSelectedCampaignId(value)}
+                      placeholder="Выберите кампанию"
+                    >
+                      {campaigns.map((campaign) => (
+                        <SingleSelectOption key={campaign.documentId} value={campaign.documentId}>
+                          {campaign.title} · {campaign.organizationName}
+                        </SingleSelectOption>
+                      ))}
+                    </SingleSelect>
+                  </Box>
+                </div>
+              ) : null}
 
               <Flex gap={4} alignItems="stretch" wrap="wrap">
                 <Box minWidth="240px" flex="1">
@@ -310,7 +348,7 @@ export default function DiagnosticsExportPage() {
               </Flex>
             </Flex>
 
-            {selectedCampaign ? (
+            {isDiagnosticMode && selectedCampaign ? (
               <Box
                 borderColor="neutral200"
                 borderWidth="1px"

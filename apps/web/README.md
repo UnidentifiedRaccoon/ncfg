@@ -29,12 +29,12 @@ npm ci
 # local source (used by npm run dev / npm run dev:local)
 STRAPI_LOCAL_URL=http://localhost:1337
 STRAPI_LOCAL_API_TOKEN=... # required (read token)
-STRAPI_LOCAL_WRITE_API_TOKEN=... # required for diagnostic preview/submit save flow
+STRAPI_LOCAL_WRITE_API_TOKEN=... # required for diagnostic and HR intake save flows
 
 # prod source (used by npm run dev:prod)
 STRAPI_PROD_URL=https://admin.ncfg.ru
 STRAPI_PROD_API_TOKEN=... # read token
-STRAPI_PROD_WRITE_API_TOKEN=... # write token for /api/diagnostic-submissions/intake
+STRAPI_PROD_WRITE_API_TOKEN=... # write token for diagnostic and HR intake endpoints
 
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 PORTFOLIO_PRESENTATION_URL=https://storage.yandexcloud.net/<bucket>/docs/ncfg-portfolio-2021.pdf
@@ -53,7 +53,7 @@ npm run dev:prod
 Create two Content API tokens in Strapi:
 - `Settings` -> `API Tokens` -> `Create new API Token`
 - Read token: `Read-only` (or `Custom` with read access to required content types)
-- Write token: `Custom` with access required by `POST /api/diagnostic-submissions/intake`
+- Write token: `Custom` with access required by `POST /api/diagnostic-submissions/intake` and `POST /api/hr-diagnostic-submissions/intake`
 - Put the value into:
   - `STRAPI_LOCAL_API_TOKEN` / `STRAPI_LOCAL_WRITE_API_TOKEN` for `npm run dev:local`
   - `STRAPI_PROD_API_TOKEN` / `STRAPI_PROD_WRITE_API_TOKEN` for `npm run dev:prod`
@@ -74,7 +74,7 @@ Required GitHub Actions secrets:
 
 Required Lockbox keys:
 - `STRAPI_API_TOKEN` = read-only token for web -> Strapi content fetches
-- `STRAPI_WRITE_API_TOKEN` = write token used by `POST /api/diagnostic-submissions/intake`
+- `STRAPI_WRITE_API_TOKEN` = write token used by diagnostic and HR intake endpoints
 - `NEXT_PUBLIC_YANDEX_METRIKA_ID` = production Yandex Metrika counter ID (`108387180`)
 - `BITRIX24_WEBHOOK_URL` = incoming webhook URL for website lead fan-out to Bitrix24
 

@@ -16,6 +16,7 @@ export default {
    */
   async bootstrap({ strapi }) {
     const submissionUid = 'api::diagnostic-submission.diagnostic-submission';
+    const hrSubmissionUid = 'api::hr-diagnostic-submission.hr-diagnostic-submission';
 
     const parseQueryValue = (value) =>
       typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
@@ -64,6 +65,20 @@ export default {
               sendDiagnosticsError(ctx, 404, 'Кампания не найдена');
               return;
             }
+
+            ctx.set('Content-Type', 'text/csv; charset=utf-8');
+            ctx.set('Content-Disposition', `attachment; filename="${result.fileName}"`);
+            ctx.body = result.csv;
+          },
+        },
+        {
+          method: 'GET',
+          path: '/hr-export',
+          handler: async (ctx) => {
+            const result = await strapi.service(hrSubmissionUid).exportHrCsv({
+              from: parseQueryValue(ctx.query?.from),
+              to: parseQueryValue(ctx.query?.to),
+            });
 
             ctx.set('Content-Type', 'text/csv; charset=utf-8');
             ctx.set('Content-Disposition', `attachment; filename="${result.fileName}"`);

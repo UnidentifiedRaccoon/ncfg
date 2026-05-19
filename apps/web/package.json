@@ -12,7 +12,7 @@
     "build-storybook:public": "storybook build -o public/storybook",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test shared/lib/*.test.ts",
+    "test": "node --import tsx --test shared/lib/*.test.ts entities/HrDiagnostic/model/*.test.ts",
     "seo:check": "node scripts/check-seo-indexing.mjs"
   },
   "dependencies": {
