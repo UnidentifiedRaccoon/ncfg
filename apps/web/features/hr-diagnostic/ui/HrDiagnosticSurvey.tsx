@@ -327,19 +327,14 @@ function CompletionScreen({
     (isTarget
       ? "Ваши ответы помогут нам разработать реально полезные инструменты для HR-сообщества."
       : "Ваши ответы очень важны для нас. Мы учтём их в нашем исследовании.");
-  const giftTitle =
-    completion?.giftTitle ??
-    (isTarget ? "Подарок. Обещанный бонус - книга в подарок!" : "В подарок - гайд");
-  const giftBody =
-    completion?.giftBody ??
-    (isTarget
-      ? "Мы приглашаем вас на короткое личное интервью - 45-60 минут онлайн. Хотим глубже разобраться в вашем опыте и задачах. Интервью - не продажа. Нас интересует ваш реальный опыт и мнение."
-      : "Если вы хотите узнать о результатах исследования или материалах НЦФГ по теме финансового благополучия, напишите нам.");
-  const ctaHref = completion?.ctaHref ?? (isTarget ? test.interviewHref : test.guideHref);
+  const ctaHref = completion?.ctaHref;
   const ctaLabel =
     completion?.ctaLabel ??
     (isTarget ? "Записаться на интервью и выбрать книгу" : "Получить гайд");
-  const secondaryText = completion?.secondaryText;
+  const secondaryBlocks = (completion?.secondaryText ?? "")
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
 
   return (
     <div className="mx-auto max-w-2xl animate-[cardIn_0.35s_ease-out]">
@@ -353,25 +348,15 @@ function CompletionScreen({
         </h2>
 
         <p className="mt-4 text-base leading-7 text-[#475569]">{completionBody}</p>
-        <div className="mt-6 rounded-xl border border-[#3B82F6]/20 bg-[#3B82F6]/[0.04] p-5 text-left">
-          <p className="font-semibold text-[#1E3A5F]">{giftTitle}</p>
-          <p className="mt-2 text-sm leading-6 text-[#475569]">{giftBody}</p>
-          {secondaryText ? (
-            <p className="mt-2 text-sm leading-6 text-[#475569]">{secondaryText}</p>
-          ) : null}
-          {!isTarget && test.contactEmail ? (
-            <p className="mt-2 text-sm leading-6 text-[#475569]">
-              Контакт:{" "}
-              <a
-                className="font-medium text-[#3B82F6] hover:underline"
-                href={`mailto:${test.contactEmail}`}
-              >
-                {test.contactEmail}
-              </a>
-              .
-            </p>
-          ) : null}
-        </div>
+        {secondaryBlocks.length > 0 ? (
+          <div className="mt-6 rounded-xl border border-[#3B82F6]/20 bg-[#3B82F6]/[0.04] p-5 text-left">
+            <div className="space-y-2 text-sm leading-6 text-[#475569]">
+              {secondaryBlocks.map((block) => (
+                <p key={block}>{block}</p>
+              ))}
+            </div>
+          </div>
+        ) : null}
         {ctaHref ? (
           <a href={ctaHref} className={cn("mt-7", primaryCtaLargeClass)}>
             {ctaLabel}
@@ -414,7 +399,7 @@ function QuestionOptions({
   const options = [
     ...(question.options ?? []),
     ...(question.allowOther
-      ? [{ key: OTHER_OPTION_KEY, label: question.otherLabel ?? "Другое" }]
+      ? [{ key: OTHER_OPTION_KEY, label: "Другое" }]
       : []),
   ];
 
@@ -915,7 +900,7 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
       <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
         <div className="mb-8 text-center lg:mb-10">
           <h1 className="text-[28px] font-bold leading-tight tracking-tight text-[#1E3A5F] md:text-4xl lg:text-[48px]">
-            {test.testTitle}
+            {test.title}
           </h1>
         </div>
 

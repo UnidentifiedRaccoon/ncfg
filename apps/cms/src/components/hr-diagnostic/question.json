@@ -28,18 +28,9 @@
       "type": "boolean",
       "default": false
     },
-    "order": {
-      "type": "integer",
-      "required": true,
-      "default": 0
-    },
     "allowOther": {
       "type": "boolean",
       "default": false
-    },
-    "otherLabel": {
-      "type": "string",
-      "maxLength": 100
     },
     "maxSelections": {
       "type": "integer"

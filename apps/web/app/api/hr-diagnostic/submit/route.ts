@@ -13,6 +13,7 @@ import {
   HR_DIAGNOSTIC_SLUG,
   validateHrDiagnosticSubmission,
   type HrDiagnosticAnswerInput,
+  type HrDiagnosticNormalizedAnswer,
 } from "@/entities/HrDiagnostic";
 
 interface SubmitPayload {
@@ -96,6 +97,14 @@ function normalizeEmail(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
+function findNormalizedAnswerText(
+  answers: HrDiagnosticNormalizedAnswer[],
+  questionKey: string
+) {
+  const answer = answers.find((item) => item.questionKey === questionKey);
+  return answer?.text ?? answer?.answerLabel;
+}
+
 async function resolveHrDiagnosticTest(requestId: string) {
   try {
     return await getHrDiagnosticTest(HR_DIAGNOSTIC_SLUG);
@@ -149,20 +158,11 @@ export async function POST(request: Request) {
       "/hr-diagnostic-submissions/intake",
       {
         submissionKey: data.submissionKey,
-        surveySlug: test.slug,
-        surveyDocumentId: test.documentId,
         targetSegment: validation.targetSegment,
-        role: validation.fieldValues.role,
-        roleOther: validation.fieldValues.roleOther,
-        companySize: validation.fieldValues.companySize,
-        industry: validation.fieldValues.industry,
-        industryOther: validation.fieldValues.industryOther,
-        region: validation.fieldValues.region,
-        email: validation.fieldValues.email,
-        emailNormalized: normalizeEmail(validation.fieldValues.email),
-        subscribeMaterials: validation.fieldValues.subscribeMaterials,
+        emailNormalized: normalizeEmail(
+          findNormalizedAnswerText(validation.normalizedAnswers, "email")
+        ),
         sourcePageUrl,
-        consentAcceptedAt: submittedAt,
         submittedAt,
         answers: validation.normalizedAnswers,
         meta: {

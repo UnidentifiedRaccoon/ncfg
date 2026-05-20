@@ -73,7 +73,7 @@ export function getHrDiagnosticVisibleQuestions(
 
 function optionLabelForKey(question: HrDiagnosticQuestion, optionKey: string): string | null {
   if (optionKey === OTHER_OPTION_KEY && question.allowOther) {
-    return question.otherLabel ?? "Другое";
+    return "Другое";
   }
 
   return question.options?.find((option) => option.key === optionKey)?.label ?? null;
@@ -207,13 +207,6 @@ function resolveSegment(answerByQuestionKey: Map<string, HrDiagnosticAnswerInput
   return roleKey && HR_TARGET_ROLE_KEYS.has(roleKey) ? "target" : "non_target";
 }
 
-function firstAnswerLabel(
-  normalizedAnswers: HrDiagnosticNormalizedAnswer[],
-  questionKey: string
-): string | undefined {
-  return normalizedAnswers.find((answer) => answer.questionKey === questionKey)?.answerLabel;
-}
-
 export function validateHrDiagnosticSubmission(
   test: HrDiagnosticTest,
   answers: HrDiagnosticAnswerInput[]
@@ -258,15 +251,5 @@ export function validateHrDiagnosticSubmission(
     errors,
     normalizedAnswers,
     targetSegment,
-    fieldValues: {
-      role: firstAnswerLabel(normalizedAnswers, "role"),
-      roleOther: answerByQuestionKey.get("role")?.otherText,
-      companySize: firstAnswerLabel(normalizedAnswers, "company_size"),
-      industry: firstAnswerLabel(normalizedAnswers, "industry"),
-      industryOther: answerByQuestionKey.get("industry")?.otherText,
-      region: firstAnswerLabel(normalizedAnswers, "region"),
-      email: firstAnswerLabel(normalizedAnswers, "email"),
-      subscribeMaterials: firstAnswerLabel(normalizedAnswers, "subscribe_materials"),
-    },
   };
 }

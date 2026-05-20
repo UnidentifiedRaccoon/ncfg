@@ -17,27 +17,6 @@ function asOptionalString(value: unknown) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function asInteger(value: unknown, fallback = 0) {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return fallback;
-  }
-
-  return Math.trunc(value);
-}
-
-function compareByOrderThenKey(
-  left: { order?: number | null; key?: string | null },
-  right: { order?: number | null; key?: string | null }
-) {
-  const leftOrder = Number(left.order ?? 0);
-  const rightOrder = Number(right.order ?? 0);
-  if (leftOrder !== rightOrder) {
-    return leftOrder - rightOrder;
-  }
-
-  return String(left.key ?? "").localeCompare(String(right.key ?? ""), "ru");
-}
-
 function normalizeCompletionScreen(value: unknown) {
   const record = asRecord(value);
   if (!record) {
@@ -47,8 +26,6 @@ function normalizeCompletionScreen(value: unknown) {
   return {
     title: asOptionalString(record.title),
     body: asOptionalString(record.body),
-    giftTitle: asOptionalString(record.giftTitle),
-    giftBody: asOptionalString(record.giftBody),
     ctaLabel: asOptionalString(record.ctaLabel),
     ctaHref: asOptionalString(record.ctaHref),
     secondaryText: asOptionalString(record.secondaryText),
@@ -70,7 +47,6 @@ function normalizeOption(value: unknown) {
   return {
     key,
     label,
-    order: asInteger(record.order),
     exclusive: Boolean(record.exclusive),
   };
 }
@@ -94,7 +70,6 @@ function normalizeQuestion(value: unknown) {
         .filter((option): option is NonNullable<ReturnType<typeof normalizeOption>> =>
           Boolean(option)
         )
-        .sort(compareByOrderThenKey)
     : [];
 
   return {
@@ -103,9 +78,7 @@ function normalizeQuestion(value: unknown) {
     description: asOptionalString(record.description),
     type,
     required: Boolean(record.required),
-    order: asInteger(record.order),
     allowOther: Boolean(record.allowOther),
-    otherLabel: asOptionalString(record.otherLabel),
     maxSelections:
       typeof record.maxSelections === "number" && Number.isFinite(record.maxSelections)
         ? Math.trunc(record.maxSelections)
@@ -121,9 +94,8 @@ function normalizeGroup(value: unknown) {
     return null;
   }
 
-  const key = asOptionalString(record.key);
   const title = asOptionalString(record.title);
-  if (!key || !title) {
+  if (!title) {
     return null;
   }
 
@@ -133,13 +105,10 @@ function normalizeGroup(value: unknown) {
         .filter((question): question is NonNullable<ReturnType<typeof normalizeQuestion>> =>
           Boolean(question)
         )
-        .sort(compareByOrderThenKey)
     : [];
 
   return {
-    key,
     title,
-    order: asInteger(record.order),
     questions,
   };
 }
@@ -152,9 +121,8 @@ function normalizeTest(entry: unknown) {
 
   const slug = asOptionalString(record.slug);
   const title = asOptionalString(record.title);
-  const testTitle = asOptionalString(record.testTitle);
   const projectTitle = asOptionalString(record.projectTitle);
-  if (!slug || !title || !testTitle || !projectTitle) {
+  if (!slug || !title || !projectTitle) {
     return null;
   }
 
@@ -164,18 +132,13 @@ function normalizeTest(entry: unknown) {
         .filter((group): group is NonNullable<ReturnType<typeof normalizeGroup>> =>
           Boolean(group)
         )
-        .sort(compareByOrderThenKey)
     : [];
 
   return {
     documentId: asOptionalString(record.documentId),
     slug,
     title,
-    testTitle,
     projectTitle,
-    contactEmail: asOptionalString(record.contactEmail),
-    interviewHref: asOptionalString(record.interviewHref),
-    guideHref: asOptionalString(record.guideHref),
     introLead: asOptionalString(record.introLead),
     introBody: asOptionalString(record.introBody),
     introGiftText: asOptionalString(record.introGiftText),

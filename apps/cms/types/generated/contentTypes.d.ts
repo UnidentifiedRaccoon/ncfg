@@ -818,27 +818,10 @@ export interface ApiHrDiagnosticSubmissionHrDiagnosticSubmission
   attributes: {
     answers: Schema.Attribute.JSON & Schema.Attribute.Required;
     attemptNumber: Schema.Attribute.Integer & Schema.Attribute.Required;
-    companySize: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    consentAcceptedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    email: Schema.Attribute.Email &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
     emailNormalized: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    industry: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    industryOther: Schema.Attribute.String &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
@@ -849,18 +832,6 @@ export interface ApiHrDiagnosticSubmissionHrDiagnosticSubmission
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    region: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    role: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    roleOther: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
     sourcePageUrl: Schema.Attribute.Text;
     submissionKey: Schema.Attribute.String &
       Schema.Attribute.Required &
@@ -868,20 +839,6 @@ export interface ApiHrDiagnosticSubmissionHrDiagnosticSubmission
         maxLength: 100;
       }>;
     submittedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
-    subscribeMaterials: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
-    surveyDocumentId: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    surveySlug: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    surveyVersion: Schema.Attribute.Integer & Schema.Attribute.Required;
     targetSegment: Schema.Attribute.Enumeration<['target', 'non_target']> &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -904,16 +861,10 @@ export interface ApiHrDiagnosticTestHrDiagnosticTest
   };
   attributes: {
     anonymousNotice: Schema.Attribute.Text;
-    contactEmail: Schema.Attribute.Email &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     groups: Schema.Attribute.Component<'hr-diagnostic.group', true>;
-    guideHref: Schema.Attribute.Text;
-    interviewHref: Schema.Attribute.Text;
     introBody: Schema.Attribute.Text;
     introGiftText: Schema.Attribute.Text;
     introLead: Schema.Attribute.Text;
@@ -943,11 +894,6 @@ export interface ApiHrDiagnosticTestHrDiagnosticTest
       'hr-diagnostic.completion-screen',
       false
     >;
-    testTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{

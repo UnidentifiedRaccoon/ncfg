@@ -3,7 +3,6 @@ import { factories } from "@strapi/strapi";
 const SUBMISSION_UID = "api::hr-diagnostic-submission.hr-diagnostic-submission";
 const HR_TEST_UID = "api::hr-diagnostic-test.hr-diagnostic-test";
 const HR_DIAGNOSTIC_SLUG = "hr";
-const HR_DIAGNOSTIC_SUBMISSION_VERSION = 1;
 const OTHER_OPTION_KEY = "other";
 
 interface HrIntakeAnswerPayload {
@@ -17,21 +16,9 @@ interface HrIntakeAnswerPayload {
 
 interface HrIntakePayload {
   submissionKey: string;
-  surveySlug: string;
-  surveyVersion: number;
-  surveyDocumentId?: string;
   targetSegment: "target" | "non_target";
-  role?: string;
-  roleOther?: string;
-  companySize?: string;
-  industry?: string;
-  industryOther?: string;
-  region?: string;
-  email?: string;
   emailNormalized?: string;
-  subscribeMaterials?: string;
   sourcePageUrl?: string;
-  consentAcceptedAt: string;
   submittedAt: string;
   answers: HrIntakeAnswerPayload[];
   meta?: {
@@ -59,11 +46,6 @@ function asTrimmedString(value: unknown) {
 
 function asOptionalTrimmedString(value: unknown) {
   return asTrimmedString(value) ?? undefined;
-}
-
-function asFiniteInteger(value: unknown) {
-  if (typeof value !== "number" || !Number.isFinite(value)) return null;
-  return Math.trunc(value);
 }
 
 function parseSelectedOptionKeys(value: unknown): string[] | null {
@@ -119,6 +101,16 @@ function parseTargetSegment(value: unknown): HrIntakePayload["targetSegment"] | 
   return value === "target" || value === "non_target" ? value : null;
 }
 
+function normalizeEmail(value: string | undefined) {
+  const normalized = value?.trim().toLowerCase();
+  return normalized ? normalized : undefined;
+}
+
+function findAnswerText(answers: HrIntakeAnswerPayload[], questionKey: string) {
+  const answer = answers.find((item) => item.questionKey === questionKey);
+  return answer?.text ?? answer?.answerLabel;
+}
+
 function parseIntakePayload(payload: unknown): HrIntakePayload | null {
   if (typeof payload !== "object" || payload === null) {
     return null;
@@ -126,21 +118,11 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
 
   const record = payload as Record<string, unknown>;
   const submissionKey = asTrimmedString(record.submissionKey);
-  const surveySlug = asTrimmedString(record.surveySlug);
-  const surveyVersion = asFiniteInteger(record.surveyVersion) ?? HR_DIAGNOSTIC_SUBMISSION_VERSION;
   const targetSegment = parseTargetSegment(record.targetSegment);
-  const consentAcceptedAt = asTrimmedString(record.consentAcceptedAt);
   const submittedAt = asTrimmedString(record.submittedAt);
   const answers = parseAnswers(record.answers);
 
-  if (
-    !submissionKey ||
-    !surveySlug ||
-    !targetSegment ||
-    !consentAcceptedAt ||
-    !submittedAt ||
-    !answers
-  ) {
+  if (!submissionKey || !targetSegment || !submittedAt || !answers) {
     return null;
   }
 
@@ -156,21 +138,11 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
 
   return {
     submissionKey,
-    surveySlug,
-    surveyVersion,
-    surveyDocumentId: asOptionalTrimmedString(record.surveyDocumentId),
     targetSegment,
-    role: asOptionalTrimmedString(record.role),
-    roleOther: asOptionalTrimmedString(record.roleOther),
-    companySize: asOptionalTrimmedString(record.companySize),
-    industry: asOptionalTrimmedString(record.industry),
-    industryOther: asOptionalTrimmedString(record.industryOther),
-    region: asOptionalTrimmedString(record.region),
-    email: asOptionalTrimmedString(record.email),
-    emailNormalized: asOptionalTrimmedString(record.emailNormalized),
-    subscribeMaterials: asOptionalTrimmedString(record.subscribeMaterials),
+    emailNormalized:
+      asOptionalTrimmedString(record.emailNormalized) ??
+      normalizeEmail(findAnswerText(answers, "email")),
     sourcePageUrl: asOptionalTrimmedString(record.sourcePageUrl),
-    consentAcceptedAt,
     submittedAt,
     answers,
     meta,
@@ -228,19 +200,6 @@ function buildCsv(rows: string[][], delimiter = ";") {
   return `\uFEFF${body}`;
 }
 
-function compareByOrderThenKey(
-  left: { order?: number | null; key?: string | null },
-  right: { order?: number | null; key?: string | null }
-) {
-  const leftOrder = Number(left.order ?? 0);
-  const rightOrder = Number(right.order ?? 0);
-  if (leftOrder !== rightOrder) {
-    return leftOrder - rightOrder;
-  }
-
-  return String(left.key ?? "").localeCompare(String(right.key ?? ""), "ru");
-}
-
 function mapAnswersForStorage(answers: HrIntakeAnswerPayload[]) {
   return answers.map((answer) => ({
     questionKey: answer.questionKey,
@@ -262,12 +221,9 @@ function buildQuestionColumnsFromTest(test: any): HrExportQuestionColumn[] {
   }
 
   const columns: HrExportQuestionColumn[] = [];
-  const groups = [...test.groups].sort(compareByOrderThenKey);
 
-  for (const group of groups) {
-    const questions = Array.isArray(group?.questions)
-      ? [...group.questions].sort(compareByOrderThenKey)
-      : [];
+  for (const group of test.groups) {
+    const questions = Array.isArray(group?.questions) ? group.questions : [];
 
     for (const question of questions) {
       const key = asTrimmedString(question?.key);
@@ -397,9 +353,6 @@ export default factories.createCoreService(
           "attemptNumber",
           "submittedAt",
           "sourcePageUrl",
-          "surveySlug",
-          "surveyVersion",
-          "surveyDocumentId",
           "emailNormalized",
         ],
         filters: {
@@ -419,12 +372,6 @@ export default factories.createCoreService(
         const existingAttempts = await strapi.documents(SUBMISSION_UID).findMany({
           fields: ["documentId"],
           filters: {
-            surveySlug: {
-              $eq: parsedPayload.surveySlug,
-            },
-            surveyVersion: {
-              $eq: parsedPayload.surveyVersion,
-            },
             emailNormalized: {
               $eq: parsedPayload.emailNormalized,
             },
@@ -447,22 +394,10 @@ export default factories.createCoreService(
 
       const data = {
         submissionKey: parsedPayload.submissionKey,
-        surveySlug: parsedPayload.surveySlug,
-        surveyVersion: parsedPayload.surveyVersion,
-        surveyDocumentId: parsedPayload.surveyDocumentId ?? null,
         targetSegment: parsedPayload.targetSegment,
-        role: parsedPayload.role ?? null,
-        roleOther: parsedPayload.roleOther ?? null,
-        companySize: parsedPayload.companySize ?? null,
-        industry: parsedPayload.industry ?? null,
-        industryOther: parsedPayload.industryOther ?? null,
-        region: parsedPayload.region ?? null,
-        email: parsedPayload.email ?? null,
         emailNormalized: parsedPayload.emailNormalized ?? null,
-        subscribeMaterials: parsedPayload.subscribeMaterials ?? null,
         sourcePageUrl:
           parsedPayload.sourcePageUrl ?? existingSubmission?.sourcePageUrl ?? null,
-        consentAcceptedAt: parsedPayload.consentAcceptedAt,
         submittedAt: existingSubmission?.submittedAt ?? parsedPayload.submittedAt,
         attemptNumber,
         answers: mapAnswersForStorage(parsedPayload.answers),
@@ -476,7 +411,7 @@ export default factories.createCoreService(
 
         if (parsedPayload.meta?.requestId) {
           strapi.log.info(
-            `[hr-diagnostics] submission upserted requestId=${parsedPayload.meta.requestId} survey=${parsedPayload.surveySlug} documentId=${updated.documentId} attempt=${attemptNumber}`
+            `[hr-diagnostics] submission upserted requestId=${parsedPayload.meta.requestId} documentId=${updated.documentId} attempt=${attemptNumber}`
           );
         }
 
@@ -493,7 +428,7 @@ export default factories.createCoreService(
 
       if (parsedPayload.meta?.requestId) {
         strapi.log.info(
-          `[hr-diagnostics] submission upserted requestId=${parsedPayload.meta.requestId} survey=${parsedPayload.surveySlug} documentId=${created.documentId} attempt=${attemptNumber}`
+          `[hr-diagnostics] submission upserted requestId=${parsedPayload.meta.requestId} documentId=${created.documentId} attempt=${attemptNumber}`
         );
       }
 
@@ -545,14 +480,7 @@ export default factories.createCoreService(
         "Дата прохождения",
         "Попытка",
         "Сегмент",
-        "Роль",
-        "Размер компании",
-        "Отрасль",
-        "Регион",
-        "Email",
-        "Подписка",
         "Страница",
-        "Согласие",
         ...questionColumns.map((question) => question.title),
       ];
 
@@ -567,14 +495,7 @@ export default factories.createCoreService(
           String(submission.submittedAt ?? ""),
           String(attemptNumber),
           formatSegment(submission.targetSegment),
-          String(submission.role ?? ""),
-          String(submission.companySize ?? ""),
-          String(submission.industry ?? ""),
-          String(submission.region ?? ""),
-          String(submission.email ?? ""),
-          String(submission.subscribeMaterials ?? ""),
           String(submission.sourcePageUrl ?? ""),
-          String(submission.consentAcceptedAt ?? ""),
           ...questionColumns.map((question) =>
             formatAnswerLabel(answersByQuestionKey.get(question.key))
           ),

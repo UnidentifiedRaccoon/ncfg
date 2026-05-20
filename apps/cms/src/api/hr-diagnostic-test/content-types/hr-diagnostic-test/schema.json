@@ -23,25 +23,10 @@
       "required": true,
       "maxLength": 255
     },
-    "testTitle": {
-      "type": "string",
-      "required": true,
-      "maxLength": 255
-    },
     "projectTitle": {
       "type": "string",
       "required": true,
       "maxLength": 255
-    },
-    "contactEmail": {
-      "type": "email",
-      "maxLength": 255
-    },
-    "interviewHref": {
-      "type": "text"
-    },
-    "guideHref": {
-      "type": "text"
     },
     "introLead": {
       "type": "text"

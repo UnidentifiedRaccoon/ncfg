@@ -35,57 +35,12 @@
       "required": true,
       "maxLength": 100
     },
-    "surveySlug": {
-      "type": "string",
-      "required": true,
-      "maxLength": 100
-    },
-    "surveyVersion": {
-      "type": "integer",
-      "required": true
-    },
-    "surveyDocumentId": {
-      "type": "string",
-      "maxLength": 100
-    },
     "targetSegment": {
       "type": "enumeration",
       "enum": ["target", "non_target"],
       "required": true
     },
-    "role": {
-      "type": "string",
-      "maxLength": 255
-    },
-    "roleOther": {
-      "type": "string",
-      "maxLength": 255
-    },
-    "companySize": {
-      "type": "string",
-      "maxLength": 255
-    },
-    "industry": {
-      "type": "string",
-      "maxLength": 255
-    },
-    "industryOther": {
-      "type": "string",
-      "maxLength": 255
-    },
-    "region": {
-      "type": "string",
-      "maxLength": 255
-    },
-    "email": {
-      "type": "email",
-      "maxLength": 255
-    },
     "emailNormalized": {
-      "type": "string",
-      "maxLength": 255
-    },
-    "subscribeMaterials": {
       "type": "string",
       "maxLength": 255
     },
@@ -94,10 +49,6 @@
     },
     "attemptNumber": {
       "type": "integer",
-      "required": true
-    },
-    "consentAcceptedAt": {
-      "type": "datetime",
       "required": true
     },
     "submittedAt": {

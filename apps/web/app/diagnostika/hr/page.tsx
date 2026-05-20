@@ -74,7 +74,7 @@ export default async function HrDiagnosticPage() {
   return (
     <>
       <Header />
-      <main aria-label={test.testTitle}>
+      <main aria-label={test.title}>
         <HrDiagnosticSurvey test={test} />
       </main>
       <Footer data={buildFooterData(siteSetting)} />

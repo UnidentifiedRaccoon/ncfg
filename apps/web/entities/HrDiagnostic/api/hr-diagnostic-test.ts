@@ -40,25 +40,6 @@ function normalizeRequiredString(value: unknown): string | null {
   return normalizeOptionalString(value) ?? null;
 }
 
-function normalizeInteger(value: unknown, fallback = 0): number {
-  return typeof value === "number" && Number.isFinite(value)
-    ? Math.trunc(value)
-    : fallback;
-}
-
-function compareByOrderThenKey(
-  left: { order?: number; key: string },
-  right: { order?: number; key: string }
-) {
-  const leftOrder = left.order ?? 0;
-  const rightOrder = right.order ?? 0;
-  if (leftOrder !== rightOrder) {
-    return leftOrder - rightOrder;
-  }
-
-  return left.key.localeCompare(right.key, "ru");
-}
-
 function normalizeVisibilityCondition(
   value: unknown
 ): HrDiagnosticVisibilityCondition | undefined {
@@ -94,8 +75,6 @@ function normalizeCompletionScreen(value: unknown): HrDiagnosticCompletionScreen
   return {
     title: normalizeOptionalString(record.title),
     body: normalizeOptionalString(record.body),
-    giftTitle: normalizeOptionalString(record.giftTitle),
-    giftBody: normalizeOptionalString(record.giftBody),
     ctaLabel: normalizeOptionalString(record.ctaLabel),
     ctaHref: normalizeOptionalString(record.ctaHref),
     secondaryText: normalizeOptionalString(record.secondaryText),
@@ -117,7 +96,6 @@ function normalizeOption(value: unknown): HrDiagnosticOption | null {
   return {
     key,
     label,
-    order: normalizeInteger(record.order),
     exclusive: Boolean(record.exclusive),
   };
 }
@@ -143,7 +121,6 @@ function normalizeQuestion(value: unknown): HrDiagnosticQuestion | null {
     ? record.options
         .map(normalizeOption)
         .filter((option): option is HrDiagnosticOption => Boolean(option))
-        .sort(compareByOrderThenKey)
     : [];
 
   const questionType: HrDiagnosticQuestionType = type;
@@ -154,14 +131,12 @@ function normalizeQuestion(value: unknown): HrDiagnosticQuestion | null {
     description: normalizeOptionalString(record.description),
     type: questionType,
     required: Boolean(record.required),
-    order: normalizeInteger(record.order),
     options,
     maxSelections:
       typeof record.maxSelections === "number" && Number.isFinite(record.maxSelections)
         ? Math.trunc(record.maxSelections)
         : undefined,
     allowOther: Boolean(record.allowOther),
-    otherLabel: normalizeOptionalString(record.otherLabel),
     showWhen: normalizeVisibilityCondition(record.showWhen),
   };
 }
@@ -172,9 +147,8 @@ function normalizeGroup(value: unknown): HrDiagnosticGroup | null {
     return null;
   }
 
-  const key = normalizeRequiredString(record.key);
   const title = normalizeRequiredString(record.title);
-  if (!key || !title) {
+  if (!title) {
     return null;
   }
 
@@ -182,13 +156,10 @@ function normalizeGroup(value: unknown): HrDiagnosticGroup | null {
     ? record.questions
         .map(normalizeQuestion)
         .filter((question): question is HrDiagnosticQuestion => Boolean(question))
-        .sort(compareByOrderThenKey)
     : [];
 
   return {
-    key,
     title,
-    order: normalizeInteger(record.order),
     questions,
   };
 }
@@ -201,9 +172,8 @@ function normalizeTest(value: unknown): HrDiagnosticTest | null {
 
   const slug = normalizeRequiredString(record.slug);
   const title = normalizeRequiredString(record.title);
-  const testTitle = normalizeRequiredString(record.testTitle);
   const projectTitle = normalizeRequiredString(record.projectTitle);
-  if (!slug || !title || !testTitle || !projectTitle) {
+  if (!slug || !title || !projectTitle) {
     return null;
   }
 
@@ -211,7 +181,6 @@ function normalizeTest(value: unknown): HrDiagnosticTest | null {
     ? record.groups
         .map(normalizeGroup)
         .filter((group): group is HrDiagnosticGroup => Boolean(group))
-        .sort(compareByOrderThenKey)
     : [];
 
   if (groups.length === 0) {
@@ -222,11 +191,7 @@ function normalizeTest(value: unknown): HrDiagnosticTest | null {
     documentId: normalizeOptionalString(record.documentId),
     slug,
     title,
-    testTitle,
     projectTitle,
-    contactEmail: normalizeOptionalString(record.contactEmail),
-    interviewHref: normalizeOptionalString(record.interviewHref),
-    guideHref: normalizeOptionalString(record.guideHref),
     introLead: normalizeOptionalString(record.introLead),
     introBody: normalizeOptionalString(record.introBody),
     introGiftText: normalizeOptionalString(record.introGiftText),

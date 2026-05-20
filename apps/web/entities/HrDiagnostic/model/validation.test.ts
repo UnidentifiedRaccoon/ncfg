@@ -10,23 +10,19 @@ import type { HrDiagnosticAnswerInput, HrDiagnosticTest } from "./types";
 const TEST_HR_DIAGNOSTIC: HrDiagnosticTest = {
   slug: "hr",
   title: "HR diagnostic",
-  testTitle: "HR diagnostic test",
   projectTitle: "HR project",
   groups: [
     {
-      key: "profile",
       title: "Профиль",
-      order: 1,
       questions: [
         {
           key: "role",
           title: "Какова ваша роль в компании?",
           type: "radio",
           required: true,
-          order: 1,
           options: [
-            { key: "hr_director", label: "HR-директор / CHRO", order: 1 },
-            { key: "other_employee", label: "Другая роль", order: 2 },
+            { key: "hr_director", label: "HR-директор / CHRO" },
+            { key: "other_employee", label: "Другая роль" },
           ],
         },
         {
@@ -34,10 +30,9 @@ const TEST_HR_DIAGNOSTIC: HrDiagnosticTest = {
           title: "Сколько сотрудников в вашей компании?",
           type: "radio",
           required: true,
-          order: 2,
           options: [
-            { key: "under_100", label: "До 100", order: 1 },
-            { key: "100_300", label: "100-300", order: 2 },
+            { key: "under_100", label: "До 100" },
+            { key: "100_300", label: "100-300" },
           ],
         },
         {
@@ -45,44 +40,39 @@ const TEST_HR_DIAGNOSTIC: HrDiagnosticTest = {
           title: "Есть ли программа благополучия?",
           type: "radio",
           required: true,
-          order: 3,
           options: [
-            { key: "no_not_planning", label: "Нет и не планируем", order: 1 },
-            { key: "comprehensive", label: "Да, комплексная", order: 2 },
+            { key: "no_not_planning", label: "Нет и не планируем" },
+            { key: "comprehensive", label: "Да, комплексная" },
           ],
         },
       ],
     },
     {
-      key: "methods",
       title: "Методика",
-      order: 2,
       questions: [
         {
           key: "wellbeing_metrics",
           title: "Как вы измеряете результаты программ?",
           type: "checkbox",
           required: false,
-          order: 1,
           showWhen: {
             questionKey: "has_wellbeing_program",
             operator: "not_in",
             optionKeys: ["no_not_planning"],
           },
-          options: [{ key: "engagement", label: "Вовлеченность", order: 1 }],
+          options: [{ key: "engagement", label: "Вовлеченность" }],
         },
         {
           key: "financial_stress_impact",
           title: "Финансовый стресс влияет на продуктивность?",
           type: "likert",
           required: true,
-          order: 2,
           options: [
-            { key: "1", label: "1", order: 1 },
-            { key: "2", label: "2", order: 2 },
-            { key: "3", label: "3", order: 3 },
-            { key: "4", label: "4", order: 4 },
-            { key: "5", label: "5", order: 5 },
+            { key: "1", label: "1" },
+            { key: "2", label: "2" },
+            { key: "3", label: "3" },
+            { key: "4", label: "4" },
+            { key: "5", label: "5" },
           ],
         },
         {
@@ -90,13 +80,12 @@ const TEST_HR_DIAGNOSTIC: HrDiagnosticTest = {
           title: "Что мешает внедрению?",
           type: "checkbox",
           required: false,
-          order: 3,
           maxSelections: 2,
           options: [
-            { key: "no_budget", label: "Нет бюджета", order: 1 },
-            { key: "roi_hard", label: "Сложно доказать ROI", order: 2 },
-            { key: "no_provider", label: "Нет провайдера", order: 3 },
-            { key: "no_barriers", label: "Барьеров нет", order: 4, exclusive: true },
+            { key: "no_budget", label: "Нет бюджета" },
+            { key: "roi_hard", label: "Сложно доказать ROI" },
+            { key: "no_provider", label: "Нет провайдера" },
+            { key: "no_barriers", label: "Барьеров нет", exclusive: true },
           ],
         },
         {
@@ -104,13 +93,12 @@ const TEST_HR_DIAGNOSTIC: HrDiagnosticTest = {
           title: "Насколько важны методические материалы?",
           type: "likert",
           required: true,
-          order: 4,
           options: [
-            { key: "1", label: "1", order: 1 },
-            { key: "2", label: "2", order: 2 },
-            { key: "3", label: "3", order: 3 },
-            { key: "4", label: "4", order: 4 },
-            { key: "5", label: "5", order: 5 },
+            { key: "1", label: "1" },
+            { key: "2", label: "2" },
+            { key: "3", label: "3" },
+            { key: "4", label: "4" },
+            { key: "5", label: "5" },
           ],
         },
       ],
@@ -128,10 +116,13 @@ const baseTargetAnswers: HrDiagnosticAnswerInput[] = [
 
 test("validateHrDiagnosticSubmission marks HR in 100+ company as target", () => {
   const result = validateHrDiagnosticSubmission(TEST_HR_DIAGNOSTIC, baseTargetAnswers);
+  const roleAnswer = result.normalizedAnswers.find(
+    (answer) => answer.questionKey === "role"
+  );
 
   assert.equal(result.valid, true);
   assert.equal(result.targetSegment, "target");
-  assert.equal(result.fieldValues.role, "HR-директор / CHRO");
+  assert.equal(roleAnswer?.answerLabel, "HR-директор / CHRO");
 });
 
 test("validateHrDiagnosticSubmission routes under-100 companies to non-target", () => {

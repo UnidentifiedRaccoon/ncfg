@@ -154,11 +154,6 @@ export interface HrDiagnosticCompletionScreen extends Struct.ComponentSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255;
       }>;
-    giftBody: Schema.Attribute.Text;
-    giftTitle: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255;
-      }>;
     secondaryText: Schema.Attribute.Text;
     title: Schema.Attribute.Text;
   };
@@ -172,14 +167,6 @@ export interface HrDiagnosticGroup extends Struct.ComponentSchema {
     icon: 'stack';
   };
   attributes: {
-    key: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
-    order: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<0>;
     questions: Schema.Attribute.Component<'hr-diagnostic.question', true>;
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
@@ -204,9 +191,6 @@ export interface HrDiagnosticOption extends Struct.ComponentSchema {
         maxLength: 100;
       }>;
     label: Schema.Attribute.Text & Schema.Attribute.Required;
-    order: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<0>;
   };
 }
 
@@ -227,13 +211,6 @@ export interface HrDiagnosticQuestion extends Struct.ComponentSchema {
       }>;
     maxSelections: Schema.Attribute.Integer;
     options: Schema.Attribute.Component<'hr-diagnostic.option', true>;
-    order: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<0>;
-    otherLabel: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 100;
-      }>;
     required: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     showWhen: Schema.Attribute.JSON;
     title: Schema.Attribute.Text & Schema.Attribute.Required;

@@ -13,13 +13,6 @@
     "body": {
       "type": "text"
     },
-    "giftTitle": {
-      "type": "string",
-      "maxLength": 255
-    },
-    "giftBody": {
-      "type": "text"
-    },
     "ctaLabel": {
       "type": "string",
       "maxLength": 255
