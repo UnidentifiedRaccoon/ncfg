@@ -16,6 +16,9 @@
       "type": "text",
       "required": true
     },
+    "subTitle": {
+      "type": "text"
+    },
     "description": {
       "type": "text"
     },

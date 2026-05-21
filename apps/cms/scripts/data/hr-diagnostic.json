@@ -13,6 +13,7 @@
         {
           "key": "role",
           "title": "Какова ваша роль в компании?",
+          "subTitle": "",
           "type": "radio",
           "required": true,
           "allowOther": true,
@@ -46,6 +47,7 @@
         {
           "key": "company_size",
           "title": "Сколько сотрудников в вашей компании?",
+          "subTitle": "",
           "type": "radio",
           "required": true,
           "options": [
@@ -74,6 +76,7 @@
         {
           "key": "industry",
           "title": "В какой отрасли работает ваша компания?",
+          "subTitle": "",
           "type": "radio",
           "required": false,
           "allowOther": true,
@@ -119,6 +122,7 @@
         {
           "key": "region",
           "title": "В каком регионе базируется ваша компания (основной офис)?",
+          "subTitle": "",
           "type": "radio",
           "required": false,
           "options": [
@@ -152,6 +156,7 @@
         {
           "key": "has_wellbeing_program",
           "title": "Есть ли в вашей компании корпоративные программы благополучия (well-being) для сотрудников?",
+          "subTitle": "",
           "type": "radio",
           "required": true,
           "options": [
@@ -180,6 +185,7 @@
         {
           "key": "wellbeing_metrics",
           "title": "Как вы измеряете результаты программ благополучия для сотрудников?",
+          "subTitle": "",
           "description": "Выберите все подходящие варианты",
           "type": "checkbox",
           "required": false,
@@ -227,6 +233,7 @@
         {
           "key": "financial_wellbeing_assets",
           "title": "Есть ли в вашей компании что-то из следующего для сотрудников?",
+          "subTitle": "",
           "description": "Выберите всё, что подходит",
           "type": "checkbox",
           "required": false,
@@ -266,6 +273,7 @@
         {
           "key": "financial_stress_impact",
           "title": "Насколько вы согласны с утверждением: «Финансовый стресс сотрудников напрямую влияет на их продуктивность и вовлечённость»?",
+          "subTitle": "",
           "type": "likert",
           "required": true,
           "options": [
@@ -294,6 +302,7 @@
         {
           "key": "barriers",
           "title": "Что является главным барьером для внедрения программ финансового благополучия в вашей компании?",
+          "subTitle": "",
           "description": "Выберите до 2 вариантов",
           "type": "checkbox",
           "required": false,
@@ -334,6 +343,7 @@
         {
           "key": "why_financial_literacy",
           "title": "Зачем, по вашему мнению, компании нужна финансовая грамотность сотрудников?",
+          "subTitle": "",
           "description": "Выберите все подходящие варианты",
           "type": "checkbox",
           "required": false,
@@ -373,6 +383,7 @@
         {
           "key": "importance_of_methods",
           "title": "Насколько вам как HR-специалисту важно иметь доступ к методическим материалам по финансовому благополучию сотрудников?",
+          "subTitle": "",
           "type": "likert",
           "required": true,
           "options": [
@@ -401,6 +412,7 @@
         {
           "key": "valuable_formats",
           "title": "Какие форматы поддержки для HR по теме финансового благополучия были бы для вас наиболее ценны?",
+          "subTitle": "",
           "description": "Выберите до 3 вариантов",
           "type": "checkbox",
           "required": false,
@@ -444,6 +456,7 @@
         {
           "key": "email",
           "title": "Оставьте, пожалуйста, ваш email для получения результатов исследования",
+          "subTitle": "",
           "description": "Email используется только для отправки результатов исследования и, при желании, для связи по поводу интервью.",
           "type": "email",
           "required": false,
@@ -452,6 +465,7 @@
         {
           "key": "subscribe_materials",
           "title": "Хотите получать полезные материалы НЦФГ по теме финансового благополучия сотрудников?",
+          "subTitle": "",
           "type": "radio",
           "required": false,
           "options": [

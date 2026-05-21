@@ -1090,6 +1090,11 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
                       <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#1E3A5F] md:text-3xl">
                         {currentQuestion.title}
                       </h2>
+                      {currentQuestion.subTitle ? (
+                        <p className="mt-2 text-sm leading-6 text-[#64748B]">
+                          {currentQuestion.subTitle}
+                        </p>
+                      ) : null}
                       {currentQuestion.description ? (
                         <QuestionInfoMessage message={currentQuestion.description} />
                       ) : null}

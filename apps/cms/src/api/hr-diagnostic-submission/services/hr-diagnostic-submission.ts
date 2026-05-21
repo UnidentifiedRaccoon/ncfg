@@ -17,6 +17,7 @@ interface HrIntakeAnswerPayload {
 interface HrIntakePayload {
   submissionKey: string;
   targetSegment: "target" | "non_target";
+  email?: string;
   emailNormalized?: string;
   sourcePageUrl?: string;
   submittedAt: string;
@@ -126,6 +127,9 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
     return null;
   }
 
+  const email = asOptionalTrimmedString(record.email) ?? findAnswerText(answers, "email");
+  const emailNormalized = asOptionalTrimmedString(record.emailNormalized) ?? normalizeEmail(email);
+
   const metaValue = record.meta;
   const meta =
     typeof metaValue === "object" && metaValue !== null
@@ -139,9 +143,8 @@ function parseIntakePayload(payload: unknown): HrIntakePayload | null {
   return {
     submissionKey,
     targetSegment,
-    emailNormalized:
-      asOptionalTrimmedString(record.emailNormalized) ??
-      normalizeEmail(findAnswerText(answers, "email")),
+    email,
+    emailNormalized,
     sourcePageUrl: asOptionalTrimmedString(record.sourcePageUrl),
     submittedAt,
     answers,
@@ -353,6 +356,7 @@ export default factories.createCoreService(
           "attemptNumber",
           "submittedAt",
           "sourcePageUrl",
+          "email",
           "emailNormalized",
         ],
         filters: {
@@ -368,12 +372,16 @@ export default factories.createCoreService(
           ? Math.trunc(existingSubmission.attemptNumber)
           : 1;
 
-      if (parsedPayload.emailNormalized) {
+      const emailNormalized =
+        parsedPayload.emailNormalized ??
+        normalizeEmail(parsedPayload.email ?? existingSubmission?.email);
+
+      if (emailNormalized) {
         const existingAttempts = await strapi.documents(SUBMISSION_UID).findMany({
           fields: ["documentId"],
           filters: {
             emailNormalized: {
-              $eq: parsedPayload.emailNormalized,
+              $eq: emailNormalized,
             },
             ...(existingSubmission?.documentId
               ? {
@@ -395,7 +403,8 @@ export default factories.createCoreService(
       const data = {
         submissionKey: parsedPayload.submissionKey,
         targetSegment: parsedPayload.targetSegment,
-        emailNormalized: parsedPayload.emailNormalized ?? null,
+        email: parsedPayload.email ?? existingSubmission?.email ?? null,
+        emailNormalized: emailNormalized ?? existingSubmission?.emailNormalized ?? null,
         sourcePageUrl:
           parsedPayload.sourcePageUrl ?? existingSubmission?.sourcePageUrl ?? null,
         submittedAt: existingSubmission?.submittedAt ?? parsedPayload.submittedAt,
@@ -479,6 +488,7 @@ export default factories.createCoreService(
       const headerRow = [
         "Дата прохождения",
         "Попытка",
+        "Email",
         "Сегмент",
         "Страница",
         ...questionColumns.map((question) => question.title),
@@ -494,6 +504,7 @@ export default factories.createCoreService(
         return [
           String(submission.submittedAt ?? ""),
           String(attemptNumber),
+          String(submission.email ?? submission.emailNormalized ?? ""),
           formatSegment(submission.targetSegment),
           String(submission.sourcePageUrl ?? ""),
           ...questionColumns.map((question) =>

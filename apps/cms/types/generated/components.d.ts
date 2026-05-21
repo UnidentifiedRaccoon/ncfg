@@ -213,6 +213,7 @@ export interface HrDiagnosticQuestion extends Struct.ComponentSchema {
     options: Schema.Attribute.Component<'hr-diagnostic.option', true>;
     required: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     showWhen: Schema.Attribute.JSON;
+    subTitle: Schema.Attribute.Text;
     title: Schema.Attribute.Text & Schema.Attribute.Required;
     type: Schema.Attribute.Enumeration<
       ['radio', 'checkbox', 'likert', 'email']

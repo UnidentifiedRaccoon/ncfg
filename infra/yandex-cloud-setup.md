@@ -323,6 +323,34 @@ Rollback to scale-to-zero:
 2. Trigger production deploy for the affected service.
 3. Re-check active revision policy and verify it is empty/zero again.
 
+### 5.2 PostgreSQL maintenance window
+
+Production PostgreSQL maintenance must not use `anytime`; daytime maintenance can
+temporarily restart the database and make Strapi return `502`.
+
+Current production setting:
+- cluster: `ncfg-db`
+- window: Sunday `01:00 UTC` / `04:00 MSK`
+
+Check:
+
+```bash
+yc managed-postgresql cluster get \
+  --folder-id b1gmjvv108csipq1tqu2 \
+  --name ncfg-db \
+  --format json \
+  | jq '.maintenance_window'
+```
+
+Set or repair:
+
+```bash
+yc managed-postgresql cluster update \
+  --folder-id b1gmjvv108csipq1tqu2 \
+  --name ncfg-db \
+  --maintenance-window type=weekly,day=sun,hour=1
+```
+
 ## Troubleshooting
 
 ### Container logs

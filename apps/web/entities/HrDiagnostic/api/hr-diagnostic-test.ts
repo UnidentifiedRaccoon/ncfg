@@ -128,6 +128,7 @@ function normalizeQuestion(value: unknown): HrDiagnosticQuestion | null {
   return {
     key,
     title,
+    subTitle: normalizeOptionalString(record.subTitle),
     description: normalizeOptionalString(record.description),
     type: questionType,
     required: Boolean(record.required),

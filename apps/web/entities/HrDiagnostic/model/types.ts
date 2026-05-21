@@ -17,6 +17,7 @@ export interface HrDiagnosticVisibilityCondition {
 export interface HrDiagnosticQuestion {
   key: string;
   title: string;
+  subTitle?: string;
   description?: string;
   type: HrDiagnosticQuestionType;
   required: boolean;

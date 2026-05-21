@@ -23,12 +23,14 @@ import {
   fetchServicesData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
+import { withCmsFallback } from "@/shared/lib/cms-fallback";
 import { buildPageMetadata } from "@/shared/lib/metadata";
 import {
   buildOrganizationStructuredData,
   buildWebsiteStructuredData,
 } from "@/shared/lib/structured-data";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
+import type { ServicesData } from "@/shared/api/types/service";
 
 export const revalidate = 0;
 
@@ -53,13 +55,36 @@ function makeHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) 
   });
 }
 
+const EMPTY_SERVICES_DATA = {
+  meta: {
+    contentType: "services-catalog",
+    organization: "НЦФГ",
+    experienceYears: 25,
+    locale: "ru",
+    updatedAt: "1970-01-01",
+  },
+  serviceCategories: [],
+} satisfies ServicesData;
+
 export default async function Home() {
-  const [homePage, siteSetting, servicesData, latestNews, recommendations] = await Promise.all([
+  const [homePage, siteSetting] = await Promise.all([
     fetchHomePageData(),
     fetchSiteSettings(),
-    fetchServicesData(),
-    fetchLatestNewsArticles(4),
-    fetchRecommendations(3),
+  ]);
+
+  const [servicesData, latestNews, recommendations] = await Promise.all([
+    withCmsFallback(() => fetchServicesData(), {
+      label: "home services",
+      fallback: EMPTY_SERVICES_DATA,
+    }),
+    withCmsFallback(() => fetchLatestNewsArticles(4), {
+      label: "home latest news",
+      fallback: [],
+    }),
+    withCmsFallback(() => fetchRecommendations(3), {
+      label: "home recommendations",
+      fallback: [],
+    }),
   ]);
 
   const hero = homePage.hero;

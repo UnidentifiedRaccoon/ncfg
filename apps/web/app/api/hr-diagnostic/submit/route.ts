@@ -153,15 +153,15 @@ export async function POST(request: Request) {
 
     const submittedAt = new Date().toISOString();
     const sourcePageUrl = resolveSourcePageUrl(request, data.sourcePageUrl);
+    const respondentEmail = findNormalizedAnswerText(validation.normalizedAnswers, "email");
 
     const intakeResponse = await postStrapiWriteJSON<HrDiagnosticIntakeResponse>(
       "/hr-diagnostic-submissions/intake",
       {
         submissionKey: data.submissionKey,
         targetSegment: validation.targetSegment,
-        emailNormalized: normalizeEmail(
-          findNormalizedAnswerText(validation.normalizedAnswers, "email")
-        ),
+        email: respondentEmail,
+        emailNormalized: normalizeEmail(respondentEmail),
         sourcePageUrl,
         submittedAt,
         answers: validation.normalizedAnswers,
