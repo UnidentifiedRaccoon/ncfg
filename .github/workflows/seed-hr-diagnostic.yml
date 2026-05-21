@@ -23,6 +23,10 @@ on:
         options:
           - STRAPI_WRITE_API_TOKEN
           - STRAPI_API_TOKEN
+      confirm:
+        description: 'Type: update hr diagnostic production'
+        required: true
+        default: ''
 
 permissions:
   contents: read
@@ -52,12 +56,18 @@ jobs:
       - name: Update HR diagnostic test
         env:
           MODE: ${{ inputs.mode }}
+          CONFIRM: ${{ inputs.confirm }}
           STRAPI_URL: ${{ inputs.strapi_url }}
           TOKEN_KEY: ${{ inputs.token_key }}
           YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
           YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
         run: |
           set -euo pipefail
+
+          if [ "$CONFIRM" != "update hr diagnostic production" ]; then
+            echo "::error::Refusing to update production HR diagnostic without exact confirmation."
+            exit 1
+          fi
 
           case "$TOKEN_KEY" in
             STRAPI_WRITE_API_TOKEN|STRAPI_API_TOKEN) ;;
