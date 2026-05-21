@@ -59,9 +59,10 @@ function sleep(ms) {
   });
 }
 
-async function api(method, path, body, { read = false, retries = 3 } = {}) {
+async function api(method, path, body, { auth, read = false, retries = 3 } = {}) {
   const url = `${STRAPI_URL}${path}`;
-  const opts = { method, headers: read ? readHeaders : headers };
+  const useReadToken = auth === "read" || (!auth && read);
+  const opts = { method, headers: useReadToken ? readHeaders : headers };
   if (body !== undefined) {
     opts.body = JSON.stringify(body);
   }
@@ -158,7 +159,7 @@ function normalizeTest(test) {
   });
 }
 
-async function findByStatus(status) {
+async function findByStatus(status, { auth = "read" } = {}) {
   const query = buildQuery({
     "filters[slug][$eq]": SLUG,
     status,
@@ -170,7 +171,7 @@ async function findByStatus(status) {
     "GET",
     `/api/hr-diagnostic-tests${query}`,
     undefined,
-    { read: true }
+    { auth }
   );
   const data = Array.isArray(response?.data) ? response.data : [];
 
@@ -190,10 +191,24 @@ function getQuestionCount(payload) {
 }
 
 async function publishDraft() {
-  const draft = await findByStatus("draft");
+  let draft;
+
+  try {
+    draft = await findByStatus("draft", { auth: "write" });
+  } catch (error) {
+    console.warn(
+      `[publish-hr] Draft lookup with write token failed; retrying with read token. ${error.message}`
+    );
+    draft = await findByStatus("draft", { auth: "read" });
+  }
+
   if (!draft?.documentId) {
     throw new Error(`Draft HR diagnostic test not found for slug=${SLUG}`);
   }
+
+  console.log(
+    `[publish-hr] draft source: ${draft.documentId}; updatedAt=${draft.updatedAt || "unknown"}; publishedAt=${draft.publishedAt || "draft"}`
+  );
 
   if (draft.publishedAt !== null) {
     console.warn(
@@ -206,14 +221,14 @@ async function publishDraft() {
     throw new Error(`Invalid draft HR diagnostic payload for slug=${SLUG}`);
   }
 
-  const published = await findByStatus("published");
+  const published = await findByStatus("published", { auth: "read" });
   const documentId = published?.documentId || draft.documentId;
 
   await api("PUT", `/api/hr-diagnostic-tests/${documentId}?status=published`, {
     data: payload,
   });
 
-  const updated = await findByStatus("published");
+  const updated = await findByStatus("published", { auth: "read" });
   if (!updated?.documentId) {
     throw new Error(`Published HR diagnostic test not found after update for slug=${SLUG}`);
   }
