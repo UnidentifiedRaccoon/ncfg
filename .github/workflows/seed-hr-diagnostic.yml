@@ -1,8 +1,16 @@
-name: Seed HR Diagnostic Test
+name: Update HR Diagnostic Test
 
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: 'How to update the production HR diagnostic test'
+        required: true
+        type: choice
+        default: publish_existing_draft
+        options:
+          - publish_existing_draft
+          - seed_from_repo_json
       strapi_url:
         description: 'Production Strapi URL'
         required: true
@@ -21,7 +29,7 @@ permissions:
 
 jobs:
   seed:
-    name: Seed HR diagnostic test
+    name: Update HR diagnostic test
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -41,8 +49,9 @@ jobs:
           yc config set service-account-key /tmp/sa.json
           yc config set folder-id "$YC_FOLDER_ID"
 
-      - name: Run HR diagnostic seed
+      - name: Update HR diagnostic test
         env:
+          MODE: ${{ inputs.mode }}
           STRAPI_URL: ${{ inputs.strapi_url }}
           TOKEN_KEY: ${{ inputs.token_key }}
           YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
@@ -54,6 +63,14 @@ jobs:
             STRAPI_WRITE_API_TOKEN|STRAPI_API_TOKEN) ;;
             *)
               echo "::error::Unsupported token key: $TOKEN_KEY"
+              exit 1
+              ;;
+          esac
+
+          case "$MODE" in
+            publish_existing_draft|seed_from_repo_json) ;;
+            *)
+              echo "::error::Unsupported mode: $MODE"
               exit 1
               ;;
           esac
@@ -72,11 +89,16 @@ jobs:
 
           echo "::add-mask::$strapi_token"
           echo "::add-mask::$strapi_read_token"
-          STRAPI_TOKEN="$strapi_token" STRAPI_READ_TOKEN="$strapi_read_token" node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs
+
+          if [ "$MODE" = "publish_existing_draft" ]; then
+            STRAPI_TOKEN="$strapi_token" STRAPI_READ_TOKEN="$strapi_read_token" node apps/cms/scripts/publish-hr-diagnostic-draft-prod.mjs
+          else
+            STRAPI_TOKEN="$strapi_token" STRAPI_READ_TOKEN="$strapi_read_token" node apps/cms/scripts/seed-hr-diagnostic-test-prod.mjs
+          fi
 
           lookup_response="$(curl --globoff --retry 3 --retry-all-errors --retry-delay 2 -sS -w '\n%{http_code}' \
             -H "Authorization: Bearer $strapi_read_token" \
-            "$STRAPI_URL/api/hr-diagnostic-tests?filters[slug][\$eq]=hr&populate[groups][populate][questions][populate][options]=true&populate[targetCompletion]=true&populate[nonTargetCompletion]=true&pagination[pageSize]=1")"
+            "$STRAPI_URL/api/hr-diagnostic-tests?filters[slug][\$eq]=hr&status=published&populate[groups][populate][questions][populate][options]=true&populate[targetCompletion]=true&populate[nonTargetCompletion]=true&pagination[pageSize]=1")"
           lookup_status="$(printf '%s' "$lookup_response" | tail -n 1)"
           lookup_body="$(printf '%s' "$lookup_response" | sed '$d')"
 
@@ -93,5 +115,5 @@ jobs:
               console.error("Invalid HR diagnostic test response");
               process.exit(1);
             }
-            console.log(`[seed-hr] HR diagnostic test verified: ${data.documentId || "without-documentId"}`);
+            console.log(`[update-hr] HR diagnostic test verified: ${data.documentId || "without-documentId"}`);
           ' <<< "$lookup_body"
