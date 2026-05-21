@@ -62,9 +62,21 @@ interface FetchOptions extends RequestInit {
   revalidate?: number;
 }
 
+type NextFetchCacheOptions =
+  | { cache: 'no-store' }
+  | { next: { revalidate: number } };
+
 // In development, disable cache for instant updates from Strapi
 const isDev = process.env.NODE_ENV === 'development';
 const DEFAULT_REVALIDATE = 60;
+
+function getFetchCacheOptions(revalidate: number): NextFetchCacheOptions {
+  if (isDev || revalidate <= 0) {
+    return { cache: 'no-store' };
+  }
+
+  return { next: { revalidate } };
+}
 
 function getFetchErrorCauseMessage(error: unknown): string | null {
   if (!isRecord(error)) return null;
@@ -134,8 +146,8 @@ export async function fetchAPI<T>(
     res = await fetch(url, {
       ...fetchOptions,
       headers,
-      // In dev mode, don't cache; in prod, use ISR with revalidate
-      ...(isDev ? { cache: 'no-store' as const } : { next: { revalidate } }),
+      // In dev mode and explicit revalidate=0 calls, bypass the Data Cache.
+      ...getFetchCacheOptions(revalidate),
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);

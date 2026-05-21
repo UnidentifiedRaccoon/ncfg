@@ -232,7 +232,8 @@ export async function getHrDiagnosticTest(
   });
 
   const response = await fetchAPI<StrapiResponse<unknown[]>>(
-    `/hr-diagnostic-tests${query}`
+    `/hr-diagnostic-tests${query}`,
+    { revalidate: 0 }
   );
   const [entry] = Array.isArray(response.data) ? response.data : [];
 
