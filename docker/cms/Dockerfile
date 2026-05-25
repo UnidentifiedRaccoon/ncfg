@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Stage 1: Install dependencies
-FROM node:22-alpine AS deps
+FROM node:22.22.2-alpine3.23 AS deps
 WORKDIR /app
 
 # Install build dependencies for native modules
@@ -11,7 +11,7 @@ COPY apps/cms/package.json apps/cms/package-lock.json ./
 RUN npm ci
 
 # Stage 2: Build the application
-FROM node:22-alpine AS builder
+FROM node:22.22.2-alpine3.23 AS builder
 WORKDIR /app
 
 # Cache buster - change this to force rebuild
@@ -68,7 +68,7 @@ WORKDIR /app
 RUN npm prune --omit=dev
 
 # Stage 4: Production runner
-FROM node:22-alpine AS runner
+FROM node:22.22.2-alpine3.23 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
