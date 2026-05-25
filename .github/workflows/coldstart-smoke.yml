@@ -32,7 +32,7 @@ jobs:
       WEB_THRESHOLD_INPUT: ${{ github.event.inputs.web_first_hit_threshold || '' }}
       CMS_THRESHOLD_INPUT: ${{ github.event.inputs.cms_first_hit_threshold || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Resolve smoke thresholds
         run: |
@@ -154,7 +154,7 @@ jobs:
 
       - name: Upload coldstart report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coldstart-smoke-report-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ env.REPORT_FILE }}
