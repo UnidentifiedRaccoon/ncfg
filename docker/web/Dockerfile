@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1
 
 # Stage 1: Install dependencies
-FROM node:22-alpine AS deps
+FROM node:22.22.2-alpine3.23 AS deps
 WORKDIR /app
 
 COPY apps/web/package.json apps/web/package-lock.json ./
 RUN npm ci
 
 # Stage 2: Build the application
-FROM node:22-alpine AS builder
+FROM node:22.22.2-alpine3.23 AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -16,23 +16,22 @@ COPY apps/web/ ./
 
 # Build args for environment variables needed at build time
 ARG STRAPI_URL
-ARG STRAPI_API_TOKEN
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_YANDEX_METRIKA_ID
 ARG PORTFOLIO_PRESENTATION_URL
 ARG DEPLOY_ENV
 
 ENV STRAPI_URL=$STRAPI_URL
-ENV STRAPI_API_TOKEN=$STRAPI_API_TOKEN
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_YANDEX_METRIKA_ID=$NEXT_PUBLIC_YANDEX_METRIKA_ID
 ENV PORTFOLIO_PRESENTATION_URL=$PORTFOLIO_PRESENTATION_URL
 ENV DEPLOY_ENV=$DEPLOY_ENV
 
-RUN npm run build-storybook:public && npm run build
+RUN --mount=type=secret,id=STRAPI_API_TOKEN,env=STRAPI_API_TOKEN \
+    npm run build-storybook:public && npm run build
 
 # Stage 3: Production runner
-FROM node:22-alpine AS runner
+FROM node:22.22.2-alpine3.23 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

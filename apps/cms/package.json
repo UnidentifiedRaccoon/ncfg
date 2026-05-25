@@ -37,7 +37,7 @@
     "styled-components": "^6.1.14"
   },
   "engines": {
-    "node": ">=20.0.0 <=22.x.x",
+    "node": ">=22.22.2 <23",
     "npm": ">=10.0.0"
   },
   "strapi": {
