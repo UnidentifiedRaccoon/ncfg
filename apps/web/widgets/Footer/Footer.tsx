@@ -176,6 +176,7 @@ export function Footer({ data }: FooterProps) {
     "rounded-full !bg-white/10 !text-white border border-white/20 hover:!bg-white/15 hover:shadow-[0_16px_44px_rgba(88,168,224,0.16)]";
 
   const phoneSanitized = data.contacts.phone.replace(/\s/g, "");
+  const phoneWorkingHours = "(9-18 мск)";
   const ctaHref = "/#lead-form";
   const officeAddress = "Бульвар Матроса Железняка, 13";
   const officeAddressHref =
@@ -254,7 +255,10 @@ export function Footer({ data }: FooterProps) {
                   )}
                 >
                   <Phone size={14} className={iconAccentClassName} />
-                  {data.contacts.phone}
+                  <span className="whitespace-nowrap">{data.contacts.phone}</span>
+                  <span className="whitespace-nowrap text-xs font-medium text-white/50">
+                    {phoneWorkingHours}
+                  </span>
                 </a>
 
                 <a
@@ -317,7 +321,8 @@ export function Footer({ data }: FooterProps) {
                     )}
                   >
                     <Phone size={14} className={iconAccentClassName} />
-                    {data.contacts.phone}
+                    <span>{data.contacts.phone}</span>
+                    <span className="text-xs text-white/50">{phoneWorkingHours}</span>
                   </a>
                   <a
                     href={`mailto:${data.contacts.email}`}
