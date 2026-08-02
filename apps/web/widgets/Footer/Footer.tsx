@@ -47,6 +47,7 @@ interface FooterProps {
 const navigation = [
   { label: "Частным лицам", href: "/individuals" },
   { label: "Компаниям", href: "/companies" },
+  { label: "Программы осени 2026", href: "/companies/season-offer-2026" },
   { label: "Диагностика", href: "/diagnostika/financial-wellbeing" },
   { label: "Портфолио", href: "/portfolio" },
   { label: "О центре", href: "/about" },
