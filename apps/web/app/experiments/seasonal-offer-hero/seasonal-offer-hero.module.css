@@ -145,6 +145,10 @@
   display: block;
 }
 
+.fixedHeadlineLine > span {
+  white-space: nowrap;
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
@@ -275,7 +279,7 @@
 .peopleContent {
   position: relative;
   z-index: 3;
-  width: min(61vw, 840px);
+  width: min(86vw, 1120px);
   text-align: center;
 }
 
@@ -284,7 +288,7 @@
   font-family: var(--font-season-display), sans-serif;
   font-size: clamp(3.15rem, 6vw, 6rem);
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.038em;
   line-height: 0.89;
   text-wrap: balance;
 }
@@ -668,7 +672,8 @@
 }
 
 .typeHeadline {
-  width: min(64vw, 850px);
+  width: min(86vw, 1120px);
+  min-width: 0;
   margin: 0;
   font-family: var(--font-season-display), sans-serif;
   font-size: clamp(3.15rem, 5.95vw, 6rem);
@@ -677,11 +682,7 @@
   line-height: 0.88;
 }
 
-.typeHeadline > span:nth-child(2) > span {
-  color: #73cfff;
-}
-
-.typeHeadline > span:nth-child(4) > span {
+.typeHeadlineAccent {
   color: #73cfff;
 }
 
@@ -923,6 +924,9 @@
 }
 
 .hybridHeadline {
+  --hybrid-outline-color: rgba(247, 251, 255, 0.82);
+  --hybrid-outline-width: 1px;
+
   width: 100%;
   margin: 0;
   color: #0a2346;
@@ -932,14 +936,24 @@
   letter-spacing: -0.038em;
   line-height: 0.89;
   text-wrap: balance;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.34);
+  -webkit-text-stroke: var(--hybrid-outline-width) var(--hybrid-outline-color);
+  paint-order: stroke fill;
+  text-shadow: none;
+}
+
+.hybridHeadline .lineClip {
+  margin-inline: -2px;
+  padding: 1px 2px 0.06em;
 }
 
 .hybridAccentGrowth,
 .hybridAccentValue {
+  --hybrid-outline-color: rgba(6, 27, 54, 0.9);
+
   color: #58a8e0;
   white-space: nowrap;
-  -webkit-text-stroke: 0;
+  -webkit-text-stroke: var(--hybrid-outline-width) var(--hybrid-outline-color);
+  paint-order: stroke fill;
   text-shadow: none;
 }
 
@@ -1069,7 +1083,7 @@
   }
 
   .peopleHeadline {
-    font-size: clamp(3.2rem, 8.2vw, 5.4rem);
+    font-size: clamp(3.15rem, 5.8vw, 4.5rem);
   }
 
   .peopleLead {
@@ -1153,7 +1167,8 @@
   }
 
   .typeHeadline {
-    width: 76vw;
+    width: min(100%, 760px);
+    font-size: clamp(3.15rem, 5.8vw, 4.5rem);
   }
 
   .typeDetails {
@@ -1290,7 +1305,8 @@
   }
 
   .peopleHeadline {
-    font-size: clamp(2.4rem, 10.4vw, 3.1rem);
+    font-size: clamp(1.7rem, 8.6vw, 3.2rem);
+    letter-spacing: -0.04em;
     line-height: 0.91;
   }
 
@@ -1424,7 +1440,8 @@
 
   .typeHeadline {
     width: 100%;
-    font-size: clamp(2.42rem, 10.6vw, 3.2rem);
+    font-size: clamp(1.7rem, 8.6vw, 3.2rem);
+    letter-spacing: -0.04em;
     line-height: 0.9;
   }
 
@@ -1590,9 +1607,7 @@
     gap: 14px;
   }
 
-  .peopleHeadline,
-  .wellbeingHeadline,
-  .typeHeadline {
+  .wellbeingHeadline {
     font-size: clamp(2.2rem, 10.1vw, 2.65rem);
   }
 

@@ -350,7 +350,10 @@ function PeopleHero({
             { text: "сотрудников —", accent: "" },
             { text: "", accent: "без роста ФОТ" },
           ].map((line, index) => (
-            <span className={styles.lineClip} key={`${line.text}${line.accent}`}>
+            <span
+              className={`${styles.lineClip} ${styles.fixedHeadlineLine}`}
+              key={`${line.text}${line.accent}`}
+            >
               <motion.span
                 initial={reduceMotion ? false : { y: "110%" }}
                 animate={{ y: 0 }}
@@ -555,19 +558,27 @@ function TypographicHero({ reduceMotion }: { reduceMotion: boolean }) {
 
       <div className={styles.typeGrid}>
         <h1 id="type-hero-title" className={styles.typeHeadline}>
-          {["Финансовое", "благополучие", "сотрудников —", "без роста ФОТ"].map(
-            (line, index) => (
-              <span className={styles.lineClip} key={line}>
-                <motion.span
-                  initial={reduceMotion ? false : { y: "112%", filter: "blur(8px)" }}
-                  animate={{ y: 0, filter: "blur(0px)" }}
-                  transition={{ duration: 0.7, delay: index * 0.065, ease: EASE }}
-                >
-                  {line}
-                </motion.span>
-              </span>
-            )
-          )}
+          {[
+            { text: "Финансовое ", accent: "благополучие" },
+            { text: "сотрудников —", accent: "" },
+            { text: "", accent: "без роста ФОТ" },
+          ].map((line, index) => (
+            <span
+              className={`${styles.lineClip} ${styles.fixedHeadlineLine}`}
+              key={`${line.text}${line.accent}`}
+            >
+              <motion.span
+                initial={reduceMotion ? false : { y: "112%", filter: "blur(8px)" }}
+                animate={{ y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.7, delay: index * 0.065, ease: EASE }}
+              >
+                {line.text}
+                {line.accent ? (
+                  <span className={styles.typeHeadlineAccent}>{line.accent}</span>
+                ) : null}
+              </motion.span>
+            </span>
+          ))}
         </h1>
 
         <motion.div
