@@ -4,17 +4,35 @@
 Corporate website for NCFG: about, projects/portfolio, team, partners, reviews, news, articles, materials (PDF), contacts.
 
 ## Quick start
-```bash
-# Frontend (Next.js)
-cd apps/web && npm run dev
 
-# CMS (Strapi)
-cd apps/cms && npm run develop
+```bash
+# Обычная разработка: Next.js frontend + app/api backend + production Strapi read-only
+npm run dev
+
+# Другие профили
+npm run dev:cms
+npm run dev:full
+npm run dev:doctor
+npm run dev:verify
+npm run dev:down
 ```
 
+Подробный контракт: [DEVELOPMENT.md](./DEVELOPMENT.md).
+
+### Правила запуска для агента
+
+- Обычный запрос на локальную разработку означает корневой `npm run dev`.
+  Next.js `app/api` уже является backend сайта; не поднимай локальный Strapi
+  только из-за слова «backend».
+- Не запускай Docker, CMS, `npm ci`, sync/import БД, build/lint/browser QA и не
+  получай write/outbound secrets, если выбран быстрый профиль.
+- Launcher сам проверяет зависимости и readiness. После `READY` не повторяй QA.
+- Не сохраняй Lockbox payload в `.env*`/файлы/логи.
+- Не делай `git pull` и не переключай ветку автоматически; сохраняй dirty worktree.
+
 ## Tech stack
-- **Frontend**: Next.js 14+ (App Router), React 18, TypeScript
-- **CMS**: Strapi 4+ (content types for pages, news, articles, materials, team, partners)
+- **Frontend**: Next.js (App Router), React, TypeScript; exact versions are in `apps/web/package.json`
+- **CMS**: Strapi; exact version is in `apps/cms/package.json`
 - **Styling**: Tailwind CSS
 - **UI components**: shadcn/ui
 - **Package manager**: npm
@@ -56,36 +74,10 @@ apps/
 | Route segments | kebab-case | `/about-us`, `/news-article` |
 
 ## Data fetching pattern
-```typescript
-// lib/api/articles.ts
-import { Article, StrapiResponse } from './types';
 
-const STRAPI_URL = process.env.STRAPI_URL;
-
-export async function getArticles(locale = 'ru'): Promise<Article[]> {
-  const res = await fetch(
-    `${STRAPI_URL}/api/articles?locale=${locale}&populate=*`,
-    { next: { revalidate: 60 } } // ISR: revalidate every 60s
-  );
-
-  if (!res.ok) throw new Error('Failed to fetch articles');
-
-  const data: StrapiResponse<Article[]> = await res.json();
-  return data.data;
-}
-
-export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  const res = await fetch(
-    `${STRAPI_URL}/api/articles?filters[slug][$eq]=${slug}&populate=*`,
-    { next: { revalidate: 60 } }
-  );
-
-  if (!res.ok) return null;
-
-  const data: StrapiResponse<Article[]> = await res.json();
-  return data.data[0] ?? null;
-}
-```
+Используй существующие `apps/web/shared/lib/strapi.ts` и
+`apps/web/shared/api/*`. Не читай generic `STRAPI_URL` напрямую и не создавай
+параллельный Strapi client.
 
 ## Component structure pattern
 ```typescript
@@ -144,12 +136,7 @@ export function HeroSection({ title, lead, ctaText, ctaHref }: HeroSectionProps)
 - **Russian for UI text, English for code** — comments, variable names, commits in English
 
 ## Environment variables
-```bash
-# apps/web/.env.local (DO NOT COMMIT)
-STRAPI_URL=http://localhost:1337
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-# apps/cms/.env (DO NOT COMMIT)
-DATABASE_CLIENT=sqlite
-DATABASE_FILENAME=.tmp/data.db
-```
+Не создавай `.env*` для обычного запуска. Корневой launcher передаёт явные
+переменные дочерним процессам, а production read-token получает из Lockbox
+только в память. Write/outbound режимы описаны в `DEVELOPMENT.md`.

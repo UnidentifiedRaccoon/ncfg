@@ -14,6 +14,7 @@ import {
 } from "@/shared/lib/diagnostics";
 import { resolveSourcePageUrl } from "@/shared/lib/source-page";
 import { postStrapiWriteJSON } from "@/shared/lib/strapi-write";
+import { ExternalEffectDisabledError } from "@/shared/lib/external-effects";
 
 interface DiagnosticIntakeResponse {
   data?: {
@@ -116,28 +117,34 @@ export async function POST(
       );
     }
 
-    const intakeResponse = await postStrapiWriteJSON<DiagnosticIntakeResponse>(
-      "/diagnostic-submissions/intake",
-      {
-        submissionKey,
-        campaignDocumentId: campaign.documentId,
-        organizationDocumentId: campaign.organization.documentId,
-        testDocumentId: campaign.test.documentId,
-        submittedAt: new Date().toISOString(),
-        totalScore: evaluatedSubmission.totalScore,
-        sourcePageUrl: resolveSourcePageUrl(request, body.sourcePageUrl),
-        campaignSlugSnapshot: campaign.slug,
-        organizationNameSnapshot: campaign.organization.name,
-        testCodeSnapshot: campaign.test.code,
-        testVersionSnapshot: campaign.test.version,
-        answers: evaluatedSubmission.answersSnapshot,
-        meta: {
-          requestId,
-          clientIp: getClientIp(request),
-          userAgent: request.headers.get("user-agent") ?? undefined,
-        },
-      }
-    );
+    let intakeResponse: DiagnosticIntakeResponse = {};
+    try {
+      intakeResponse = await postStrapiWriteJSON<DiagnosticIntakeResponse>(
+        "/diagnostic-submissions/intake",
+        {
+          submissionKey,
+          campaignDocumentId: campaign.documentId,
+          organizationDocumentId: campaign.organization.documentId,
+          testDocumentId: campaign.test.documentId,
+          submittedAt: new Date().toISOString(),
+          totalScore: evaluatedSubmission.totalScore,
+          sourcePageUrl: resolveSourcePageUrl(request, body.sourcePageUrl),
+          campaignSlugSnapshot: campaign.slug,
+          organizationNameSnapshot: campaign.organization.name,
+          testCodeSnapshot: campaign.test.code,
+          testVersionSnapshot: campaign.test.version,
+          answers: evaluatedSubmission.answersSnapshot,
+          meta: {
+            requestId,
+            clientIp: getClientIp(request),
+            userAgent: request.headers.get("user-agent") ?? undefined,
+          },
+        }
+      );
+    } catch (error) {
+      if (!(error instanceof ExternalEffectDisabledError)) throw error;
+      console.info(`[${requestId}] Diagnostic preview persistence is disabled.`);
+    }
 
     const result = buildDiagnosticResult(campaign, evaluatedSubmission);
 

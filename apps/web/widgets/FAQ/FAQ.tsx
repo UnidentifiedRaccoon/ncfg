@@ -122,7 +122,12 @@ export function FAQ({
           footer={
             <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
               <p>Не нашли ответ? Оставьте заявку, и мы свяжемся с вами.</p>
-              <Button variant="secondary" size="sm" href="#lead-form">
+              <Button
+                variant="secondary"
+                size="sm"
+                href="#lead-form"
+                data-ym-goal="cta_click"
+              >
                 Оставить заявку
               </Button>
             </div>

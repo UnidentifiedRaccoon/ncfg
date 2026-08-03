@@ -3,86 +3,84 @@ import { ArrowUpRight } from "lucide-react";
 import { Section } from "@/shared/ui/Section";
 import { cn } from "@/shared/lib/cn";
 
-const projects = [
-  {
-    title: "коплю-трачу-помогаю.рф",
-    label: "Социальный проект",
-    description:
-      "Развитие финансовой культуры с ранних лет. Социальный проект для педагогов, волонтеров и родителей",
-    href: "https://коплю-трачу-помогаю.рф",
-  },
-  {
-    title: "культура-денег.рф",
-    label: "Медиа проект",
-    description:
-      "Медиа-проект о практиках развития финансового благополучия и финансовой культуры для людей и компаний",
-    href: "https://культура-денег.рф",
-  },
-  {
-    title: "День «ФинПривычки»",
-    label: "Методический проект",
-    description:
-      "Методический проект по развитию здоровых финансовых привычек у взрослых и детей: накопления, инвестиции, разумные траты и регулярные практики",
-    href: "http://finhabit52.ru/",
-  },
-] as const;
+interface ProjectItem {
+  id: number;
+  title: string;
+  label: string;
+  description: string;
+  href: string;
+  ctaLabel: string;
+}
 
-export function Projects() {
+interface ProjectsProps {
+  projects: readonly ProjectItem[];
+  title?: string;
+}
+
+export function Projects({
+  projects,
+  title = "Проекты",
+}: ProjectsProps) {
   return (
-    <Section id="projects" title="Проекты" background="gray">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
+    <Section id="projects" title={title} background="gray">
+      <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
         {projects.map((project) => (
-          <a
-            key={project.href}
-            href={project.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-ym-goal="project_click"
-            className={cn(
-              "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0]/80 bg-white p-6 shadow-sm",
-              "transition-all duration-300 ease-out [will-change:transform]",
-              "hover:-translate-y-1 hover:border-[#3B82F6]/25 hover:shadow-lg hover:shadow-blue-500/10",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
-              "before:pointer-events-none before:absolute before:inset-0 before:opacity-0 before:content-['']",
-              "before:[background-image:radial-gradient(720px_circle_at_18%_12%,rgba(88,168,224,0.16),transparent_60%),radial-gradient(640px_circle_at_90%_45%,rgba(59,130,246,0.12),transparent_62%)]",
-              "before:transition-opacity before:duration-300 hover:before:opacity-100",
-              "after:pointer-events-none after:absolute after:inset-x-6 after:top-0 after:h-px after:opacity-0 after:content-['']",
-              "after:bg-gradient-to-r after:from-transparent after:via-[#58A8E0]/70 after:to-transparent",
-              "after:transition-opacity after:duration-300 hover:after:opacity-100"
-            )}
-            aria-label={`Открыть проект ${project.title}`}
-          >
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[#3B82F6]/10 blur-3xl transition-opacity duration-300 group-hover:opacity-80"
-            />
+          <li key={project.id} className="h-full">
+            <a
+              href={project.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-ym-goal="project_click"
+              className={cn(
+                "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0]/80 bg-white p-6 shadow-sm",
+                "transition-all duration-300 ease-out motion-reduce:transition-none",
+                "hover:-translate-y-1 hover:border-[#3B82F6]/25 hover:shadow-lg hover:shadow-blue-500/10 motion-reduce:hover:transform-none",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
+                "before:pointer-events-none before:absolute before:inset-0 before:opacity-0 before:content-['']",
+                "before:[background-image:radial-gradient(720px_circle_at_18%_12%,rgba(88,168,224,0.16),transparent_60%),radial-gradient(640px_circle_at_90%_45%,rgba(59,130,246,0.12),transparent_62%)]",
+                "before:transition-opacity before:duration-300 hover:before:opacity-100",
+                "after:pointer-events-none after:absolute after:inset-x-6 after:top-0 after:h-px after:opacity-0 after:content-['']",
+                "after:bg-gradient-to-r after:from-transparent after:via-[#58A8E0]/70 after:to-transparent",
+                "after:transition-opacity after:duration-300 hover:after:opacity-100"
+              )}
+              aria-label={`${project.ctaLabel}: ${project.title}. Откроется в новой вкладке`}
+            >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[#3B82F6]/10 blur-3xl transition-opacity duration-300 group-hover:opacity-80"
+              />
 
-            <div className="relative z-10 flex items-start justify-between gap-4">
-              <div className="min-w-0">
+              <div className="relative z-10 flex items-start justify-between gap-4">
                 <span className="inline-flex rounded-full border border-[#3B82F6]/20 bg-[#3B82F6]/8 px-2.5 py-1 text-xs font-semibold text-[#1E3A5F]">
                   {project.label}
                 </span>
-                <h3 className="mt-2 truncate text-xl font-bold tracking-tight text-[#1E3A5F]">
-                  {project.title}
-                </h3>
+                <span
+                  aria-hidden="true"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-white/80 text-[#475569] transition-colors group-hover:border-[#3B82F6]/35 group-hover:text-[#3B82F6]"
+                >
+                  <ArrowUpRight className="h-4 w-4" />
+                </span>
               </div>
 
-              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-white/80 text-[#475569] transition-colors group-hover:border-[#3B82F6]/35 group-hover:text-[#3B82F6]">
-                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-              </span>
-            </div>
+              <h3 className="relative z-10 mt-4 break-words text-xl font-bold leading-snug tracking-tight text-[#1E3A5F]">
+                {project.title}
+              </h3>
 
-            <p className="relative z-10 mt-4 text-sm leading-relaxed text-[#475569]">
-              {project.description}
-            </p>
+              <p className="relative z-10 mt-4 text-sm leading-relaxed text-[#475569]">
+                {project.description}
+              </p>
 
-            <div className="relative z-10 mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-[#3B82F6]">
-              Открыть
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </div>
-          </a>
+              <div className="relative z-10 mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-[#3B82F6]">
+                {project.ctaLabel}
+                <ArrowUpRight
+                  className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:transition-none"
+                  aria-hidden="true"
+                />
+              </div>
+            </a>
+          </li>
         ))}
-      </div>
+      </ul>
     </Section>
   );
 }

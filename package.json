@@ -1,0 +1,18 @@
+{
+  "name": "ncfg",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs web",
+    "dev:web": "node scripts/dev.mjs web",
+    "dev:cms": "node scripts/dev.mjs cms",
+    "dev:full": "node scripts/dev.mjs full",
+    "dev:doctor": "node scripts/dev.mjs doctor",
+    "dev:verify": "node scripts/dev.mjs verify",
+    "dev:down": "node scripts/dev.mjs down",
+    "test:dev-launcher": "node --test scripts/dev.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.22.2 <23",
+    "npm": ">=10.0.0"
+  }
+}

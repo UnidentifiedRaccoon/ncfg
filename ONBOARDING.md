@@ -7,9 +7,8 @@
 
 После этого гайда вы сможете:
 - клонировать репозиторий;
-- установить зависимости для `apps/web`;
-- авторизоваться в Yandex Cloud и получить ключ Strapi из Lockbox;
-- запустить web с подключением к продовому Strapi (`STRAPI_SOURCE=prod`);
+- авторизоваться в Yandex Cloud;
+- одной командой запустить web с production Strapi в read-only режиме;
 - внести изменения, проверить их локально;
 - сделать commit, push и создать PR.
 
@@ -26,7 +25,7 @@
 
 Нужно заранее иметь:
 - `git`;
-- `node` версии `20-22` и `npm` версии `10+`;
+- `node` версии `>=22.22.2 <23` и `npm` версии `10+`;
 - установленный `yc` CLI;
 - доступ к репозиторию `git@github.com:UnidentifiedRaccoon/ncfg.git`;
 - доступ к Yandex Cloud с аккаунтом, который входит в группу `developers`;
@@ -125,13 +124,11 @@ git clone https://github.com/UnidentifiedRaccoon/ncfg.git
 cd ncfg
 ```
 
-## 3. Установка зависимостей web
+## 3. Зависимости
 
-```bash
-cd apps/web
-npm ci
-cd ../..
-```
+Вручную устанавливать зависимости не нужно. Корневой launcher проверяет
+`package.json` и lockfile и выполняет `npm ci` только при первом запуске или
+после их изменения.
 
 ## 4. Авторизация в Yandex Cloud и доступ к секретам
 
@@ -159,48 +156,28 @@ yc lockbox secret get --name ncfg-dev-secrets --format json
 
 Если `STRAPI_PROD_API_TOKEN` нет в ключах секрета, это инфраструктурная проблема. Новый разработчик не должен запрашивать токен вручную у других людей.
 
-## 5. Настройка `apps/web/.env.local` (prod Strapi)
-
-`npm run dev:prod` запускает web с `STRAPI_SOURCE=prod`.
-
-Создайте локальный env-файл и подставьте токен из Lockbox:
+## 5. Запуск web
 
 ```bash
-cp apps/web/.env.local.example apps/web/.env.local
-
-STRAPI_PROD_API_TOKEN="$(yc lockbox payload get --name ncfg-dev-secrets --key STRAPI_PROD_API_TOKEN)"
-
-cat > apps/web/.env.local <<ENV
-STRAPI_PROD_URL=https://admin.ncfg.ru
-STRAPI_PROD_API_TOKEN=${STRAPI_PROD_API_TOKEN}
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-ENV
-
-unset STRAPI_PROD_API_TOKEN
+npm run dev
 ```
 
-Важно по безопасности:
-- не коммитьте `apps/web/.env.local`;
-- не передавайте токен в PR, issue, чатах и логах.
+Launcher получает `STRAPI_PROD_API_TOKEN` из Lockbox только в память процесса,
+запускает Next.js с `STRAPI_SOURCE=prod`, блокирует production writes и реальные
+почтовые/CRM-отправки. `.env.local` создавать не нужно.
 
-## 6. Запуск web в режиме prod-source
+Дождитесь строки `READY`: она означает, что `/api/health` и
+`/api/health/strapi` уже проверены. Сайт доступен на http://localhost:3000.
+
+Если launcher завершился ошибкой:
 
 ```bash
-cd apps/web
-npm run dev:prod
+npm run dev:doctor
 ```
 
-Проверьте:
-- страница открывается на `http://localhost:3000`;
-- health endpoint отвечает:
+Остальные профили и детали: [`DEVELOPMENT.md`](./DEVELOPMENT.md).
 
-```bash
-curl http://localhost:3000/api/health
-```
-
-Ожидаемый результат: JSON со `status: "ok"`.
-
-## 7. Создание feature-ветки по правилам проекта
+## 6. Создание feature-ветки по правилам проекта
 
 Перед началом работы обновите `main`:
 
@@ -227,7 +204,7 @@ git checkout -b <type>/<ticket>-<short-kebab-case>
 
 Допустимые `type`: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `style`, `build`, `ci`, `chore`.
 
-## 8. Внесение изменений и локальная проверка
+## 7. Внесение изменений и локальная проверка
 
 Сделайте изменения в `apps/web`, затем выполните минимум:
 
@@ -242,7 +219,7 @@ npm run lint
 npm run build
 ```
 
-## 9. Коммит (Conventional Commits)
+## 8. Коммит (Conventional Commits)
 
 Добавьте изменения:
 
@@ -268,7 +245,7 @@ git commit -m "<type>(scope): <description>"
 git commit -m "feat(ui): add onboarding callout section"
 ```
 
-## 10. Push и создание PR
+## 9. Push и создание PR
 
 Отправьте ветку:
 
@@ -289,7 +266,7 @@ gh pr create --base main
 - тело по шаблону: `.github/pull_request_template.md`;
 - один PR = одна логическая задача.
 
-## 11. Troubleshooting (YC / Lockbox)
+## 10. Troubleshooting (YC / Lockbox)
 
 `PermissionDenied` при `yc lockbox payload get`:
 - проверьте, что ваш аккаунт добавлен в группу `developers`;
@@ -301,12 +278,12 @@ gh pr create --base main
 
 Если секрет использует кастомный KMS-ключ, дополнительно может понадобиться роль `kms.keys.encrypterDecrypter`.
 
-## 12. Финальный чеклист перед отправкой PR
+## 11. Финальный чеклист перед отправкой PR
 
 - [ ] Ветка названа по правилам (`<type>/<short-kebab-case>`).
 - [ ] Пройден доступ к Lockbox (`ncfg-dev-secrets`) через `yc`.
 - [ ] В `payload_entry_keys` есть `STRAPI_PROD_API_TOKEN`.
-- [ ] Web запускается через `npm run dev:prod`.
+- [ ] Web запускается через корневой `npm run dev` и доходит до `READY`.
 - [ ] Локально пройдено `npm run lint`.
 - [ ] При необходимости пройдено `npm run build`.
 - [ ] Commit и PR оформлены по Conventional Commits.
@@ -319,40 +296,26 @@ gh pr create --base main
 node -v && npm -v && git --version && yc --version
 git clone git@github.com:UnidentifiedRaccoon/ncfg.git
 cd ncfg
-cd apps/web && npm ci
-cd ../..
 
-# 2) YC авторизация + проверка секрета
+# 2) Однократная YC-авторизация
 yc init
-yc iam whoami
-yc lockbox secret get --name ncfg-dev-secrets --format json
 
-# 3) Получение токена и настройка .env.local
-STRAPI_PROD_API_TOKEN="$(yc lockbox payload get --name ncfg-dev-secrets --key STRAPI_PROD_API_TOKEN)"
-cat > apps/web/.env.local <<ENV
-STRAPI_PROD_URL=https://admin.ncfg.ru
-STRAPI_PROD_API_TOKEN=${STRAPI_PROD_API_TOKEN}
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-ENV
-unset STRAPI_PROD_API_TOKEN
+# 3) Старт web с production Strapi read-only
+npm run dev
 
-# 4) Старт web с продовым Strapi
-cd apps/web && npm run dev:prod
-
-# 5) Работа в отдельной ветке
-cd ../..
+# 4) Работа в отдельной ветке
 git checkout main && git pull
 git checkout -b feat/my-change
 
 # ... изменить код ...
 
-# 6) Проверка + commit + push
+# 5) Проверка + commit + push
 cd apps/web && npm run lint
 cd ../..
 git add <files>
 git commit -m "feat(ui): describe change"
 git push -u origin HEAD
 
-# 7) PR
+# 6) PR
 gh pr create --base main
 ```

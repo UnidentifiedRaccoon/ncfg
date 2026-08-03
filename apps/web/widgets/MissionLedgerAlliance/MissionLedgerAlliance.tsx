@@ -202,9 +202,11 @@ function MissionLayerCard({
 
           {isActive ? (
             <>
-              <p className="w-full max-w-none text-center text-[17px] leading-8 text-[#52657D] md:text-lg">
-                {direction.detail}
-              </p>
+              <div className="grid w-full max-w-none gap-3 text-center text-[17px] leading-8 text-[#52657D] md:text-lg">
+                {direction.detail.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
 
               <ul className="grid gap-3 text-sm leading-6 text-[#234361] md:grid-cols-2 md:text-[15px]">
                 {direction.outcomes.map((outcome) => (
@@ -332,7 +334,11 @@ function MissionLedgerAlliancePanel({
                 </h3>
               </div>
 
-              <p className="mt-5 text-[15px] leading-7 text-[#52657D]">{activeDirection.detail}</p>
+              <div className="mt-5 grid gap-3 text-[15px] leading-7 text-[#52657D]">
+                {activeDirection.detail.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
 
               <ul className="mt-5 grid gap-3 text-sm leading-6 text-[#234361]">
                 {activeDirection.outcomes.map((outcome) => (
@@ -422,7 +428,7 @@ export function MissionLedgerAlliance({
       id="mission"
       className="pt-8 pb-2 md:pt-10 md:pb-4 lg:pb-6"
       title="Наш подход"
-      lead="Решаем комплексные задачи в области финансового благополучия и финансовой культуры населения — через психологию, культурный код, работу с детьми и взрослыми, создание поддерживающей среды и формирование устойчивых привычек."
+      lead="Решаем комплексные задачи в области финансового благополучия и финансовой культуры населения — через развитие базовых финансовых знаний и навыков, психологию, культурный код, работу с детьми и взрослыми, создание поддерживающей среды и формирование устойчивых привычек."
     >
       <MissionLedgerAlliancePanel
         headingAs={headingAs}

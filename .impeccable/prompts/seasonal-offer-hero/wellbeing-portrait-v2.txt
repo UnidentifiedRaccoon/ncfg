@@ -1,0 +1,11 @@
+Use case: precise-object-edit
+Asset type: portrait mobile hero background derived from the existing financial-wellbeing landscape
+Primary request: Recompose the same miniature scene into a tall portrait 4:5 campaign image for mobile. Keep the same tree, modern house, soil cross-section and structural stacks of coins; change only the canvas composition and surrounding background.
+Input images: Image 1 is the edit target and the strict reference for subjects, materials, lighting and photographic finish.
+Scene/backdrop: extend the soft dark green and warm-gold blurred garden atmosphere upward, creating generous calm negative space across the upper-left and upper-center for white headline text.
+Subject placement: keep the full tree visible in the upper-right quadrant; place the full house slightly right of center; preserve the complete soil layer and coin foundation across the bottom 24–28% of the frame.
+Style/medium: premium photorealistic miniature macro photography, exactly matching Image 1.
+Composition/framing: tall portrait 4:5 canvas; all major subjects fully visible; natural depth; no cropped crown, roof or foundation; text-safe dark area above and to the left.
+Lighting/mood: same warm late-afternoon light, but slightly darker behind the future text zone for readability.
+Constraints: preserve the financial-support metaphor and object identities; no new objects; no text, logos, interface, labels or watermark.
+Avoid: isolated product-card framing, floating objects, extra houses, extra trees, falling coins, money rain, casino cues, glossy UI, exaggerated fantasy lighting, blur on the house or tree.

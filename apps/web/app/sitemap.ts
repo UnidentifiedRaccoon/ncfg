@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+
+import { seasonOffer2026Content } from "@/widgets/SeasonOffer2026";
 import {
   fetchAboutPageData,
   fetchBlogPageData,
@@ -19,6 +21,12 @@ export const revalidate = 0;
 const STATIC_ROUTES = [
   { path: "/", priority: 1, changeFrequency: "weekly" },
   { path: "/companies", priority: 0.9, changeFrequency: "weekly" },
+  {
+    path: "/companies/season-offer-2026",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    lastModified: seasonOffer2026Content.updatedAt,
+  },
   { path: "/individuals", priority: 0.9, changeFrequency: "weekly" },
   { path: "/about", priority: 0.8, changeFrequency: "monthly" },
   { path: "/history", priority: 0.75, changeFrequency: "monthly" },
@@ -26,7 +34,12 @@ const STATIC_ROUTES = [
   { path: "/rekomendacii", priority: 0.8, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.8, changeFrequency: "daily" },
   { path: "/vacancies", priority: 0.75, changeFrequency: "weekly" },
-] as const;
+] satisfies ReadonlyArray<{
+  path: string;
+  priority: number;
+  changeFrequency: "daily" | "weekly" | "monthly";
+  lastModified?: string;
+}>;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -179,7 +192,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       getCareerEntries(siteUrl),
     ]);
   const staticEntries: SitemapEntry[] = STATIC_ROUTES.map((route) => {
-    const lastModified = staticRouteLastModified.get(route.path);
+    const lastModified =
+      "lastModified" in route && route.lastModified
+        ? new Date(route.lastModified)
+        : staticRouteLastModified.get(route.path);
 
     return {
       url: toAbsoluteUrl(route.path, siteUrl),

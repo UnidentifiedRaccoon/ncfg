@@ -68,10 +68,8 @@ jobs:
           }
 
           strapi_api_token="$(fetch_required_key STRAPI_API_TOKEN)"
-          strapi_write_api_token="$(fetch_required_key STRAPI_WRITE_API_TOKEN)"
 
           echo "::add-mask::$strapi_api_token"
-          echo "::add-mask::$strapi_write_api_token"
 
           printf 'strapi_api_token=%s\n' "$strapi_api_token" >> "$GITHUB_OUTPUT"
 
@@ -140,9 +138,10 @@ jobs:
           revision-provisioned: 0
           revision-secrets: |
             STRAPI_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_API_TOKEN
-            STRAPI_WRITE_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_WRITE_API_TOKEN
           revision-env: |
             NODE_ENV=production
+            STRAPI_WRITE_MODE=disabled
+            OUTBOUND_MODE=disabled
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             NEXT_PUBLIC_SITE_URL=${{ steps.preview.outputs.url }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}

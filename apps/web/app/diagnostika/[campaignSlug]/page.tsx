@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildPageMetadata({
     path: `/diagnostika/${campaignSlug}`,
     title: campaign.title,
-    description: `Диагностика НЦФГ для сотрудников организации ${campaign.organization.name}.`,
+    description: `Диагностика финансового здоровья | ${campaign.organization.name}`,
     robots: {
       index: false,
       follow: false,

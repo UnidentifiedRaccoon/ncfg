@@ -348,6 +348,9 @@ jobs:
             BITRIX24_WEBHOOK_URL=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/BITRIX24_WEBHOOK_URL
           revision-env: |
             NODE_ENV=production
+            DEPLOY_ENV=production
+            STRAPI_WRITE_MODE=enabled
+            OUTBOUND_MODE=enabled
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}

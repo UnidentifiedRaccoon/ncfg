@@ -1,3 +1,73 @@
+import { createHmac } from 'node:crypto';
+
+const LOCAL_API_TOKEN_NAMES = {
+  read: 'NCFG local launcher read',
+  write: 'NCFG local launcher write',
+} as const;
+const LOCAL_API_TOKEN_LIFESPAN_MS = 24 * 60 * 60 * 1000;
+
+function assertLocalTokenBootstrapRuntime() {
+  if (process.env.NCFG_LOCAL_TOKEN_BOOTSTRAP !== '1') return false;
+
+  const host = process.env.HOST?.trim().toLowerCase();
+  const isLoopbackHost = host === '127.0.0.1' || host === 'localhost' || host === '::1';
+  if (process.env.NODE_ENV !== 'development' || !isLoopbackHost) {
+    throw new Error(
+      '[local-dev] Refusing to bootstrap local API tokens outside a loopback development server.'
+    );
+  }
+  return true;
+}
+
+async function bootstrapLocalApiTokens(strapi) {
+  if (!assertLocalTokenBootstrapRuntime()) return;
+
+  const salt = process.env.API_TOKEN_SALT?.trim();
+  const readToken = process.env.NCFG_LOCAL_READ_API_TOKEN?.trim();
+  const writeToken = process.env.NCFG_LOCAL_WRITE_API_TOKEN?.trim();
+  if (!salt || !readToken || !writeToken) {
+    throw new Error(
+      '[local-dev] NCFG_LOCAL_TOKEN_BOOTSTRAP requires API_TOKEN_SALT and both local API tokens.'
+    );
+  }
+
+  const tokenQuery = strapi.db.query('admin::api-token');
+  const tokenDefinitions = [
+    { name: LOCAL_API_TOKEN_NAMES.read, token: readToken, type: 'read-only' },
+    { name: LOCAL_API_TOKEN_NAMES.write, token: writeToken, type: 'full-access' },
+  ];
+
+  for (const definition of tokenDefinitions) {
+    const accessKey = createHmac('sha512', salt).update(definition.token).digest('hex');
+    const existing = await tokenQuery.findOne({ where: { name: definition.name } });
+    const data = {
+      name: definition.name,
+      description: 'Ephemeral token managed by the root local-development launcher',
+      type: definition.type,
+      accessKey,
+      encryptedKey: null,
+      expiresAt: Date.now() + LOCAL_API_TOKEN_LIFESPAN_MS,
+      lifespan: LOCAL_API_TOKEN_LIFESPAN_MS,
+    };
+
+    if (existing) {
+      await tokenQuery.update({ where: { id: existing.id }, data });
+    } else {
+      await tokenQuery.create({ data });
+    }
+  }
+
+  strapi.log.info('[local-dev] Ephemeral read/write API token hashes are ready.');
+}
+
+async function revokeLocalApiTokens(strapi) {
+  if (!assertLocalTokenBootstrapRuntime()) return;
+  await strapi.db.query('admin::api-token').deleteMany({
+    where: { name: { $in: Object.values(LOCAL_API_TOKEN_NAMES) } },
+  });
+  strapi.log.info('[local-dev] Ephemeral API token records removed.');
+}
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -15,6 +85,8 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
+    await bootstrapLocalApiTokens(strapi);
+
     const submissionUid = 'api::diagnostic-submission.diagnostic-submission';
     const hrSubmissionUid = 'api::hr-diagnostic-submission.hr-diagnostic-submission';
 
@@ -232,5 +304,9 @@ export default {
         `[blog] Legacy tags not mapped to rubrics: ${Array.from(unknownLegacyTags).slice(0, 30).join(', ')}`
       );
     }
+  },
+
+  async destroy({ strapi }) {
+    await revokeLocalApiTokens(strapi);
   },
 };

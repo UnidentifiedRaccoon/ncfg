@@ -363,6 +363,15 @@ export interface StrapiHomePartnersBlock {
   clientsCarousel: StrapiHomeClientsCarousel | null;
 }
 
+export interface StrapiHomeProject {
+  id: number;
+  title: string;
+  label: string;
+  description: string;
+  href: string;
+  ctaLabel: string;
+}
+
 export interface StrapiHomePage {
   id: number;
   documentId: string;
@@ -370,6 +379,8 @@ export interface StrapiHomePage {
   supportingHeadings: StrapiTextItem[];
   proofPoints: StrapiHomeProofPoint[];
   servicesTitle: string | null;
+  projectsTitle: string | null;
+  projects: StrapiHomeProject[];
   partners: StrapiHomePartnersBlock | null;
   newsTitle: string | null;
   newsTeaser: string | null;

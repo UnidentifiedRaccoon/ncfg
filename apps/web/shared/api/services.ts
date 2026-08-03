@@ -48,6 +48,53 @@ async function getServiceCategories(): Promise<StrapiServiceCategory[]> {
   return response.data;
 }
 
+export interface HeaderCompanyNavigationService {
+  title: string;
+  slug: string;
+}
+
+export interface HeaderCompanyNavigationCategory {
+  id: string;
+  title: string;
+  services: HeaderCompanyNavigationService[];
+}
+
+export async function getHeaderCompanyNavigation(): Promise<
+  HeaderCompanyNavigationCategory[]
+> {
+  const query = buildQueryString({
+    fields: ['title', 'slug', 'order', 'publishedAt'],
+    populate: {
+      services: {
+        fields: ['title', 'slug', 'order', 'publishedAt'],
+        sort: ['order:asc'],
+      },
+    },
+    sort: 'order:asc',
+    publicationState: 'live',
+  });
+  const response = await fetchAPI<StrapiResponse<StrapiServiceCategory[]>>(
+    `/service-categories${query}`
+  );
+
+  return response.data.flatMap((category) => {
+    const title = category.title?.trim();
+    const id = category.slug?.trim();
+    const services = (category.services ?? []).flatMap((service) => {
+      const serviceTitle = service.title?.trim();
+      const slug = service.slug?.trim();
+
+      return service.publishedAt && serviceTitle && slug
+        ? [{ title: serviceTitle, slug }]
+        : [];
+    });
+
+    return category.publishedAt && title && id && services.length > 0
+      ? [{ id, title, services }]
+      : [];
+  });
+}
+
 // ==================
 // Helper: Transform to legacy format
 // ==================

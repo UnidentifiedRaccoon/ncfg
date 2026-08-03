@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { SITE_NAME, getMetadataBase } from "@/shared/lib/metadata";
 import { CmsFreshnessGuard } from "@/shared/ui/CmsFreshnessGuard";
 import { ScrollRevealObserver } from "@/shared/ui/ScrollRevealObserver";
 import { RouteScrollBehavior } from "@/shared/ui/RouteScrollBehavior";
-import { YandexMetrikaRouteTracker } from "@/shared/ui/YandexMetrikaRouteTracker";
-import { YandexMetrikaGoalTracker } from "@/shared/ui/YandexMetrikaGoalTracker";
-import { ScrollDepthTracker } from "@/shared/ui/ScrollDepthTracker";
-import { UtmCapture } from "@/shared/ui/UtmCapture";
 import "./globals.css";
 
 const inter = Inter({
@@ -47,12 +42,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const ymCounterId = Number(process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID);
-  const isMetrikaEnabled =
-    process.env.NODE_ENV === "production" &&
-    Number.isFinite(ymCounterId) &&
-    ymCounterId > 0;
-
   return (
     <html lang="ru">
       <body className={`${inter.variable} font-sans antialiased`}>
@@ -60,38 +49,6 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <RouteScrollBehavior />
         </Suspense>
-        {isMetrikaEnabled ? (
-          <>
-            <Script id="yandex-metrika" strategy="afterInteractive">
-              {`
-(function(m,e,t,r,i,k,a){
-  m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-  m[i].l=1*new Date();
-  for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-})(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=${ymCounterId}', 'ym');
-
-ym(${ymCounterId}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-              `.trim()}
-            </Script>
-            <noscript>
-              <div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`https://mc.yandex.ru/watch/${ymCounterId}`}
-                  className="absolute left-[-9999px]"
-                  alt=""
-                />
-              </div>
-            </noscript>
-            <Suspense fallback={null}>
-              <YandexMetrikaRouteTracker counterId={ymCounterId} />
-            </Suspense>
-            <YandexMetrikaGoalTracker />
-            <ScrollDepthTracker />
-            <UtmCapture />
-          </>
-        ) : null}
         <ScrollRevealObserver />
         {children}
       </body>

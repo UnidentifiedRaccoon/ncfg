@@ -252,24 +252,24 @@ yc serverless container get --name ncfg-web --format json | jq -r '.url'
 yc serverless container get --name ncfg-cms --format json | jq -r '.url'
 ```
 
-## 4. Local Development with Docker
+## 4. Local Development
 
 ```bash
-cd docker
-docker-compose up -d
+# Normal website work: local Next.js + production Strapi read-only
+npm run dev
 
-# Services:
-# - Next.js: http://localhost:3000
-# - Strapi: http://localhost:1337
-# - MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
-# - PostgreSQL: localhost:5432
+# CMS-only or fully local profiles
+npm run dev:cms
+npm run dev:full
 
-# Logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
+# Stop owned services without deleting volumes
+npm run dev:down
 ```
+
+The root launcher is the canonical entrypoint; the Compose file is a
+low-level implementation detail for PostgreSQL and MinIO. It is not a web HMR
+environment and must not be used to obtain or persist production tokens. See
+[`../DEVELOPMENT.md`](../DEVELOPMENT.md).
 
 ## 5. Verify Deployment
 

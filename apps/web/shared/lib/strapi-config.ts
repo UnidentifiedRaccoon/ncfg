@@ -1,4 +1,4 @@
-type StrapiSource = 'default' | 'local' | 'prod';
+export type StrapiSource = 'default' | 'local' | 'prod';
 
 interface StrapiSourceConfig {
   urlEnv: string;
@@ -50,7 +50,7 @@ function trimEnv(name: string): string | undefined {
   return trimmed || undefined;
 }
 
-function getStrapiSourceOrThrow(): StrapiSource {
+export function getStrapiSourceOrThrow(): StrapiSource {
   const sourceRaw = trimEnv(STRAPI_SOURCE_ENV);
   if (!sourceRaw) return 'default';
 
