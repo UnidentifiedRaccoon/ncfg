@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import type { DiagnosticResult } from "../api/types/diagnostic";
 import { buildDiagnosticResultEmail } from "./diagnostic-result-email";
+import { assertOutboundAllowed } from "./external-effects";
 
 interface DiagnosticResultMailer {
   sendResultCopy(data: DiagnosticResultMailData, ctx: DiagnosticResultMailContext): Promise<void>;
@@ -32,6 +33,15 @@ class MissingDiagnosticResultMailer implements DiagnosticResultMailer {
 
   async sendResultCopy() {
     throw new Error(this.reason);
+  }
+}
+
+class GuardedDiagnosticResultMailer implements DiagnosticResultMailer {
+  constructor(private readonly inner: DiagnosticResultMailer) {}
+
+  sendResultCopy(data: DiagnosticResultMailData, ctx: DiagnosticResultMailContext) {
+    assertOutboundAllowed();
+    return this.inner.sendResultCopy(data, ctx);
   }
 }
 
@@ -109,4 +119,5 @@ function createDiagnosticResultMailer(): DiagnosticResultMailer {
   });
 }
 
-export const diagnosticResultMailer: DiagnosticResultMailer = createDiagnosticResultMailer();
+export const diagnosticResultMailer: DiagnosticResultMailer =
+  new GuardedDiagnosticResultMailer(createDiagnosticResultMailer());

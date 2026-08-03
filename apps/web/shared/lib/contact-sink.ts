@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { buildVacancyApplicationInboxEmail } from "./vacancy-application-email";
 import type { VacancyApplicationSubmission } from "./vacancy-application";
+import { assertOutboundAllowed } from "./external-effects";
 
 type LeadSubmission = {
   name: string;
@@ -123,6 +124,28 @@ class MissingContactSink implements ContactSink {
 
   async submitVacancyApplication() {
     throw new Error(this.reason);
+  }
+}
+
+class GuardedContactSink implements ContactSink {
+  constructor(private readonly inner: ContactSink) {}
+
+  submitLead(data: LeadSubmission, ctx: ContactSinkContext) {
+    assertOutboundAllowed();
+    return this.inner.submitLead(data, ctx);
+  }
+
+  submitQuestion(data: QuestionSubmission, ctx: ContactSinkContext) {
+    assertOutboundAllowed();
+    return this.inner.submitQuestion(data, ctx);
+  }
+
+  submitVacancyApplication(
+    data: VacancyApplicationSubmission,
+    ctx: ContactSinkContext
+  ) {
+    assertOutboundAllowed();
+    return this.inner.submitVacancyApplication(data, ctx);
   }
 }
 
@@ -741,7 +764,9 @@ function createPrimaryContactSink(): ContactSink {
 }
 
 function createContactSink(): ContactSink {
-  return withOptionalBitrix24LeadSink(createPrimaryContactSink());
+  return new GuardedContactSink(
+    withOptionalBitrix24LeadSink(createPrimaryContactSink())
+  );
 }
 
 export const contactSink: ContactSink = createContactSink();

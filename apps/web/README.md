@@ -16,48 +16,43 @@ Important: there is **no silent JSON fallback** for Strapi-backed sections. If S
 
 ## Local Development
 
-1. Install deps:
+The canonical entrypoint is the repository root:
 
 ```bash
-cd apps/web
-npm ci
+npm run dev
 ```
 
-2. Set env vars (example: `apps/web/.env.local.example`):
+It starts Next.js (including `app/api`) against production Strapi in read-only
+mode. The launcher installs dependencies only when the lockfile changed, keeps
+the read token in memory, disables writes/outbound integrations, and verifies
+both Next.js and a Strapi-backed page.
+
+Other profiles:
 
 ```bash
-# local source (used by npm run dev / npm run dev:local)
-STRAPI_LOCAL_URL=http://localhost:1337
-STRAPI_LOCAL_API_TOKEN=... # required (read token)
-STRAPI_LOCAL_WRITE_API_TOKEN=... # required for diagnostic and HR intake save flows
-
-# prod source (used by npm run dev:prod)
-STRAPI_PROD_URL=https://admin.ncfg.ru
-STRAPI_PROD_API_TOKEN=... # read token
-STRAPI_PROD_WRITE_API_TOKEN=... # write token for diagnostic and HR intake endpoints
-
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-PORTFOLIO_PRESENTATION_URL=https://storage.yandexcloud.net/<bucket>/docs/ncfg-portfolio-2021.pdf
-NEXT_PUBLIC_YANDEX_METRIKA_ID=108387180 # optional local parity; prod is sourced from Lockbox
+npm run dev:cms   # local PostgreSQL + MinIO + Strapi
+npm run dev:full  # fully local CMS + web, with ephemeral local API tokens
+npm run dev:doctor
+npm run dev:verify
+npm run dev:down
 ```
 
-3. Run:
-
-```bash
-npm run dev:local
-npm run dev:prod
-```
+See [`../../DEVELOPMENT.md`](../../DEVELOPMENT.md). The app-level `dev:local`
+and `dev:prod` scripts are low-level alternatives, not the normal onboarding
+path. The root launcher invokes the local Next.js binary directly so its
+environment and process lifecycle stay cross-platform and supervised.
 
 ## Strapi Tokens
 
-Create two Content API tokens in Strapi:
+Production deployments still require Content API tokens:
 - `Settings` -> `API Tokens` -> `Create new API Token`
 - Read token: `Read-only` (or `Custom` with read access to required content types)
 - Read token must include standard `hr-diagnostic-test.find` access for `/diagnostika/hr`
 - Write token: `Custom` with access required by `POST /api/diagnostic-submissions/intake` and `POST /api/hr-diagnostic-submissions/intake`
-- Put the value into:
-  - `STRAPI_LOCAL_API_TOKEN` / `STRAPI_LOCAL_WRITE_API_TOKEN` for `npm run dev:local`
-  - `STRAPI_PROD_API_TOKEN` / `STRAPI_PROD_WRITE_API_TOKEN` for `npm run dev:prod`
+
+Do not create or persist tokens for normal local development. `npm run dev`
+retrieves only the developer read token from Lockbox; `npm run dev:full`
+bootstraps ephemeral local-only tokens automatically.
 
 ## Production (Yandex Cloud)
 

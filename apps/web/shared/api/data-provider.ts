@@ -32,7 +32,7 @@ import {
   type CertificateData,
 } from './certificates';
 import { pickLatestDate } from '@/shared/lib/date-values';
-import { getServicesDataLegacy } from './services';
+import { getHeaderCompanyNavigation, getServicesDataLegacy } from './services';
 import type {
   StrapiAboutPage,
   StrapiBlogPage,
@@ -125,6 +125,15 @@ interface FallbackHomePartnersData {
   };
 }
 
+interface FallbackHomeProject {
+  id?: number;
+  title?: string;
+  label?: string;
+  description?: string;
+  href?: string;
+  ctaLabel?: string;
+}
+
 interface FallbackHomeJson {
   meta?: { updatedAt?: string };
   sections?: {
@@ -132,6 +141,7 @@ interface FallbackHomeJson {
     Stats?: { data?: { items?: FallbackHomeStatsItem[] } };
     Hero?: { data?: FallbackHomeHeroData };
     Services?: { data?: { title?: string } };
+    Projects?: { data?: { title?: string; items?: FallbackHomeProject[] } };
     Partners?: { data?: FallbackHomePartnersData };
     FAQ?: { data?: { title?: string } };
     News?: { data?: { title?: string; teaser?: string; links?: FallbackLink[] } };
@@ -320,6 +330,10 @@ export async function fetchServicesData(): Promise<ServicesData> {
   return (await getServicesLookup()).servicesData;
 }
 
+export async function fetchHeaderCompanyNavigation() {
+  return getHeaderCompanyNavigation();
+}
+
 export async function fetchServiceIds(): Promise<string[]> {
   return (await getServicesLookup()).serviceIds;
 }
@@ -392,6 +406,7 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
   const home = (await import('@/public/content/home.json')).default as unknown as FallbackHomeJson;
   const hero = home.sections?.Hero?.data;
   const partners = home.sections?.Partners?.data;
+  const projects = home.sections?.Projects?.data;
   const updatedAt = home.meta?.updatedAt;
 
   if (!updatedAt) {
@@ -429,6 +444,17 @@ export async function fetchHomePageData(): Promise<StrapiHomePage> {
         }))
       : [],
     servicesTitle: home.sections?.Services?.data?.title ?? null,
+    projectsTitle: projects?.title ?? null,
+    projects: Array.isArray(projects?.items)
+      ? projects.items.map((project, idx) => ({
+          id: typeof project.id === 'number' ? project.id : idx + 1,
+          title: project.title ?? '',
+          label: project.label ?? '',
+          description: project.description ?? '',
+          href: project.href ?? '',
+          ctaLabel: stripEllipsis(project.ctaLabel ?? 'Открыть проект'),
+        }))
+      : [],
     partners: partners
       ? {
           id: 1,

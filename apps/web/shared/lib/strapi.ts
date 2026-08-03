@@ -69,6 +69,17 @@ type NextFetchCacheOptions =
 // In development, disable cache for instant updates from Strapi
 const isDev = process.env.NODE_ENV === 'development';
 const DEFAULT_REVALIDATE = 60;
+const READ_ONLY_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+function assertReadOnlyMethod(method: string | undefined): void {
+  const normalized = (method ?? 'GET').trim().toUpperCase();
+  if (!READ_ONLY_METHODS.has(normalized)) {
+    throw new Error(
+      `fetchAPI is read-only and does not allow ${normalized || 'an empty method'}. ` +
+        'Use the guarded Strapi write client for mutations.'
+    );
+  }
+}
 
 function getFetchCacheOptions(revalidate: number): NextFetchCacheOptions {
   if (isDev || revalidate <= 0) {
@@ -100,14 +111,14 @@ function getFetchFailureHint(errorMessage: string, requestUrl: string): string |
   if (normalized.includes('fetch failed') && isLocalStrapi) {
     return (
       'Hint: local Strapi is unreachable. ' +
-      'Start CMS (`cd apps/cms && npm run develop`) and ensure AWS_* vars are set in apps/cms/.env (S3-only mode).'
+      'From the repository root run `npm run dev:full` (web + CMS) or `npm run dev:cms` (CMS only).'
     );
   }
 
   if (normalized.includes('econnrefused')) {
     return (
       'Hint: Strapi is not reachable (connection refused). ' +
-      'If developing locally, start CMS: `cd apps/cms && npm run develop`.'
+      'If developing locally, use the root `npm run dev:full` profile.'
     );
   }
 
@@ -130,6 +141,7 @@ export async function fetchAPI<T>(
   options: FetchOptions = {}
 ): Promise<T> {
   const { revalidate = DEFAULT_REVALIDATE, ...fetchOptions } = options;
+  assertReadOnlyMethod(fetchOptions.method);
   
   const { url: baseUrl, token } = getStrapiConfigOrThrow();
   const url = `${baseUrl}/api${endpoint}`;

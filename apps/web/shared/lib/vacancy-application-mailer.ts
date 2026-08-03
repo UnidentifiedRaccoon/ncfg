@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import type { VacancyApplicationConfirmationData } from './vacancy-application';
 import { buildVacancyApplicationConfirmationEmail } from './vacancy-application-email';
+import { assertOutboundAllowed } from './external-effects';
 
 export interface VacancyApplicationMailer {
   sendConfirmation(
@@ -27,6 +28,18 @@ class MissingVacancyApplicationMailer implements VacancyApplicationMailer {
 
   async sendConfirmation() {
     throw new Error(this.reason);
+  }
+}
+
+class GuardedVacancyApplicationMailer implements VacancyApplicationMailer {
+  constructor(private readonly inner: VacancyApplicationMailer) {}
+
+  sendConfirmation(
+    data: VacancyApplicationConfirmationData,
+    ctx: VacancyApplicationMailerContext
+  ) {
+    assertOutboundAllowed();
+    return this.inner.sendConfirmation(data, ctx);
   }
 }
 
@@ -103,4 +116,4 @@ function createVacancyApplicationMailer(): VacancyApplicationMailer {
 }
 
 export const vacancyApplicationMailer: VacancyApplicationMailer =
-  createVacancyApplicationMailer();
+  new GuardedVacancyApplicationMailer(createVacancyApplicationMailer());

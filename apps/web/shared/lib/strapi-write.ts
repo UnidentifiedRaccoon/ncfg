@@ -1,4 +1,8 @@
-import { getResolvedStrapiWriteConfigOrThrow } from "@/shared/lib/strapi-config";
+import { assertStrapiWriteAllowed } from "@/shared/lib/external-effects";
+import {
+  getResolvedStrapiWriteConfigOrThrow,
+  getStrapiSourceOrThrow,
+} from "@/shared/lib/strapi-config";
 
 function normalizeBaseUrl(value: string, envName: string): string {
   const normalized = value.replace(/\/+$/, "");
@@ -51,6 +55,7 @@ export async function postStrapiWriteJSON<TResponse>(
   endpoint: string,
   payload: unknown
 ): Promise<TResponse> {
+  assertStrapiWriteAllowed(getStrapiSourceOrThrow());
   const { url: baseUrlRaw, token, urlEnv } = getResolvedStrapiWriteConfigOrThrow();
   const baseUrl = normalizeBaseUrl(baseUrlRaw, urlEnv);
   const url = `${baseUrl}/api${normalizeEndpoint(endpoint)}`;

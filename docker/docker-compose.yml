@@ -1,5 +1,5 @@
 # Local development environment with PostgreSQL and MinIO (S3 emulation)
-# Usage: docker-compose up -d
+# Canonical entrypoints: npm run dev:cms / npm run dev:full (repository root)
 
 services:
   # PostgreSQL database
@@ -11,14 +11,14 @@ services:
       POSTGRES_USER: strapi
       POSTGRES_PASSWORD: strapi_local_password
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U strapi -d strapi"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 2s
+      timeout: 3s
+      retries: 15
 
   # MinIO - S3-compatible object storage
   minio:
@@ -29,15 +29,15 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "9000:9000"   # S3 API
-      - "9001:9001"   # Web console
+      - "127.0.0.1:9000:9000"   # S3 API
+      - "127.0.0.1:9001:9001"   # Web console
     volumes:
       - minio_data:/data
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 2s
+      timeout: 3s
+      retries: 15
 
   # MinIO bucket initialization
   minio-init:
@@ -48,10 +48,10 @@ services:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
+      set -eu;
       mc alias set myminio http://minio:9000 minioadmin minioadmin;
       mc mb --ignore-existing myminio/ncfg-uploads;
       mc anonymous set download myminio/ncfg-uploads;
-      exit 0;
       "
 
   # Strapi CMS
@@ -87,7 +87,7 @@ services:
       JWT_SECRET: local-jwt-secret
       TRANSFER_TOKEN_SALT: local-transfer-token-salt
     ports:
-      - "1337:1337"
+      - "127.0.0.1:1337:1337"
     volumes:
       - ../apps/cms/src:/app/src:ro  # Hot reload for schema changes
     healthcheck:
@@ -113,7 +113,7 @@ services:
       STRAPI_URL: http://cms:1337
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s

@@ -171,7 +171,10 @@ export default async function Home() {
           }))}
         />
         <Products />
-        <Projects />
+        <Projects
+          title={homePage.projectsTitle ?? "Проекты"}
+          projects={homePage.projects}
+        />
         <Partners
           awards={mappedAwards}
           clientsCarousel={mappedClientsCarousel}
