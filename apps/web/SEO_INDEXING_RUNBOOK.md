@@ -60,13 +60,14 @@ curl -I https://d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net/
 
 Expected:
 - `https://ncfg.ru/` -> `200`
-- `http://ncfg.ru/...` -> single `301` to `https://ncfg.ru/...`
-- `http://www.ncfg.ru/...` -> single `301` to `https://ncfg.ru/...`
+- `http://ncfg.ru/...` -> `301` to the same URL over HTTPS; legacy paths may then use one application `301` to their canonical path
+- `http://www.ncfg.ru/...` -> `301` to the same `www` URL over HTTPS, then one application `301` to `https://ncfg.ru/...`
 - every HTTPS public mirror -> `301` to `https://ncfg.ru/...`
 
 Important:
-- if `http://www.ncfg.ru/...` first redirects to `https://www.ncfg.ru/...`, the extra hop happens before Next.js;
-- fix that on the public edge/domain layer, because app-level canonicalization only starts after the HTTPS request reaches the gateway.
+- the API Gateway custom-domain edge performs the first HTTP-to-HTTPS redirect before Next.js;
+- `seo:check` permits exactly that transport upgrade as an intermediate hop and still requires the next `301` to reach the expected canonical URL;
+- HTTPS mirrors must reach the canonical URL in one hop, and no checked redirect chain may exceed two hops.
 
 ## 4) Verify blocked direct container
 

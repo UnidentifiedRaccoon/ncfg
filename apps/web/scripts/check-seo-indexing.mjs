@@ -74,8 +74,8 @@ function toUrl(pathname, origin = baseUrl) {
   return new URL(pathname, origin).toString();
 }
 
-async function request(pathname, method = "GET", origin = baseUrl) {
-  const response = await fetch(toUrl(pathname, origin), {
+async function requestUrl(url, method = "GET") {
+  const response = await fetch(url, {
     method,
     redirect: "manual",
     headers: {
@@ -85,6 +85,10 @@ async function request(pathname, method = "GET", origin = baseUrl) {
   });
 
   return response;
+}
+
+async function request(pathname, method = "GET", origin = baseUrl) {
+  return requestUrl(toUrl(pathname, origin), method);
 }
 
 async function readText(pathname, origin = baseUrl) {
@@ -111,15 +115,18 @@ function locationPathname(locationHeaderValue) {
   }
 }
 
-function locationOriginAndPathname(locationHeaderValue, origin) {
+function locationUrl(locationHeaderValue, origin) {
   if (!locationHeaderValue) return null;
 
   try {
-    const target = new URL(locationHeaderValue, origin);
-    return `${target.origin}${trimTrailingSlash(target.pathname)}`;
+    return new URL(locationHeaderValue, origin);
   } catch {
     return null;
   }
+}
+
+function normalizedOriginPathAndSearch(url) {
+  return `${url.origin}${trimTrailingSlash(url.pathname)}${url.search}`;
 }
 
 function escapeRegExp(value) {
@@ -251,24 +258,73 @@ async function checkGone() {
 async function checkMirrors() {
   for (const mirrorUrl of mirrorUrls) {
     for (const check of mirrorChecks) {
-      const response = await request(check.from, "GET", mirrorUrl);
-      const location = response.headers.get("location");
-      const targetOriginAndPath = locationOriginAndPathname(location, mirrorUrl);
-      const expectedOriginAndPath = `${baseUrl.origin}${trimTrailingSlash(check.to)}`;
+      const sourceUrl = new URL(check.from, mirrorUrl);
+      const expectedUrl = new URL(check.to, baseUrl);
+      const expectedTarget = normalizedOriginPathAndSearch(expectedUrl);
+      const response = await requestUrl(sourceUrl);
+      const firstTargetUrl = locationUrl(response.headers.get("location"), sourceUrl);
+      const firstTarget = firstTargetUrl
+        ? normalizedOriginPathAndSearch(firstTargetUrl)
+        : null;
 
       if (response.status !== 301) {
         fail(`[mirror ${mirrorUrl.origin}] ${check.from} expected 301, got ${response.status}`);
         continue;
       }
 
-      if (targetOriginAndPath !== expectedOriginAndPath) {
+      if (firstTarget === expectedTarget) {
+        ok(`[mirror ${mirrorUrl.origin}] ${check.from} -> ${expectedTarget} (301)`);
+        continue;
+      }
+
+      // Yandex API Gateway upgrades custom-domain HTTP requests before they
+      // reach the application. Permit only that exact transport hop, then
+      // require the application redirect to reach the canonical URL.
+      if (sourceUrl.protocol !== "http:") {
         fail(
-          `[mirror ${mirrorUrl.origin}] ${check.from} expected Location -> ${expectedOriginAndPath}, got ${targetOriginAndPath ?? "<missing>"}`
+          `[mirror ${mirrorUrl.origin}] ${check.from} expected Location -> ${expectedTarget}, got ${firstTarget ?? "<missing>"}`
         );
         continue;
       }
 
-      ok(`[mirror ${mirrorUrl.origin}] ${check.from} -> ${expectedOriginAndPath} (301)`);
+      const expectedHttpsUpgradeUrl = new URL(sourceUrl);
+      expectedHttpsUpgradeUrl.protocol = "https:";
+      expectedHttpsUpgradeUrl.port = "";
+      const expectedHttpsUpgrade = normalizedOriginPathAndSearch(expectedHttpsUpgradeUrl);
+
+      if (!firstTargetUrl || firstTarget !== expectedHttpsUpgrade) {
+        fail(
+          `[mirror ${mirrorUrl.origin}] ${check.from} expected Location -> ${expectedTarget} or gateway HTTPS upgrade -> ${expectedHttpsUpgrade}, got ${firstTarget ?? "<missing>"}`
+        );
+        continue;
+      }
+
+      const canonicalResponse = await requestUrl(firstTargetUrl);
+      const canonicalTargetUrl = locationUrl(
+        canonicalResponse.headers.get("location"),
+        firstTargetUrl
+      );
+      const canonicalTarget = canonicalTargetUrl
+        ? normalizedOriginPathAndSearch(canonicalTargetUrl)
+        : null;
+
+      if (canonicalResponse.status !== 301) {
+        fail(
+          `[mirror ${mirrorUrl.origin}] ${check.from} gateway HTTPS upgrade reached ${firstTarget}, expected canonical 301, got ${canonicalResponse.status}`
+        );
+        continue;
+      }
+
+      if (canonicalTarget !== expectedTarget) {
+        fail(
+          `[mirror ${mirrorUrl.origin}] ${check.from} gateway HTTPS upgrade expected canonical Location -> ${expectedTarget}, got ${canonicalTarget ?? "<missing>"}`
+        );
+        continue;
+      }
+
+      ok(
+        `[mirror ${mirrorUrl.origin}] ${check.from} -> ${firstTarget} -> ${expectedTarget} (2x301)`
+      );
     }
   }
 }
