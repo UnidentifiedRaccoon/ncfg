@@ -1,7 +1,7 @@
 import type { SeasonOffer2026Content } from "./types";
 
 export const seasonOffer2026Content = {
-  updatedAt: "2026-08-01",
+  updatedAt: "2026-08-04",
   formHref: "#season-offer-lead",
   hero: {
     eyebrow: "Корпоративные программы НЦФГ · осень 2026",
@@ -13,7 +13,7 @@ export const seasonOffer2026Content = {
       label: "Обсудить программу",
       href: "#season-offer-lead",
     },
-    imageSrc: "/services/well-being.png",
+    imageSrc: "/heroV2.webp",
     imageAlt: "",
     metrics: [
       { value: "4", label: "вебинара" },
