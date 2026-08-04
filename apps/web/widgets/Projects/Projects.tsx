@@ -23,9 +23,15 @@ export function Projects({
 }: ProjectsProps) {
   return (
     <Section id="projects" title={title} background="gray">
-      <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-        {projects.map((project) => (
-          <li key={project.id} className="h-full">
+      <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-6">
+        {projects.map((project, index) => (
+          <li
+            key={project.id}
+            className={cn(
+              "h-full",
+              index < 2 ? "lg:col-span-3" : "lg:col-span-2"
+            )}
+          >
             <a
               href={project.href}
               target="_blank"

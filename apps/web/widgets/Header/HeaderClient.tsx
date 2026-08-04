@@ -710,17 +710,17 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
         id={MOBILE_MENU_PANEL_ID}
         aria-hidden={!mobileMenuOpen}
         className={cn(
-          "absolute inset-x-0 top-full z-50 overflow-hidden transition-[max-height] duration-300 xl:hidden",
+          "absolute inset-x-0 top-full z-50 transition-[max-height] duration-300 xl:hidden",
           mobileMenuOpen
-            ? "max-h-[calc(100dvh-4rem)]"
-            : "pointer-events-none max-h-0"
+            ? "max-h-[calc(100dvh-4rem)] overflow-visible lg:max-h-[calc(100dvh-5rem)]"
+            : "pointer-events-none max-h-0 overflow-hidden"
         )}
       >
         {mobileMenuOpen ? (
           <Container className="pb-4">
             <div
               className={cn(
-                "relative mt-2 max-h-[calc(100dvh-5rem)] overflow-y-auto rounded-[22px] border p-3 transition-colors",
+                "relative mt-2 max-h-[calc(100dvh-5.5rem)] overflow-y-auto rounded-[22px] border p-3 transition-colors lg:max-h-[calc(100dvh-6.5rem)]",
                 isHeroTone
                   ? "border-white/12 bg-[#0B1324] shadow-[0_24px_80px_rgba(0,0,0,0.50),inset_0_1px_0_rgba(255,255,255,0.10)]"
                   : "border-white/70 bg-white shadow-[0_22px_60px_rgba(6,20,35,0.28)]"
