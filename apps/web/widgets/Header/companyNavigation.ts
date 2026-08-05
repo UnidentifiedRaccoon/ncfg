@@ -76,6 +76,6 @@ export const COMPANY_NAVIGATION = [
 
 export const SEASONAL_HR_OFFER = {
   title: "Сезонный оффер 2026",
-  href: "/companies/season-offer-2026",
+  href: "/companies/season-offer",
   description: "Готовые форматы для HR-команд на осень 2026 года.",
 } as const;

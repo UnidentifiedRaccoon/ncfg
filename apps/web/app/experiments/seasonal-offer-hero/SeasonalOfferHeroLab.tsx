@@ -86,7 +86,7 @@ const PORTRAIT_PHASES = [
 ] as const;
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
-const CTA_HREF = "/companies/season-offer-2026#season-offer-lead";
+const CTA_HREF = "/companies/season-offer#season-offer-lead";
 const PEOPLE_FOCUS_BACKDROPS = {
   landscape:
     "/experiments/seasonal-offer-hero/people-focus-blurred-landscape-v1.jpg",
