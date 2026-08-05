@@ -19,7 +19,7 @@ import {
 import { HeroLayout } from "@/shared/ui/HeroLayout";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
-const PAGE_PATH = "/companies/season-offer-2026";
+const PAGE_PATH = "/companies/season-offer";
 
 export const revalidate = 0;
 

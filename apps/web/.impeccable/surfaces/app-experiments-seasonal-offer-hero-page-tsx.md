@@ -6,7 +6,7 @@
 - Mode: Persuade, comparative experiment
 - Audience: HRD, L&D and well-being leaders choosing a corporate financial-literacy program
 - Job: understand the offer, see why it applies to a broad workforce, and move to a program discussion
-- Primary action: `Обсудить программу` → `/companies/season-offer-2026#season-offer-lead`
+- Primary action: `Обсудить программу` → `/companies/season-offer#season-offer-lead`
 - Constraint: temporary experiment only; `noindex, nofollow`, no production analytics, no public navigation
 
 ## Direction contract
