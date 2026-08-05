@@ -22,7 +22,7 @@ const STATIC_ROUTES = [
   { path: "/", priority: 1, changeFrequency: "weekly" },
   { path: "/companies", priority: 0.9, changeFrequency: "weekly" },
   {
-    path: "/companies/season-offer-2026",
+    path: "/companies/season-offer",
     priority: 0.8,
     changeFrequency: "monthly",
     lastModified: seasonOffer2026Content.updatedAt,
