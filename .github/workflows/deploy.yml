@@ -128,6 +128,7 @@ jobs:
           context: .
           file: docker/web/Dockerfile
           push: true
+          provenance: false
           tags: |
             ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:${{ github.sha }}
             ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:latest
