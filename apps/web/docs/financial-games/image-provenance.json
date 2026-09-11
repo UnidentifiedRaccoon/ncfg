@@ -1,0 +1,34 @@
+{
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "name": "game-company.webp",
+      "source": "/Users/yura-posledov/Codex/ncfg/apps/web/public/experiments/financial-games/game-company-v5.webp",
+      "generatedOriginal": "/Users/yura-posledov/.codex/generated_images/01a08ff7-9558-70e1-a1be-867833ba42b4/exec-72bd244b-b0ce-4060-9f02-1c11464cfdaa.png",
+      "output": "public/services/financial-games/game-company.webp",
+      "actualResolution": {
+        "width": 1672,
+        "height": 941
+      },
+      "requestedResolution": {
+        "width": 3840,
+        "height": 2160
+      },
+      "export": "Lossless WebP; native dimensions retained. Photographic enhancement, not a 4K upscale.",
+      "provenance": "Generated illustrative scene; not a documentary photograph of an NCFG event.",
+      "prompt": "Use case: identity-preserve. Asset type: photographic hero banner for the NCFG financial-games website. Recreate and improve the supplied existing generated illustration as a high-quality natural editorial photograph of the SAME scene. Keep exactly six adults, their identities, clothing, gestures, seating order, the bright room, large windows, oak table and existing camera composition. Keep the whole framing and the full board and all people. Highest native resolution, ideally 3840x2160, 16:9. Improve precise believable facial features, natural skin and hair detail, hands with correct anatomy, fabric weave, clean card edges, real wood texture, photographic microcontrast without oversharpening. Soft window daylight, natural navy, white and beige clothes. The financial game has a purple board, colorful path cells, several small pawns, neat multicolored card decks. Keep board-game objects and their spatial positions, printed material must look optically believable, do not introduce conspicuous new readable text. No UI, caption, watermark, glass overlay, added graphics, plastic skin, heavy cinematic grading or painterly texture. Output the photograph alone."
+    },
+    {
+      "name": "workshop-start.webp",
+      "generatedOriginal": "/Users/yura-posledov/.codex/generated_images/01a08ff7-9558-70e1-a1be-867833ba42b4/exec-2a7357f9-b8f4-4d10-818c-3f823b34365d.png",
+      "output": "public/services/financial-games/workshop-start.webp",
+      "actualResolution": {
+        "width": 1672,
+        "height": 941
+      },
+      "export": "WebP quality 90, native dimensions retained; no resize.",
+      "provenance": "Generated illustration of the fictional workshop in the negotiation exercise; not a real NCFG venue or event.",
+      "prompt": "Use case: photorealistic-natural. Asset type: decorative photographic background for the start screen of a fictional financial negotiation game on the NCFG website. Primary request: a bright small workshop just before opening, a real wooden work table, practical shelving and a few plain cardboard boxes being unpacked. No people. Style: premium natural architectural editorial photograph, believable modest working space, tactile pale wood, matte off-white plaster, subtle muted blue accents, soft generous window daylight, welcoming and calm. Composition: landscape 16:9, highest native resolution. Straight architectural perspective, medium-wide eye-level camera, no fisheye. Workshop details, shelving and boxes frame the outer thirds and corners; central 55% is visually quiet, mostly light wall and uncluttered tabletop, intentionally suitable for dark centered webpage text later. Include enough continuous workshop context in the central vertical crop for a narrow phone screen. The image alone should be naturally sharp with gentle photographic depth, recognizable realistic materials; the website will add frosted blue glass and blur separately. Keep contrast restrained with no dark object or busy high-frequency detail in the central text region. No lettering, labels, logos, watermarks, signage, people, board games, money, UI, buttons, added graphical overlays, rendered glass panels, or fake depth-of-field blobs. Deliver only the photograph."
+    }
+  ]
+}

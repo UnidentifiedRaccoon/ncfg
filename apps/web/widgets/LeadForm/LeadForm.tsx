@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   Send,
@@ -103,8 +103,10 @@ export function LeadForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [consent, setConsent] = useState(false);
   const [formStarted, setFormStarted] = useState(false);
-  const consentId = useId();
-  const errorId = useId();
+  // This form has the page-unique #lead-form anchor. Keep its field references
+  // stable when the surrounding server components finish streaming.
+  const consentId = "lead-form-consent";
+  const errorId = "lead-form-error";
 
   const clearError = () => {
     if (status === "error") {

@@ -57,6 +57,7 @@ function computeDockTone(pathname: string | null): DockTone {
   if (typeof window === "undefined") return "hero";
   if (
     pathname?.startsWith("/blog") ||
+    pathname === "/companies/financial-games" ||
     isVacanciesPath(pathname) ||
     pathname?.startsWith("/diagnostika")
   ) {
@@ -522,6 +523,7 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
     () => {
       if (
         pathname?.startsWith("/blog") ||
+        pathname === "/companies/financial-games" ||
         isVacanciesPath(pathname) ||
         pathname?.startsWith("/diagnostika")
       ) {

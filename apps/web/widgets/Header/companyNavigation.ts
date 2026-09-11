@@ -9,6 +9,25 @@ export interface CompanyNavigationCategory {
   services: readonly CompanyServiceLink[];
 }
 
+const FINANCIAL_GAMES_NAVIGATION = {
+  id: "financial-games",
+  title: "Финансовые игры",
+  services: [
+    { title: "Об играх и проведении", href: "/companies/financial-games" },
+    { title: "Для сотрудников", href: "/companies/financial-games#employees" },
+    { title: "Для детей сотрудников", href: "/companies/financial-games#children" },
+  ],
+} as const satisfies CompanyNavigationCategory;
+
+export function withFinancialGamesNavigation(
+  categories: readonly CompanyNavigationCategory[],
+): readonly CompanyNavigationCategory[] {
+  const alreadyListed = categories.some(category => category.services.some(service =>
+    service.href.split(/[?#]/)[0] === "/companies/financial-games",
+  ));
+  return alreadyListed ? categories : [...categories, FINANCIAL_GAMES_NAVIGATION];
+}
+
 export const COMPANY_NAVIGATION = [
   {
     id: "wellbeing",
@@ -72,6 +91,7 @@ export const COMPANY_NAVIGATION = [
       },
     ],
   },
+  FINANCIAL_GAMES_NAVIGATION,
 ] as const satisfies readonly CompanyNavigationCategory[];
 
 export const SEASONAL_HR_OFFER = {

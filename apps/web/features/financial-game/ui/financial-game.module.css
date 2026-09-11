@@ -1,0 +1,180 @@
+.trialBoard {
+  --game-ink: var(--color-primary);
+  --game-link: #245fc0;
+  --game-soft: #edf4fa;
+  --game-glass-soft: rgb(from var(--game-soft) r g b / .68);
+  --game-line: #d9e3ec;
+  color: var(--game-ink);
+  background: var(--color-white);
+  font-family: var(--font-inter), sans-serif;
+}
+
+.trialBoard a, .trialBoard button, .trialBoard summary { -webkit-tap-highlight-color: transparent; }
+.trialBoard a:focus-visible, .trialBoard button:focus-visible, .trialBoard summary:focus-visible, .trialBoard input:focus-visible, .trialBoard select:focus-visible, .trialBoard textarea:focus-visible { outline: 3px solid var(--color-secondary); outline-offset: 4px; }
+.trialBoard h1, .trialBoard h2, .trialBoard h3, .trialBoard h4 { text-wrap: balance; }
+.trialBoard h2 { font-size: clamp(28px, 3.1vw, 42px); font-weight: 650; line-height: 1.15; letter-spacing: -.025em; }
+.trialBoard p { text-wrap: pretty; }
+.trialNote { font-size: 12px; line-height: 1.65; color: #52677b; }
+.trialBoard { min-width: 0; padding: 32px; border-radius: 16px; background: var(--game-soft); }
+.trialBoard h3 { font-size: 26px; line-height: 1.25; font-weight: 650; letter-spacing: -.02em; }
+.eventButton { gap: 10px; width: 100%; height: auto; min-height: 48px; padding: 12px 16px; font-size: 14px; background: var(--game-link); }
+.eventButton:hover { background: #1b4fa3; }
+.eventButton:disabled { background: #d1dde8; color: #465d72; opacity: 1; }
+.proposalList { display: grid; gap: 8px; }
+.proposalList button { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 12px 16px; border: 1px solid #6f879d; border-radius: 8px; text-align: left; cursor: pointer; background: white; }
+.proposalList button:hover, .proposalList button[aria-pressed="true"] { border-color: var(--game-link); background: #f8fbff; }
+.proposalList button[aria-pressed="true"] { outline: 1px solid var(--game-link); }
+.proposalList strong { display: block; font-size: 14px; font-weight: 600; }
+.proposalList button > span > span { display: block; font-size: 12px; line-height: 1.5; margin-top: 4px; color: #465d72; }
+.proposalList svg { flex-shrink: 0; visibility: hidden; }
+.sessionScene[data-active="true"] .proposalList button[aria-pressed="true"] svg { visibility: visible; }
+@media (max-width: 760px) {
+  .trialBoard { padding: 24px 20px; }
+  .trialBoard h3 { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trialBoard *, .trialBoard *::before, .trialBoard *::after { scroll-behavior: auto; transition: none; animation: none; }
+  .trialBoard .sessionBackdrop, .trialBoard .sessionGame { transition: none; }
+}
+.dialogueBoard { position: relative; isolation: isolate; }
+.sessionBackdrop { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity 240ms cubic-bezier(.16, 1, .3, 1); }
+.dialogueBoard[data-started="false"] .sessionBackdrop { opacity: 1; }
+.sessionBackdrop > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sessionBackdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgb(from var(--game-soft) r g b / .9) 0%, rgb(from var(--game-soft) r g b / .82) 32%, rgb(from var(--game-soft) r g b / .56) 65%, rgb(from var(--game-soft) r g b / .3) 100%);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+.sessionScreens { display: grid; }
+.sessionStart, .sessionGame { grid-area: 1 / 1; min-width: 0; visibility: hidden; pointer-events: none; }
+.sessionStart[data-active="true"], .sessionGame[data-active="true"] { visibility: visible; pointer-events: auto; }
+.sessionGame { opacity: 0; transition: opacity 240ms cubic-bezier(.16, 1, .3, 1); }
+.sessionGame[data-active="true"] { opacity: 1; }
+.sessionStart { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; }
+.sessionStart h3 { max-width: 36ch; line-height: 1.3; }
+.sessionStart h3:focus-visible { outline: 2px solid var(--game-link); outline-offset: 6px; border-radius: 2px; }
+.sessionStart .eventButton { width: auto; min-width: 220px; max-width: 100%; }
+.sessionHeader { display: flex; align-items: flex-start; gap: 32px; padding-bottom: 24px; margin-bottom: 32px; border-bottom: 1px solid #bdcedd; }
+.sessionProgress { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); flex: 1; gap: 16px; }
+.sessionProgress li { min-width: 0; display: flex; align-items: center; gap: 10px; padding-block: 10px; border-bottom: 2px solid #bdcedd; color: #51697c; font-size: 12px; line-height: 1.4; }
+.sessionProgress li > span:first-child { display: flex; min-width: 18px; height: 20px; justify-content: center; align-items: center; font-weight: 600; }
+.sessionProgress li[aria-current="step"] { color: var(--game-link); border-color: var(--game-link); font-weight: 650; }
+.sessionProgress li[data-complete="true"] { border-color: #7e9dbc; }
+.sessionReset { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding-inline: 8px; color: #465d72; cursor: pointer; font-size: 12px; }
+.sessionReset:hover { color: var(--game-link); }
+.sessionStepCaption { display: none; }
+.sessionWorkspace { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 40px; }
+.sessionContext { min-width: 0; padding-right: 32px; border-right: 1px solid #bdcedd; }
+.sessionParticipants { display: grid; gap: 28px; }
+.sessionParticipants strong, .sessionBudget > strong { font-size: 14px; line-height: 1.4; font-weight: 650; }
+.sessionParticipants p { font-size: 14px; line-height: 1.6; color: #465d72; margin-top: 8px; }
+.playerIdentity { display: flex; align-items: flex-start; gap: 10px; }
+.playerIdentity > div { min-width: 0; }
+.playerMarker { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: var(--game-link); color: white; font-size: 14px; font-weight: 650; }
+.playerMarker[data-player="mikhail"] { background: var(--game-ink); }
+.playerIdentity .playerName { display: block; margin: 0; color: var(--game-ink); font-size: 15px; line-height: 1.4; font-weight: 650; }
+.playerRole { display: block; margin-top: 3px; color: #465d72; font-size: 12px; line-height: 1.5; }
+.sessionBudget { margin-top: 36px; padding-top: 24px; border-top: 1px solid #bdcedd; }
+.sessionBudget dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.sessionBudget dt { font-size: 11px; line-height: 1.5; color: #465d72; }
+.sessionBudget dd { font-size: 26px; line-height: 1.3; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sessionBudget > p { margin-top: 12px; font-size: 11px; line-height: 1.6; color: #465d72; }
+.sessionPlay { min-width: 0; display: grid; grid-template-rows: 1fr auto; }
+.sessionSceneStack { display: grid; }
+.sessionScene { grid-area: 1 / 1; min-width: 0; visibility: hidden; pointer-events: none; }
+.sessionScene[data-active="true"] { visibility: visible; pointer-events: auto; }
+.sessionScene h3 { min-height: 2.5em; margin-bottom: 20px; scroll-margin-top: 24px; }
+.sessionScene h3:focus-visible { outline: 2px solid var(--game-link); outline-offset: 6px; border-radius: 2px; }
+.sessionLead { font-size: 16px; line-height: 1.7; color: #465d72; }
+.sessionGoal { margin-top: 24px; padding-block: 20px; border-block: 1px solid #bdcedd; }
+.sessionGoal h4, .sessionInstructions h4 { font-size: 16px; line-height: 1.5; font-weight: 650; }
+.sessionGoal p { margin-top: 8px; font-size: 14px; line-height: 1.65; color: #465d72; }
+.sessionInstructions { margin-top: 24px; }
+.sessionInstructions ol { display: grid; gap: 12px; list-style: decimal; padding-left: 20px; margin-top: 12px; color: #465d72; font-size: 14px; line-height: 1.65; }
+.sessionInstructions li { padding-left: 4px; }
+.sessionInstructions strong { font-weight: 600; color: var(--game-ink); }
+.sessionPrompt { font-size: 15px; line-height: 1.7; margin-top: 24px; color: #465d72; }
+.sessionVoices { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
+.sessionVoices p { margin-top: 10px; font-size: 13px; line-height: 1.6; color: #465d72; }
+.sessionMessage { display: grid; margin-top: 20px; font-size: 14px; line-height: 1.65; color: #465d72; }
+.sessionMessage > p { grid-area: 1 / 1; }
+.sessionMessage > p[aria-hidden="true"] { visibility: hidden; pointer-events: none; }
+.sessionCondition { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-block: 24px; margin-top: 24px; border-block: 1px solid #bdcedd; font-size: 16px; }
+.sessionCondition strong { font-size: 38px; line-height: 1.2; font-weight: 600; }
+.sessionResult { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.sessionResult span { display: block; font-size: 12px; line-height: 1.5; color: #465d72; }
+.sessionResult strong { display: block; font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.reflectionHeading { font-size: 16px; line-height: 1.5; font-weight: 600; margin-top: 20px; }
+.reflectionChoices { margin-top: 8px; }
+.reflectionChoices button { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-height: 48px; padding-block: 10px; border-bottom: 1px solid #6f879d; text-align: left; font-size: 14px; line-height: 1.5; cursor: pointer; }
+.reflectionChoices button:hover, .reflectionChoices button[aria-pressed="true"] { color: var(--game-link); }
+.reflectionChoices button[aria-pressed="true"] { text-decoration: underline; text-underline-offset: 4px; }
+.reflectionChoices svg { flex-shrink: 0; }
+.sessionControls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #bdcedd; }
+.sessionControls .eventButton { width: auto; min-width: 220px; min-height: 48px; }
+.sessionActionLabel { display: grid; }
+.sessionActionLabel > span { grid-area: 1 / 1; }
+.sessionActionLabel > span[aria-hidden="true"] { visibility: hidden; pointer-events: none; }
+.sessionBack { gap: 8px; min-height: 48px; padding-inline: 12px; color: var(--game-link); font-size: 14px; }
+
+@media (max-width: 1020px) {
+  .sessionWorkspace { grid-template-columns: 200px minmax(0, 1fr); gap: 28px; }
+  .sessionContext { padding-right: 24px; }
+  .sessionHeader { gap: 20px; }
+  .sessionProgress { gap: 10px; }
+  .sessionProgress li { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 11px; }
+}
+@media (max-width: 760px) {
+  .dialogueBoard { padding: 20px; }
+  .sessionBackdrop > img { object-position: 24% center; }
+  .sessionHeader { gap: 12px; padding-bottom: 16px; margin-bottom: 20px; }
+  .sessionProgress { gap: 12px; }
+  .sessionProgress li { justify-content: center; align-items: center; min-height: 44px; padding-block: 8px; }
+  .sessionProgress .sessionStepName { display: none; }
+  .sessionReset > span { display: none; }
+  .sessionStepCaption { display: block; margin: -4px 0 20px; color: #465d72; font-size: 12px; line-height: 1.5; }
+  .sessionWorkspace { grid-template-columns: 1fr; gap: 24px; }
+  .sessionContext { padding: 0 0 20px; border-right: 0; border-bottom: 1px solid #bdcedd; }
+  .sessionParticipants { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .sessionParticipants strong { font-size: 12px; }
+  .sessionParticipants p { margin-top: 4px; font-size: 12px; line-height: 1.5; }
+  .playerIdentity { gap: 8px; }
+  .playerMarker { width: 28px; height: 28px; font-size: 12px; }
+  .playerIdentity .playerName { font-size: 14px; }
+  .playerRole { font-size: 11px; }
+  .sessionBudget { display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; align-items: center; margin-top: 16px; padding: 0; border: 0; }
+  .sessionBudget > strong { font-size: 12px; }
+  .sessionBudget dl { gap: 12px; margin: 0; }
+  .sessionBudget dd { font-size: 22px; }
+  .sessionBudget > p { grid-column: 1 / -1; min-height: 3.2em; margin: 0; font-size: 11px; }
+  .sessionStart h3, .sessionScene h3 { font-size: 22px; }
+  .sessionScene h3 { margin-bottom: 16px; }
+  .sessionLead { font-size: 14px; }
+  .sessionGoal { margin-top: 20px; padding-block: 16px; }
+  .sessionInstructions { margin-top: 20px; }
+  .sessionGoal h4, .sessionInstructions h4 { font-size: 15px; }
+  .sessionGoal p, .sessionInstructions ol { font-size: 13px; }
+  .sessionPrompt { font-size: 14px; }
+  .sessionVoices { gap: 16px; margin-bottom: 16px; }
+  .sessionVoices p { font-size: 12px; }
+  .sessionMessage { font-size: 13px; margin-top: 16px; }
+  .sessionCondition { font-size: 14px; padding-block: 20px; }
+  .sessionCondition strong { font-size: 32px; }
+  .sessionResult { gap: 12px; }
+  .sessionResult span { font-size: 11px; }
+  .sessionResult strong { font-size: 26px; }
+  .reflectionChoices button { font-size: 13px; }
+  .sessionControls { gap: 8px; margin-top: 20px; padding-top: 16px; }
+  .sessionControls .eventButton { min-width: 0; font-size: 12px; padding-inline: 12px; }
+  .sessionBack { font-size: 12px; padding-inline: 4px; }
+}
+@media (max-width: 380px) {
+  .dialogueBoard { padding: 16px; }
+  .sessionBudget { grid-template-columns: 76px 1fr; gap: 8px; }
+  .sessionBudget dl { gap: 8px; }
+  .sessionParticipants { gap: 16px; }
+  .sessionVoices { grid-template-columns: 1fr; gap: 8px; }
+}

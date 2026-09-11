@@ -4,6 +4,7 @@ import { withCmsFallback } from "@/shared/lib/cms-fallback";
 import { HeaderClient } from "./HeaderClient";
 import {
   COMPANY_NAVIGATION,
+  withFinancialGamesNavigation,
   type CompanyNavigationCategory,
 } from "./companyNavigation";
 
@@ -34,7 +35,7 @@ async function loadCompanyNavigation(): Promise<
 }
 
 export async function Header() {
-  const companyNavigation = await loadCompanyNavigation();
+  const companyNavigation = withFinancialGamesNavigation(await loadCompanyNavigation());
 
   return <HeaderClient companyNavigation={companyNavigation} />;
 }

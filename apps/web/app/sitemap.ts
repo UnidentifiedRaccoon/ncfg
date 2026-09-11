@@ -21,6 +21,7 @@ export const revalidate = 0;
 const STATIC_ROUTES = [
   { path: "/", priority: 1, changeFrequency: "weekly" },
   { path: "/companies", priority: 0.9, changeFrequency: "weekly" },
+  { path: "/companies/financial-games", priority: 0.8, changeFrequency: "monthly" },
   {
     path: "/companies/season-offer",
     priority: 0.8,
