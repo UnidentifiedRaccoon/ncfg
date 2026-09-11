@@ -1,4 +1,5 @@
 import { Section } from "@/shared/ui/Section";
+import type { ReactNode } from "react";
 import { ServiceBlock } from "./ServiceBlock";
 
 interface ServiceItem {
@@ -23,6 +24,7 @@ interface ServiceCatalogBanner {
 
 interface ServiceCatalogProps {
   services: Service[];
+  children?: ReactNode;
   /**
    * Base for section id and in-page anchors.
    * Default keeps backward-compatible anchors: `#services-{categoryId}`.
@@ -34,6 +36,7 @@ interface ServiceCatalogProps {
 
 export function ServiceCatalog({
   services,
+  children,
   idBase = "services",
   showBadges = true,
   banner,
@@ -60,6 +63,7 @@ export function ServiceCatalog({
               banner={banner?.serviceId === service.id ? banner : undefined}
             />
           ))}
+          {children}
         </div>
       </div>
     </Section>

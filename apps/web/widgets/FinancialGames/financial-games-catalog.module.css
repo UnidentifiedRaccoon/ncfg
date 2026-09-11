@@ -1,0 +1,49 @@
+.theme {
+  --company-ink: var(--color-primary);
+  --company-link: #245fc0;
+  --company-soft: #edf4fa;
+  --company-copy: #465d72;
+  --company-line: #c4d4e2;
+  color: var(--company-ink);
+  font-family: var(--font-inter), sans-serif;
+}
+
+.theme a:focus-visible { outline: 3px solid var(--company-link); outline-offset: 5px; }
+.serviceBlock { scroll-margin-top: 32px; min-width: 0; }
+.serviceBlock .title { margin: 0 0 24px; font-size: 30px; font-weight: 650; line-height: 1.2; letter-spacing: -.02em; text-wrap: balance; }
+.panel { display: grid; grid-template-columns: 1fr 1.12fr; border-radius: 16px; background: var(--company-soft); }
+.copy { min-width: 0; padding: 40px; display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+.description { font-size: 16px; line-height: 1.65; color: var(--company-copy); max-width: 70ch; text-wrap: pretty; }
+.formats { display: grid; width: 100%; }
+.formats a { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 17px; min-height: 48px; border-top: 1px solid var(--company-line); }
+.formats a:last-child { padding-bottom: 0; }
+.formats strong { display: block; font-size: 16px; line-height: 1.4; font-weight: 650; }
+.formats a > span > span { display: block; margin-top: 5px; color: var(--company-copy); font-size: 14px; line-height: 1.55; }
+.formats svg, .action svg { flex-shrink: 0; }
+.formats a:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+.serviceBlock .action { min-height: 48px; height: auto; max-width: 100%; padding: 12px 20px; gap: 12px; background: var(--company-link); color: white; font-size: 14px; line-height: 1.5; }
+.serviceBlock .action:hover { background: #1b4fa3; }
+.photo { min-width: 0; overflow: hidden; border-radius: 0 16px 16px 0; }
+.photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 62% center; }
+
+@media (max-width: 1020px) {
+  .copy { padding: 28px; }
+  .description { font-size: 15px; }
+}
+
+@media (max-width: 700px) {
+  .serviceBlock .title { font-size: 24px; margin-bottom: 20px; }
+  .panel { grid-template-columns: minmax(0, 1fr); }
+  .copy { padding: 24px; gap: 24px; }
+  .photo { grid-row: 1; aspect-ratio: 4 / 3; border-radius: 16px 16px 0 0; }
+  .photo img { object-position: center; }
+  .formats strong { font-size: 15px; }
+  .formats a > span > span { font-size: 13px; }
+  .serviceBlock .action { width: 100%; padding-inline: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme *, .theme *::before, .theme *::after { scroll-behavior: auto; transition: none; animation: none; }
+}
+
+.serviceBlock { padding-top: 40px; border-top: 1px solid var(--company-line); }

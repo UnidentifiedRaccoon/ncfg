@@ -17,6 +17,7 @@ import {
   buildFAQPageStructuredData,
 } from "@/shared/lib/structured-data";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
+import { FinancialGamesCatalogBlock } from "@/widgets/FinancialGames";
 
 export const revalidate = 0;
 
@@ -80,7 +81,9 @@ export default async function CompaniesPage() {
             ctaLabel: "Скачать презентацию",
             href: "/docs/ncfg-financial-wellbeing.pdf",
           }}
-        />
+        >
+          <FinancialGamesCatalogBlock />
+        </ServiceCatalog>
         <LeadForm />
         <FAQ title="Частые вопросы" items={faqItems} />
       </main>
