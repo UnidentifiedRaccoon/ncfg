@@ -50,7 +50,7 @@ function ProgramCard({
     <MotionDetails
       id={program.id}
       className={cn(
-        "group scroll-mt-28 overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm open:border-[#3B82F6]/35 open:shadow-lg",
+        "group scroll-mt-28 overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-[border-color,box-shadow] duration-200 data-[state=open]:border-[#3B82F6]/35 data-[state=open]:shadow-lg motion-reduce:transition-none",
         program.featured &&
           "border-[#3B82F6]/35 bg-[linear-gradient(135deg,rgba(59,130,246,0.045),#FFFFFF_38%)]"
       )}
@@ -73,33 +73,35 @@ function ProgramCard({
             </span>
           </span>
 
-          <span className="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] text-[#3B82F6] transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none">
+          <span className="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] text-[#3B82F6] transition-transform duration-200 group-data-[state=open]:rotate-180 motion-reduce:transition-none">
             <ChevronDown className="h-5 w-5" aria-hidden="true" />
           </span>
         </h3>
       </summary>
 
-      <div className="border-t border-[#E2E8F0] px-5 py-6 md:px-7 md:py-8">
-        <div className="grid gap-8 md:grid-cols-3">
-          <ProgramList title={program.audienceTitle} items={program.audience} />
-          <ProgramList title={program.outcomesTitle} items={program.outcomes} />
-          <ProgramList title="Формат" items={program.format} />
-        </div>
+      <div className="overflow-hidden">
+        <div className="border-t border-[#E2E8F0] px-5 py-6 md:px-7 md:py-8">
+          <div className="grid gap-8 md:grid-cols-3">
+            <ProgramList title={program.audienceTitle} items={program.audience} />
+            <ProgramList title={program.outcomesTitle} items={program.outcomes} />
+            <ProgramList title="Формат" items={program.format} />
+          </div>
 
-        <div className="mt-7 flex flex-col gap-4 border-t border-[#E2E8F0] pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-xl text-sm leading-relaxed text-[#64748B]">
-            Состав программы и примеры адаптируем под аудиторию на брифинге.
-          </p>
-          <Button
-            href={formHref}
-            data-ym-goal="cta_click"
-            data-ym-cta-location="program"
-            data-lead-program={program.id}
-            className="w-full shrink-0 sm:w-auto"
-            aria-label={`${ctaLabel}: ${program.title}`}
-          >
-            {ctaLabel}
-          </Button>
+          <div className="mt-7 flex flex-col gap-4 border-t border-[#E2E8F0] pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-xl text-sm leading-relaxed text-[#64748B]">
+              Состав программы и примеры адаптируем под аудиторию на брифинге.
+            </p>
+            <Button
+              href={formHref}
+              data-ym-goal="cta_click"
+              data-ym-cta-location="program"
+              data-lead-program={program.id}
+              className="w-full shrink-0 sm:w-auto"
+              aria-label={`${ctaLabel}: ${program.title}`}
+            >
+              {ctaLabel}
+            </Button>
+          </div>
         </div>
       </div>
     </MotionDetails>
