@@ -1,4 +1,5 @@
 import { Section } from "@/shared/ui/Section";
+import { Reveal } from "@/shared/ui/Reveal";
 import { ProductShowcaseItem } from "./ProductShowcaseItem";
 
 interface Product {
@@ -36,13 +37,13 @@ export function ProductShowcase({
   products,
 }: ProductShowcaseProps) {
   return (
-    <Section id="services" title={title} lead={lead}>
+    <Section id="services" title={title} lead={lead} className="overflow-x-clip">
       <div className="relative">
         <DecorativeBackground />
 
         <div className="relative z-10 space-y-6 md:space-y-8">
           {products.map((product, index) => (
-            <div key={product.title}>
+            <Reveal key={product.title} variant="card" from={index % 2 === 0 ? "left" : "right"}>
               <ProductShowcaseItem
                 title={product.title}
                 description={product.description}
@@ -52,7 +53,7 @@ export function ProductShowcase({
                 audience={product.audience}
                 reversed={index % 2 === 1}
               />
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

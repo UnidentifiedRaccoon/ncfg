@@ -1,4 +1,5 @@
 export { seasonOffer2026Content } from "./model/content";
+export { SeasonOfferHero } from "./ui/SeasonOfferHero";
 export { SeasonOfferAssurance } from "./ui/SeasonOfferAssurance";
 export { SeasonOfferPrograms } from "./ui/SeasonOfferPrograms";
 export { SeasonOfferTaskNavigator } from "./ui/SeasonOfferTaskNavigator";

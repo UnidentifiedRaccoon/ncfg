@@ -1,5 +1,9 @@
 "use client";
 
+import { AnimatePresence } from "motion/react";
+import { PresencePanel } from "@/shared/ui/PresencePanel";
+import { ContentTransition } from "@/shared/ui/ContentTransition";
+
 import {
   ArrowRight,
   ChevronDown,
@@ -416,7 +420,7 @@ function DesktopTabletMenu({
           styles.servicePanel
         )}
       >
-        <div className={cn("divide-y px-3 py-2", styles.serviceList)}>
+        <ContentTransition stateKey={selectedCategory.id} className={cn("divide-y px-3 py-2", styles.serviceList)}>
           {selectedCategory.services.map((service) => (
             <div key={service.href} className="py-1">
               <ServiceLink
@@ -426,7 +430,7 @@ function DesktopTabletMenu({
               />
             </div>
           ))}
-        </div>
+        </ContentTransition>
       </div>
 
       <div
@@ -473,7 +477,10 @@ function MobileAccordion({
         type="button"
         aria-expanded={open}
         aria-controls={contentId}
-        onClick={onToggle}
+        onClick={(event) => {
+          event.currentTarget.focus({ preventScroll: true });
+          onToggle();
+        }}
         className={cn(
           "flex min-h-16 w-full items-center justify-between gap-4 px-4 py-3 text-left transition-[background-color,color,box-shadow] duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px]!",
           styles.focus,
@@ -497,14 +504,15 @@ function MobileAccordion({
         />
       </button>
 
+      <AnimatePresence initial={false}>
       {open ? (
-        <div
+        <PresencePanel collapse key="category"
           id={contentId}
           role="region"
           aria-labelledby={triggerId}
-          className={cn("divide-y px-3 py-2", styles.mobileContent)}
+          className={cn("overflow-hidden", styles.mobileContent)}
         >
-          {category.services.map((service) => (
+          <div className="divide-y px-3 py-2">{category.services.map((service) => (
             <div key={service.href} className="py-1">
               <ServiceLink
                 service={service}
@@ -512,9 +520,10 @@ function MobileAccordion({
                 onNavigate={onNavigate}
               />
             </div>
-          ))}
-        </div>
+          ))}</div>
+        </PresencePanel>
       ) : null}
+      </AnimatePresence>
     </div>
   );
 }

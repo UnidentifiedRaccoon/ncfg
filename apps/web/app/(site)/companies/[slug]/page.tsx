@@ -1,3 +1,4 @@
+import { HeroMotionScene } from "@/shared/ui/HeroMotionScene";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -137,50 +138,56 @@ export default async function ServicePage({ params }: PageProps) {
       <StructuredDataScript data={breadcrumbStructuredData} />
       {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
-        <ServiceHero
-          title={service.title}
-          shortDescription={service.shortDescription}
-          ctaLabel={service.cta?.label}
-        />
-        <ServiceDescription
-          descriptionTitle={service.fullDescriptionTitle || "Описание услуги"}
-          descriptionMarkdown={service.fullDescription}
-          benefitsTitle={service.benefitsTitle}
-          benefits={service.benefits}
-        />
-        <ServiceHtmlSection
-          id="html-section-before"
-          html={service.htmlSectionBefore}
-        />
-        <ServiceMarkdownSection
-          id="useful-information"
-          title="Полезная информация"
-          markdown={service.usefulInformation}
-          variant="info-card"
-        />
-        {howWeWorkSteps.length > 0 && (
-          <HowWeWork
-            title={service.howWeWorkTitle || "Как мы работаем"}
-            steps={howWeWorkSteps}
+        <HeroMotionScene
+          hero={
+            <ServiceHero
+              title={service.title}
+              shortDescription={service.shortDescription}
+              ctaLabel={service.cta?.label}
+            />
+          }
+        >
+          <ServiceDescription
+            descriptionTitle={service.fullDescriptionTitle || "Описание услуги"}
+            descriptionMarkdown={service.fullDescription}
+            benefitsTitle={service.benefitsTitle}
+            benefits={service.benefits}
           />
-        )}
-        <Webinars
-          id="webinars"
-          title={service.webinarsTitle || "Вебинары"}
-          webinars={service.webinars ?? []}
-        />
-        <ServiceHtmlSection
-          id="html-section-after"
-          html={service.htmlSectionAfter}
-        />
-        <ServiceExamples
-          title={service.examplesTitle || "Примеры работ"}
-          examples={service.examples ?? []}
-        />
-        <LeadForm />
-        <FAQ title="Частые вопросы" items={faqItems} />
+          <ServiceHtmlSection
+            id="html-section-before"
+            html={service.htmlSectionBefore}
+          />
+          <ServiceMarkdownSection
+            id="useful-information"
+            title="Полезная информация"
+            markdown={service.usefulInformation}
+            variant="info-card"
+          />
+          {howWeWorkSteps.length > 0 && (
+            <HowWeWork
+              title={service.howWeWorkTitle || "Как мы работаем"}
+              steps={howWeWorkSteps}
+            />
+          )}
+          <Webinars
+            id="webinars"
+            title={service.webinarsTitle || "Вебинары"}
+            webinars={service.webinars ?? []}
+          />
+          <ServiceHtmlSection
+            id="html-section-after"
+            html={service.htmlSectionAfter}
+          />
+          <ServiceExamples
+            title={service.examplesTitle || "Примеры работ"}
+            examples={service.examples ?? []}
+          />
+          <LeadForm audience="corporate" program={{ id: slug, title: service.title }} />
+          <FAQ title="Частые вопросы" items={faqItems} />
+        </HeroMotionScene>
       </main>
       <Footer
+        ctaHref="#lead-form"
         data={{
           organization: {
             fullName: siteSetting.organizationFullName,

@@ -1,6 +1,6 @@
-"use client";
-
 import { Container } from "@/shared/ui/Container";
+import { Reveal } from "@/shared/ui/Reveal";
+import { motionTokens } from "@/shared/lib/motion";
 import type { TeamMember } from "./types";
 import { pickLeadershipMembers } from "./team-utils";
 import {
@@ -15,10 +15,8 @@ import {
 interface TeamListProps {
   featured: TeamMember[];
   regular: TeamMember[];
-  prefersReducedMotion: boolean | null;
 }
-
-function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListProps) {
+function DesktopBentoView({ featured, regular }: TeamListProps) {
   // Determine grid layout based on team size
   const totalMembers = featured.length + regular.length;
   const hasAccentCard = totalMembers >= 4;
@@ -63,7 +61,7 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
   const { heroMember, featuredMember } = pickLeadershipMembers(featured);
 
   // Map regular members to grid areas
-  const regularGridAreas = ["p1", "p2", "p3", "p4", "p5", "p6", "p7"];
+  const regularGridAreas = ["[grid-area:p1]", "[grid-area:p2]", "[grid-area:p3]", "[grid-area:p4]", "[grid-area:p5]", "[grid-area:p6]", "[grid-area:p7]"];
 
   return (
     <Container>
@@ -77,40 +75,25 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
       >
         {/* Hero Card (Founder) */}
         {heroMember && (
-          <HeroCard
-            member={heroMember}
-            index={0}
-            prefersReducedMotion={prefersReducedMotion}
-          />
+          <Reveal variant="card" className="[grid-area:hero] [&>article]:h-full">
+            <HeroCard member={heroMember} />
+          </Reveal>
         )}
-
         {/* Featured Card (Leader) */}
         {featuredMember && (
-          <FeaturedCard
-            member={featuredMember}
-            index={1}
-            gridArea="lead"
-            prefersReducedMotion={prefersReducedMotion}
-          />
+          <Reveal variant="card" delay={motionTokens.stagger} className="[grid-area:lead] [&>article]:h-full">
+            <FeaturedCard member={featuredMember} gridArea="lead" />
+          </Reveal>
         )}
-
         {/* Regular Team Cards */}
         {regular.slice(0, regularGridAreas.length).map((member, index) => (
-          <TeamCard
-            key={member.id}
-            member={member}
-            index={index + 2}
-            gridArea={regularGridAreas[index]}
-            prefersReducedMotion={prefersReducedMotion}
-          />
+          <Reveal key={member.id} variant="card" delay={motionTokens.stagger * (index % 2)} className={`${regularGridAreas[index]} [&>article]:h-full`}>
+            <TeamCard member={member} />
+          </Reveal>
         ))}
-
         {/* Accent Card with quote/stats */}
         {hasAccentCard && totalMembers >= 8 && (
-          <AccentCard
-            index={regular.length + 2}
-            prefersReducedMotion={prefersReducedMotion}
-          />
+          <Reveal viewport="inset" className="[grid-area:acc] [&>div]:h-full"><AccentCard /></Reveal>
         )}
       </div>
 
@@ -130,41 +113,34 @@ function DesktopBentoView({ featured, regular, prefersReducedMotion }: TeamListP
     </Container>
   );
 }
-
-function MobileTeamStack({ featured, regular, prefersReducedMotion }: TeamListProps) {
+function MobileTeamStack({ featured, regular }: TeamListProps) {
   return (
     <div className="space-y-6">
       {/* Hero cards for leadership */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {featured.map((member, index) => (
-          <MobileHeroCard
-            key={member.id}
-            member={member}
-            index={index}
-            prefersReducedMotion={prefersReducedMotion}
-          />
+        {featured.map((member) => (
+          <Reveal key={member.id} variant="card" className="h-full [&>div]:h-full">
+            <MobileHeroCard member={member} />
+          </Reveal>
         ))}
       </div>
 
       {/* Horizontal scroll for team */}
       {regular.length > 0 && (
-        <div className="-mx-4 px-4">
+        <Reveal viewport="inset" className="-mx-4 px-4">
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide">
-            {regular.map((member, index) => (
+            {regular.map((member) => (
               <MobileTeamCard
                 key={member.id}
                 member={member}
-                index={index}
-                prefersReducedMotion={prefersReducedMotion}
               />
             ))}
           </div>
-        </div>
+        </Reveal>
       )}
     </div>
   );
 }
-
 export function TeamList(props: TeamListProps) {
   return (
     <>
@@ -178,4 +154,3 @@ export function TeamList(props: TeamListProps) {
     </>
   );
 }
-

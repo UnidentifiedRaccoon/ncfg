@@ -1,3 +1,5 @@
+import { Reveal } from "@/shared/ui/Reveal";
+import { motionTokens } from "@/shared/lib/motion";
 import {
   ArrowUpRight,
   GraduationCap,
@@ -106,7 +108,7 @@ function ProductTile({
     <ProductTileLink
       href={product.href}
       className={cn(
-        "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out [will-change:transform]",
+        "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out",
         "bg-white border-[#F1F5F9]",
         "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
@@ -185,17 +187,20 @@ export function Products() {
       id="products"
       title="Продукты"
       lead="Программы финансовой грамотности для детей и взрослых — выберите подходящий формат"
+      className="overflow-x-clip"
     >
       <div className="relative">
         <DecorativeBackground />
 
         <div className="relative z-10 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-          <div className="h-full">
+          <Reveal variant="card" from="left" className="h-full min-w-0">
             <ProductTile product={products[0]} featured />
-          </div>
+          </Reveal>
 
           {products.slice(1).map((product) => (
-            <ProductTile key={product.id} product={product} />
+            <Reveal key={product.id} variant="card" from="right" delay={motionTokens.stagger} className="h-full min-w-0">
+              <ProductTile product={product} />
+            </Reveal>
           ))}
         </div>
       </div>

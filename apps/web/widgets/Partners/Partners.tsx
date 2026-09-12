@@ -1,17 +1,25 @@
 "use client";
 
 import {
-  useEffect,
+  useRef,
   useId,
   useState,
+  useLayoutEffect,
+  type ReactNode,
   type FocusEvent as ReactFocusEvent,
 } from "react";
 import Image from "next/image";
+import { m, useAnimate, useInView, type MotionValue } from "motion/react";
+import { motionTokens, useAutoplay, useDocumentVisible, useReducedMotion } from "@/shared/lib/motion";
+import { ContentTransition } from "@/shared/ui/ContentTransition";
+import { Reveal } from "@/shared/ui/Reveal";
 import {
   ChevronLeft,
   ChevronRight,
   ArrowRight,
   Award,
+  Pause,
+  Play,
 } from "lucide-react";
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
@@ -72,9 +80,7 @@ function CategoryTabs({
   panelId,
   tabsBaseId,
   canShowProgress,
-  isAutoplayPaused,
-  progressKey,
-  onProgressComplete,
+  progress,
 }: {
   categories: Category[];
   activeIndex: number;
@@ -82,9 +88,7 @@ function CategoryTabs({
   panelId: string;
   tabsBaseId: string;
   canShowProgress: boolean;
-  isAutoplayPaused: boolean;
-  progressKey: number;
-  onProgressComplete: () => void;
+  progress: MotionValue<number>;
 }) {
   return (
     <div
@@ -110,7 +114,7 @@ function CategoryTabs({
             onClick={() => onChange(index)}
             className={cn(
               // Keep geometry stable: constant border width prevents "jumping" when active tab changes.
-              "relative overflow-hidden snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full border border-transparent",
+              "relative shrink-0 overflow-hidden snap-start whitespace-nowrap px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold rounded-full border border-transparent",
               "transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
               isActive
@@ -119,14 +123,10 @@ function CategoryTabs({
             )}
           >
             {isActive && canShowProgress && (
-              <span
-                key={progressKey}
+              <m.span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 origin-left rounded-full bg-[#3B82F6]/[0.08] animate-[tabProgress_5s_linear_1_both]"
-                style={{
-                  animationPlayState: isAutoplayPaused ? "paused" : "running",
-                }}
-                onAnimationEnd={onProgressComplete}
+                className="pointer-events-none absolute inset-0 origin-left rounded-full bg-[#3B82F6]/[0.08]"
+                style={{ scaleX: progress }}
               />
             )}
             <span className="relative z-[1]">{category.name}</span>
@@ -137,11 +137,45 @@ function CategoryTabs({
   );
 }
 
+function LogoGrid({ category, children }: { category: string | number; children: ReactNode }) {
+  const [scope, animate] = useAnimate<HTMLDivElement>();
+  const previous = useRef(category);
+  const reduced = useReducedMotion();
+
+  useLayoutEffect(() => {
+    const node = scope.current;
+    if (!node) return;
+    const changed = previous.current !== category;
+    previous.current = category;
+    const tiles = Array.from(node.children);
+    if (!tiles.length) return;
+    // Prepare before paint so a new category cannot flash at full opacity.
+    // A single mounted grid preserves tab order; text keeps its own hover scale.
+    const moving = changed && !reduced && !node.contains(document.activeElement);
+    const playback = animate(tiles, moving
+      ? { opacity: [0, 1], y: [motionTokens.logoDistance, 0] }
+      : { opacity: 1, y: 0 }, {
+      duration: moving ? motionTokens.logoReveal : 0,
+      ease: motionTokens.ease,
+      delay: moving ? (index) => Math.min(index * motionTokens.logoStagger, motionTokens.maxStagger) : 0,
+    });
+    if (!moving) playback.complete();
+    const finish = () => playback.complete();
+    node.addEventListener("focusin", finish);
+    return () => {
+      node.removeEventListener("focusin", finish);
+      playback.stop();
+    };
+  }, [animate, category, reduced, scope]);
+
+  return <div ref={scope} data-partner-logos className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-4 md:gap-4 motion-reduce:[&>div]:!opacity-100 motion-reduce:[&>div]:!transform-none">{children}</div>;
+}
+
 function LogoTile({ logo }: { logo: Logo }) {
   const isLink = !!logo.href;
 
   const tileClassName = cn(
-    "group relative aspect-[3/2] rounded-xl border border-[#E2E8F0]/70 bg-white",
+    "group relative block aspect-[3/2] rounded-xl border border-[#E2E8F0]/70 bg-white",
     "shadow-sm shadow-[#0F172A]/[0.03]"
   );
 
@@ -152,16 +186,10 @@ function LogoTile({ logo }: { logo: Logo }) {
         "flex items-center justify-center p-2 sm:p-3"
       )}
     >
-      <div className="flex h-full w-full items-center justify-center text-center">
-        <div className="relative w-full">
-          <span className="invisible block text-[13px] sm:text-sm font-semibold tracking-tight text-[#64748B] leading-[1.25] line-clamp-2">
-            {logo.title}
-          </span>
-          <span className="absolute inset-0 text-[11px] sm:text-xs font-semibold tracking-tight text-[#64748B] leading-[1.25] line-clamp-2 transition-[font-size] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none group-hover:text-[13px] sm:group-hover:text-sm group-focus-visible:text-[13px] sm:group-focus-visible:text-sm">
-            {logo.title}
-          </span>
-        </div>
-      </div>
+      {/* Lay out at the final size: scaling never reflows letters or line breaks. */}
+      <span className="w-full text-center text-[13px] sm:text-sm font-semibold tracking-tight text-[#64748B] leading-[1.25] line-clamp-2 [overflow-wrap:anywhere] origin-center scale-100 motion-safe:scale-[0.85] sm:motion-safe:scale-[0.86] transition-transform duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-100 group-focus-visible:scale-100 motion-reduce:transition-none">
+        {logo.title}
+      </span>
     </div>
   );
 
@@ -224,6 +252,7 @@ function TestimonialCard({
   onPrev,
   onNext,
   onSelect,
+  direction,
 }: {
   title: string;
   items: Testimonial[];
@@ -232,6 +261,7 @@ function TestimonialCard({
   onPrev: () => void;
   onNext: () => void;
   onSelect: (nextIndex: number) => void;
+  direction: "forward" | "backward";
 }) {
   const current = items[activeIndex];
 
@@ -278,24 +308,26 @@ function TestimonialCard({
           )}
         </div>
 
-        <div className="mt-5">
-          <CompanyMark
-            key={(current.logoImg || "") + current.company}
-            company={current.company}
-            logoImg={current.logoImg}
-          />
-        </div>
+        <ContentTransition stateKey={current.id} direction={direction}>
+          <div className="mt-5">
+            <CompanyMark
+              key={(current.logoImg || "") + current.company}
+              company={current.company}
+              logoImg={current.logoImg}
+            />
+          </div>
 
-        <blockquote
-          className={cn(
-            "mt-5 pr-1 text-[#475569] text-[15px] leading-relaxed",
-            // Clean multi-line truncation with ellipsis.
-            "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:10]",
-            "md:[-webkit-line-clamp:11]"
-          )}
-        >
-          {current.quote}
-        </blockquote>
+          <blockquote
+            className={cn(
+              "mt-5 pr-1 text-[#475569] text-[15px] leading-relaxed",
+              // Clean multi-line truncation with ellipsis.
+              "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:10]",
+              "md:[-webkit-line-clamp:11]"
+            )}
+          >
+            {current.quote}
+          </blockquote>
+        </ContentTransition>
 
         <div
           className={cn(
@@ -404,37 +436,31 @@ function AwardsStrip({ awards }: { awards: AwardItem[] }) {
 export function Partners({ awards, clientsCarousel, testimonials }: PartnersProps) {
   const [activeCategory, setActiveCategory] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [testimonialDirection, setTestimonialDirection] = useState<"forward" | "backward">("forward");
   const [progressKey, setProgressKey] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [hasFocusWithin, setHasFocusWithin] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-      return false;
-    }
-
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
-  const [isDocumentVisible, setIsDocumentVisible] = useState(() => {
-    if (typeof document === "undefined") {
-      return true;
-    }
-
-    return document.visibilityState === "visible";
-  });
+  const [manuallyPaused, setManuallyPaused] = useState(false);
+  const regionRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(regionRef, { amount: 0.15 });
+  const prefersReducedMotion = useReducedMotion();
+  const isDocumentVisible = useDocumentVisible();
 
   const tabsBaseId = useId();
   const panelId = `${tabsBaseId}-panel`;
 
   const categories = clientsCarousel.categories ?? [];
-  const isInteractionPaused = isHovered || hasFocusWithin;
-  const shouldRenderProgress =
-    categories.length > 1 && !prefersReducedMotion && isDocumentVisible;
-  const isProgressPaused = isInteractionPaused;
-  const canAutoplayWithInterval =
-    categories.length > 1 &&
-    !isInteractionPaused &&
-    prefersReducedMotion &&
-    isDocumentVisible;
+  const shouldRenderProgress = categories.length > 1 && !prefersReducedMotion;
+  const canAutoplay = shouldRenderProgress && isDocumentVisible && inView && !isHovered && !hasFocusWithin && !manuallyPaused;
+  const progress = useAutoplay({
+    enabled: canAutoplay,
+    cycle: progressKey,
+    duration: motionTokens.partnerInterval,
+    onAdvance: () => {
+      setActiveCategory((current) => (current + 1) % categories.length);
+      setProgressKey((current) => current + 1);
+    },
+  });
   const safeActiveCategory = Math.min(activeCategory, Math.max(categories.length - 1, 0));
   const currentCategory = categories[safeActiveCategory];
 
@@ -444,57 +470,6 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
     Math.max(testimonialItems.length - 1, 0)
   );
   const activeTabId = `${tabsBaseId}-tab-${currentCategory?.id ?? "unknown"}`;
-
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onMediaQueryChange = (event: MediaQueryListEvent) => {
-      setPrefersReducedMotion(event.matches);
-    };
-
-    mediaQuery.addEventListener("change", onMediaQueryChange);
-
-    return () => {
-      mediaQuery.removeEventListener("change", onMediaQueryChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === "undefined") {
-      return;
-    }
-
-    const onVisibilityChange = () => {
-      setIsDocumentVisible(document.visibilityState === "visible");
-    };
-
-    document.addEventListener("visibilitychange", onVisibilityChange);
-
-    return () => {
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-    };
-  }, []);
-
-  // Reduced-motion fallback: auto-rotate via interval when animation is suppressed
-  useEffect(() => {
-    if (!canAutoplayWithInterval) return;
-
-    const intervalId = window.setInterval(() => {
-      setActiveCategory((prev) => (prev + 1) % categories.length);
-    }, 5000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [canAutoplayWithInterval, categories.length]);
-
-  const handleProgressComplete = () => {
-    setActiveCategory((prev) => (prev + 1) % categories.length);
-    setProgressKey((k) => k + 1);
-  };
 
   const handleAutoplayBlur = (event: ReactFocusEvent<HTMLDivElement>) => {
     const nextFocused = event.relatedTarget;
@@ -509,9 +484,10 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
   return (
     <Section id="partners" title={clientsCarousel.title}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="min-w-0 lg:col-span-8">
+        <Reveal viewport="inset" className="min-w-0 lg:col-span-8">
           <div
             className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm lg:h-[500px]"
+            ref={regionRef}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onFocusCapture={() => setHasFocusWithin(true)}
@@ -535,6 +511,12 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                       Клиенты и партнеры
                     </h3>
                   </div>
+                  {categories.length > 1 && !prefersReducedMotion && (
+                    <button type="button" aria-pressed={manuallyPaused} onClick={() => setManuallyPaused((paused) => !paused)} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm text-[#475569] hover:bg-[#F1F5F9]">
+                      {manuallyPaused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
+                      {manuallyPaused ? "Продолжить смену" : "Приостановить смену"}
+                    </button>
+                  )}
                 </div>
 
                 <CategoryTabs
@@ -547,9 +529,7 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                   panelId={panelId}
                   tabsBaseId={tabsBaseId}
                   canShowProgress={shouldRenderProgress}
-                  isAutoplayPaused={isProgressPaused}
-                  progressKey={progressKey}
-                  onProgressComplete={handleProgressComplete}
+                  progress={progress}
                 />
 
                 <div
@@ -560,41 +540,48 @@ export function Partners({ awards, clientsCarousel, testimonials }: PartnersProp
                   className="mt-1 flex min-w-0 flex-col lg:min-h-0 lg:flex-1"
                 >
                   <div className="min-w-0 flex-1 overflow-visible lg:min-h-0 lg:overflow-auto lg:pr-1">
-                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-4 md:gap-4">
+                    <LogoGrid category={currentCategory?.id ?? safeActiveCategory}>
                       {(currentCategory?.logos ?? []).slice(0, 12).map((logo) => (
-                        <LogoTile key={logo.id} logo={logo} />
+                        <div key={logo.id} className="min-w-0"><LogoTile logo={logo} /></div>
                       ))}
-                    </div>
+                    </LogoGrid>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="min-w-0 lg:col-span-4">
+        <Reveal viewport="inset" delay={motionTokens.stagger} className="min-w-0 lg:col-span-4">
           <TestimonialCard
             title={testimonials.title}
             items={testimonialItems}
             more={testimonials.more}
             activeIndex={safeActiveTestimonial}
+            direction={testimonialDirection}
             onPrev={() => {
+              setTestimonialDirection("backward");
               setActiveTestimonial(
                 (prev) => (prev - 1 + testimonialItems.length) % testimonialItems.length
               );
               reachGoal(YM_GOALS.TESTIMONIAL_NAV);
             }}
             onNext={() => {
+              setTestimonialDirection("forward");
               setActiveTestimonial((prev) => (prev + 1) % testimonialItems.length);
               reachGoal(YM_GOALS.TESTIMONIAL_NAV);
             }}
-            onSelect={(nextIndex) => { setActiveTestimonial(nextIndex); reachGoal(YM_GOALS.TESTIMONIAL_NAV); }}
+            onSelect={(nextIndex) => {
+              setTestimonialDirection(nextIndex < safeActiveTestimonial ? "backward" : "forward");
+              setActiveTestimonial(nextIndex);
+              reachGoal(YM_GOALS.TESTIMONIAL_NAV);
+            }}
           />
-        </div>
+        </Reveal>
 
-        <div className="min-w-0 lg:col-span-12">
+        <Reveal viewport="inset" className="min-w-0 lg:col-span-12">
           <AwardsStrip awards={awards} />
-        </div>
+        </Reveal>
       </div>
     </Section>
   );

@@ -1,0 +1,112 @@
+.scene {
+  position: relative;
+  display: flow-root;
+  isolation: isolate;
+}
+
+/* Window-scroll offsets need a positioned root; scope this to pages with a hero scene. */
+:global(html):has(.scene) {
+  position: relative;
+}
+
+.hero {
+  position: relative;
+  display: flow-root;
+  z-index: 1;
+}
+
+.hero[inert] {
+  visibility: hidden;
+}
+
+.mission {
+  position: relative;
+  z-index: 2;
+  display: flow-root;
+  background: #fff;
+}
+
+.sentinel {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  pointer-events: none;
+}
+
+.scene[data-enhanced="true"] .mission :global([data-mission-mobile-card]) {
+  transform: translateY(calc(var(--home-mobile-y, 0) * 1px)) scale(var(--home-mobile-scale, 1));
+  transform-origin: center top;
+}
+
+/* Mirror the live preference in CSS without waiting for offscreen Motion values. */
+.scene[data-enhanced="false"] .hero :global([data-hero-art]),
+.scene[data-enhanced="false"] .mission :global([data-mission-layer]),
+.scene[data-enhanced="false"] .mission :global([data-mission-mobile-card]) {
+  transform: none;
+  opacity: 1;
+}
+
+@media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+  .scene[data-enhanced="true"] .hero {
+    position: sticky;
+    top: var(--home-sticky-top, 80px);
+  }
+
+  .scene[data-enhanced="true"] .hero :global([data-hero-art]) {
+    opacity: var(--home-art-opacity, 1);
+    transform: translate3d(calc(var(--home-art-x, 0) * 1px), calc(var(--home-art-y, 0) * 1px), 0)
+      scale(var(--home-art-scale, 1)) rotate(calc(var(--home-art-rotate, 0) * 1deg));
+    transform-origin: 65% 65%;
+  }
+
+  .scene[data-enhanced="true"] .mission {
+    border-radius: calc(var(--home-surface-radius, 0) * 1px) calc(var(--home-surface-radius, 0) * 1px) 0 0;
+  }
+}
+
+@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+  .scene[data-enhanced="true"] .mission :global([data-mission-layer="0"]) {
+    transform: translateY(calc(var(--home-front-y, 0) * 1px)) rotate(calc(var(--home-front-rotate, 0) * 1deg));
+    transform-origin: center 75%;
+  }
+
+  .scene[data-enhanced="true"] .mission :global([data-mission-layer="1"]) {
+    transform: translateY(calc(var(--home-middle-y, 0) * 1px)) rotate(calc(var(--home-middle-rotate, 0) * 1deg));
+    transform-origin: center 75%;
+  }
+
+  .scene[data-enhanced="true"] .mission :global([data-mission-layer="2"]) {
+    transform: translateY(calc(var(--home-back-y, 0) * 1px)) rotate(calc(var(--home-back-rotate, 0) * 1deg));
+    transform-origin: center 75%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene .hero :global([data-hero-art]),
+  .scene .mission :global([data-mission-layer]),
+  .scene .mission :global([data-mission-mobile-card]) {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Content owns its paint and keeps native sticky descendants (no overflow wrapper). */
+.scene:not([data-home-motion-scene]) .mission > :first-child:not(.sentinel),
+.scene:not([data-home-motion-scene]) .mission > .sentinel + * {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+@media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+  .scene[data-enhanced="true"][data-hero-motion-scene="photo"] .hero :global([data-hero-photo]) {
+    transform: translateY(calc(var(--home-photo-y, 0) * 1px)) scale(var(--home-photo-scale, 1));
+    transform-origin: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene .hero :global([data-hero-photo]) { transform: none; }
+  .entrance,
+  .entrance :global([data-hero-copy]),
+  .entrance h1 { transform: none !important; }
+}

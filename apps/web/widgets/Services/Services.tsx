@@ -1,3 +1,5 @@
+import { Reveal } from "@/shared/ui/Reveal";
+import { motionTokens } from "@/shared/lib/motion";
 import { Section } from "@/shared/ui/Section";
 import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { cn } from "@/shared/lib/cn";
@@ -124,7 +126,7 @@ function ServiceTile({
       href={service.href}
       data-ym-goal="service_click"
       className={cn(
-        "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out [will-change:transform]",
+        "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out",
         "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
         featured
@@ -206,19 +208,18 @@ export function Services({ title, services }: ServicesProps) {
   return (
     <Section id="services" title={title}>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
-        <ServiceTile
-          service={featured}
-          featured
-          className="md:col-span-2 lg:col-span-2 lg:row-span-2"
-        />
+        <Reveal variant="card" className="md:col-span-2 lg:col-span-2 lg:row-span-2">
+          <ServiceTile service={featured} featured />
+        </Reveal>
         {wide && (
-          <ServiceTile
-            service={wide}
-            className="md:col-span-2 lg:col-span-2"
-          />
+          <Reveal variant="card" delay={motionTokens.stagger} className="md:col-span-2 lg:col-span-2">
+            <ServiceTile service={wide} />
+          </Reveal>
         )}
-        {compact && <ServiceTile service={compact} />}
-        <OtherServicesCard href="/companies" />
+        {compact && <Reveal variant="card" delay={motionTokens.stagger * 2}><ServiceTile service={compact} /></Reveal>}
+        <Reveal variant="card" delay={motionTokens.stagger * 3}>
+          <OtherServicesCard href="/companies" className="flex h-full flex-col" />
+        </Reveal>
       </div>
     </Section>
   );

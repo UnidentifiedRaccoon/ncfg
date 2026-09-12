@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn";
 import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
+import { Reveal } from "@/shared/ui/Reveal";
 
 export interface PostCardPost {
   id: string | number;
@@ -83,72 +84,74 @@ export function PostCard({ post }: PostCardProps) {
   const hasExcerpt = Boolean(post.excerpt && post.excerpt.trim().length > 0);
 
   return (
-    <article className="group relative w-full max-w-[624px] overflow-hidden rounded-xl border border-[#E2E8F0]/80 bg-white shadow-sm transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:border-[#3B82F6]/25 hover:shadow-md transform-gpu will-change-transform md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none lg:max-w-[760px] after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-[#58A8E0]/70 after:via-[#3B82F6]/45 after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 group-hover:after:opacity-100">
-      <CmsAwareLink href={`/blog/${post.slug}`} className="block">
-        <div className="flex flex-col md:flex-row">
-          <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F8FAFC] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/70 lg:w-[280px]">
-            {hasImage ? (
-              <>
-                <Image
-                  src={post.anonsImage!}
-                  alt={post.title}
-                  fill
-                  sizes="(min-width: 1024px) 280px, (min-width: 768px) 240px, 100vw"
-                  className="object-cover"
-                />
-                {/* Normalize covers from different sources: subtle tint + inner frame */}
-                <div
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#58A8E0]/12 via-transparent to-[#3B82F6]/10"
-                  aria-hidden="true"
-                />
-                <div
-                  className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5"
-                  aria-hidden="true"
-                />
-              </>
-            ) : (
-              <BrandedCover slug={post.slug} categoryTitle={categoryTitle} />
-            )}
-          </div>
-
-          <div className="flex min-w-0 flex-1 flex-col p-5">
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              {categoryTitle && (
-                <span
-                  className={cn(
-                    "inline-flex max-w-full items-center gap-2 truncate rounded-full border px-3 py-1 font-semibold tracking-wide",
-                    "border-[#3B82F6]/30 bg-[#3B82F6]/5 text-[#3B82F6]"
-                  )}
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
-                  {categoryTitle}
-                </span>
+    <Reveal viewport="inset" className="w-full max-w-[624px] lg:max-w-[760px]">
+      <article className="group relative w-full overflow-hidden rounded-xl border border-[#E2E8F0]/80 bg-white shadow-sm transition-[scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-[#3B82F6]/25 hover:shadow-md motion-safe:md:hover:scale-[1.015] motion-reduce:transition-none after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-[#58A8E0]/70 after:via-[#3B82F6]/45 after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 group-hover:after:opacity-100">
+        <CmsAwareLink href={`/blog/${post.slug}`} className="block">
+          <div className="flex flex-col md:flex-row">
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F8FAFC] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/70 lg:w-[280px]">
+              {hasImage ? (
+                <>
+                  <Image
+                    src={post.anonsImage!}
+                    alt={post.title}
+                    fill
+                    sizes="(min-width: 1024px) 280px, (min-width: 768px) 240px, 100vw"
+                    className="object-cover"
+                  />
+                  {/* Normalize covers from different sources: subtle tint + inner frame */}
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#58A8E0]/12 via-transparent to-[#3B82F6]/10"
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5"
+                    aria-hidden="true"
+                  />
+                </>
+              ) : (
+                <BrandedCover slug={post.slug} categoryTitle={categoryTitle} />
               )}
-              {categoryTitle && <span className="text-[#E2E8F0]">•</span>}
-              <time className="whitespace-nowrap text-[#94A3B8]">
-                {formatDate(post.createdAt)}
-              </time>
             </div>
 
-            <h3 className="mt-3 text-[20px] md:text-[22px] leading-snug font-semibold text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6] line-clamp-2">
-              {post.title}
-            </h3>
+            <div className="flex min-w-0 flex-1 flex-col p-5">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                {categoryTitle && (
+                  <span
+                    className={cn(
+                      "inline-flex max-w-full items-center gap-2 truncate rounded-full border px-3 py-1 font-semibold tracking-wide",
+                      "border-[#3B82F6]/30 bg-[#3B82F6]/5 text-[#3B82F6]"
+                    )}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
+                    {categoryTitle}
+                  </span>
+                )}
+                {categoryTitle && <span className="text-[#E2E8F0]">•</span>}
+                <time className="whitespace-nowrap text-[#94A3B8]">
+                  {formatDate(post.createdAt)}
+                </time>
+              </div>
 
-            {hasExcerpt && (
-              <p className="mt-3 text-sm leading-relaxed text-[#475569] line-clamp-2">
-                {post.excerpt}
-              </p>
-            )}
+              <h3 className="mt-3 text-[20px] md:text-[22px] leading-snug font-semibold text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6] line-clamp-2">
+                {post.title}
+              </h3>
 
-            <div className={cn("mt-auto flex justify-end pt-4", !hasExcerpt && "pt-3")}>
-              <span className="inline-flex items-center gap-2 text-sm font-medium text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]">
-                Читать
-                <ArrowRight className="h-4 w-4 text-[#94A3B8] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#3B82F6]" />
-              </span>
+              {hasExcerpt && (
+                <p className="mt-3 text-sm leading-relaxed text-[#475569] line-clamp-2">
+                  {post.excerpt}
+                </p>
+              )}
+
+              <div className={cn("mt-auto flex justify-end pt-4", !hasExcerpt && "pt-3")}>
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]">
+                  Читать
+                  <ArrowRight className="h-4 w-4 text-[#94A3B8] transition-all duration-200 motion-safe:group-hover:translate-x-0.5 group-hover:text-[#3B82F6]" />
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </CmsAwareLink>
-    </article>
+        </CmsAwareLink>
+      </article>
+    </Reveal>
   );
 }

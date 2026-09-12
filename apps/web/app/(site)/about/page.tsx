@@ -1,3 +1,4 @@
+import { HeroMotionScene } from "@/shared/ui/HeroMotionScene";
 import type { Metadata } from "next";
 import {
   Hero,
@@ -76,30 +77,35 @@ export default async function AboutPage() {
       <StructuredDataScript data={breadcrumbStructuredData} />
       {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
-        <Hero
-          headline={aboutPage.heroHeadline ?? ""}
-          lead={ABOUT_HERO_LEAD}
-          primaryCta={
-            aboutPage.heroCta
-              ? { label: aboutPage.heroCta.label, href: aboutPage.heroCta.href }
-              : undefined
+        <HeroMotionScene
+          hero={
+            <Hero noSentinel
+              headline={aboutPage.heroHeadline ?? ""}
+              lead={ABOUT_HERO_LEAD}
+              primaryCta={
+                aboutPage.heroCta
+                  ? { label: aboutPage.heroCta.label, href: aboutPage.heroCta.href }
+                  : undefined
+              }
+              metrics={heroMetrics}
+            />
           }
-          metrics={heroMetrics}
-        />
-        <Principles
-          title={aboutPage.principlesTitle ?? "Наши принципы"}
-          lead={aboutPage.principlesLead ?? undefined}
-          principles={principles}
-        />
-        <HowWeWork
-          title={aboutPage.howWeWorkTitle ?? "Как мы работаем"}
-          lead={aboutPage.howWeWorkLead ?? undefined}
-          steps={howWeWorkSteps}
-        />
-        {teamMembers.length > 0 ? <Team title="Наша команда" members={teamMembers} /> : null}
-        <Experts title="Наши эксперты" experts={people} />
-        <LeadForm />
-        <FAQ title="Частые вопросы" items={faqItems} />
+        >
+          <Principles
+            title={aboutPage.principlesTitle ?? "Наши принципы"}
+            lead={aboutPage.principlesLead ?? undefined}
+            principles={principles}
+          />
+          <HowWeWork
+            title={aboutPage.howWeWorkTitle ?? "Как мы работаем"}
+            lead={aboutPage.howWeWorkLead ?? undefined}
+            steps={howWeWorkSteps}
+          />
+          {teamMembers.length > 0 ? <Team title="Наша команда" members={teamMembers} /> : null}
+          <Experts title="Наши эксперты" experts={people} />
+          <LeadForm />
+          <FAQ title="Частые вопросы" items={faqItems} />
+        </HeroMotionScene>
       </main>
       <Footer
         data={{

@@ -19,6 +19,7 @@ interface HeroProps {
   imageSrc?: string;
   imageAlt?: string;
   noSentinel?: boolean;
+  scrollScene?: boolean;
 }
 
 export function Hero({
@@ -30,6 +31,7 @@ export function Hero({
   imageSrc = "/heroV2.webp",
   imageAlt = "",
   noSentinel = false,
+  scrollScene = false,
 }: HeroProps) {
   const sanitizeLabel = (label: string) => label.replace(/\.{2,}$/, "");
 
@@ -52,6 +54,7 @@ export function Hero({
         imageSrc={imageSrc}
         imageAlt={imageAlt}
         metrics={metrics}
+        scrollScene={scrollScene}
       />
 
       {/* Mobile / tablet: centered spotlight, no image */}

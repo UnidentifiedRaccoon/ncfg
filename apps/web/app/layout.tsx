@@ -3,8 +3,8 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { SITE_NAME, getMetadataBase } from "@/shared/lib/metadata";
 import { CmsFreshnessGuard } from "@/shared/ui/CmsFreshnessGuard";
-import { ScrollRevealObserver } from "@/shared/ui/ScrollRevealObserver";
 import { RouteScrollBehavior } from "@/shared/ui/RouteScrollBehavior";
+import { MotionProvider } from "@/shared/ui/MotionProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -49,8 +49,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <RouteScrollBehavior />
         </Suspense>
-        <ScrollRevealObserver />
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );

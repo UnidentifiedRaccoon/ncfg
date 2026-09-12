@@ -1,5 +1,7 @@
 "use client";
 
+import { ContentTransition } from "@/shared/ui/ContentTransition";
+
 import { useState, type FormEvent } from "react";
 import { ChevronDown, Send, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/shared/ui/Button";
@@ -86,9 +88,9 @@ export function PostQuestionForm({
 
   if (status === "success") {
     return (
-      <section data-scroll-reveal="" className="pb-12 md:pb-16">
+      <section className="pb-12 md:pb-16">
         <div className="mx-auto max-w-[760px] px-5 md:px-6 lg:px-8">
-          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-8 text-center">
+          <ContentTransition enter focusOnChange stateKey="success" className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-8 text-center">
             <CheckCircle className="w-12 h-12 text-[#10B981] mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-[#1E3A5F] mb-2">
               Вопрос отправлен!
@@ -96,14 +98,14 @@ export function PostQuestionForm({
             <p className="text-[#475569]">
               Спасибо за обращение. Мы ответим вам в ближайшее время.
             </p>
-          </div>
+          </ContentTransition>
         </div>
       </section>
     );
   }
 
   return (
-    <section data-scroll-reveal="" className="pb-12 md:pb-16">
+    <section className="pb-12 md:pb-16">
       <div className="mx-auto max-w-[760px] px-5 md:px-6 lg:px-8">
         <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-8">
           {!isExpanded ? (
@@ -124,7 +126,7 @@ export function PostQuestionForm({
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <ContentTransition enter focusOnChange={status === "idle"} stateKey={status} immediate={status === "error"}><form onSubmit={handleSubmit} className="space-y-5">
               <div className="text-center mb-6">
                 <h3 className="text-xl font-semibold text-[#1E3A5F] mb-2">
                   {questionFormConfig.expandedTitle}
@@ -256,7 +258,7 @@ export function PostQuestionForm({
                   </a>
                 </div>
               </div>
-            </form>
+            </form></ContentTransition>
           )}
         </div>
       </div>

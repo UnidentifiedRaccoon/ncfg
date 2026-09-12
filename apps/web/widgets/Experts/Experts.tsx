@@ -1,4 +1,5 @@
 import { Section, SignalExpertCard, type SignalExpertCardData } from "@/shared/ui";
+import { Reveal } from "@/shared/ui/Reveal";
 
 interface Expert {
   id: string;
@@ -45,7 +46,7 @@ export function Experts({ title, experts }: ExpertsProps) {
 
   return (
     <Section id="experts" title={title}>
-      <div className="relative">
+      <Reveal viewport="inset" className="relative">
         <ul
           role="list"
           className="flex gap-3 overflow-x-auto py-2 pr-2 snap-x snap-mandatory"
@@ -60,7 +61,7 @@ export function Experts({ title, experts }: ExpertsProps) {
             </li>
           ))}
         </ul>
-      </div>
+      </Reveal>
     </Section>
   );
 }

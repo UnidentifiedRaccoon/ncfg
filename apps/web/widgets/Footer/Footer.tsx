@@ -42,6 +42,7 @@ interface FooterData {
 
 interface FooterProps {
   data: FooterData;
+  ctaHref?: string;
 }
 
 const navigation = [
@@ -148,7 +149,7 @@ function FooterLink({
   );
 }
 
-export function Footer({ data }: FooterProps) {
+export function Footer({ data, ctaHref = "/#lead-form" }: FooterProps) {
   const hasLegalDocuments =
     Boolean(data.legalDocuments) && data.legalDocuments.items.length > 0;
   const legalLinks = data.legalLinks.map((item) => ({
@@ -178,7 +179,6 @@ export function Footer({ data }: FooterProps) {
 
   const phoneSanitized = data.contacts.phone.replace(/\s/g, "");
   const phoneWorkingHours = "(9-18 мск)";
-  const ctaHref = "/#lead-form";
   const officeAddress = "Бульвар Матроса Железняка, 13";
   const officeAddressHref =
     "https://yandex.ru/maps/?text=%D0%91%D1%83%D0%BB%D1%8C%D0%B2%D0%B0%D1%80%20%D0%9C%D0%B0%D1%82%D1%80%D0%BE%D1%81%D0%B0%20%D0%96%D0%B5%D0%BB%D0%B5%D0%B7%D0%BD%D1%8F%D0%BA%D0%B0%2C%2013";
@@ -238,6 +238,7 @@ export function Footer({ data }: FooterProps) {
                   variant="secondary"
                   size="md"
                   data-ym-goal="cta_click"
+                  data-ym-cta-location="footer"
                   className={ctaButtonClassName}
                 >
                   Оставить заявку

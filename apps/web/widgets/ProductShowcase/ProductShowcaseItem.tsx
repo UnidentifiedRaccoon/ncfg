@@ -86,7 +86,7 @@ function MediaCover({
               src={image}
               alt=""
               fill
-              className="object-cover transition-transform duration-700 [will-change:transform] group-hover:scale-[1.03]"
+              className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.03]"
               sizes="(max-width: 768px) 100vw, 40vw"
             />
             <div
@@ -178,9 +178,9 @@ export function ProductShowcaseItem({
       href={href}
       ariaLabel={title}
       className={cn(
-        "group relative isolate block overflow-hidden rounded-3xl border transition-all duration-300 ease-out [will-change:transform]",
+        "group relative isolate block overflow-hidden rounded-3xl border transition-all duration-300 ease-out",
         "border-[#E2E8F0]/70 bg-white/75 shadow-sm backdrop-blur-sm",
-        "hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:border-[#3B82F6]/25",
+        "motion-safe:hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:border-[#3B82F6]/25",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
         "before:pointer-events-none before:absolute before:inset-x-10 before:top-0 before:z-0 before:h-px before:content-['']",
         "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",

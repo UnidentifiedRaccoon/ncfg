@@ -12,9 +12,9 @@ export const revalidate = 0;
 
 export const metadata: Metadata = buildPageMetadata({
   path: FINANCIAL_GAMES_PATH,
-  title: "Финансовые игры для сотрудников и их детей",
+  title: "Финансовые игры для сотрудников и их детей",
   description:
-    "Настольные финансовые игры с ведущими НЦФГ для сотрудников компаний и их детей. Форматы проведения, игровые задачи и интерактивный эпизод про общий бюджет.",
+    "Настольные финансовые игры с ведущими НЦФГ для сотрудников компаний и их детей. Форматы проведения, игровые задачи и интерактивный эпизод про общий бюджет.",
   imagePath: "/services/financial-games/game-company.webp",
 });
 
@@ -31,9 +31,10 @@ export default async function FinancialGamesPage() {
       <StructuredDataScript data={breadcrumbs} />
       <main>
         <FinancialGamesLanding />
-        <LeadForm />
+        <LeadForm audience="corporate" program={{ id: "financial-games", title: "Финансовые игры" }} />
       </main>
       <Footer
+        ctaHref="#lead-form"
         data={{
           organization: {
             fullName: siteSetting.organizationFullName,

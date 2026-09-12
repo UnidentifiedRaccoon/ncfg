@@ -1,3 +1,4 @@
+import { Reveal } from "@/shared/ui/Reveal";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import { BentoCard } from "./BentoCard";
@@ -7,13 +8,11 @@ interface ServiceItem {
   description: string;
   href: string;
 }
-
 interface ServiceBlockBanner {
   title: string;
   ctaLabel: string;
   href: string;
 }
-
 interface ServiceBlockProps {
   id: string;
   index: number;
@@ -25,11 +24,9 @@ interface ServiceBlockProps {
   idBase: string;
   banner?: ServiceBlockBanner;
 }
-
 function pad2(value: number) {
   return String(value).padStart(2, "0");
 }
-
 function formatServiceCount(count: number) {
   const mod10 = count % 10;
   const mod100 = count % 100;
@@ -43,7 +40,6 @@ function formatServiceCount(count: number) {
 
   return `${count} ${word}`;
 }
-
 export function ServiceBlock({
   id,
   index,
@@ -62,7 +58,6 @@ export function ServiceBlock({
   return (
     <section
       id={anchorId}
-      data-scroll-reveal=""
       className={cn(
         "scroll-mt-24",
         // Light separation between groups without an extra "stage" wrapper.
@@ -80,7 +75,6 @@ export function ServiceBlock({
               {number} / {totalFormatted}
             </div>
           )}
-
           <h3 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-[#1E3A5F] md:text-3xl">
             {title}
           </h3>
@@ -101,7 +95,7 @@ export function ServiceBlock({
       <div className="mt-6 md:mt-8">{renderGrid(items)}</div>
 
       {banner && (
-        <div className="relative mt-5 overflow-hidden rounded-[28px] border border-[#D7E8FB] bg-[linear-gradient(135deg,#F9FCFF_0%,#F2F8FF_56%,#FBFDFF_100%)] p-6 md:p-8">
+        <Reveal viewport="inset" className="relative mt-5 overflow-hidden rounded-[28px] border border-[#D7E8FB] bg-[linear-gradient(135deg,#F9FCFF_0%,#F2F8FF_56%,#FBFDFF_100%)] p-6 md:p-8">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(88,168,224,0.18),transparent_48%),radial-gradient(circle_at_100%_100%,rgba(59,130,246,0.12),transparent_42%)]"
@@ -129,12 +123,11 @@ export function ServiceBlock({
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>
-        </div>
+        </Reveal>
       )}
     </section>
   );
 }
-
 function renderGrid(items: ServiceItem[]) {
   if (items.length === 6) {
     return (
@@ -152,7 +145,6 @@ function renderGrid(items: ServiceItem[]) {
       </div>
     );
   }
-
   // 5 items: top row (featured spanning 2 cols + 1), bottom row (3 equal)
   if (items.length === 5) {
     return (
@@ -165,7 +157,6 @@ function renderGrid(items: ServiceItem[]) {
       </div>
     );
   }
-
   // 3 items: featured left (2 cols, 2 rows), stacked right
   if (items.length === 3) {
     return (
@@ -180,7 +171,6 @@ function renderGrid(items: ServiceItem[]) {
       </div>
     );
   }
-
   // 2 items: 60/40 split
   if (items.length === 2) {
     return (
@@ -190,7 +180,6 @@ function renderGrid(items: ServiceItem[]) {
       </div>
     );
   }
-
   // Default: responsive grid
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">

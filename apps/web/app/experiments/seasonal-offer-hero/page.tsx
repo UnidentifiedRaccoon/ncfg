@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto_Condensed } from "next/font/google";
+import { redirect } from "next/navigation";
 
 import { SeasonalOfferHeroLab } from "./SeasonalOfferHeroLab";
 
@@ -12,7 +13,7 @@ const displayFont = Roboto_Condensed({
 export const metadata: Metadata = {
   title: "Эксперимент hero сезонного офера",
   description:
-    "Пять вариантов hero для сезонных корпоративных программ финансового благополучия.",
+    "Пять альтернативных вариантов hero для сезонных корпоративных программ финансового благополучия.",
   robots: {
     index: false,
     follow: false,
@@ -30,6 +31,7 @@ export default async function SeasonalOfferHeroExperimentPage({
   searchParams,
 }: SeasonalOfferHeroExperimentPageProps) {
   const params = await searchParams;
+  if (params.variant === "editorial") redirect("/companies/season-offer");
   const initialVariant =
     params.variant === "people" ||
     params.variant === "wellbeing" ||

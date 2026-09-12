@@ -9,6 +9,14 @@
 - Primary action: `Обсудить программу` → `/companies/season-offer#season-offer-lead`
 - Constraint: temporary experiment only; `noindex, nofollow`, no production analytics, no public navigation
 
+## Current state — 2026-09-12
+
+The approved editorial B hero has been promoted to `/companies/season-offer`; its former dedicated route and `?variant=editorial` lab URL redirect there. The current [public surface brief](app-site-companies-season-offer-page-tsx.md) owns its implementation and validation.
+
+This laboratory retains five unselected directions: `people`, `wellbeing`, `typographic`, `hybrid` and `focus`, with Focus as the default. Their original comparison copy is frozen in `legacy-offer.ts`, so the public hero's typed copy and component no longer carry experimental fields or variants. The separate editorial registry entry is removed. The experiments hub and this laboratory retain `noindex, nofollow` and remain outside public navigation and analytics.
+
+The sections below preserve the earlier four-direction design history and its earlier counts, seed and QA evidence. They are not the current inventory of variants. The [editorial history](../../docs/seasonal-offer-hero/editorial-b-implementation.md) records the accepted direction's earlier iterations.
+
 ## Direction contract
 
 - THESIS: one truthful offer proven four ways—through people, material support, typographic clarity, and a multi-palette synthesis—rather than a generic fintech glow hero.
@@ -91,4 +99,4 @@ A production winner has not been selected. The earlier machine comp is retained 
 
 ## Unresolved decision
 
-Choose one direction or a named combination after reviewing the four live variants. Do not write any of these temporary visual worlds into global `DESIGN.md` until that choice is made.
+Choose one direction or a named combination after reviewing the six live variants. No production rollout is approved. Do not write these temporary visual worlds into global `DESIGN.md` without approval of a durable system change.

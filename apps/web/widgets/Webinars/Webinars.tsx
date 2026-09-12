@@ -1,5 +1,6 @@
 import { cn } from "@/shared/lib/cn";
 import { Section } from "@/shared/ui";
+import { Reveal } from "@/shared/ui/Reveal";
 
 export type WebinarsVariant = "executive-rail";
 
@@ -103,41 +104,42 @@ export function Webinars({
             const lessonCode = pad2(webinarIndex + 1);
 
             return (
-              <section
-                key={`${webinar.title}-${webinarIndex}`}
-                className={cn(
-                  styles.row,
-                  webinarIndex > 0 && styles.rowDivider
-                )}
-              >
-                <div className={styles.topicCell}>
-                  <div className={styles.topicHeader}>
-                    <span aria-hidden className={styles.topicNumber}>
-                      {lessonCode}
-                    </span>
-                    <h3 className={cn("font-semibold", styles.topicTitle)}>
-                      <span className="sr-only">
-                        Урок {webinarIndex + 1}:{" "}
+              <Reveal key={`${webinar.title}-${webinarIndex}`} viewport="inset">
+                <section
+                  className={cn(
+                    styles.row,
+                    webinarIndex > 0 && styles.rowDivider
+                  )}
+                >
+                  <div className={styles.topicCell}>
+                    <div className={styles.topicHeader}>
+                      <span aria-hidden className={styles.topicNumber}>
+                        {lessonCode}
                       </span>
-                      {webinar.title}
-                    </h3>
+                      <h3 className={cn("font-semibold", styles.topicTitle)}>
+                        <span className="sr-only">
+                          Урок {webinarIndex + 1}:{" "}
+                        </span>
+                        {webinar.title}
+                      </h3>
+                    </div>
                   </div>
-                </div>
 
-                <div className={styles.detailsCell}>
-                  <ul className={styles.detailsList}>
-                    {webinar.items.map((item, itemIndex) => (
-                      <li
-                        key={`${webinar.title}-${itemIndex}`}
-                        className={styles.detailsItem}
-                      >
-                        <span aria-hidden className={styles.detailsBullet} />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </section>
+                  <div className={styles.detailsCell}>
+                    <ul className={styles.detailsList}>
+                      {webinar.items.map((item, itemIndex) => (
+                        <li
+                          key={`${webinar.title}-${itemIndex}`}
+                          className={styles.detailsItem}
+                        >
+                          <span aria-hidden className={styles.detailsBullet} />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </section>
+              </Reveal>
             );
           })}
         </div>

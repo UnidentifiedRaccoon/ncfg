@@ -79,7 +79,7 @@ export function HeroCenteredSpotlight({
             <HighlightedHeadline
               text={headline}
               accentWord={accentWord}
-              accentClassName="bg-clip-text text-transparent bg-gradient-to-r from-[#58A8E0] to-[#3B82F6] animate-[textGlow_3s_ease-in-out_infinite]"
+              accentClassName="bg-clip-text text-transparent bg-gradient-to-r from-[#58A8E0] to-[#3B82F6]"
             />
           </h1>
 

@@ -1,6 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion, motionTokens } from "@/shared/lib/motion";
+
+import { m as motion } from "motion/react";
 import {
   type KeyboardEvent,
   type MutableRefObject,
@@ -35,7 +37,7 @@ interface StableSlotLayout {
   zIndex: number;
 }
 
-const STABLE_DOM_DURATION_S = 0.37;
+const STABLE_DOM_DURATION_S = motionTokens.reveal;
 
 const desktopLayerClasses: Record<DeckDepth, LayerClassSet> = {
   0: {
@@ -131,7 +133,10 @@ function MissionDirectionControls({
             aria-pressed={isActive}
             onClick={() => onSelect(index)}
             onFocus={() => onSelect(index)}
-            onMouseEnter={() => onSelect(index)}
+            onPointerMove={(event) => {
+              // Scrolling a focused control under a resting cursor must not change selection.
+              if (event.pointerType === "mouse" && (event.movementX || event.movementY)) onSelect(index);
+            }}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
               "group w-full rounded-[24px] border px-4 py-3.5 text-left transition-[border-color,background-color,box-shadow] duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] motion-reduce:transition-none md:px-5",
@@ -177,7 +182,7 @@ function MissionLayerCard({
   const layerClass = desktopLayerClasses[depth];
 
   return (
-    <div className="relative h-full min-h-0 rounded-[34px] text-left" role="presentation">
+    <div data-mission-layer={depth} className="relative h-full min-h-0 rounded-[34px] text-left" role="presentation">
       <article
         className={cn(
           "relative flex h-full flex-col overflow-hidden rounded-[34px] border p-6 transition-[border-color,background-color] duration-[340ms] motion-reduce:transition-none md:p-8",
@@ -321,12 +326,12 @@ function MissionLedgerAlliancePanel({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
+    <div data-mission-panel className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
       {renderHiddenHeading ? <Heading className="sr-only">Наш подход</Heading> : null}
 
       <div className="order-2 xl:order-2 xl:self-stretch">
         <div className="xl:hidden">
-          <div className="rounded-[30px] border border-[#BDD2EC] bg-[#F9FCFF] p-5 md:p-6">
+          <div data-mission-mobile-card className="rounded-[30px] border border-[#BDD2EC] bg-[#F9FCFF] p-5 md:p-6">
             <div aria-live="polite">
               <div>
                 <h3 className="text-[31px] font-semibold leading-[1.04] tracking-[-0.045em] text-[#153153] md:text-[38px]">
@@ -391,7 +396,7 @@ function MissionLedgerAlliancePanel({
                   }}
                   transition={{
                     duration: prefersReducedMotion ? 0 : STABLE_DOM_DURATION_S,
-                    ease: [0.22, 1, 0.36, 1],
+                    ease: motionTokens.ease,
                   }}
                 >
                   <MissionLayerCard dataIndex={cardIndex} depth={depth} />
@@ -402,7 +407,7 @@ function MissionLedgerAlliancePanel({
         </div>
       </div>
 
-      <div ref={controlsColumnRef} className="order-1 xl:order-1 xl:sticky xl:top-20">
+      <div data-mission-controls ref={controlsColumnRef} className="order-1 xl:order-1 xl:sticky xl:top-20">
         <MissionDirectionControls
           activeIndex={activeIndex}
           baseId={baseId}

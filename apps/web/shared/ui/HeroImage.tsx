@@ -1,80 +1,69 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { animate } from "motion/react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 
 import { cn } from "@/shared/lib/cn";
+import { motionTokens, useReducedMotion } from "@/shared/lib/motion";
 
 interface HeroImageProps {
   src: string;
   alt: string;
   sizes: string;
   className?: string;
-  blurDataURL: string;
 }
 
-export function HeroImage({
-  src,
-  alt,
-  sizes,
-  className,
-  blurDataURL,
-}: HeroImageProps) {
-  const imageRef = useRef<HTMLImageElement>(null);
-  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const loaded = loadedSrc === src;
+export function HeroImage({ src, alt, className, ...props }: HeroImageProps) {
+  const playback = useRef<ReturnType<typeof animate> | null>(null);
+  const reduced = useReducedMotion();
 
-  useEffect(() => {
-    const image = imageRef.current;
+  const prepareImage = useCallback((image: HTMLImageElement | null) => {
+    if (!image) return;
+    // SSR stays visible. Only prepare a fade if the image is still loading
+    // when hydration attaches the ref; cached images must never flash out.
+    if (!image.complete) image.setAttribute("data-hero-image-pending", "");
 
-    if (!image?.complete || image.naturalWidth === 0) {
+    return () => {
+      playback.current?.stop();
+      image.removeAttribute("data-hero-image-pending");
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (reduced) playback.current?.complete();
+  }, [reduced]);
+
+  function revealImage(image: HTMLImageElement) {
+    if (!image.hasAttribute("data-hero-image-pending")) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      image.removeAttribute("data-hero-image-pending");
       return;
     }
 
-    let isActive = true;
-
-    queueMicrotask(() => {
-      if (isActive) {
-        setLoadedSrc(src);
-      }
+    // Next/Image calls onLoad after decoding. Keep the pending style until
+    // playback finishes so its first animation frame cannot flash opaque.
+    const animation = animate(image, { opacity: [0, 1] }, {
+      duration: motionTokens.content,
+      ease: motionTokens.ease,
     });
-
-    return () => {
-      isActive = false;
-    };
-  }, [src]);
+    playback.current = animation;
+    void animation.then(() => image.removeAttribute("data-hero-image-pending"));
+  }
 
   return (
-    <>
-      <Image
-        src={blurDataURL}
-        alt=""
-        aria-hidden="true"
-        fill
-        unoptimized
-        sizes={sizes}
-        className={cn(
-          className,
-          "blur-sm transition-opacity duration-500 ease-out motion-reduce:transition-none",
-          loaded ? "opacity-0" : "opacity-100"
-        )}
-      />
-      <Image
-        ref={imageRef}
-        src={src}
-        alt={alt}
-        fill
-        preload
-        sizes={sizes}
-        placeholder="blur"
-        blurDataURL={blurDataURL}
-        onLoad={() => setLoadedSrc(src)}
-        className={cn(
-          className,
-          "opacity-0 transition-opacity duration-500 ease-out motion-reduce:transition-none",
-          loaded && "opacity-100"
-        )}
-      />
-    </>
+    <Image
+      key={src}
+      ref={prepareImage}
+      src={src}
+      alt={alt}
+      {...props}
+      fill
+      preload
+      onLoad={(event) => revealImage(event.currentTarget)}
+      onError={(event) => event.currentTarget.removeAttribute("data-hero-image-pending")}
+      className={cn("data-[hero-image-pending]:opacity-0 motion-reduce:!opacity-100", className)}
+    />
   );
 }

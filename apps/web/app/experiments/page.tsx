@@ -25,7 +25,7 @@ const EXPERIMENTS = [
     href: "/experiments/seasonal-offer-hero",
     title: "Hero сезонного офера",
     description:
-      "Пять motion-концепций первого экрана: люди, финансовая опора, типографика и синтез подходов.",
+      "Пять альтернативных motion-концепций первого экрана. Утверждённый редакционный вариант перенесён на страницу сезонного оффера.",
     icon: GalleryHorizontalEnd,
   },
 ] as const;

@@ -1,5 +1,12 @@
 "use client";
 
+import { HeroEntrance } from "@/shared/ui/HeroEntrance";
+
+import { ContentTransition } from "@/shared/ui/ContentTransition";
+import { MotionCollapse } from "@/shared/ui/MotionCollapse";
+import { MotionProgress } from "@/shared/ui/MotionProgress";
+import { preferredScrollBehavior } from "@/shared/lib/motion";
+
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
@@ -166,7 +173,7 @@ function clearDraft(draftKey: string) {
 
 function scrollToSurveyTop() {
   window.requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: preferredScrollBehavior() });
   });
 }
 
@@ -250,7 +257,7 @@ function IntroScreen({
   const introGiftText = test.introGiftText ?? "Подарок. В конце анкеты вас ждёт приятный бонус.";
 
   return (
-    <div className="mx-auto max-w-2xl animate-[cardIn_0.35s_ease-out]">
+    <HeroEntrance className="mx-auto max-w-2xl">
       <div className={cn(cardClass, "p-6 md:p-8")}>
         <div className="text-center">
           <p className="text-lg font-medium text-[#475569]">
@@ -306,7 +313,7 @@ function IntroScreen({
           </div>
         </div>
       </div>
-    </div>
+    </HeroEntrance>
   );
 }
 
@@ -337,7 +344,7 @@ function CompletionScreen({
     .filter(Boolean);
 
   return (
-    <div className="mx-auto max-w-2xl animate-[cardIn_0.35s_ease-out]">
+    <div className="mx-auto max-w-2xl">
       <div className={cn(cardClass, "p-6 md:p-8 text-center")}>
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-green-200 bg-green-50">
           <CheckCircle2 className="h-8 w-8 text-green-500" aria-hidden="true" />
@@ -612,6 +619,8 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [completedSegment, setCompletedSegment] = useState<HrDiagnosticSegment>("non_target");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarId = useId();
+  const sidebarToggleRef = useRef<HTMLButtonElement>(null);
   const consentId = useId();
   const errorId = useId();
   const hydrationDone = useRef(false);
@@ -717,7 +726,7 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
 
   const restartFromComplete = () => {
     startFresh();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: preferredScrollBehavior() });
   };
 
   const setQuestionAnswer = (questionKey: string, updater: (answer: AnswerDraft) => AnswerDraft) => {
@@ -784,6 +793,7 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
 
   const goToStep = (index: number) => {
     setCurrentStep(Math.max(0, Math.min(index, visibleQuestions.length)));
+    if (sidebarOpen) sidebarToggleRef.current?.focus({ preventScroll: true });
     setSidebarOpen(false);
     clearError();
     scrollToSurveyTop();
@@ -865,7 +875,7 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
         survey: "hr",
         segment: payload.data.targetSegment,
       });
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: preferredScrollBehavior() });
     } catch (error) {
       setStatus("error");
       setErrorMessage(error instanceof Error ? error.message : "Не удалось отправить анкету");
@@ -877,11 +887,11 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
       <div className="relative min-h-screen text-[#0F172A]">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 bg-[#F8FAFC]" />
         <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24">
-          <div className="mx-auto h-10 w-2/3 animate-pulse rounded-lg bg-[#E2E8F0]" />
+          <div className="mx-auto h-10 w-2/3 rounded-lg bg-[#E2E8F0]" />
           <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-[#E2E8F0]/80 bg-white p-8">
-            <div className="h-6 w-1/2 animate-pulse rounded bg-[#E2E8F0]" />
-            <div className="mt-4 h-4 w-full animate-pulse rounded bg-[#E2E8F0]" />
-            <div className="mt-3 h-4 w-3/4 animate-pulse rounded bg-[#E2E8F0]" />
+            <div className="h-6 w-1/2 rounded bg-[#E2E8F0]" />
+            <div className="mt-4 h-4 w-full rounded bg-[#E2E8F0]" />
+            <div className="mt-3 h-4 w-3/4 rounded bg-[#E2E8F0]" />
           </div>
         </div>
       </div>
@@ -893,16 +903,16 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 bg-[#F8FAFC]" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 overflow-hidden">
         <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:64px_64px]" />
-        <div className="absolute -top-40 left-[15%] h-[500px] w-[500px] rounded-full bg-[#3B82F6]/14 blur-3xl animate-[blobDrift_18s_ease-in-out_infinite]" />
-        <div className="absolute -bottom-40 right-[10%] h-[600px] w-[600px] rounded-full bg-[#58A8E0]/12 blur-3xl animate-[blobDrift_22s_ease-in-out_infinite_reverse]" />
+        <div className="absolute -top-40 left-[15%] h-[500px] w-[500px] rounded-full bg-[#3B82F6]/14 blur-3xl" />
+        <div className="absolute -bottom-40 right-[10%] h-[600px] w-[600px] rounded-full bg-[#58A8E0]/12 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
-        <div className="mb-8 text-center lg:mb-10">
+      <ContentTransition focusOnChange={phase !== "survey"} immediate={phase === "survey" || status === "error"} stateKey={phase} className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
+        <HeroEntrance className="mb-8 text-center lg:mb-10">
           <h1 className="text-[28px] font-bold leading-tight tracking-tight text-[#1E3A5F] md:text-4xl lg:text-[48px]">
             {test.title}
           </h1>
-        </div>
+        </HeroEntrance>
 
         {phase === "intro" ? (
           <IntroScreen
@@ -926,6 +936,9 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
             <div className="mb-6 lg:hidden">
               <button
                 type="button"
+                ref={sidebarToggleRef}
+                aria-expanded={sidebarOpen}
+                aria-controls={sidebarId}
                 onClick={() => setSidebarOpen((open) => !open)}
                 className="-mx-4 flex w-[calc(100%+2rem)] items-center justify-between bg-white px-5 py-4 md:mx-0 md:w-full md:rounded-2xl md:border md:border-[#E2E8F0]/80 md:shadow-[0_18px_56px_rgba(15,23,42,0.08)]"
               >
@@ -953,8 +966,8 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
                 />
               </button>
 
-              {sidebarOpen ? (
-                <div className={cn(cardClass, "mt-3 space-y-2 p-4 animate-[cardIn_0.25s_ease-out]")}>
+              <MotionCollapse id={sidebarId} open={sidebarOpen} className="-mx-4 px-4 md:mx-0 md:px-0">
+                <div className={cn(cardClass, "mt-3 space-y-2 p-4")}>
                   {visibleQuestions.map((question, index) => {
                     const stepState =
                       currentStep === index
@@ -983,7 +996,7 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
                     );
                   })}
                 </div>
-              ) : null}
+              </MotionCollapse>
             </div>
 
             <div className="grid gap-8 lg:grid-cols-[320px_1fr] lg:items-start">
@@ -1003,10 +1016,10 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
                         {answeredCount} из {visibleQuestions.length}
                       </span>
                     </div>
-                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#E2E8F0]">
-                      <div
-                        className="h-full rounded-full bg-[linear-gradient(90deg,#3B82F6_0%,#58A8E0_100%)] transition-[width] duration-300"
-                        style={{ width: `${progressPercent}%` }}
+                    <div role="progressbar" aria-label="Заполнено" aria-valuemin={0} aria-valuemax={visibleQuestions.length} aria-valuenow={answeredCount} className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#E2E8F0]">
+                      <MotionProgress
+                        className="h-full rounded-full bg-[linear-gradient(90deg,#3B82F6_0%,#58A8E0_100%)]"
+                        value={progressPercent / 100}
                       />
                     </div>
                   </div>
@@ -1068,8 +1081,8 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
                 </div>
               </aside>
 
-              <div className="min-w-0">
-                <div className={cn(cardClass, "p-4 md:p-6 animate-[cardIn_0.35s_ease-out]")}>
+              <ContentTransition enter focusOnChange order={currentStep} immediate={status === "error"} stateKey={currentQuestion?.key ?? "final"} className="min-w-0">
+                <div className={cn(cardClass, "p-4 md:p-6")}>
                   {status === "error" && !currentQuestion ? (
                     <div
                       id={errorId}
@@ -1210,11 +1223,11 @@ export function HrDiagnosticSurvey({ test }: HrDiagnosticSurveyProps) {
                     </>
                   )}
                 </div>
-              </div>
+              </ContentTransition>
             </div>
           </>
         ) : null}
-      </div>
+      </ContentTransition>
     </div>
   );
 }

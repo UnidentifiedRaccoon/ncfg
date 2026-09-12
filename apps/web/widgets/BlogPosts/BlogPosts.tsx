@@ -132,6 +132,7 @@ export function BlogPosts({
 }: BlogPostsProps) {
   return (
     <Section
+      heroHeading
       id="blog"
       title={title}
       lead={lead}

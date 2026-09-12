@@ -9,7 +9,7 @@ export function OtherVacancies({ vacancies }: OtherVacanciesProps) {
   if (vacancies.length === 0) return null;
 
   return (
-    <section data-scroll-reveal="" className="bg-[#F8FAFC] py-12 md:py-16">
+    <section className="bg-[#F8FAFC] py-12 md:py-16">
       <div className="mx-auto max-w-[760px] px-5 md:px-6 lg:px-8">
         <h2 className="mb-8 text-center text-2xl font-bold text-[#1E3A5F] md:text-3xl">
           Другие вакансии

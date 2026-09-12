@@ -1,3 +1,4 @@
+import { MotionDetails } from "@/shared/ui/MotionDetails";
 import { ChevronDown } from "lucide-react";
 import { Section } from "@/shared/ui/Section";
 import { Button } from "@/shared/ui/Button";
@@ -24,7 +25,7 @@ function FAQAccordionItem({
   defaultOpen?: boolean;
 }) {
   return (
-    <details
+    <MotionDetails
       className={cn(
         "group relative border-b border-[#E2E8F0]/70 last:border-b-0",
         "open:bg-white/70"
@@ -51,14 +52,14 @@ function FAQAccordionItem({
         />
       </summary>
 
-      <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-open:grid-rows-[1fr]">
+      <div className="overflow-hidden">
         <div className="overflow-hidden">
-          <div className="px-5 pb-5 pr-10 text-sm leading-relaxed text-[#475569] opacity-0 translate-y-1 transition duration-200 ease-out group-open:translate-y-0 group-open:opacity-100 md:px-6 md:text-base">
+          <div className="px-5 pb-5 pr-10 text-sm leading-relaxed text-[#475569] md:px-6 md:text-base">
             {item.answer}
           </div>
         </div>
       </div>
-    </details>
+    </MotionDetails>
   );
 }
 

@@ -20,7 +20,7 @@
   max-width: 1600px;
   margin: 0 auto;
   padding: 10px clamp(16px, 2.5vw, 40px);
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 20px;
 }
@@ -49,6 +49,7 @@
 
 .labTitle {
   display: flex;
+  justify-self: center;
   align-items: baseline;
   gap: 10px;
   white-space: nowrap;
@@ -1257,8 +1258,10 @@
   }
 
   .variantTabs {
+    display: grid;
     width: 100%;
     grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .variantTab {

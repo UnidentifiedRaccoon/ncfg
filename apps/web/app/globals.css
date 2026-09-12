@@ -137,33 +137,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-[data-scroll-reveal] {
-  will-change: opacity, transform;
-}
-
-[data-scroll-reveal][data-scroll-reveal-state="hidden"] {
-  opacity: 0;
-  transform: translate3d(0, 18px, 0);
-}
-
-[data-scroll-reveal][data-scroll-reveal-state="visible"] {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  transition:
-    opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: auto;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-scroll-reveal] {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-    will-change: auto;
-  }
-}
-
 /* Focus styles - never remove outline */
 :focus-visible {
   outline: 2px solid var(--color-secondary);
@@ -327,83 +300,12 @@ body {
   margin-bottom: 0;
 }
 
-/* Diagnostic survey variant animations */
-@keyframes minimalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes cardIn {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes blobDrift {
-  0%, 100% {
-    transform: translate(0, 0);
-  }
-  33% {
-    transform: translate(30px, -20px);
-  }
-  66% {
-    transform: translate(-20px, 15px);
-  }
-}
-
-@keyframes bubbleIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes chatBounce {
-  0%, 60%, 100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-4px);
-  }
-}
-
-@keyframes textGlow {
-  0%, 100% {
-    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.25));
-  }
-  50% {
-    filter: drop-shadow(0 0 18px rgba(59, 130, 246, 0.5));
-  }
-}
-
-@keyframes tabProgress {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
-}
-
+/* Simple CSS hover/focus remains immediate when movement is reduced. */
 @media (prefers-reduced-motion: reduce) {
-  [class*="animate-[minimalSlideIn"],
-  [class*="animate-[cardIn"],
-  [class*="animate-[bubbleIn"],
-  [class*="animate-[chatBounce"],
-  [class*="animate-[blobDrift"],
-  [class*="animate-[textGlow"],
-  [class*="animate-[tabProgress"] {
-    animation: none !important;
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

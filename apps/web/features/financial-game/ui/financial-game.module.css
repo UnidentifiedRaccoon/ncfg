@@ -34,11 +34,11 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .trialBoard *, .trialBoard *::before, .trialBoard *::after { scroll-behavior: auto; transition: none; animation: none; }
-  .trialBoard .sessionBackdrop, .trialBoard .sessionGame { transition: none; }
+  .sessionScene[data-active="true"] { opacity: 1 !important; transform: none !important; }
 }
-.dialogueBoard { position: relative; isolation: isolate; }
-.sessionBackdrop { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity 240ms cubic-bezier(.16, 1, .3, 1); }
-.dialogueBoard[data-started="false"] .sessionBackdrop { opacity: 1; }
+.dialogueBoard { position: relative; isolation: isolate; overflow-anchor: none; }
+.sessionBackdrop { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; pointer-events: none; }
+
 .sessionBackdrop > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sessionBackdrop::after {
   content: "";
@@ -49,10 +49,10 @@
   backdrop-filter: blur(3px);
 }
 .sessionScreens { display: grid; }
-.sessionStart, .sessionGame { grid-area: 1 / 1; min-width: 0; visibility: hidden; pointer-events: none; }
+.sessionStart, .sessionGame { grid-area: 1 / 1; min-width: 0; visibility: hidden; pointer-events: none; scroll-margin-top: 16px; }
 .sessionStart[data-active="true"], .sessionGame[data-active="true"] { visibility: visible; pointer-events: auto; }
-.sessionGame { opacity: 0; transition: opacity 240ms cubic-bezier(.16, 1, .3, 1); }
-.sessionGame[data-active="true"] { opacity: 1; }
+.sessionGame { }
+
 .sessionStart { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; }
 .sessionStart h3 { max-width: 36ch; line-height: 1.3; }
 .sessionStart h3:focus-visible { outline: 2px solid var(--game-link); outline-offset: 6px; border-radius: 2px; }
@@ -66,9 +66,7 @@
 .sessionReset { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding-inline: 8px; color: #465d72; cursor: pointer; font-size: 12px; }
 .sessionReset:hover { color: var(--game-link); }
 .sessionStepCaption { display: none; }
-.sessionWorkspace { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 40px; }
-.sessionContext { min-width: 0; padding-right: 32px; border-right: 1px solid #bdcedd; }
-.sessionParticipants { display: grid; gap: 28px; }
+.sessionParticipants { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 28px; }
 .sessionParticipants strong, .sessionBudget > strong { font-size: 14px; line-height: 1.4; font-weight: 650; }
 .sessionParticipants p { font-size: 14px; line-height: 1.6; color: #465d72; margin-top: 8px; }
 .playerIdentity { display: flex; align-items: flex-start; gap: 10px; }
@@ -77,32 +75,27 @@
 .playerMarker[data-player="mikhail"] { background: var(--game-ink); }
 .playerIdentity .playerName { display: block; margin: 0; color: var(--game-ink); font-size: 15px; line-height: 1.4; font-weight: 650; }
 .playerRole { display: block; margin-top: 3px; color: #465d72; font-size: 12px; line-height: 1.5; }
-.sessionBudget { margin-top: 36px; padding-top: 24px; border-top: 1px solid #bdcedd; }
-.sessionBudget dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
-.sessionBudget dt { font-size: 11px; line-height: 1.5; color: #465d72; }
+.sessionBudget { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding-bottom: 20px; margin-bottom: 24px; border-bottom: 1px solid #bdcedd; }
+.sessionBudget dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.sessionBudget dt { font-size: 12px; line-height: 1.5; color: #465d72; }
 .sessionBudget dd { font-size: 26px; line-height: 1.3; font-weight: 600; font-variant-numeric: tabular-nums; }
-.sessionBudget > p { margin-top: 12px; font-size: 11px; line-height: 1.6; color: #465d72; }
-.sessionPlay { min-width: 0; display: grid; grid-template-rows: 1fr auto; }
+.sessionPlay { min-width: 0; width: 100%; max-width: 880px; margin-inline: auto; display: grid; grid-template-rows: 1fr auto; }
 .sessionSceneStack { display: grid; }
 .sessionScene { grid-area: 1 / 1; min-width: 0; visibility: hidden; pointer-events: none; }
 .sessionScene[data-active="true"] { visibility: visible; pointer-events: auto; }
-.sessionScene h3 { min-height: 2.5em; margin-bottom: 20px; scroll-margin-top: 24px; }
+.sessionScene h3 { margin-bottom: 24px; }
 .sessionScene h3:focus-visible { outline: 2px solid var(--game-link); outline-offset: 6px; border-radius: 2px; }
-.sessionLead { font-size: 16px; line-height: 1.7; color: #465d72; }
-.sessionGoal { margin-top: 24px; padding-block: 20px; border-block: 1px solid #bdcedd; }
-.sessionGoal h4, .sessionInstructions h4 { font-size: 16px; line-height: 1.5; font-weight: 650; }
-.sessionGoal p { margin-top: 8px; font-size: 14px; line-height: 1.65; color: #465d72; }
-.sessionInstructions { margin-top: 24px; }
-.sessionInstructions ol { display: grid; gap: 12px; list-style: decimal; padding-left: 20px; margin-top: 12px; color: #465d72; font-size: 14px; line-height: 1.65; }
-.sessionInstructions li { padding-left: 4px; }
-.sessionInstructions strong { font-weight: 600; color: var(--game-ink); }
-.sessionPrompt { font-size: 15px; line-height: 1.7; margin-top: 24px; color: #465d72; }
+.sessionLead { max-width: 75ch; font-size: 16px; line-height: 1.7; color: #465d72; }
+.sessionInstructions { margin-top: 28px; padding-top: 24px; border-top: 1px solid #bdcedd; }
+.sessionInstructions h4 { font-size: 16px; line-height: 1.5; font-weight: 650; }
+.sessionInstructions p { max-width: 75ch; margin-top: 8px; color: #465d72; font-size: 14px; line-height: 1.65; }
+.sessionPrompt { max-width: 75ch; font-size: 15px; line-height: 1.7; margin-top: 24px; color: #465d72; }
 .sessionVoices { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
-.sessionVoices p { margin-top: 10px; font-size: 13px; line-height: 1.6; color: #465d72; }
-.sessionMessage { display: grid; margin-top: 20px; font-size: 14px; line-height: 1.65; color: #465d72; }
+.sessionVoices p { margin-top: 10px; font-size: 14px; line-height: 1.6; color: #465d72; }
+.sessionMessage { display: grid; max-width: 75ch; margin-top: 20px; font-size: 14px; line-height: 1.65; color: #465d72; }
 .sessionMessage > p { grid-area: 1 / 1; }
 .sessionMessage > p[aria-hidden="true"] { visibility: hidden; pointer-events: none; }
-.sessionCondition { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-block: 24px; margin-top: 24px; border-block: 1px solid #bdcedd; font-size: 16px; }
+.sessionCondition { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-block: 20px; margin-top: 20px; border-bottom: 1px solid #bdcedd; font-size: 16px; }
 .sessionCondition strong { font-size: 38px; line-height: 1.2; font-weight: 600; }
 .sessionResult { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .sessionResult span { display: block; font-size: 12px; line-height: 1.5; color: #465d72; }
@@ -110,6 +103,7 @@
 .reflectionHeading { font-size: 16px; line-height: 1.5; font-weight: 600; margin-top: 20px; }
 .reflectionChoices { margin-top: 8px; }
 .reflectionChoices button { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-height: 48px; padding-block: 10px; border-bottom: 1px solid #6f879d; text-align: left; font-size: 14px; line-height: 1.5; cursor: pointer; }
+.reflectionChoices button:last-child { border-bottom: 0; }
 .reflectionChoices button:hover, .reflectionChoices button[aria-pressed="true"] { color: var(--game-link); }
 .reflectionChoices button[aria-pressed="true"] { text-decoration: underline; text-underline-offset: 4px; }
 .reflectionChoices svg { flex-shrink: 0; }
@@ -121,8 +115,6 @@
 .sessionBack { gap: 8px; min-height: 48px; padding-inline: 12px; color: var(--game-link); font-size: 14px; }
 
 @media (max-width: 1020px) {
-  .sessionWorkspace { grid-template-columns: 200px minmax(0, 1fr); gap: 28px; }
-  .sessionContext { padding-right: 24px; }
   .sessionHeader { gap: 20px; }
   .sessionProgress { gap: 10px; }
   .sessionProgress li { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 11px; }
@@ -130,51 +122,46 @@
 @media (max-width: 760px) {
   .dialogueBoard { padding: 20px; }
   .sessionBackdrop > img { object-position: 24% center; }
-  .sessionHeader { gap: 12px; padding-bottom: 16px; margin-bottom: 20px; }
-  .sessionProgress { gap: 12px; }
-  .sessionProgress li { justify-content: center; align-items: center; min-height: 44px; padding-block: 8px; }
-  .sessionProgress .sessionStepName { display: none; }
+  .sessionScreens, .sessionSceneStack { display: block; }
+  .sessionStart:not([data-active="true"]), .sessionGame:not([data-active="true"]), .sessionScene:not([data-active="true"]) { display: none; }
+  .sessionStart { min-height: 360px; padding-block: 40px; }
+  .sessionHeader { align-items: center; gap: 12px; padding-bottom: 12px; margin-bottom: 24px; }
+  .sessionProgress { display: none; }
   .sessionReset > span { display: none; }
-  .sessionStepCaption { display: block; margin: -4px 0 20px; color: #465d72; font-size: 12px; line-height: 1.5; }
-  .sessionWorkspace { grid-template-columns: 1fr; gap: 24px; }
-  .sessionContext { padding: 0 0 20px; border-right: 0; border-bottom: 1px solid #bdcedd; }
-  .sessionParticipants { grid-template-columns: 1fr 1fr; gap: 20px; }
-  .sessionParticipants strong { font-size: 12px; }
-  .sessionParticipants p { margin-top: 4px; font-size: 12px; line-height: 1.5; }
+  .sessionStepCaption { display: block; flex: 1; color: #465d72; font-size: 14px; line-height: 1.5; }
+  .sessionParticipants { grid-template-columns: 1fr; gap: 20px; margin-top: 24px; }
+  .sessionParticipants p { margin-top: 8px; font-size: 15px; line-height: 1.6; }
   .playerIdentity { gap: 8px; }
   .playerMarker { width: 28px; height: 28px; font-size: 12px; }
-  .playerIdentity .playerName { font-size: 14px; }
-  .playerRole { font-size: 11px; }
-  .sessionBudget { display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; align-items: center; margin-top: 16px; padding: 0; border: 0; }
-  .sessionBudget > strong { font-size: 12px; }
-  .sessionBudget dl { gap: 12px; margin: 0; }
+  .playerRole { font-size: 12px; }
+  .sessionBudget { display: block; margin-bottom: 20px; padding-bottom: 16px; }
+  .sessionBudget > strong { display: block; font-size: 14px; margin-bottom: 8px; }
+  .sessionBudget dl { gap: 12px; }
   .sessionBudget dd { font-size: 22px; }
-  .sessionBudget > p { grid-column: 1 / -1; min-height: 3.2em; margin: 0; font-size: 11px; }
   .sessionStart h3, .sessionScene h3 { font-size: 22px; }
-  .sessionScene h3 { margin-bottom: 16px; }
-  .sessionLead { font-size: 14px; }
-  .sessionGoal { margin-top: 20px; padding-block: 16px; }
-  .sessionInstructions { margin-top: 20px; }
-  .sessionGoal h4, .sessionInstructions h4 { font-size: 15px; }
-  .sessionGoal p, .sessionInstructions ol { font-size: 13px; }
-  .sessionPrompt { font-size: 14px; }
-  .sessionVoices { gap: 16px; margin-bottom: 16px; }
-  .sessionVoices p { font-size: 12px; }
-  .sessionMessage { font-size: 13px; margin-top: 16px; }
-  .sessionCondition { font-size: 14px; padding-block: 20px; }
+  .sessionScene h3 { margin-bottom: 20px; }
+  .sessionLead { font-size: 16px; line-height: 1.6; }
+  .sessionInstructions { margin-top: 24px; padding-top: 20px; }
+  .sessionInstructions p, .sessionPrompt { font-size: 15px; }
+  .sessionVoices { grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px; }
+  .sessionVoices p { font-size: 15px; margin-top: 6px; }
+  .sessionMessage { font-size: 15px; margin-top: 16px; }
+  .sessionMessage > p[aria-hidden="true"], .sessionActionLabel > span[aria-hidden="true"] { display: none; }
+  .sessionMessage[data-empty="true"] { margin-top: 0; }
+  .sessionCondition { font-size: 16px; padding-block: 16px; }
   .sessionCondition strong { font-size: 32px; }
+  .proposalList button { padding: 12px; }
+  .proposalList strong { font-size: 15px; }
+  .proposalList button > span > span { font-size: 13px; }
   .sessionResult { gap: 12px; }
-  .sessionResult span { font-size: 11px; }
+  .sessionResult span { font-size: 12px; }
   .sessionResult strong { font-size: 26px; }
-  .reflectionChoices button { font-size: 13px; }
+  .reflectionChoices button { font-size: 15px; }
   .sessionControls { gap: 8px; margin-top: 20px; padding-top: 16px; }
-  .sessionControls .eventButton { min-width: 0; font-size: 12px; padding-inline: 12px; }
-  .sessionBack { font-size: 12px; padding-inline: 4px; }
+  .sessionControls .eventButton { min-width: 0; font-size: 14px; padding-inline: 12px; }
+  .sessionBack { font-size: 14px; padding-inline: 4px; }
 }
 @media (max-width: 380px) {
   .dialogueBoard { padding: 16px; }
-  .sessionBudget { grid-template-columns: 76px 1fr; gap: 8px; }
   .sessionBudget dl { gap: 8px; }
-  .sessionParticipants { gap: 16px; }
-  .sessionVoices { grid-template-columns: 1fr; gap: 8px; }
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { preferredScrollBehavior } from "@/shared/lib/motion";
+
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import {
@@ -377,7 +379,7 @@ export function RecommendationLettersRail({
     const distance = Math.min(track.clientWidth * 0.9, 420);
     track.scrollBy({
       left: direction === "next" ? distance : -distance,
-      behavior: "smooth",
+      behavior: preferredScrollBehavior(),
     });
   }
 

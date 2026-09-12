@@ -43,6 +43,7 @@ export function ServiceCatalog({
 }: ServiceCatalogProps) {
   return (
     <Section
+      className="overflow-x-clip"
       id={idBase}
       title="Наши услуги"
       lead="Готовые решения для повышения финансовой грамотности и развития финансовой культуры в компании"

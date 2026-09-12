@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { reachGoal, type YmGoal } from "@/shared/lib/ym";
+import { reachGoal, YM_GOALS } from "@/shared/lib/ym";
 
 /**
  * Delegated click listener that fires Yandex Metrika goals for elements
@@ -17,9 +17,9 @@ export function YandexMetrikaGoalTracker() {
       if (!(target instanceof Element)) return;
 
       const goalElement = target.closest("[data-ym-goal]");
-      if (!goalElement) return;
+      if (!(goalElement instanceof HTMLElement)) return;
 
-      const goal = (goalElement as HTMLElement).dataset.ymGoal;
+      const goal = Object.values(YM_GOALS).find((value) => value === goalElement.dataset.ymGoal);
       if (!goal) return;
 
       // For FAQ: skip firing when user is closing an already-open <details>
@@ -29,7 +29,15 @@ export function YandexMetrikaGoalTracker() {
         if (details?.open) return;
       }
 
-      reachGoal(goal as YmGoal);
+      const programId = goalElement.dataset.leadProgram ?? goalElement.dataset.ymProgramId;
+      const location = goalElement.dataset.ymCtaLocation;
+      reachGoal(goal, {
+        schema_version: 2,
+        page_path: window.location.pathname,
+        ...(location && ["hero", "footer", "program", "task_navigator"].includes(location)
+          ? { cta_location: location } : {}),
+        ...(programId && /^[a-z0-9-]{1,120}$/.test(programId) ? { program_id: programId } : {}),
+      });
     }
 
     document.addEventListener("click", handleClick);

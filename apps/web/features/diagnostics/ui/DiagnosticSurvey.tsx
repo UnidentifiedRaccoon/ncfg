@@ -1,5 +1,13 @@
 "use client";
 
+import { HeroEntrance } from "@/shared/ui/HeroEntrance";
+
+import { ContentTransition } from "@/shared/ui/ContentTransition";
+import { MotionCollapse } from "@/shared/ui/MotionCollapse";
+import { AnimatedNumber } from "@/shared/ui/AnimatedNumber";
+import { MotionProgress } from "@/shared/ui/MotionProgress";
+import { preferredScrollBehavior } from "@/shared/lib/motion";
+
 import { useEffect, useId, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -127,15 +135,15 @@ function SurveySkeleton({ fillViewport = false }: { fillViewport?: boolean }) {
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 bg-[#F8FAFC]" />
       <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
         <div className="mb-8 text-center lg:mb-10">
-          <div className="mx-auto h-10 w-3/4 animate-pulse rounded-lg bg-[#E2E8F0]" />
+          <div className="mx-auto h-10 w-3/4 rounded-lg bg-[#E2E8F0]" />
         </div>
         <div className="mx-auto max-w-2xl">
           <div className={cn(cardClass, "p-6")}>
             <div className="space-y-4">
-              <div className="h-6 w-1/2 animate-pulse rounded bg-[#E2E8F0]" />
-              <div className="h-4 w-3/4 animate-pulse rounded bg-[#E2E8F0]" />
-              <div className="h-4 w-2/3 animate-pulse rounded bg-[#E2E8F0]" />
-              <div className="mt-6 h-12 w-40 animate-pulse rounded-xl bg-[#E2E8F0]" />
+              <div className="h-6 w-1/2 rounded bg-[#E2E8F0]" />
+              <div className="h-4 w-3/4 rounded bg-[#E2E8F0]" />
+              <div className="h-4 w-2/3 rounded bg-[#E2E8F0]" />
+              <div className="mt-6 h-12 w-40 rounded-xl bg-[#E2E8F0]" />
             </div>
           </div>
         </div>
@@ -147,32 +155,6 @@ function SurveySkeleton({ fillViewport = false }: { fillViewport?: boolean }) {
 /* ------------------------------------------------------------------ */
 /*  Animated counter                                                   */
 /* ------------------------------------------------------------------ */
-function useAnimatedCount(target: number, duration = 1200) {
-  const [value, setValue] = useState(0);
-  const rafRef = useRef<number>(0);
-
-  useEffect(() => {
-    const start = performance.now();
-
-    function tick(now: number) {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      // ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.round(eased * target));
-
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(tick);
-      }
-    }
-
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [target, duration]);
-
-  return value;
-}
-
 function InsightCard({
   insight,
   index,
@@ -199,6 +181,7 @@ function InsightCard({
       {/* ---- Top: badge + question + answer + chevron ---- */}
       <button
         type="button"
+        aria-expanded={isOpen}
         onClick={onToggle}
         className="flex w-full items-start gap-4 px-5 py-4 text-left"
       >
@@ -238,6 +221,7 @@ function InsightCard({
       {/* ---- Insight title (edge-to-edge, clickable) ---- */}
       <button
         type="button"
+        aria-expanded={isOpen}
         onClick={onToggle}
         className="w-full px-5 py-3 text-left"
       >
@@ -247,12 +231,7 @@ function InsightCard({
       </button>
 
       {/* ---- Expanded body ---- */}
-      <div
-        className={cn(
-          "grid transition-[grid-template-rows] duration-300",
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        )}
-      >
+      <MotionCollapse open={isOpen}>
         <div className="overflow-hidden">
           {/* Insight text */}
           <div className="px-5 pb-4">
@@ -281,7 +260,7 @@ function InsightCard({
             </div>
           </div>
         </div>
-      </div>
+      </MotionCollapse>
     </div>
   );
 }
@@ -291,7 +270,6 @@ function InsightCard({
 /* ------------------------------------------------------------------ */
 function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
   const [openInsight, setOpenInsight] = useState<number>(0);
-  const animatedScore = useAnimatedCount(result.scorePercent);
   const tone = getDiagnosticScoreTone(result.scorePercent);
   const presentation = getDiagnosticResultPresentation(result);
 
@@ -316,7 +294,7 @@ function DiagnosticResultDisplay({ result }: { result: DiagnosticResult }) {
                 diagnosticScoreNumberClassByTone[tone]
               )}
             >
-              {animatedScore}
+              <AnimatedNumber value={result.scorePercent} />
             </span>
             <span className="block text-sm text-[#94A3B8]">из 100</span>
           </div>
@@ -385,24 +363,24 @@ function ResultSkeleton() {
   return (
     <div className="text-center">
       {/* Score circle skeleton */}
-      <div className="mx-auto flex h-28 w-28 animate-pulse items-center justify-center rounded-full border-4 border-[#E2E8F0] bg-[#F8FAFC]">
+      <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border-4 border-[#E2E8F0] bg-[#F8FAFC]">
         <div className="h-10 w-14 rounded bg-[#E2E8F0]" />
       </div>
-      <div className="mx-auto mt-6 h-8 w-2/3 animate-pulse rounded-lg bg-[#E2E8F0]" />
-      <div className="mx-auto mt-4 h-4 w-3/4 animate-pulse rounded bg-[#E2E8F0]" />
-      <div className="mx-auto mt-2 h-4 w-1/2 animate-pulse rounded bg-[#E2E8F0]" />
+      <div className="mx-auto mt-6 h-8 w-2/3 rounded-lg bg-[#E2E8F0]" />
+      <div className="mx-auto mt-4 h-4 w-3/4 rounded bg-[#E2E8F0]" />
+      <div className="mx-auto mt-2 h-4 w-1/2 rounded bg-[#E2E8F0]" />
 
       {/* Insight skeletons */}
       <div className="mt-10 space-y-3 text-left">
         {[1, 2, 3].map((i) => (
           <div key={i} className="rounded-xl border border-[#E2E8F0]/80 bg-[#F8FAFC] p-5">
             <div className="flex items-center gap-3">
-              <div className="h-7 w-7 animate-pulse rounded-lg bg-[#E2E8F0]" />
-              <div className="h-3 w-24 animate-pulse rounded bg-[#E2E8F0]" />
+              <div className="h-7 w-7 rounded-lg bg-[#E2E8F0]" />
+              <div className="h-3 w-24 rounded bg-[#E2E8F0]" />
             </div>
-            <div className="mt-3 h-5 w-2/3 animate-pulse rounded bg-[#E2E8F0]" />
-            <div className="mt-2 h-4 w-full animate-pulse rounded bg-[#E2E8F0]" />
-            <div className="mt-1 h-4 w-3/4 animate-pulse rounded bg-[#E2E8F0]" />
+            <div className="mt-3 h-5 w-2/3 rounded bg-[#E2E8F0]" />
+            <div className="mt-2 h-4 w-full rounded bg-[#E2E8F0]" />
+            <div className="mt-1 h-4 w-3/4 rounded bg-[#E2E8F0]" />
           </div>
         ))}
       </div>
@@ -425,9 +403,9 @@ export function DiagnosticSurvey({
   const consentId = useId();
   const errorId = useId();
   const questionInputName = useId();
-  const [stepKey, setStepKey] = useState(0);
-  const [hasNavigated, setHasNavigated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarId = useId();
+  const sidebarToggleRef = useRef<HTMLButtonElement>(null);
 
   const {
     phase,
@@ -461,53 +439,40 @@ export function DiagnosticSurvey({
   } = survey;
 
   const goToNextStep = () => {
-    if (currentQuestion && answers[currentQuestion.key]) {
-      setStepKey((k) => k + 1);
-      setHasNavigated(true);
-    }
     rawGoToNextStep();
   };
 
   const goToPreviousStep = () => {
     if (phase === "results" || isSubmitted) return;
     rawGoToPreviousStep();
-    setStepKey((k) => k + 1);
-    setHasNavigated(true);
   };
 
   const goToStep = (index: number) => {
     if (phase === "results" || isSubmitted) return;
     rawGoToStep(index);
-    setStepKey((k) => k + 1);
-    setHasNavigated(true);
+    if (sidebarOpen) sidebarToggleRef.current?.focus({ preventScroll: true });
     setSidebarOpen(false);
   };
 
   const handleStartFresh = () => {
     startFresh();
-    setStepKey(0);
-    setHasNavigated(false);
     setSidebarOpen(false);
   };
 
   const handleContinueDraft = () => {
     continueDraft();
-    setStepKey(0);
-    setHasNavigated(false);
     setSidebarOpen(false);
   };
 
   const handleStartFromIntro = () => {
     startFromIntro();
-    setStepKey(0);
-    setHasNavigated(false);
     setSidebarOpen(false);
   };
 
   /* ---- Scroll to top on phase change to results or on submit ---- */
   useEffect(() => {
     if (phase === "results" || isSubmitted) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: preferredScrollBehavior() });
     }
   }, [phase, isSubmitted]);
 
@@ -527,28 +492,28 @@ export function DiagnosticSurvey({
     <div className={cn("relative text-[#0F172A]", fillViewport && "min-h-screen min-h-dvh")}>
       {/* Background extending behind the sticky header */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 bg-[#F8FAFC]" />
-      {/* Animated background blobs */}
+      {/* Static decorative background */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -top-20 overflow-hidden">
         <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,rgba(30,58,95,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,58,95,0.20)_1px,transparent_1px)] bg-[size:64px_64px]" />
-        <div className="absolute -top-40 left-[15%] h-[500px] w-[500px] rounded-full bg-[#3B82F6]/14 blur-3xl animate-[blobDrift_18s_ease-in-out_infinite]" />
-        <div className="absolute -bottom-40 right-[10%] h-[600px] w-[600px] rounded-full bg-[#58A8E0]/12 blur-3xl animate-[blobDrift_22s_ease-in-out_infinite_reverse]" />
+        <div className="absolute -top-40 left-[15%] h-[500px] w-[500px] rounded-full bg-[#3B82F6]/14 blur-3xl" />
+        <div className="absolute -bottom-40 right-[10%] h-[600px] w-[600px] rounded-full bg-[#58A8E0]/12 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
+      <ContentTransition focusOnChange={phase === "intro"} immediate stateKey={phase} className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 md:px-6 lg:pt-24 lg:pb-24">
         {/* ============================================================ */}
         {/*  Page heading                                                */}
         {/* ============================================================ */}
-        <div className="mb-8 text-center lg:mb-10">
+        <HeroEntrance className="mb-8 text-center lg:mb-10">
           <h1 className="text-[28px] md:text-4xl lg:text-[48px] font-bold text-[#1E3A5F] leading-tight tracking-tight">
             {testTitle}
           </h1>
-        </div>
+        </HeroEntrance>
 
         {/* ============================================================ */}
         {/*  INTRO SCREEN                                                */}
         {/* ============================================================ */}
         {phase === "intro" && (
-          <div className="mx-auto max-w-2xl animate-[cardIn_0.35s_ease-out]">
+          <HeroEntrance className="mx-auto max-w-2xl">
             <div className={cn(cardClass, "p-6 md:p-8")}>
               <div className="text-center">
                 <p className="text-lg font-medium text-[#475569]">{campaignTitle}</p>
@@ -602,7 +567,7 @@ export function DiagnosticSurvey({
                 </div>
               </div>
             </div>
-          </div>
+          </HeroEntrance>
         )}
 
         {/* ============================================================ */}
@@ -614,6 +579,9 @@ export function DiagnosticSurvey({
             <div className="mb-6 lg:hidden">
               <button
                 type="button"
+                ref={sidebarToggleRef}
+                aria-expanded={sidebarOpen}
+                aria-controls={sidebarId}
                 onClick={() => setSidebarOpen((o) => !o)}
                 className="-mx-4 flex w-[calc(100%+2rem)] items-center justify-between bg-white px-5 py-4 md:mx-0 md:w-full md:rounded-2xl md:border md:border-[#E2E8F0]/80 md:shadow-[0_18px_56px_rgba(15,23,42,0.08)]"
               >
@@ -638,8 +606,8 @@ export function DiagnosticSurvey({
                 />
               </button>
 
-              {sidebarOpen && (
-                <div className={cn(cardClass, "mt-3 space-y-2 p-4 animate-[cardIn_0.25s_ease-out]")}>
+              <MotionCollapse id={sidebarId} open={sidebarOpen} className="-mx-4 px-4 md:mx-0 md:px-0">
+                <div className={cn(cardClass, "mt-3 space-y-2 p-4")}>
                   {questions.map((question, index) => {
                     const stepState =
                       answers[question.key]
@@ -709,7 +677,7 @@ export function DiagnosticSurvey({
                     </span>
                   </div>
                 </div>
-              )}
+              </MotionCollapse>
             </div>
 
             {/* ---- DESKTOP: two-column layout ---- */}
@@ -733,10 +701,10 @@ export function DiagnosticSurvey({
                           {answeredCount} из {questions.length}
                         </span>
                       </div>
-                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#E2E8F0]">
-                        <div
-                          className="h-full rounded-full bg-[linear-gradient(90deg,#3B82F6_0%,#58A8E0_100%)] transition-[width] duration-300"
-                          style={{ width: `${progressPercent}%` }}
+                      <div role="progressbar" aria-label="Заполнено" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={answeredCount} className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#E2E8F0]">
+                        <MotionProgress
+                          className="h-full rounded-full bg-[linear-gradient(90deg,#3B82F6_0%,#58A8E0_100%)]"
+                          value={progressPercent / 100}
                         />
                       </div>
                     </div>
@@ -856,12 +824,12 @@ export function DiagnosticSurvey({
               )}
 
               {/* ---------- RIGHT: main content ---------- */}
-              <div className={cn("min-w-0", !showSidebar && "lg:col-span-2")}>
+              <ContentTransition enter focusOnChange order={phase === "results" ? questions.length : currentStep} immediate={status === "error" || previewStatus === "error"} stateKey={`${phase}:${currentQuestion?.key ?? "result"}:${previewStatus}`} className={cn("min-w-0", !showSidebar && "lg:col-span-2")}>
                 {/* ============================================ */}
                 {/*  RESULTS PHASE                               */}
                 {/* ============================================ */}
                 {phase === "results" ? (
-                  <div className="space-y-6 animate-[cardIn_0.35s_ease-out]">
+                  <div className="space-y-6">
                     {/* Card 1: Results */}
                     <div className={cn(cardClass, "p-4 md:p-6")}>
                       {previewStatus === "loading" ? (
@@ -893,7 +861,7 @@ export function DiagnosticSurvey({
 
                     {/* Card 2: Contact form (only when preview is successful) */}
                     {(previewStatus === "success" || isSubmitted) && (
-                      <div className={cn(cardClass, "p-4 md:p-6 animate-[cardIn_0.35s_ease-out]")}>
+                      <div className={cn(cardClass, "p-4 md:p-6")}>
                         {isSubmitted ? (
                           /* ---- Submitted confirmation ---- */
                           <div className="text-center py-4">
@@ -1089,11 +1057,9 @@ export function DiagnosticSurvey({
                   /* ============================================ */
                   <div>
                     <div
-                      key={`step-${stepKey}`}
                       className={cn(
                         cardClass,
-                        "p-4 md:p-6",
-                        hasNavigated && "animate-[cardIn_0.35s_ease-out]"
+                        "p-4 md:p-6"
                       )}
                     >
                       {currentQuestion ? (
@@ -1199,11 +1165,11 @@ export function DiagnosticSurvey({
                     </div>
                   </div>
                 )}
-              </div>
+              </ContentTransition>
             </div>
           </>
         )}
-      </div>
+      </ContentTransition>
     </div>
   );
 }
