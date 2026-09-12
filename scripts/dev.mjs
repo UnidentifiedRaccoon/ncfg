@@ -259,9 +259,12 @@ async function getProductionReadToken() {
   }
 
   try {
+    const profile = process.env.NCFG_YC_PROFILE?.trim();
+    const profileArgs = profile ? ["--profile", profile] : [];
+    if (profile) log(`Yandex Cloud: профиль ${profile} только для этого запуска.`);
     const { stdout } = await runCapture(
       "yc",
-      ["lockbox", "payload", "get", "--name", DEV_SECRET_NAME, "--key", DEV_SECRET_KEY],
+      [...profileArgs, "lockbox", "payload", "get", "--name", DEV_SECRET_NAME, "--key", DEV_SECRET_KEY],
       { timeout: 30_000 }
     );
     const token = stdout.trim();
@@ -271,7 +274,7 @@ async function getProductionReadToken() {
   } catch {
     fail(
       `Не удалось получить ${DEV_SECRET_NAME}/${DEV_SECRET_KEY}. ` +
-        "Проверьте `yc init` и роль lockbox.payloadViewer."
+        "Проверьте профиль yc (можно задать NCFG_YC_PROFILE), его регион и роль lockbox.payloadViewer."
     );
   }
 }
@@ -800,13 +803,20 @@ async function prepareProductionWeb() {
 }
 
 async function startWeb({ source, readToken, writeToken = null, strapiUrl }) {
+  const bundler = process.env.NCFG_DEV_BUNDLER?.trim() || "turbopack";
+  if (bundler !== "turbopack" && bundler !== "webpack") {
+    fail("NCFG_DEV_BUNDLER должен быть turbopack или webpack.");
+  }
+  const args = [NEXT_CLI, "dev", "--hostname", "127.0.0.1"];
+  if (bundler === "webpack") args.push("--webpack");
+  log(`Next.js dev bundler: ${bundler}.`);
   const environment = createWebEnvironment(process.env, {
     source,
     readToken,
     writeToken,
     strapiUrl,
   });
-  spawnManaged("web", process.execPath, [NEXT_CLI, "dev", "--hostname", "127.0.0.1"], {
+  spawnManaged("web", process.execPath, args, {
     cwd: WEB_DIR,
     env: environment,
     secrets: [readToken, writeToken],

@@ -1,3 +1,5 @@
+import { Reveal } from "@/shared/ui/Reveal";
+import { motionTokens } from "@/shared/lib/motion";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
@@ -139,114 +141,55 @@ export function News({
       className="relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-[360px] before:content-[''] before:[background-image:radial-gradient(640px_circle_at_12%_20%,rgba(88,168,224,0.18),transparent_55%),radial-gradient(560px_circle_at_88%_12%,rgba(59,130,246,0.14),transparent_60%),radial-gradient(760px_circle_at_50%_-10%,rgba(30,58,95,0.10),transparent_65%)] before:[mask-image:linear-gradient(to_bottom,black,transparent_92%)] before:-z-10"
     >
       <div className="grid gap-4 md:gap-5 lg:grid-cols-12 lg:gap-6">
-        <CmsAwareLink
-          href={`/blog/${featured.slug}`}
-          className={cn(
-            "group relative overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white shadow-sm",
-            "transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:shadow-lg hover:border-[#3B82F6]/25",
-            "transform-gpu will-change-transform md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
-            "lg:col-span-7"
-          )}
-          aria-label={featured.title}
-        >
-          <div className="relative aspect-[4/3] w-full">
-            <Cover
-              post={featured}
-              sizes="(min-width: 1024px) 720px, 100vw"
-            />
+        <Reveal variant="card" className="min-w-0 lg:col-span-7">
+          <CmsAwareLink
+            href={`/blog/${featured.slug}`}
+            className={cn(
+              "group relative block h-full overflow-hidden rounded-2xl border border-[#E2E8F0]/70 bg-white shadow-sm",
+              "transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:shadow-lg hover:border-[#3B82F6]/25",
+              "transform-gpu md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none",
+              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]",
+            )}
+            aria-label={featured.title}
+          >
+            <div className="relative aspect-[4/3] w-full">
+              <Cover
+                post={featured}
+                sizes="(min-width: 1024px) 720px, 100vw"
+              />
 
-            <div className="absolute inset-x-0 bottom-0 p-4 md:p-5 lg:p-6">
-              <div
-                className={cn(
-                  "rounded-2xl border border-white/40 bg-white/90 backdrop-blur-sm",
-                  "shadow-[0_18px_60px_rgba(15,23,42,0.18)]",
-                  "px-5 py-5 md:px-6 md:py-6"
-                )}
-              >
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  {featuredCategoryTitle && (
-                    <span className="inline-flex items-center gap-2 rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/5 px-3 py-1 text-xs font-semibold tracking-wide text-[#3B82F6]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
-                      {featuredCategoryTitle}
-                    </span>
+              <div className="absolute inset-x-0 bottom-0 p-4 md:p-5 lg:p-6">
+                <div
+                  className={cn(
+                    "rounded-2xl border border-white/40 bg-white/90 backdrop-blur-sm",
+                    "shadow-[0_18px_60px_rgba(15,23,42,0.18)]",
+                    "px-5 py-5 md:px-6 md:py-6"
                   )}
-                  {featuredCategoryTitle && <span className="text-[#E2E8F0]">•</span>}
-                  <time className="whitespace-nowrap text-[#94A3B8]">
-                    {formatDate(featured.createdAt)}
-                  </time>
-                </div>
-
-                <h3 className="mt-3 text-xl md:text-2xl leading-snug font-semibold tracking-tight text-[#1E3A5F] line-clamp-2">
-                  {featured.title}
-                </h3>
-
-                {featuredExcerpt && (
-                  <p className="mt-3 text-sm leading-relaxed text-[#475569] line-clamp-2">
-                    {featuredExcerpt}
-                  </p>
-                )}
-
-                <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]">
-                  Читать
-                  <ArrowRight
-                    className="h-4 w-4 text-[#94A3B8] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#3B82F6]"
-                    aria-hidden="true"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[#58A8E0]/70 via-[#3B82F6]/45 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-          />
-        </CmsAwareLink>
-
-        <div className="lg:col-span-5 flex flex-col gap-4 md:gap-5 lg:h-full lg:justify-between">
-          {compact.map((post) => {
-            const categoryTitle = post.category?.title;
-
-            return (
-              <CmsAwareLink
-                key={post.id}
-                href={`/blog/${post.slug}`}
-                className={cn(
-                  "group relative flex items-stretch gap-4 overflow-hidden rounded-xl border",
-                  "border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm shadow-sm",
-                  "transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:shadow-md hover:border-[#3B82F6]/25",
-                  "transform-gpu will-change-transform md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
-                )}
-                aria-label={post.title}
-              >
-                <div className="relative aspect-[4/3] w-[140px] flex-none overflow-hidden bg-[#F8FAFC]">
-                  <Cover
-                    post={post}
-                    sizes="(min-width: 1024px) 140px, 35vw"
-                  />
-                </div>
-
-                <div className="min-w-0 flex-1 py-4 pr-4">
+                >
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    {categoryTitle && (
+                    {featuredCategoryTitle && (
                       <span className="inline-flex items-center gap-2 rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/5 px-3 py-1 text-xs font-semibold tracking-wide text-[#3B82F6]">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
-                        {categoryTitle}
+                        {featuredCategoryTitle}
                       </span>
                     )}
-                    {categoryTitle && <span className="text-[#E2E8F0]">•</span>}
+                    {featuredCategoryTitle && <span className="text-[#E2E8F0]">•</span>}
                     <time className="whitespace-nowrap text-[#94A3B8]">
-                      {formatDate(post.createdAt)}
+                      {formatDate(featured.createdAt)}
                     </time>
                   </div>
 
-                  <h3 className="mt-2 text-[15px] md:text-base leading-snug font-semibold text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6] line-clamp-2">
-                    {post.title}
+                  <h3 className="mt-3 text-xl md:text-2xl leading-snug font-semibold tracking-tight text-[#1E3A5F] line-clamp-2">
+                    {featured.title}
                   </h3>
 
-                  <div className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]">
+                  {featuredExcerpt && (
+                    <p className="mt-3 text-sm leading-relaxed text-[#475569] line-clamp-2">
+                      {featuredExcerpt}
+                    </p>
+                  )}
+
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]">
                     Читать
                     <ArrowRight
                       className="h-4 w-4 text-[#94A3B8] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#3B82F6]"
@@ -254,12 +197,73 @@ export function News({
                     />
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[#58A8E0]/55 via-[#3B82F6]/35 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                />
-              </CmsAwareLink>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[#58A8E0]/70 via-[#3B82F6]/45 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            />
+          </CmsAwareLink>
+        </Reveal>
+
+        <div className="lg:col-span-5 flex flex-col gap-4 md:gap-5 lg:h-full lg:justify-between">
+          {compact.map((post, index) => {
+            const categoryTitle = post.category?.title;
+
+            return (
+              <Reveal key={post.id} viewport="inset" delay={motionTokens.stagger * (index + 1)}>
+                <CmsAwareLink
+                  href={`/blog/${post.slug}`}
+                  className={cn(
+                    "group relative flex items-stretch gap-4 overflow-hidden rounded-xl border",
+                    "border-[#E2E8F0]/70 bg-white/85 backdrop-blur-sm shadow-sm",
+                    "transition-[transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.42,0,0.58,1)] hover:shadow-md hover:border-[#3B82F6]/25",
+                    "transform-gpu md:scale-100 md:hover:scale-[1.015] motion-reduce:transform-none",
+                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6]"
+                  )}
+                  aria-label={post.title}
+                >
+                  <div className="relative aspect-[4/3] w-[140px] flex-none overflow-hidden bg-[#F8FAFC]">
+                    <Cover
+                      post={post}
+                      sizes="(min-width: 1024px) 140px, 35vw"
+                    />
+                  </div>
+
+                  <div className="min-w-0 flex-1 py-4 pr-4">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      {categoryTitle && (
+                        <span className="inline-flex items-center gap-2 rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/5 px-3 py-1 text-xs font-semibold tracking-wide text-[#3B82F6]">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
+                          {categoryTitle}
+                        </span>
+                      )}
+                      {categoryTitle && <span className="text-[#E2E8F0]">•</span>}
+                      <time className="whitespace-nowrap text-[#94A3B8]">
+                        {formatDate(post.createdAt)}
+                      </time>
+                    </div>
+
+                    <h3 className="mt-2 text-[15px] md:text-base leading-snug font-semibold text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6] line-clamp-2">
+                      {post.title}
+                    </h3>
+
+                    <div className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]">
+                      Читать
+                      <ArrowRight
+                        className="h-4 w-4 text-[#94A3B8] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#3B82F6]"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[#58A8E0]/55 via-[#3B82F6]/35 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                  />
+                </CmsAwareLink>
+              </Reveal>
             );
           })}
         </div>

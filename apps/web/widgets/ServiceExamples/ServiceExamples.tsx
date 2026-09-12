@@ -1,4 +1,6 @@
 import { Section } from "@/shared/ui/Section";
+import { Reveal } from "@/shared/ui/Reveal";
+import { motionTokens } from "@/shared/lib/motion";
 import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
 import { type ServiceExample } from "@/shared/api/types/service";
 import { ExternalLink, FileText, Lightbulb, Presentation } from "lucide-react";
@@ -78,9 +80,9 @@ function ExampleCard({ example }: ExampleCardProps) {
     </>
   );
 
-  const cardClasses = `bg-white rounded-xl border border-[#F1F5F9] p-6
-                       hover:border-[#3B82F6]/30 hover:shadow-lg hover:-translate-y-1
-                       transition-all duration-200 h-full group`;
+  const cardClasses = `block bg-white rounded-xl border border-[#F1F5F9] p-6
+                       hover:border-[#3B82F6]/30 hover:shadow-lg motion-safe:hover:-translate-y-1
+                       transition-[translate,box-shadow,border-color] duration-200 motion-reduce:transition-none h-full group`;
 
   if (example.link) {
     return (
@@ -109,8 +111,10 @@ export function ServiceExamples({
   return (
     <Section id="examples" title={title}>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {examples.map((example) => (
-          <ExampleCard key={example.id} example={example} />
+        {examples.map((example, index) => (
+          <Reveal key={example.id} variant="card" delay={motionTokens.stagger * (index % 3)} className="h-full">
+            <ExampleCard example={example} />
+          </Reveal>
         ))}
       </div>
     </Section>

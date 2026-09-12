@@ -18,17 +18,27 @@ COPY apps/web/ ./
 ARG STRAPI_URL
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_YANDEX_METRIKA_ID
+ARG NEXT_PUBLIC_RELEASE_ID
 ARG PORTFOLIO_PRESENTATION_URL
 ARG DEPLOY_ENV
 
 ENV STRAPI_URL=$STRAPI_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_YANDEX_METRIKA_ID=$NEXT_PUBLIC_YANDEX_METRIKA_ID
+ENV NEXT_PUBLIC_RELEASE_ID=$NEXT_PUBLIC_RELEASE_ID
 ENV PORTFOLIO_PRESENTATION_URL=$PORTFOLIO_PRESENTATION_URL
 ENV DEPLOY_ENV=$DEPLOY_ENV
 
 RUN --mount=type=secret,id=STRAPI_API_TOKEN,env=STRAPI_API_TOKEN \
     npm run build-storybook:public && npm run build
+
+# Production CI supplies the previous image's public assets. Local and preview
+# builds use the empty tracked directory. Keep this after the cached Next build.
+COPY docker/web/static-history/ /tmp/ncfg-static-history/
+COPY scripts/retain-next-static.mjs /tmp/retain-next-static.mjs
+# Refresh the retention clock even when retrying a cached application build.
+ARG STATIC_HISTORY_EPOCH
+RUN node /tmp/retain-next-static.mjs .next/static /tmp/ncfg-static-history .next/static-history.json "$STATIC_HISTORY_EPOCH"
 
 # Stage 3: Production runner
 FROM node:22.22.2-alpine3.23 AS runner
@@ -45,6 +55,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static-history.json ./.next/static-history.json
 
 USER nextjs
 

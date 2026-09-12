@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/shared/ui/Container";
+import { Reveal } from "@/shared/ui/Reveal";
 import {
   ABOUT_HISTORY_MILESTONES,
   type AboutHistoryMilestone,
@@ -82,36 +83,38 @@ function InsightCard({
 
 function TimelineItem({ milestone }: { milestone: AboutHistoryMilestone }) {
   return (
-    <li data-scroll-reveal="" className="relative">
-      <article className="overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.04]">
-        <div className="grid gap-0 lg:grid-cols-[132px_minmax(0,1fr)]">
-          <div className="border-b border-white/10 bg-white/[0.06] px-5 py-6 text-white lg:border-b-0 lg:border-r">
-            <div className="text-[34px] font-semibold tracking-[-0.05em]">
-              {milestone.period}
-            </div>
-          </div>
-
-          <div className="p-5 md:p-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="min-w-0 max-w-3xl">
-                <h3 className="text-[24px] font-semibold tracking-[-0.035em] text-white md:text-[30px]">
-                  {milestone.organization}
-                </h3>
+    <li className="relative">
+      <Reveal viewport="inset">
+        <article className="overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.04]">
+          <div className="grid gap-0 lg:grid-cols-[132px_minmax(0,1fr)]">
+            <div className="border-b border-white/10 bg-white/[0.06] px-5 py-6 text-white lg:border-b-0 lg:border-r">
+              <div className="text-[34px] font-semibold tracking-[-0.05em]">
+                {milestone.period}
               </div>
-              <LinksRow milestone={milestone} />
             </div>
 
-            <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <InsightCard label="Цель" text={milestone.goal} />
-              <InsightCard label="Результат" text={milestone.result} />
-            </div>
+            <div className="p-5 md:p-6">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0 max-w-3xl">
+                  <h3 className="text-[24px] font-semibold tracking-[-0.035em] text-white md:text-[30px]">
+                    {milestone.organization}
+                  </h3>
+                </div>
+                <LinksRow milestone={milestone} />
+              </div>
 
-            <div className="mt-4">
-              <EventsCard items={milestone.highlights} />
+              <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                <InsightCard label="Цель" text={milestone.goal} />
+                <InsightCard label="Результат" text={milestone.result} />
+              </div>
+
+              <div className="mt-4">
+                <EventsCard items={milestone.highlights} />
+              </div>
             </div>
           </div>
-        </div>
-      </article>
+        </article>
+      </Reveal>
     </li>
   );
 }

@@ -22,7 +22,7 @@ export const revalidate = 0;
 type SearchParams = Record<string, string | string[] | undefined>;
 
 interface PageProps {
-  searchParams?: SearchParams | Promise<SearchParams>;
+  searchParams?: Promise<SearchParams>;
 }
 
 async function safeFetchNewsArticles(category?: BlogRubricSlug) {
@@ -36,7 +36,7 @@ async function safeFetchNewsArticles(category?: BlogRubricSlug) {
 }
 
 export default async function BlogPage({ searchParams }: PageProps) {
-  const sp = await Promise.resolve(searchParams ?? {});
+  const sp = (await searchParams) ?? {};
   const rawCategory = sp.category;
 
   const selectedCategory =

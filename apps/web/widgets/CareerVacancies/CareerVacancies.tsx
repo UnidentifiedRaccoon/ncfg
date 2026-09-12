@@ -20,6 +20,7 @@ export function CareerVacancies({
 }: CareerVacanciesProps) {
   return (
     <Section
+      heroHeading
       id="vacancies"
       title={title}
       lead={lead ?? undefined}

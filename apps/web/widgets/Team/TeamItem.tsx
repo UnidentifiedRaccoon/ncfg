@@ -1,8 +1,4 @@
-"use client";
-
 import Image from "next/image";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
 import { cn } from "@/shared/lib/cn";
 import { getInitials } from "./team-utils";
 import type { TeamMember } from "./types";
@@ -10,37 +6,19 @@ import type { TeamMember } from "./types";
 // Hero Card (2x2) - for Founder
 export function HeroCard({
   member,
-  index,
-  prefersReducedMotion,
 }: {
   member: TeamMember;
-  index: number;
-  prefersReducedMotion: boolean | null;
 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-
   return (
-    <motion.article
-      ref={ref}
+    <article
       className={cn(
         "group relative overflow-hidden rounded-2xl border border-[#E2E8F0] p-6",
         "bg-[linear-gradient(135deg,#FFFFFF_0%,#F8FAFC_55%,#FFFFFF_100%)]",
-        "shadow-sm transition-all duration-200",
-        "hover:border-[#3B82F6]/35 hover:shadow-md",
+        "shadow-sm transition-[border-color,box-shadow,transform] duration-200",
+        "motion-safe:hover:-translate-y-0.5 hover:border-[#3B82F6]/35 hover:shadow-md",
         "focus-within:ring-2 focus-within:ring-[#3B82F6] focus-within:ring-offset-2"
       )}
       style={{ gridArea: "hero" }}
-      initial={
-        prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }
-      }
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={
-        prefersReducedMotion
-          ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
-      }
-      whileHover={prefersReducedMotion ? {} : { y: -2 }}
     >
       {/* Subtle background pattern */}
       <div
@@ -50,13 +28,12 @@ export function HeroCard({
 
       <div className="relative z-10 h-full flex flex-col">
         {/* Avatar */}
-        <motion.div
+        <div
           className={cn(
             "h-24 w-24 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] p-[2px]",
             "shadow-sm shadow-black/5",
             "transition-transform duration-200"
           )}
-          whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
         >
           <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white">
             {member.photoUrl ? (
@@ -73,7 +50,7 @@ export function HeroCard({
               </span>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Info */}
         <h3 className="mt-4 text-xl font-bold text-[#1E3A5F]">
@@ -85,7 +62,6 @@ export function HeroCard({
             {member.headline}
           </p>
         )}
-
         {/* Experience badge */}
         {member.experienceYears && (
           <div className="mt-auto pt-4">
@@ -95,48 +71,30 @@ export function HeroCard({
           </div>
         )}
       </div>
-    </motion.article>
+    </article>
   );
 }
-
 // Featured Card (2x1) - for Leader
 export function FeaturedCard({
   member,
-  index,
   gridArea,
-  prefersReducedMotion,
 }: {
   member: TeamMember;
-  index: number;
-  gridArea: string;
-  prefersReducedMotion: boolean | null;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
 
+  gridArea: string;
+}) {
   return (
-    <motion.article
-      ref={ref}
+    <article
       className={cn(
         "relative p-5 rounded-xl overflow-hidden",
         "bg-white",
         "border border-[#E2E8F0] shadow-sm",
         "group",
-        "transition-all duration-300",
-        "hover:border-[#3B82F6]/35 hover:shadow-md",
+        "transition-[border-color,box-shadow,transform] duration-300",
+        "motion-safe:hover:-translate-y-0.5 hover:border-[#3B82F6]/35 hover:shadow-md",
         "focus-within:ring-2 focus-within:ring-[#3B82F6] focus-within:ring-offset-2"
       )}
       style={{ gridArea }}
-      initial={
-        prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }
-      }
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={
-        prefersReducedMotion
-          ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
-      }
-      whileHover={prefersReducedMotion ? {} : { y: -2 }}
     >
       {/* Accent gradient line */}
       <div
@@ -146,13 +104,12 @@ export function FeaturedCard({
 
       <div className="flex items-start gap-4">
         {/* Avatar */}
-        <motion.div
+        <div
           className={cn(
             "flex-shrink-0 h-16 w-16 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] p-[2px]",
             "shadow-sm shadow-black/5",
             "transition-transform duration-200"
           )}
-          whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
         >
           <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white">
             {member.photoUrl ? (
@@ -169,7 +126,7 @@ export function FeaturedCard({
               </span>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
@@ -186,57 +143,38 @@ export function FeaturedCard({
           )}
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }
-
 // Team Card (1x1) - for regular members
 export function TeamCard({
   member,
-  index,
   gridArea,
-  prefersReducedMotion,
 }: {
   member: TeamMember;
-  index: number;
-  gridArea?: string;
-  prefersReducedMotion: boolean | null;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
 
+  gridArea?: string;
+}) {
   return (
-    <motion.article
-      ref={ref}
+    <article
       className={cn(
         "relative p-4 rounded-xl overflow-hidden",
         "bg-[#F8FAFC] border border-[#E2E8F0] shadow-sm",
         "group",
-        "transition-all duration-300",
+        "transition-[border-color,box-shadow,transform] duration-300",
         "hover:bg-white hover:shadow-md hover:border-[#3B82F6]/25",
         "focus-within:ring-2 focus-within:ring-[#3B82F6] focus-within:ring-offset-2"
       )}
       style={gridArea ? { gridArea } : undefined}
-      initial={
-        prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }
-      }
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={
-        prefersReducedMotion
-          ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
-      }
-      whileHover={prefersReducedMotion ? {} : { y: -2 }}
     >
       <div className="relative z-10">
         {/* Avatar */}
-        <motion.div
+        <div
           className={cn(
             "h-14 w-14 rounded-full bg-gradient-to-br from-[#58A8E0] to-[#3B82F6] p-px",
             "shadow-sm shadow-black/5",
             "transition-transform duration-200"
           )}
-          whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
         >
           <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white">
             {member.photoUrl ? (
@@ -253,7 +191,7 @@ export function TeamCard({
               </span>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Info */}
         <h4 className="mt-3 font-semibold text-[#1E3A5F]">
@@ -270,39 +208,19 @@ export function TeamCard({
           </div>
         )}
       </div>
-    </motion.article>
+    </article>
   );
 }
-
 // Accent Card - for quote or stats
-export function AccentCard({
-  index,
-  prefersReducedMotion,
-}: {
-  index: number;
-  prefersReducedMotion: boolean | null;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-
+export function AccentCard() {
   return (
-    <motion.div
-      ref={ref}
+    <div
       className={cn(
         "relative p-6 rounded-xl overflow-hidden",
         "bg-gradient-to-br from-[#1E3A5F] to-[#3B82F6]",
         "text-white"
       )}
       style={{ gridArea: "acc" }}
-      initial={
-        prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }
-      }
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={
-        prefersReducedMotion
-          ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
-      }
     >
       {/* Background pattern */}
       <div
@@ -315,32 +233,18 @@ export function AccentCard({
           &ldquo;Объединяя экспертизу и современные технологии для решения сложных финансовых задач&rdquo;
         </blockquote>
       </div>
-    </motion.div>
+    </div>
   );
 }
-
 // Mobile hero card for leadership
 export function MobileHeroCard({
   member,
-  index,
-  prefersReducedMotion,
 }: {
   member: TeamMember;
-  index: number;
-  prefersReducedMotion: boolean | null;
 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-
   return (
-    <motion.div
-      ref={ref}
+    <div
       className="relative overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-6 text-center shadow-sm"
-      initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={
-        prefersReducedMotion ? { duration: 0 } : { duration: 0.4, delay: index * 0.1 }
-      }
     >
       <div
         className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#58A8E0] to-[#3B82F6]"
@@ -389,36 +293,18 @@ export function MobileHeroCard({
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
-
 // Mobile team card (compact)
 export function MobileTeamCard({
   member,
-  index,
-  prefersReducedMotion,
 }: {
   member: TeamMember;
-  index: number;
-  prefersReducedMotion: boolean | null;
 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-
   return (
-    <motion.div
-      ref={ref}
+    <div
       className="flex-shrink-0 w-[160px] snap-center"
-      initial={
-        prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }
-      }
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={
-        prefersReducedMotion
-          ? { duration: 0 }
-          : { duration: 0.3, delay: index * 0.05 }
-      }
     >
       <div
         className="relative h-full overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-4 text-center shadow-sm"
@@ -462,6 +348,6 @@ export function MobileTeamCard({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

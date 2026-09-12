@@ -4,11 +4,10 @@ import type { KeyboardEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, MotionConfig, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
-import { seasonOffer2026Content } from "@/widgets/SeasonOffer2026";
-
+import { legacySeasonOfferHero } from "./legacy-offer";
 import styles from "./seasonal-offer-hero.module.css";
 
 const VARIANTS = [
@@ -125,7 +124,7 @@ function HeroAction({
       whileTap={reduceMotion ? undefined : { y: 2, scale: 0.985 }}
       transition={reduceMotion ? { duration: 0 } : { duration: 0.18, ease: EASE }}
     >
-      <span>{seasonOffer2026Content.hero.primaryAction.label}</span>
+      <span>{legacySeasonOfferHero.primaryAction.label}</span>
       <ArrowUpRight aria-hidden="true" />
     </motion.a>
   );
@@ -138,7 +137,7 @@ function PeopleHero({
   reduceMotion: boolean;
   mode?: "plain" | "focus";
 }) {
-  const hero = seasonOffer2026Content.hero;
+  const hero = legacySeasonOfferHero;
   const isFocusVariant = mode === "focus";
   const titleId = isFocusVariant ? "focus-hero-title" : "people-hero-title";
   const carouselId = isFocusVariant
@@ -441,7 +440,7 @@ function PeopleHero({
 }
 
 function WellbeingHero({ reduceMotion }: { reduceMotion: boolean }) {
-  const hero = seasonOffer2026Content.hero;
+  const hero = legacySeasonOfferHero;
 
   return (
     <section className={styles.wellbeingHero} aria-labelledby="wellbeing-hero-title">
@@ -535,7 +534,7 @@ function WellbeingHero({ reduceMotion }: { reduceMotion: boolean }) {
 }
 
 function TypographicHero({ reduceMotion }: { reduceMotion: boolean }) {
-  const hero = seasonOffer2026Content.hero;
+  const hero = legacySeasonOfferHero;
 
   return (
     <section className={styles.typeHero} aria-labelledby="type-hero-title">
@@ -631,7 +630,7 @@ function HybridHero({
   reduceMotion: boolean;
   initialThemeId: HybridThemeId;
 }) {
-  const hero = seasonOffer2026Content.hero;
+  const hero = legacySeasonOfferHero;
   const [activeThemeId, setActiveThemeId] = useState<HybridThemeId>(initialThemeId);
   const [pendingThemeId, setPendingThemeId] = useState<HybridThemeId | null>(null);
   const themeLoadRequest = useRef(0);
@@ -792,7 +791,7 @@ function HybridHero({
 }
 
 export function SeasonalOfferHeroLab({
-  initialVariant = "people",
+  initialVariant = "focus",
   initialHybridTheme = "cool",
 }: {
   initialVariant?: VariantId;
@@ -828,8 +827,8 @@ export function SeasonalOfferHeroLab({
     <MotionConfig reducedMotion="user">
       <main
         className={styles.lab}
-        data-design-contract="seasonal-offer-hero-five-up-v5"
-        data-thesis="five truthful proofs: people, material support, typographic clarity, multi-palette synthesis, people in financial focus"
+        data-design-contract="seasonal-offer-hero-five-up"
+        data-thesis="five directions: people, material support, typographic clarity, synthesis, financial focus"
       >
         <header className={styles.labToolbar}>
           <div className={styles.toolbarInner}>
@@ -840,7 +839,7 @@ export function SeasonalOfferHeroLab({
 
             <div className={styles.labTitle}>
               <strong>Hero сезонного офера</strong>
-              <span>5 направлений</span>
+              <span>{VARIANTS.length} направлений</span>
             </div>
 
             <div className={styles.variantTabs} role="tablist" aria-label="Варианты hero">

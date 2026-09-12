@@ -1,7 +1,7 @@
 export function HighlightedHeadline({
   text,
   accentWord,
-  accentClassName = "text-[#3B82F6] animate-[textGlow_3s_ease-in-out_infinite]",
+  accentClassName = "text-[#3B82F6]",
 }: {
   text: string;
   accentWord?: string | string[];

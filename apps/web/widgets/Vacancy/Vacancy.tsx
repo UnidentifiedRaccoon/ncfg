@@ -1,3 +1,4 @@
+import { HeroEntrance } from "@/shared/ui/HeroEntrance";
 import { BriefcaseBusiness, CalendarDays, MapPin, Wallet } from "lucide-react";
 
 import { VacancyApplicationForm } from "@/features/VacancyApplicationForm";
@@ -130,20 +131,22 @@ export function Vacancy({ vacancy, allVacancies = [] }: VacancyProps) {
 
   return (
     <>
-      <article data-scroll-reveal="" className="py-12 md:py-16">
+      <article className="py-12 md:py-16">
         <Container className="px-5 md:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-[960px]">
-            <header className="mx-auto max-w-[760px] text-center">
-              <h1 className="text-[30px] font-bold leading-tight text-[#1E3A5F] md:text-[40px] lg:text-[46px]">
-                {vacancy.title}
-              </h1>
+            <HeroEntrance>
+              <header className="mx-auto max-w-[760px] text-center">
+                <h1 className="text-[30px] font-bold leading-tight text-[#1E3A5F] md:text-[40px] lg:text-[46px]">
+                  {vacancy.title}
+                </h1>
 
-              {vacancy.lead ? (
-                <p className="mx-auto mt-5 max-w-[60ch] text-lg leading-relaxed text-[#475569] md:text-xl">
-                  {vacancy.lead}
-                </p>
-              ) : null}
-            </header>
+                {vacancy.lead ? (
+                  <p className="mx-auto mt-5 max-w-[60ch] text-lg leading-relaxed text-[#475569] md:text-xl">
+                    {vacancy.lead}
+                  </p>
+                ) : null}
+              </header>
+            </HeroEntrance>
 
             <div className="mt-10 grid gap-8 lg:mt-12 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
               <aside className="lg:sticky lg:top-24 lg:self-start">

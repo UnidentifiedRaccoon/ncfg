@@ -11,15 +11,16 @@ interface HeroCompaniesProps {
 
 export function HeroCompanies({ headline, lead, primaryCta }: HeroCompaniesProps) {
   const primaryAction = primaryCta
-    ? { label: primaryCta.label, href: primaryCta.href }
-    : { label: "Оставить заявку", href: "#lead-form" };
+    ? { label: primaryCta.href === "#lead-form" ? "Подобрать программу" : primaryCta.label, href: primaryCta.href }
+    : { label: "Подобрать программу", href: "#lead-form" };
 
   return (
     <HeroLayout
+      noSentinel
       headline={headline}
       lead={lead}
       primaryAction={primaryAction}
-      secondaryAction={{ label: "Подробнее", href: "#services" }}
+      secondaryAction={{ label: "Посмотреть услуги", href: "#services" }}
       imageSrc="/heroV2.webp"
       imageAlt=""
     />

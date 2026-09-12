@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useAnimate } from "motion/react";
 import { cn } from "@/shared/lib/cn";
+import { motionTokens, useReducedMotion } from "@/shared/lib/motion";
+import { Reveal } from "@/shared/ui/Reveal";
 
 interface RecommendationItem {
   id: number;
@@ -132,11 +135,45 @@ function RecommendationCard({
 }) {
   const quoteId = `recommendation-quote-${item.id}`;
   const showClamp = isWide && !expanded;
+  const [quoteRef, animate] = useAnimate<HTMLQuoteElement>();
+  const fromHeight = useRef<number | null>(null);
+  const playback = useRef<ReturnType<typeof animate> | null>(null);
+  const reduced = useReducedMotion();
+
+  useLayoutEffect(() => {
+    const node = quoteRef.current;
+    if (!node) return;
+    node.style.height = "";
+    const height = fromHeight.current;
+    fromHeight.current = null;
+    if (height !== null && !reduced) {
+      // Animate the container height, keeping glyph sizes and line breaks stable.
+      const target = parseFloat(getComputedStyle(node).height);
+      const current = animate(node, { height: [height, target] }, {
+        duration: motionTokens.disclosure,
+        ease: motionTokens.ease,
+      });
+      playback.current = current;
+      void current.then(() => {
+        if (playback.current === current) node.style.height = "";
+      });
+    }
+    return () => {
+      playback.current?.stop();
+      playback.current = null;
+    };
+  }, [animate, expanded, quoteRef, reduced]);
+
+  function toggleExpanded() {
+    playback.current?.stop();
+    fromHeight.current = quoteRef.current ? parseFloat(getComputedStyle(quoteRef.current).height) : null;
+    onToggleExpanded();
+  }
 
   return (
     <div
       className={cn(
-        "rounded-2xl border border-[#E2E8F0] bg-white/85 p-5 shadow-sm transition-transform duration-300 ease-out will-change-transform md:hover:scale-[1.02] motion-reduce:transform-none",
+        "h-full rounded-2xl border border-[#E2E8F0] bg-white/85 p-5 shadow-sm transition-shadow duration-300 hover:shadow-md motion-reduce:transition-none",
         className
       )}
     >
@@ -152,7 +189,13 @@ function RecommendationCard({
         </div>
       </div>
 
-      <blockquote className="mt-4 whitespace-pre-line text-sm leading-relaxed text-[#475569] md:text-[15px]">
+      <blockquote ref={quoteRef} className="mt-4 overflow-clip whitespace-pre-line text-sm leading-relaxed text-[#475569] md:text-[15px] motion-reduce:!h-auto" onFocusCapture={() => {
+        // A keyboard user must never focus a link hidden by the line clamp.
+        if (showClamp) {
+          fromHeight.current = null;
+          onToggleExpanded();
+        }
+      }}>
         <div
           id={quoteId}
           className={cn(
@@ -169,7 +212,7 @@ function RecommendationCard({
           type="button"
           aria-controls={quoteId}
           aria-expanded={expanded}
-          onClick={onToggleExpanded}
+          onClick={toggleExpanded}
           className={cn(
             "mt-4 inline-flex items-center rounded-lg px-3 py-2 text-sm font-semibold text-[#3B82F6]",
             "transition-colors hover:bg-[#3B82F6]/10 hover:text-[#1D4ED8]",
@@ -200,15 +243,15 @@ function CapitalGrid({
             key={`row-${row.map((entry) => entry.item.id).join("-")}`}
             className="grid gap-4 md:grid-cols-2"
           >
-            {row.map((entry) => (
-              <RecommendationCard
-                key={`v1-${entry.item.id}`}
-                item={entry.item}
-                isWide={entry.isWide}
-                expanded={Boolean(expandedById[entry.item.id])}
-                onToggleExpanded={() => onToggleExpanded(entry.item.id)}
-                className={row.length === 1 ? "md:col-span-2" : undefined}
-              />
+            {row.map((entry, index) => (
+              <Reveal key={entry.item.id} variant="card" delay={motionTokens.stagger * index} className={row.length === 1 ? "md:col-span-2" : undefined}>
+                <RecommendationCard
+                  item={entry.item}
+                  isWide={entry.isWide}
+                  expanded={Boolean(expandedById[entry.item.id])}
+                  onToggleExpanded={() => onToggleExpanded(entry.item.id)}
+                />
+              </Reveal>
             ))}
           </div>
         ))}

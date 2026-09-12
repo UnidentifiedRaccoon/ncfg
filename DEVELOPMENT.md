@@ -18,6 +18,17 @@ production Strapi из Yandex Lockbox только в память процес�
 yc init
 ```
 
+Если активный профиль `yc` относится к другому проекту или региону, задайте
+нужный существующий профиль только для NCFG:
+
+```bash
+NCFG_YC_PROFILE=default npm run dev
+NCFG_YC_PROFILE=default npm run dev:doctor
+```
+
+Launcher передаёт имя через `yc --profile`; глобальный активный профиль не
+меняется. Без `NCFG_YC_PROFILE` используется текущий профиль `yc`.
+
 ## Профили
 
 | Задача | Команда | Что запускается |
@@ -77,11 +88,25 @@ npm run dev:doctor
 Частые причины:
 
 - `yc` не авторизован — выполните `yc init`;
+- Lockbox недоступен в регионе — проверьте `yc config profile list` и задайте
+  профиль NCFG через `NCFG_YC_PROFILE`;
 - нет доступа к Lockbox — нужна роль `lockbox.payloadViewer` на
   `ncfg-dev-secrets`;
 - порт `3000` или `1337` занят чужим процессом — launcher ничего не завершает
   по номеру порта;
 - Docker-профиль не стартует — проверьте Docker Desktop или Colima.
+
+Если Turbopack повторно зависает или расходует много памяти после переноса
+маршрутов, можно выбрать Webpack только для текущей dev-сессии:
+
+```bash
+npm run dev:down
+NCFG_YC_PROFILE=default NCFG_DEV_BUNDLER=webpack npm run dev
+```
+
+`NCFG_DEV_BUNDLER` принимает `turbopack` (по умолчанию) или `webpack`.
+Профиль Strapi, отключение внешних эффектов и readiness остаются прежними.
+Переменная не меняет production-сборку.
 
 Проверки кода выполняются отдельно от запуска, в каталоге изменённого приложения:
 

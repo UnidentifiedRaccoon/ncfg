@@ -3,6 +3,11 @@
 
 name: Deploy to Yandex Cloud
 
+# Serialize builds/deploys so each build inherits the active release's assets.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 on:
   push:
     branches: [main]
@@ -49,6 +54,9 @@ jobs:
               - 'apps/web/**'
               - 'apps/web/package-lock.json'
               - 'docker/web/**'
+              - 'scripts/retain-next-static*'
+              - 'scripts/restore-next-static-history.sh'
+              - '.github/workflows/deploy.yml'
             cms:
               - 'apps/cms/**'
               - 'apps/cms/package-lock.json'
@@ -59,6 +67,8 @@ jobs:
     name: Build Next.js
     runs-on: ubuntu-latest
     needs: changes
+    outputs:
+      static_history_epoch: ${{ steps.static-history.outputs.epoch }}
     if: |
       (github.event_name == 'push' && needs.changes.outputs.web == 'true') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_web == 'true')
@@ -120,6 +130,28 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      - name: Restore previous production static assets
+        id: static-history
+        # :latest may belong to a failed deployment. Pin the image that is
+        # actually serving visitors, without exporting its environment/secrets.
+        run: |
+          set -euo pipefail
+          image="$(
+            yc serverless container revision list --container-name ncfg-web --format json \
+              --jq 'map(select(.status == "ACTIVE") | {image_url: .image.image_url, image_digest: .image.image_digest})' \
+            | jq -er '
+                if length != 1 then error("Expected one active web revision") else .[0] end
+                | if (.image_digest | test("^sha256:[a-f0-9]{64}$")) then
+                    (.image_url | split("@")[0] | sub(":[^/]+$"; "")) + "@" + .image_digest
+                  else error("Active image has no digest") end
+              '
+          )"
+          bash scripts/restore-next-static-history.sh "$image" docker/web/static-history
+          echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
+
+      - name: Test static asset retention
+        run: node --test scripts/retain-next-static.test.mjs
+
       - name: Build and push
         uses: docker/build-push-action@v7
         env:
@@ -136,6 +168,8 @@ jobs:
             STRAPI_URL=${{ secrets.STRAPI_URL }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ steps.web-lockbox.outputs.next_public_yandex_metrika_id }}
+            NEXT_PUBLIC_RELEASE_ID=${{ github.sha }}
+            STATIC_HISTORY_EPOCH=${{ steps.static-history.outputs.epoch }}
             PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
           secret-envs: |
             STRAPI_API_TOKEN=STRAPI_API_TOKEN
@@ -268,6 +302,23 @@ jobs:
       WEB_PROVISIONED_INPUT: ${{ github.event.inputs.web_provisioned || '' }}
       WEB_PROVISIONED_VAR: ${{ vars.WEB_PROVISIONED || '' }}
     steps:
+      - name: Verify web build is fresh enough for static retention
+        env:
+          STATIC_HISTORY_EPOCH: ${{ needs.build-web.outputs.static_history_epoch }}
+        run: |
+          set -euo pipefail
+          build_epoch="$STATIC_HISTORY_EPOCH"
+          if ! [[ "$build_epoch" =~ ^[0-9]+$ ]]; then
+            echo "::error::Missing static history build timestamp. Rebuild the web image."
+            exit 1
+          fi
+          age=$(( $(date +%s) - build_epoch ))
+          # Reserve the 15-day Webvisor window plus a deployment margin.
+          if [ "$age" -lt 0 ] || [ "$age" -gt 432000 ]; then
+            echo "::error::Web image is too old for static retention. Rebuild before deploying."
+            exit 1
+          fi
+
       - name: Resolve web provisioned capacity
         run: |
           set -euo pipefail

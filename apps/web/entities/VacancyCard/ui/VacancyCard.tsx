@@ -3,6 +3,7 @@ import { ArrowRight, BriefcaseBusiness, MapPin, Wallet } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn";
 import { CmsAwareLink } from "@/shared/ui/CmsAwareLink";
+import { Reveal } from "@/shared/ui/Reveal";
 
 export interface VacancyCardVacancy {
   id: string;
@@ -133,52 +134,54 @@ export function VacancyCard({ vacancy }: VacancyCardProps) {
   const excerpt = vacancy.excerpt ?? vacancy.lead;
 
   return (
-    <article className="group relative w-full max-w-[680px] lg:max-w-[760px]">
-      <CmsAwareLink
-        href={`/vacancies/${vacancy.slug}`}
-        className="relative block overflow-hidden rounded-xl bg-white shadow-sm transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none md:hover:scale-[1.006] [backface-visibility:hidden] transform-gpu will-change-transform"
-      >
-        <div className="relative z-10 flex flex-col md:flex-row">
-          <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F8FAFC] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/70 lg:w-[280px]">
-            <VacancyCover
-              slug={vacancy.slug}
-              title={vacancy.title}
-              coverImage={vacancy.coverImage}
-              departmentTitle={departmentTitle}
-            />
-          </div>
+    <Reveal viewport="inset" className="w-full max-w-[680px] lg:max-w-[760px]">
+      <article className="group relative w-full">
+        <CmsAwareLink
+          href={`/vacancies/${vacancy.slug}`}
+          className="relative block overflow-hidden rounded-xl bg-white shadow-sm transition-[scale,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-md motion-reduce:transition-none motion-safe:md:hover:scale-[1.006]"
+        >
+          <div className="relative z-10 flex flex-col md:flex-row">
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F8FAFC] md:w-[240px] md:flex-none md:border-r md:border-[#E2E8F0]/70 lg:w-[280px]">
+              <VacancyCover
+                slug={vacancy.slug}
+                title={vacancy.title}
+                coverImage={vacancy.coverImage}
+                departmentTitle={departmentTitle}
+              />
+            </div>
 
-          <div className="flex min-w-0 flex-1 flex-col p-5 md:px-6 md:py-5">
-            <h3 className="text-[20px] leading-snug font-semibold text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6] md:text-[22px] line-clamp-2">
-              {vacancy.title}
-            </h3>
+            <div className="flex min-w-0 flex-1 flex-col p-5 md:px-6 md:py-5">
+              <h3 className="text-[20px] leading-snug font-semibold text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6] md:text-[22px] line-clamp-2">
+                {vacancy.title}
+              </h3>
 
-            {excerpt ? (
-              <p className="mt-3 text-sm leading-relaxed text-[#475569] line-clamp-4 md:text-[15px]">
-                {excerpt}
-              </p>
-            ) : null}
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {vacancy.employmentTypeLabel ? (
-                <MetaPill icon={BriefcaseBusiness} value={vacancy.employmentTypeLabel} />
+              {excerpt ? (
+                <p className="mt-3 text-sm leading-relaxed text-[#475569] line-clamp-4 md:text-[15px]">
+                  {excerpt}
+                </p>
               ) : null}
-              {vacancy.location ? <MetaPill icon={MapPin} value={vacancy.location} /> : null}
-              {vacancy.salaryText ? <MetaPill icon={Wallet} value={vacancy.salaryText} /> : null}
-            </div>
 
-            <div className="mt-auto flex items-end justify-between gap-4 pt-5">
-              <time className="whitespace-nowrap text-xs font-medium text-[#94A3B8]">
-                {formatDate(vacancy.publishedDate)}
-              </time>
-              <span className="inline-flex items-center gap-2 text-sm font-medium text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]">
-                Подробнее
-                <ArrowRight className="h-4 w-4 text-[#94A3B8] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#3B82F6]" />
-              </span>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {vacancy.employmentTypeLabel ? (
+                  <MetaPill icon={BriefcaseBusiness} value={vacancy.employmentTypeLabel} />
+                ) : null}
+                {vacancy.location ? <MetaPill icon={MapPin} value={vacancy.location} /> : null}
+                {vacancy.salaryText ? <MetaPill icon={Wallet} value={vacancy.salaryText} /> : null}
+              </div>
+
+              <div className="mt-auto flex items-end justify-between gap-4 pt-5">
+                <time className="whitespace-nowrap text-xs font-medium text-[#94A3B8]">
+                  {formatDate(vacancy.publishedDate)}
+                </time>
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-[#1E3A5F] transition-colors group-hover:text-[#3B82F6]">
+                  Подробнее
+                  <ArrowRight className="h-4 w-4 text-[#94A3B8] transition-all duration-200 motion-safe:group-hover:translate-x-0.5 group-hover:text-[#3B82F6]" />
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </CmsAwareLink>
-    </article>
+        </CmsAwareLink>
+      </article>
+    </Reveal>
   );
 }

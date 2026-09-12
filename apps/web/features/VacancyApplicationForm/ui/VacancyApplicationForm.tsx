@@ -1,5 +1,7 @@
 "use client";
 
+import { ContentTransition } from "@/shared/ui/ContentTransition";
+
 import Link from "next/link";
 import { useId, useState, type ChangeEvent, type FormEvent } from "react";
 import { AlertCircle, CheckCircle, Send, ShieldCheck } from "lucide-react";
@@ -182,12 +184,12 @@ export function VacancyApplicationForm({
   return (
     <section
       id="vacancy-application"
-      data-scroll-reveal=""
+
       className="scroll-mt-28 pt-0"
     >
       <div className="rounded-2xl border border-[#E2E8F0]/80 bg-[#F8FAFC] p-6 shadow-[0_18px_56px_rgba(15,23,42,0.06)] md:p-8">
         {status === "success" ? (
-          <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-6 py-8 text-center md:px-8 md:py-10">
+          <ContentTransition enter focusOnChange stateKey="success"><div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-6 py-8 text-center md:px-8 md:py-10">
             <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[#10B981]" />
             <h2 className="text-xl font-semibold text-[#1E3A5F] md:text-2xl">
               Отклик отправлен!
@@ -196,14 +198,14 @@ export function VacancyApplicationForm({
               Спасибо за интерес к вакансии «{vacancyTitle}». Мы свяжемся с вами
               в ближайшее время.
             </p>
-          </div>
+          </div></ContentTransition>
         ) : (
           <div className="space-y-6">
             <h2 className="mt-0 text-[28px] font-bold leading-tight text-[#1E3A5F] md:text-[32px]">
               Расскажите о себе
             </h2>
 
-            <form onSubmit={handleSubmit} onFocus={handleFormFieldFocus} noValidate>
+            <ContentTransition stateKey={status} immediate={status === "error"}><form onSubmit={handleSubmit} onFocus={handleFormFieldFocus} noValidate>
               <div className="space-y-5">
                 {status === "error" ? (
                   <div
@@ -381,7 +383,7 @@ export function VacancyApplicationForm({
                   </div>
                 </div>
               </div>
-            </form>
+            </form></ContentTransition>
           </div>
         )}
       </div>

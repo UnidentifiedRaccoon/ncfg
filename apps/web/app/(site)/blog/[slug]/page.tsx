@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { Post, Footer } from "@/widgets";
 import {
@@ -50,19 +51,13 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
-async function safeFetchNewsArticle(slug: string) {
-  try {
-    return await fetchNewsArticle(slug);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`[blog/${slug}] failed to fetch article from Strapi: ${message}`);
-    return null;
-  }
-}
+// Only a successful empty CMS response means "not found". Share the result
+// between metadata and the page; transport failures reach the error boundary.
+const loadNewsArticle = cache(fetchNewsArticle);
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await safeFetchNewsArticle(slug);
+  const post = await loadNewsArticle(slug);
 
   if (!post) {
     return buildPageMetadata({
@@ -93,7 +88,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   const [siteSetting, allPosts, post] = await Promise.all([
     fetchSiteSettings(),
     safeFetchNewsArticles("BlogPostPage"),
-    safeFetchNewsArticle(slug),
+    loadNewsArticle(slug),
   ]);
 
   if (!post) {

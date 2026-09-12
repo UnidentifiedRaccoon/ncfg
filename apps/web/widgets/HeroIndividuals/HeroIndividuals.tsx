@@ -16,6 +16,7 @@ export function HeroIndividuals({ headline, lead, primaryCta }: HeroIndividualsP
 
   return (
     <HeroLayout
+      noSentinel
       headline={headline}
       lead={lead}
       primaryAction={primaryAction}

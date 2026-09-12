@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { handleVacancyApplicationPost } from "@/app/api/vacancy-application/route";
+import { handleVacancyApplicationPost } from "@/shared/lib/vacancy-application-handler";
 import {
   VACANCY_APPLICATION_CONSENT_REQUIRED_ERROR,
   VACANCY_APPLICATION_INVALID_EMAIL_ERROR,

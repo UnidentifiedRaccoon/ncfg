@@ -10,7 +10,6 @@ const meta = {
     title: "Финансовое благополучие без сложных терминов",
     lead: "Секция держит стандартный ритм сайта: заголовок, lead и контент в Container.",
     background: "white",
-    reveal: false,
   },
   argTypes: {
     background: {
@@ -59,7 +58,7 @@ export const GrayWithDivider: Story = {
   },
   render: (args) => (
     <main className="min-h-screen bg-[#F8FAFC]">
-      <Section {...args} reveal={false}>
+      <Section {...args}>
         <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
           <p className="leading-7 text-[#475569]">
             Реальный компонент сохраняет общий секционный ритм и вложенный Container.

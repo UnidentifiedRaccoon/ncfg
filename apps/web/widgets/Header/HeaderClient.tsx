@@ -1,5 +1,8 @@
 "use client";
 
+import { AnimatePresence } from "motion/react";
+import { PresencePanel } from "@/shared/ui/PresencePanel";
+
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -58,6 +61,7 @@ function computeDockTone(pathname: string | null): DockTone {
   if (
     pathname?.startsWith("/blog") ||
     pathname === "/companies/financial-games" ||
+    pathname === "/companies/season-offer" ||
     isVacanciesPath(pathname) ||
     pathname?.startsWith("/diagnostika")
   ) {
@@ -383,6 +387,7 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
   const desktopDisclosureRef = useRef<HTMLButtonElement>(null);
   const compactMobileDisclosureRef = useRef<HTMLButtonElement>(null);
   const compactTabletDisclosureRef = useRef<HTMLButtonElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressDesktopFocusOpenRef = useRef(false);
@@ -405,6 +410,14 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
 
   const closeCompanyMenu = () => {
     cancelCompanyClose();
+    const focused = document.activeElement;
+    const panel = focused instanceof Element && focused.closest(`#${DESKTOP_COMPANY_PANEL_ID}, #${MOBILE_COMPANY_PANEL_ID}, #${TABLET_COMPANY_PANEL_ID}`);
+    if (panel) {
+      suppressDesktopFocusOpenRef.current = true;
+      const trigger = [desktopDisclosureRef.current, compactMobileDisclosureRef.current, compactTabletDisclosureRef.current].find((node) => node && node.getClientRects().length > 0);
+      trigger?.focus({ preventScroll: true });
+      queueMicrotask(() => { suppressDesktopFocusOpenRef.current = false; });
+    }
     setCompanyMenu({ open: false, openedOnPath: pathname });
   };
 
@@ -432,7 +445,7 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
 
     cancelCompanyClose();
     closeTimerRef.current = setTimeout(() => {
-      setCompanyMenu({ open: false, openedOnPath: pathname });
+      closeCompanyMenu();
       closeTimerRef.current = null;
     }, 280);
   };
@@ -452,8 +465,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
   };
 
   const closeMobileMenu = () => {
-    setMobileMenu({ open: false, openedOnPath: pathname });
     closeCompanyMenu();
+    if (document.getElementById(MOBILE_MENU_PANEL_ID)?.contains(document.activeElement)) mobileMenuButtonRef.current?.focus({ preventScroll: true });
+    setMobileMenu({ open: false, openedOnPath: pathname });
   };
 
   const closeAllMenus = () => {
@@ -510,6 +524,25 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
   }, [companyMenuOpen, mobileMenuOpen, pathname]);
 
   useEffect(() => {
+    if (!companyMenuOpen && !mobileMenuOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !headerRef.current?.contains(event.target)) {
+        const focused = document.activeElement;
+        if (focused instanceof Element && focused.closest(`#${DESKTOP_COMPANY_PANEL_ID}, #${MOBILE_MENU_PANEL_ID}`)) {
+          const trigger = window.matchMedia("(min-width: 1280px)").matches ? desktopDisclosureRef.current : mobileMenuButtonRef.current;
+          suppressDesktopFocusOpenRef.current = true;
+          trigger?.focus({ preventScroll: true });
+          queueMicrotask(() => { suppressDesktopFocusOpenRef.current = false; });
+        }
+        setCompanyMenu({ open: false, openedOnPath: pathname });
+        setMobileMenu({ open: false, openedOnPath: pathname });
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [companyMenuOpen, mobileMenuOpen, pathname]);
+
+  useEffect(() => {
     return () => {
       if (closeTimerRef.current !== null) {
         clearTimeout(closeTimerRef.current);
@@ -524,6 +557,7 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
       if (
         pathname?.startsWith("/blog") ||
         pathname === "/companies/financial-games" ||
+        pathname === "/companies/season-offer" ||
         isVacanciesPath(pathname) ||
         pathname?.startsWith("/diagnostika")
       ) {
@@ -551,7 +585,7 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
   );
 
   return (
-    <header
+    <header ref={headerRef}
       className="sticky top-0 z-50 isolate bg-transparent transition-colors duration-300"
       onFocus={cancelCompanyClose}
       onBlur={handleHeaderFocusLeave}
@@ -630,7 +664,7 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
                 href={ctaHref}
                 onClick={() => {
                   closeAllMenus();
-                  reachGoal(YM_GOALS.CTA_CLICK);
+                  reachGoal(YM_GOALS.CTA_CLICK, { schema_version: 2, page_path: pathname, cta_location: "header" });
                 }}
                 className={cn(
                   "hidden h-10 rounded-full px-5 text-[15px] sm:inline-flex lg:h-11 lg:px-6 lg:text-base",
@@ -668,8 +702,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
         </nav>
       </Container>
 
+      <AnimatePresence initial={false}>
       {companyMenuOpen ? (
-        <div className="absolute inset-x-0 top-full z-50 hidden xl:block">
+        <PresencePanel key="desktop-company" className="absolute inset-x-0 top-full z-50 hidden xl:block">
           <Container>
             <section
               id={DESKTOP_COMPANY_PANEL_ID}
@@ -691,8 +726,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
               />
             </section>
           </Container>
-        </div>
+        </PresencePanel>
       ) : null}
+      </AnimatePresence>
 
       <button
         type="button"
@@ -708,17 +744,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
         onClick={closeMobileMenu}
       />
 
-      <div
-        id={MOBILE_MENU_PANEL_ID}
-        aria-hidden={!mobileMenuOpen}
-        className={cn(
-          "absolute inset-x-0 top-full z-50 transition-[max-height] duration-300 xl:hidden",
-          mobileMenuOpen
-            ? "max-h-[calc(100dvh-4rem)] overflow-visible lg:max-h-[calc(100dvh-5rem)]"
-            : "pointer-events-none max-h-0 overflow-hidden"
-        )}
-      >
+      <AnimatePresence initial={false}>
         {mobileMenuOpen ? (
+          <PresencePanel key="mobile-menu" id={MOBILE_MENU_PANEL_ID} className="absolute inset-x-0 top-full z-50 xl:hidden">
           <Container className="pb-4">
             <div
               className={cn(
@@ -755,8 +783,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
                     onToggle={toggleCompanyMenu}
                   />
 
+                  <AnimatePresence initial={false}>
                   {companyMenuOpen ? (
-                    <div
+                    <PresencePanel collapse key={MOBILE_COMPANY_PANEL_ID}
                       id={MOBILE_COMPANY_PANEL_ID}
                       className={cn(
                         "border-t",
@@ -769,8 +798,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
                         theme={companyMenuTheme}
                         onNavigate={closeAllMenus}
                       />
-                    </div>
+                    </PresencePanel>
                   ) : null}
+                  </AnimatePresence>
                 </div>
 
                 <div className="hidden md:contents">
@@ -801,8 +831,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
                   onNavigate={closeAllMenus}
                 />
 
+                <AnimatePresence initial={false}>
                 {companyMenuOpen ? (
-                  <div
+                  <PresencePanel collapse key={TABLET_COMPANY_PANEL_ID}
                     id={TABLET_COMPANY_PANEL_ID}
                     className={cn(
                       "hidden md:order-5 md:col-span-2 md:mt-1 md:block md:overflow-hidden md:rounded-2xl md:border",
@@ -815,8 +846,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
                       theme={companyMenuTheme}
                       onNavigate={closeAllMenus}
                     />
-                  </div>
+                  </PresencePanel>
                 ) : null}
+                </AnimatePresence>
 
                 <div className="order-6 mt-1 px-2 sm:hidden md:col-span-2">
                   <Button
@@ -824,7 +856,7 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
                     className="h-11 w-full rounded-full text-base"
                     onClick={() => {
                       closeAllMenus();
-                      reachGoal(YM_GOALS.CTA_CLICK);
+                      reachGoal(YM_GOALS.CTA_CLICK, { schema_version: 2, page_path: pathname, cta_location: "header" });
                     }}
                   >
                     Оставить заявку
@@ -833,8 +865,9 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
               </div>
             </div>
           </Container>
+          </PresencePanel>
         ) : null}
-      </div>
+      </AnimatePresence>
     </header>
   );
 }

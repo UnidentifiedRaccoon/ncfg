@@ -13,7 +13,7 @@ const FINANCIAL_GAMES_NAVIGATION = {
   id: "financial-games",
   title: "Финансовые игры",
   services: [
-    { title: "Об играх и проведении", href: "/companies/financial-games" },
+    { title: "Об играх и проведении", href: "/companies/financial-games" },
     { title: "Для сотрудников", href: "/companies/financial-games#employees" },
     { title: "Для детей сотрудников", href: "/companies/financial-games#children" },
   ],

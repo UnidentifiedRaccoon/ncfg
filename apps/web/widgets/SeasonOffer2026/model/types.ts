@@ -3,20 +3,14 @@ export interface SeasonOfferLink {
   href: string;
 }
 
-export interface SeasonOfferMetric {
-  value: string;
-  label: string;
-}
-
 export interface SeasonOfferHeroContent {
-  eyebrow: string;
-  headline: string;
-  accentWord: string;
+  headline: {
+    topic: string;
+    benefit: string;
+    budget: string;
+  };
   lead: string;
   primaryAction: SeasonOfferLink;
-  imageSrc: string;
-  imageAlt: string;
-  metrics: SeasonOfferMetric[];
 }
 
 export type SeasonOfferTaskIcon =

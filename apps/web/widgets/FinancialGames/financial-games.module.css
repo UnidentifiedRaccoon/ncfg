@@ -5,6 +5,7 @@
   --game-glass-soft: rgb(from var(--game-soft) r g b / .68);
   --game-line: #d9e3ec;
   min-width: 0;
+  overflow-x: clip;
   color: var(--game-ink);
   background: var(--color-white);
   font-family: var(--font-inter), sans-serif;
@@ -18,7 +19,7 @@
 .pageContainer { max-width: 1200px; margin-inline: auto; }
 
 .hero { position: relative; margin-top: -64px; }
-.heroStage { position: relative; isolation: isolate; display: flex; align-items: center; min-height: clamp(680px, 100svh, 900px); padding: 120px max(48px, calc((100vw - 1320px) / 2)) 56px; }
+.heroStage { overflow: clip; position: relative; isolation: isolate; display: flex; align-items: center; min-height: clamp(680px, 100svh, 900px); padding: 120px max(48px, calc((100vw - 1320px) / 2)) 56px; }
 .heroTop { position: relative; z-index: 1; width: 620px; max-width: 100%; padding: 40px; border-radius: 16px; border: 1px solid rgba(255,255,255,.85); background: var(--game-glass-soft); color: var(--game-ink); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 18px 48px rgba(8,24,42,.14); }
 .hero h1 { font-size: clamp(34px, 3.4vw, 48px); font-weight: 650; line-height: 1.14; letter-spacing: -.035em; }
 .hero h1 span { color: #153d74; }
@@ -33,6 +34,7 @@
 .hero .heroBanner > img { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; object-position: center 40%; }
 
 .trial { padding-block: 80px; scroll-margin-top: 24px; }
+.photoEntrance { min-width: 0; }
 .photo { min-width: 0; margin: 0; }
 .photo > img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; }
 .photo figcaption { font-size: 11px; line-height: 1.6; margin-top: 10px; color: #586b7c; }
@@ -59,12 +61,12 @@
 .rules p { color: var(--color-gray-600); padding-bottom: 12px; line-height: 1.7; }
 .childrenSection { background: var(--game-soft); padding-inline: 36px; margin-inline: -36px; border-radius: 16px; }
 .childrenSection .gameContent { grid-template-columns: 1.03fr 1fr; }
-.childrenSection .photo { grid-column: 2; grid-row: 1; }
+.childrenSection .photoEntrance { grid-column: 2; grid-row: 1; }
 .childrenSection .gameCopy { grid-column: 1; grid-row: 1; }
 .childrenSection .photo > img { object-fit: contain; }
 .meeting { padding-block: 72px; }
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; margin-top: 36px; }
-.steps li { display: flex; gap: 18px; align-items: flex-start; }
+.step { display: flex; gap: 18px; align-items: flex-start; }
 .stepNumber { display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--game-soft); font-size: 13px; font-weight: 650; }
 .steps h3 { font-size: 20px; font-weight: 600; line-height: 1.25; }
 .steps p { margin-top: 12px; font-size: 14px; line-height: 1.7; color: var(--color-gray-600); }
@@ -115,13 +117,13 @@
   .gameHeading > span { font-size: 11px; }
   .gameContent, .childrenSection .gameContent { grid-template-columns: 1fr; gap: 28px; }
   .childrenSection { margin-inline: -20px; padding-inline: 20px; border-radius: 0; }
-  .childrenSection .photo, .childrenSection .gameCopy { grid-column: auto; grid-row: auto; }
+  .childrenSection .photoEntrance, .childrenSection .gameCopy { grid-column: auto; grid-row: auto; }
   .gameCopy > p { font-size: 14px; }
   .facts { gap: 20px; }
   .facts li { font-size: 14px; }
   .meeting { padding-block: 44px; }
   .steps { grid-template-columns: 1fr; gap: 24px; }
-  .steps li { flex-direction: row; gap: 16px; }
+  .step { flex-direction: row; gap: 16px; }
   .steps h3 { font-size: 19px; }
   .steps p { margin-top: 8px; }
   .hosting { grid-template-columns: 1fr; padding-block: 40px; gap: 32px; }

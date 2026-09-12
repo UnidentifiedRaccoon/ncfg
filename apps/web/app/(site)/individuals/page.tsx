@@ -1,3 +1,4 @@
+import { HeroMotionScene } from "@/shared/ui/HeroMotionScene";
 import type { Metadata } from "next";
 import {
   HeroIndividuals,
@@ -50,22 +51,27 @@ export default async function IndividualsPage() {
       <StructuredDataScript data={breadcrumbStructuredData} />
       {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
-        <HeroIndividuals
-          headline="Финансовая грамотность для частных лиц"
-          lead={hero?.lead ?? undefined}
-          primaryCta={
-            hero?.primaryCta
-              ? { label: hero.primaryCta.label, href: hero.primaryCta.href }
-              : undefined
+        <HeroMotionScene
+          hero={
+            <HeroIndividuals
+              headline="Финансовая грамотность для частных лиц"
+              lead={hero?.lead ?? undefined}
+              primaryCta={
+                hero?.primaryCta
+                  ? { label: hero.primaryCta.label, href: hero.primaryCta.href }
+                  : undefined
+              }
+            />
           }
-        />
-        <ProductShowcase
-          title={individualsPage.productsTitle ?? "Наши услуги"}
-          lead={individualsPage.productsLead ?? undefined}
-          products={products}
-        />
-        <LeadForm />
-        <FAQ title="Частые вопросы" items={faqItems} />
+        >
+          <ProductShowcase
+            title={individualsPage.productsTitle ?? "Наши услуги"}
+            lead={individualsPage.productsLead ?? undefined}
+            products={products}
+          />
+          <LeadForm />
+          <FAQ title="Частые вопросы" items={faqItems} />
+        </HeroMotionScene>
       </main>
       <Footer
         data={{

@@ -1,3 +1,4 @@
+import { HeroMotionScene } from "@/shared/ui/HeroMotionScene";
 import type { Metadata } from "next";
 import {
   HeroCompanies,
@@ -63,31 +64,37 @@ export default async function CompaniesPage() {
       <StructuredDataScript data={breadcrumbStructuredData} />
       {faqStructuredData ? <StructuredDataScript data={faqStructuredData} /> : null}
       <main>
-        <HeroCompanies
-          headline="Программы финансовой грамотности для сотрудников компаний"
-          lead={hero?.lead ?? undefined}
-          primaryCta={
-            hero?.primaryCta
-              ? { label: hero.primaryCta.label, href: hero.primaryCta.href }
-              : undefined
+        <HeroMotionScene
+          hero={
+            <HeroCompanies
+              headline="Программы финансовой грамотности для сотрудников компаний"
+              lead={hero?.lead ?? undefined}
+              primaryCta={
+                hero?.primaryCta
+                  ? { label: hero.primaryCta.label, href: hero.primaryCta.href }
+                  : undefined
+              }
+            />
           }
-        />
-        <ServiceCatalog
-          services={serviceBlocks}
-          showBadges={false}
-          banner={{
-            serviceId: "programmy-finansovogo-blagopoluchiya-dlya-sotrudnikov",
-            title: "Финансовое благополучие сотрудников",
-            ctaLabel: "Скачать презентацию",
-            href: "/docs/ncfg-financial-wellbeing.pdf",
-          }}
         >
-          <FinancialGamesCatalogBlock />
-        </ServiceCatalog>
-        <LeadForm />
-        <FAQ title="Частые вопросы" items={faqItems} />
+          <ServiceCatalog
+            services={serviceBlocks}
+            showBadges={false}
+            banner={{
+              serviceId: "programmy-finansovogo-blagopoluchiya-dlya-sotrudnikov",
+              title: "Финансовое благополучие сотрудников",
+              ctaLabel: "Скачать презентацию",
+              href: "/docs/ncfg-financial-wellbeing.pdf",
+            }}
+          >
+            <FinancialGamesCatalogBlock />
+          </ServiceCatalog>
+          <LeadForm audience="corporate" />
+          <FAQ title="Частые вопросы" items={faqItems} />
+        </HeroMotionScene>
       </main>
       <Footer
+        ctaHref="#lead-form"
         data={{
           organization: {
             fullName: siteSetting.organizationFullName,

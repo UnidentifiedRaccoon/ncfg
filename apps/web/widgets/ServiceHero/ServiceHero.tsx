@@ -13,6 +13,7 @@ export function ServiceHero({
 }: ServiceHeroProps) {
   return (
     <HeroLayout
+      noSentinel
       headline={title}
       lead={shortDescription}
       primaryAction={{ label: ctaLabel, href: "#lead-form" }}

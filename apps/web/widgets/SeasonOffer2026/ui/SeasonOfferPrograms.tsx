@@ -1,3 +1,5 @@
+import { MotionDetails } from "@/shared/ui/MotionDetails";
+import { Reveal } from "@/shared/ui/Reveal";
 import { Check, ChevronDown, Clock3 } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn";
@@ -45,7 +47,7 @@ function ProgramCard({
   ctaLabel: string;
 }) {
   return (
-    <details
+    <MotionDetails
       id={program.id}
       className={cn(
         "group scroll-mt-28 overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm open:border-[#3B82F6]/35 open:shadow-lg",
@@ -91,6 +93,8 @@ function ProgramCard({
           <Button
             href={formHref}
             data-ym-goal="cta_click"
+            data-ym-cta-location="program"
+            data-lead-program={program.id}
             className="w-full shrink-0 sm:w-auto"
             aria-label={`${ctaLabel}: ${program.title}`}
           >
@@ -98,7 +102,7 @@ function ProgramCard({
           </Button>
         </div>
       </div>
-    </details>
+    </MotionDetails>
   );
 }
 
@@ -118,12 +122,13 @@ export function SeasonOfferPrograms({
     >
       <div className="mx-auto max-w-5xl space-y-4">
         {programs.map((program) => (
-          <ProgramCard
-            key={program.id}
-            program={program}
-            formHref={formHref}
-            ctaLabel={ctaLabel}
-          />
+          <Reveal key={program.id} viewport="inset">
+            <ProgramCard
+              program={program}
+              formHref={formHref}
+              ctaLabel={ctaLabel}
+            />
+          </Reveal>
         ))}
       </div>
     </Section>

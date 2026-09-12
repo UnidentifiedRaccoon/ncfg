@@ -1,7 +1,9 @@
+import { HeroMotionScene } from "@/shared/ui/HeroMotionScene";
 import type { Metadata } from "next";
 
 import {
   SeasonOfferAssurance,
+  SeasonOfferHero,
   SeasonOfferPrograms,
   SeasonOfferTaskNavigator,
   seasonOffer2026Content,
@@ -16,7 +18,6 @@ import {
   buildBreadcrumbList,
   buildFAQPageStructuredData,
 } from "@/shared/lib/structured-data";
-import { HeroLayout } from "@/shared/ui/HeroLayout";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 
 const PAGE_PATH = "/companies/season-offer";
@@ -50,24 +51,33 @@ export default async function SeasonOffer2026Page() {
       ) : null}
 
       <main>
-        <HeroLayout {...seasonOffer2026Content.hero} />
-        <SeasonOfferTaskNavigator
-          {...seasonOffer2026Content.taskNavigator}
-        />
-        <SeasonOfferPrograms
-          {...seasonOffer2026Content.programCatalog}
-          formHref={seasonOffer2026Content.formHref}
-        />
-        <HowWeWork {...seasonOffer2026Content.howWeWork} />
-        <SeasonOfferAssurance {...seasonOffer2026Content.assurance} />
-        <FAQ {...seasonOffer2026Content.faq} />
+        <HeroMotionScene
+          hero={<SeasonOfferHero {...seasonOffer2026Content.hero} />}
+          variant="editorial"
+          sentinel={false}
+        >
+          <SeasonOfferTaskNavigator
+            {...seasonOffer2026Content.taskNavigator}
+          />
+          <SeasonOfferPrograms
+            {...seasonOffer2026Content.programCatalog}
+            formHref={seasonOffer2026Content.formHref}
+          />
+          <HowWeWork {...seasonOffer2026Content.howWeWork} />
+          <SeasonOfferAssurance {...seasonOffer2026Content.assurance} />
+          <FAQ {...seasonOffer2026Content.faq} />
 
-        <div id="season-offer-lead" className="scroll-mt-20">
-          <LeadForm />
-        </div>
+          <div id="season-offer-lead" className="scroll-mt-20">
+            <LeadForm
+              audience="corporate"
+              programs={seasonOffer2026Content.programCatalog.programs.map(({ id, title }) => ({ id, title }))}
+            />
+          </div>
+        </HeroMotionScene>
       </main>
 
       <Footer
+        ctaHref={seasonOffer2026Content.formHref}
         data={{
           organization: {
             fullName: siteSetting.organizationFullName,

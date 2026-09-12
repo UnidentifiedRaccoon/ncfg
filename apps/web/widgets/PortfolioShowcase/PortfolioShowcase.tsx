@@ -1,6 +1,7 @@
 import { ArrowUpRight, ShieldCheck, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import { Section } from "@/shared/ui/Section";
+import { Reveal } from "@/shared/ui/Reveal";
 
 interface PortfolioProject {
   id: number;
@@ -105,57 +106,58 @@ export function PortfolioShowcase({
   }
 
   return (
-    <Section id="portfolio-projects" title={title} lead={lead}>
+    <Section id="portfolio-projects" title={title} lead={lead} className="overflow-x-clip">
       <div className="space-y-4 md:space-y-5">
         {projects.map((project, index) => (
-          <article
-            key={project.id}
-            className={cn(
-              "group relative isolate overflow-hidden rounded-3xl border transition-all duration-300 ease-out [will-change:transform]",
-              "border-[#E2E8F0]/70 bg-white/75 shadow-sm backdrop-blur-sm",
-              "hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:border-[#3B82F6]/25",
-              "before:pointer-events-none before:absolute before:inset-x-10 before:top-0 before:z-0 before:h-px before:content-['']",
-              "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
-              "before:opacity-0 before:transition-opacity before:duration-300 group-hover:before:opacity-100",
-              "after:pointer-events-none after:absolute after:inset-0 after:z-0 after:rounded-3xl after:content-['']",
-              "after:bg-[radial-gradient(circle_at_18%_12%,rgba(88,168,224,0.18),transparent_60%)]",
-              "after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100"
-            )}
-          >
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-28 -top-24 z-0 h-72 w-72 rounded-full bg-gradient-to-br from-[#58A8E0]/24 via-[#3B82F6]/14 to-transparent blur-2xl"
-            />
-
-            <div
+          <Reveal key={project.id} variant="card" from={index % 2 === 0 ? "left" : "right"}>
+            <article
               className={cn(
-                "relative z-10 grid items-stretch gap-6 p-5 md:grid-cols-12 md:gap-8 md:p-6 lg:gap-10 lg:p-7"
+                "group relative isolate overflow-hidden rounded-3xl border transition-all duration-300 ease-out",
+                "border-[#E2E8F0]/70 bg-white/75 shadow-sm backdrop-blur-sm",
+                "motion-safe:hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:border-[#3B82F6]/25",
+                "before:pointer-events-none before:absolute before:inset-x-10 before:top-0 before:z-0 before:h-px before:content-['']",
+                "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
+                "before:opacity-0 before:transition-opacity before:duration-300 group-hover:before:opacity-100",
+                "after:pointer-events-none after:absolute after:inset-0 after:z-0 after:rounded-3xl after:content-['']",
+                "after:bg-[radial-gradient(circle_at_18%_12%,rgba(88,168,224,0.18),transparent_60%)]",
+                "after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100"
               )}
             >
-              <MediaPanel
-                index={index}
-                className={cn(
-                  "md:col-span-5",
-                  index % 2 === 0 ? "md:order-1" : "md:order-2"
-                )}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-28 -top-24 z-0 h-72 w-72 rounded-full bg-gradient-to-br from-[#58A8E0]/24 via-[#3B82F6]/14 to-transparent blur-2xl"
               />
 
               <div
                 className={cn(
-                  "min-w-0 md:col-span-7",
-                  index % 2 === 0 ? "md:order-2" : "md:order-1"
+                  "relative z-10 grid items-stretch gap-6 p-5 md:grid-cols-12 md:gap-8 md:p-6 lg:gap-10 lg:p-7"
                 )}
               >
-                <h3 className="mt-4 text-xl font-semibold leading-tight tracking-tight text-[#1E3A5F] md:text-2xl lg:text-3xl">
-                  {project.title}
-                </h3>
+                <MediaPanel
+                  index={index}
+                  className={cn(
+                    "md:col-span-5",
+                    index % 2 === 0 ? "md:order-1" : "md:order-2"
+                  )}
+                />
 
-                <p className="mt-3 text-base leading-relaxed text-[#475569] md:text-lg">
-                  {project.description}
-                </p>
+                <div
+                  className={cn(
+                    "min-w-0 md:col-span-7",
+                    index % 2 === 0 ? "md:order-2" : "md:order-1"
+                  )}
+                >
+                  <h3 className="mt-4 text-xl font-semibold leading-tight tracking-tight text-[#1E3A5F] md:text-2xl lg:text-3xl">
+                    {project.title}
+                  </h3>
+
+                  <p className="mt-3 text-base leading-relaxed text-[#475569] md:text-lg">
+                    {project.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
+          </Reveal>
         ))}
 
         {presentation && (

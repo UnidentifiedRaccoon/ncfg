@@ -1,3 +1,5 @@
+import { HeroMotionScene } from "@/shared/ui/HeroMotionScene";
+import { Reveal } from "@/shared/ui/Reveal";
 import type { Metadata } from "next";
 import { fetchCertificates, fetchRecommendations, fetchSiteSettings } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
@@ -40,40 +42,46 @@ export default async function RecommendationsPage() {
     <>
       <StructuredDataScript data={breadcrumbStructuredData} />
       <main className="pb-10 md:pb-12">
-        <section data-scroll-reveal="" className="pt-10 md:pt-14">
-          <Container>
-            <div className="flex min-h-[280px] flex-col gap-8 px-6 py-6 md:min-h-[360px] md:px-10 md:py-8">
-              <div className="mx-auto my-auto w-full max-w-5xl text-center">
-                <h1 className="text-4xl font-bold tracking-tight text-[#1E3A5F] sm:text-5xl md:text-6xl lg:text-[72px] lg:leading-[1.0]">
-                  Опыт клиентов
-                </h1>
-                <p className="mx-auto mt-5 max-w-4xl text-base leading-relaxed text-[#3F5C86] sm:text-lg md:text-2xl lg:text-[38px] lg:leading-[1.2]">
-                  Что говорят о нас наши партнёры и клиенты
-                </p>
+        <HeroMotionScene
+          variant="editorial"
+          sentinel={false}
+          hero={
+            <section className="pt-10 md:pt-14">
+              <Container>
+                <div className="flex min-h-[280px] flex-col gap-8 px-6 py-6 md:min-h-[360px] md:px-10 md:py-8">
+                  <div className="mx-auto my-auto w-full max-w-5xl text-center">
+                    <h1 className="text-4xl font-bold tracking-tight text-[#1E3A5F] sm:text-5xl md:text-6xl lg:text-[72px] lg:leading-[1.0]">
+                      Опыт клиентов
+                    </h1>
+                    <p className="mx-auto mt-5 max-w-4xl text-base leading-relaxed text-[#3F5C86] sm:text-lg md:text-2xl lg:text-[38px] lg:leading-[1.2]">
+                      Что говорят о нас наши партнёры и клиенты
+                    </p>
+                  </div>
+                </div>
+              </Container>
+            </section>
+          }
+        >
+          <section className="pt-6 md:pt-8">
+            <Container>
+              <RecommendationsShowcase items={recommendationItems} />
+            </Container>
+          </section>
+
+          <section className="pt-12 md:pt-16">
+            <Container>
+              <div className="space-y-8 md:space-y-10">
+                <div className="mx-auto max-w-3xl text-center">
+                  <h2 className="text-3xl font-bold tracking-tight text-[#1E3A5F] md:text-4xl">
+                    Благодарственные письма и дипломы
+                  </h2>
+                </div>
+
+                <Reveal viewport="inset"><RecommendationLettersRail items={certificates} /></Reveal>
               </div>
-            </div>
-          </Container>
-        </section>
-
-        <section data-scroll-reveal="" className="pt-6 md:pt-8">
-          <Container>
-            <RecommendationsShowcase items={recommendationItems} />
-          </Container>
-        </section>
-
-        <section data-scroll-reveal="" className="pt-12 md:pt-16">
-          <Container>
-            <div className="space-y-8 md:space-y-10">
-              <div className="mx-auto max-w-3xl text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-[#1E3A5F] md:text-4xl">
-                  Благодарственные письма и дипломы
-                </h2>
-              </div>
-
-              <RecommendationLettersRail items={certificates} />
-            </div>
-          </Container>
-        </section>
+            </Container>
+          </section>
+        </HeroMotionScene>
       </main>
       <Footer
         data={{

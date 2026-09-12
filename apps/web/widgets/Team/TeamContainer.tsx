@@ -1,17 +1,13 @@
-"use client";
-
-import { useReducedMotion } from "framer-motion";
 import { Container } from "@/shared/ui/Container";
 import { splitTeamMembers } from "./team-utils";
 import { TeamList } from "./TeamList";
 import type { TeamProps } from "./types";
 
 export function TeamContainer({ title, members }: TeamProps) {
-  const prefersReducedMotion = useReducedMotion();
   const { featured, rest } = splitTeamMembers(members);
 
   return (
-    <section id="team" data-scroll-reveal="" className="py-12 md:py-16">
+    <section id="team" className="py-12 md:py-16">
       {/* Section header - same style as other sections */}
       <Container>
         <div className="mb-10 md:mb-12 text-center max-w-3xl mx-auto">
@@ -21,11 +17,7 @@ export function TeamContainer({ title, members }: TeamProps) {
         </div>
       </Container>
 
-      <TeamList
-        featured={featured}
-        regular={rest}
-        prefersReducedMotion={prefersReducedMotion}
-      />
+      <TeamList featured={featured} regular={rest} />
     </section>
   );
 }

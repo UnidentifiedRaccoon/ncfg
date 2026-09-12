@@ -2,6 +2,7 @@ import { ArrowRight, BarChart3, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/shared/ui/Button";
 import { Section } from "@/shared/ui/Section";
+import { Reveal } from "@/shared/ui/Reveal";
 
 import type {
   SeasonOfferAssuranceColumn,
@@ -18,7 +19,7 @@ function AssuranceColumn({
   const Icon = variant === "reporting" ? BarChart3 : ShieldCheck;
 
   return (
-    <article className="relative overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-sm md:p-8">
+    <article className="relative h-full overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-sm md:p-8">
       <div
         aria-hidden="true"
         className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#58A8E0]/10 blur-3xl"
@@ -77,13 +78,14 @@ export function SeasonOfferAssurance({
       title={title}
       lead={lead}
       background="gray"
+      className="overflow-x-clip"
     >
       <div className="grid gap-5 lg:grid-cols-2 lg:gap-6">
-        <AssuranceColumn content={reporting} variant="reporting" />
-        <AssuranceColumn content={boundaries} variant="boundaries" />
+        <Reveal variant="card" from="left" className="h-full"><AssuranceColumn content={reporting} variant="reporting" /></Reveal>
+        <Reveal variant="card" from="right" className="h-full"><AssuranceColumn content={boundaries} variant="boundaries" /></Reveal>
       </div>
 
-      <div className="mt-6 flex flex-col gap-6 rounded-3xl bg-[#1E3A5F] p-6 text-white shadow-[0_18px_50px_rgba(30,58,95,0.18)] md:flex-row md:items-center md:justify-between md:p-8">
+      <Reveal viewport="inset" className="mt-6 flex flex-col gap-6 rounded-3xl bg-[#1E3A5F] p-6 text-white shadow-[0_18px_50px_rgba(30,58,95,0.18)] md:flex-row md:items-center md:justify-between md:p-8">
         <div className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/70">
             {expertise.eyebrow}
@@ -104,7 +106,7 @@ export function SeasonOfferAssurance({
           {expertise.action.label}
           <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
         </Button>
-      </div>
+      </Reveal>
     </Section>
   );
 }

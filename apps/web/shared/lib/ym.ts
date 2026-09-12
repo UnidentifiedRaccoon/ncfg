@@ -41,6 +41,11 @@ export const YM_GOALS = {
 
   // Form funnel
   LEAD_FORM_START: "lead_form_start",
+  LEAD_FORM_VIEW: "lead_form_view",
+  LEAD_FORM_INPUT: "lead_form_input",
+  LEAD_FORM_ATTEMPT: "lead_form_attempt",
+  LEAD_FORM_ERROR: "lead_form_error",
+  LEAD_PROGRAM_SELECT: "lead_program_select",
 
   // Scroll depth
   SCROLL_25: "scroll_25",
@@ -72,15 +77,30 @@ function getCounterId(): number | null {
 }
 
 export function reachGoal(goal: YmGoal, params?: Record<string, unknown>): void {
+  if (typeof window !== "undefined") {
+    const path = window.location.pathname;
+    if (path === "/experiments" || path.startsWith("/experiments/")) return;
+    // The local launcher disables Metrika. This dev-only event lets QA inspect
+    // exactly the goal payload without sending test traffic to production.
+    if (process.env.NODE_ENV === "development") {
+      window.dispatchEvent(new CustomEvent("ncfg:analytics", { detail: { goal, params } }));
+    }
+  }
+
   const ym = getYm();
   if (!ym) return;
 
   const counterId = getCounterId();
   if (!counterId) return;
 
-  if (params) {
-    ym(counterId, "reachGoal", goal, params);
-  } else {
-    ym(counterId, "reachGoal", goal);
+  // Analytics must never turn an accepted inquiry into a visible form error.
+  try {
+    if (params) {
+      ym(counterId, "reachGoal", goal, params);
+    } else {
+      ym(counterId, "reachGoal", goal);
+    }
+  } catch {
+    // Tracking can be blocked or unavailable independently of form delivery.
   }
 }
