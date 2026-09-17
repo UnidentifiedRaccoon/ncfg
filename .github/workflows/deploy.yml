@@ -78,7 +78,7 @@ jobs:
       - name: Install yc CLI
         run: |
           # Official installation script from Yandex Cloud docs.
-          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | CLI_VERSION=1.34.0 bash -s -- -i /tmp/yc -n
           echo "/tmp/yc/bin" >> "$GITHUB_PATH"
 
       - name: Configure yc CLI
@@ -101,10 +101,10 @@ jobs:
           fetch_required_key() {
             local key="$1"
             local value=""
-            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" 2>/dev/null || true)"
+            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" || true)"
 
             if [ -z "$value" ]; then
-              echo "::error::Missing required Lockbox key: $key"
+              echo "::error::Missing required Lockbox key: $key" >&2
               exit 1
             fi
 
@@ -190,7 +190,7 @@ jobs:
       - name: Install yc CLI
         run: |
           # Official installation script from Yandex Cloud docs.
-          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | CLI_VERSION=1.34.0 bash -s -- -i /tmp/yc -n
           echo "/tmp/yc/bin" >> "$GITHUB_PATH"
 
       - name: Configure yc CLI
@@ -228,10 +228,10 @@ jobs:
           fetch_required_key() {
             local key="$1"
             local value=""
-            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" 2>/dev/null || true)"
+            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" || true)"
 
             if [ -z "$value" ]; then
-              echo "::error::Missing required Lockbox key: $key"
+              echo "::error::Missing required Lockbox key: $key" >&2
               exit 1
             fi
 
@@ -342,7 +342,7 @@ jobs:
       - name: Install yc CLI
         run: |
           # Official installation script from Yandex Cloud docs.
-          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | CLI_VERSION=1.34.0 bash -s -- -i /tmp/yc -n
           echo "/tmp/yc/bin" >> "$GITHUB_PATH"
 
       - name: Configure yc CLI
@@ -369,10 +369,10 @@ jobs:
           )
 
           for key in "${required_lockbox_keys[@]}"; do
-            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" 2>/dev/null || true)"
+            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" || true)"
 
             if [ -z "$value" ]; then
-              echo "::error::Missing required Lockbox key: $key"
+              echo "::error::Missing required Lockbox key: $key" >&2
               exit 1
             fi
 
@@ -548,7 +548,7 @@ jobs:
     steps:
       - name: Install yc CLI
         run: |
-          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /tmp/yc -n
+          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | CLI_VERSION=1.34.0 bash -s -- -i /tmp/yc -n
           echo "/tmp/yc/bin" >> "$GITHUB_PATH"
 
       - name: Configure yc CLI
