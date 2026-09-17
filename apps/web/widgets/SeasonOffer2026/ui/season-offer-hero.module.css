@@ -112,6 +112,10 @@
   margin: 0;
 }
 
+.portrait > .portraitFigure {
+  z-index: 1;
+}
+
 .portraitVisual {
   width: 100%;
   height: 100%;
@@ -139,7 +143,6 @@
 .incoming {
   position: absolute;
   inset: 0;
-  opacity: 0;
   background: var(--color-gray-200);
 }
 

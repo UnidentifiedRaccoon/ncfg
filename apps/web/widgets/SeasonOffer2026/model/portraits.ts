@@ -6,7 +6,8 @@ export const PORTRAIT_POOLS = [
   ["portrait-colleague", "portrait-square-woman-midlife", "portrait-square-woman-junior"],
 ] as const;
 
-export const PORTRAIT_INTERVAL = 7000;
+export const PORTRAIT_FADE_DURATION_MS = 500;
+export const PORTRAIT_INTERVAL = 5000 - PORTRAIT_FADE_DURATION_MS;
 const SLOT_ORDER = [1, 2, 0] as const;
 
 // Illustrative employee personas, using the same professions as People/Focus.
