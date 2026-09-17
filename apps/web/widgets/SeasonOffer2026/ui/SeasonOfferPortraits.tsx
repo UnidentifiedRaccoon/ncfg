@@ -4,7 +4,6 @@ import { useEffect, useReducer, useRef, useState, type Dispatch } from "react";
 import { useAnimate, useInView } from "motion/react";
 
 import {
-  motionTokens,
   useAutoplay,
   useDocumentVisible,
   useDesktopScene,
@@ -14,6 +13,7 @@ import {
 import {
   initialPortraitState,
   nextPortrait,
+  PORTRAIT_FADE_DURATION_MS,
   PORTRAIT_INTERVAL,
   PORTRAIT_LABELS,
   PORTRAIT_POOLS,
@@ -56,21 +56,19 @@ function IncomingPortrait({
       return;
     }
 
-    const outgoingVisual = scope.current.previousElementSibling?.querySelector<HTMLElement>("[data-portrait-visual]");
-    const incomingVisual = scope.current.querySelector<HTMLElement>("[data-portrait-visual]");
-    if (!outgoingVisual || !incomingVisual) {
+    const outgoingFigure = scope.current.previousElementSibling;
+    if (!(outgoingFigure instanceof HTMLElement)) {
       dispatch({ type: "complete", id: swap.id });
       return;
     }
 
     let active = true;
-    // Refocus the whole photograph, then cut to an opaque new frame while
-    // defocused. Faces never overlap, and profession labels remain sharp.
-    const controls = animate([
-      [outgoingVisual, { filter: ["blur(0px)", "blur(7px)"], scale: [1, 1.035] }, { duration: 0.18, ease: "easeIn" }],
-      [incomingVisual, { filter: ["blur(7px)", "blur(0px)"], scale: [1.035, 1] }, { duration: 0.42, ease: motionTokens.ease, at: 0.18 }],
-      [scope.current, { opacity: [0, 1] }, { duration: 0, at: 0.18 }],
-    ]);
+    // The decoded next frame stays opaque underneath. Only the outgoing
+    // photo and its caption fade, so the card never exposes its background.
+    const controls = animate(outgoingFigure, { opacity: [1, 0] }, {
+      duration: PORTRAIT_FADE_DURATION_MS / 1000,
+      ease: "easeInOut",
+    });
     controls.pause();
     animation.current = controls;
     void controls.then(() => {
@@ -86,7 +84,7 @@ function IncomingPortrait({
 
   useEffect(() => {
     if (playing) animation.current?.play();
-    // Pausing settles on a sharp photo instead of leaving a blurred face frozen.
+    // Settle on the next photo instead of freezing two overlapping faces.
     else animation.current?.complete();
   }, [playing, reduceMotion, swap.id]);
 
