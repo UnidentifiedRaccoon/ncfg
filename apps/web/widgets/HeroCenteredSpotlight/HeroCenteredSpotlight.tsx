@@ -5,11 +5,6 @@ import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/Button";
 import { HighlightedHeadline } from "@/shared/ui/HighlightedHeadline";
 
-interface HeroMetricItem {
-  value: string;
-  label: string;
-}
-
 interface HeroCenteredSpotlightProps {
   headline: string;
   accentWord?: string | string[];
@@ -18,7 +13,6 @@ interface HeroCenteredSpotlightProps {
   secondaryAction?: { label: string; href: string };
   eyebrow?: string;
   trustChips?: string[];
-  metrics?: HeroMetricItem[];
   noSentinel?: boolean;
   className?: string;
 }
@@ -40,7 +34,6 @@ export function HeroCenteredSpotlight({
   secondaryAction,
   eyebrow = DEFAULT_EYEBROW,
   trustChips = DEFAULT_TRUST_CHIPS,
-  metrics = [],
   noSentinel,
   className,
 }: HeroCenteredSpotlightProps) {
@@ -87,47 +80,6 @@ export function HeroCenteredSpotlight({
             <p className="mt-5 w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] text-base text-white/60 sm:w-full sm:max-w-2xl sm:text-lg leading-relaxed">
               {lead}
             </p>
-          )}
-
-          {/* Metrics — 2×2 grid on mobile, inline row with dividers from md */}
-          {metrics.length > 0 && (
-            <>
-              {/* Mobile: 2×2 grid */}
-              <dl className="relative z-20 mt-8 grid w-[calc(100vw-2rem)] max-w-sm grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md md:hidden">
-                {metrics.slice(0, 4).map((metric) => (
-                  <div key={metric.label} className="bg-white/[0.03] px-4 py-5 text-center">
-                    <dd className="text-2xl font-bold text-white">
-                      {metric.value}
-                    </dd>
-                    <dt className="mt-1 text-sm text-white/50">
-                      {metric.label}
-                    </dt>
-                  </div>
-                ))}
-              </dl>
-
-              {/* md+: inline row with dividers */}
-              <dl className="relative z-20 mt-8 hidden items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md md:inline-flex">
-                {metrics.slice(0, 4).map((metric, i) => (
-                  <div key={metric.label} className="flex items-center">
-                    {i > 0 && (
-                      <div
-                        aria-hidden="true"
-                        className="h-10 w-px bg-white/10"
-                      />
-                    )}
-                    <div className="px-8 py-5 text-center">
-                      <dd className="text-2xl font-bold text-white">
-                        {metric.value}
-                      </dd>
-                      <dt className="mt-1 text-sm text-white/50">
-                        {metric.label}
-                      </dt>
-                    </div>
-                  </div>
-                ))}
-              </dl>
-            </>
           )}
 
           <div className="mt-8 flex w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] flex-wrap items-center justify-center gap-4 sm:w-full sm:max-w-full">

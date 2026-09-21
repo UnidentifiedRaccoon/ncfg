@@ -32,20 +32,6 @@ const LeadForm = dynamic(() =>
   import("@/widgets/LeadForm").then((m) => ({ default: m.LeadForm }))
 );
 
-function makeHeroMetrics(metrics: Array<{ key: string; displayValue: string }>) {
-  const byKey = new Map(metrics.map((m) => [m.key, m.displayValue]));
-
-  return [
-    ["participants", "участников"],
-    ["regions", "региона"],
-    ["corporate_clients", "компании"],
-    ["nps", "NPS программ"],
-  ].flatMap(([key, label]) => {
-    const value = byKey.get(key);
-    return value ? [{ value, label }] : [];
-  });
-}
-
 const EMPTY_SERVICES_DATA = {
   meta: {
     contentType: "services-catalog",
@@ -79,7 +65,6 @@ export async function HomePageContent() {
   ]);
 
   const hero = homePage.hero;
-  const heroMetrics = makeHeroMetrics(siteSetting.metrics);
   const clientsCarousel = homePage.partners?.clientsCarousel;
   const awards = homePage.partners?.awards ?? [];
 
@@ -147,7 +132,6 @@ export async function HomePageContent() {
           ? { label: hero.primaryCta.label, href: hero.primaryCta.href }
           : undefined
       }
-      metrics={heroMetrics}
     />
   );
   const missionIntro = <MissionLedgerAlliance />;

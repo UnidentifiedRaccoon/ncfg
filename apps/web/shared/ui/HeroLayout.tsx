@@ -12,11 +12,6 @@ interface HeroAction {
   href: string;
 }
 
-interface HeroMetricItem {
-  value: string;
-  label: string;
-}
-
 interface HeroLayoutProps {
   headline: string;
   accentWord?: string | string[];
@@ -27,7 +22,6 @@ interface HeroLayoutProps {
   trustChips?: string[];
   imageSrc: string;
   imageAlt?: string;
-  metrics?: HeroMetricItem[];
   noSentinel?: boolean;
   className?: string;
   scrollScene?: boolean;
@@ -52,13 +46,10 @@ export function HeroLayout({
   trustChips = DEFAULT_TRUST_CHIPS,
   imageSrc,
   imageAlt = "",
-  metrics,
   noSentinel,
   className,
   scrollScene = false,
 }: HeroLayoutProps) {
-  const hasMetrics = Boolean(metrics && metrics.length > 0);
-
   return (
     <section className={cn("relative overflow-hidden -mt-16 md:-mt-20 pt-16 md:pt-20", className)}>
       <div aria-hidden="true" className="absolute inset-0 bg-[#050B16]" />
@@ -108,31 +99,6 @@ export function HeroLayout({
                 <p className="mt-5 max-w-xl text-base sm:text-lg md:text-xl text-white/75 leading-relaxed">
                   {lead}
                 </p>
-              )}
-
-              {/* Inline metrics — glass card with dividers */}
-              {hasMetrics && metrics && (
-                <dl className="mt-8 flex w-full max-w-xl items-stretch overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md sm:inline-flex sm:w-auto">
-                  {metrics.slice(0, 4).map((m, i) => (
-                    <div
-                      key={m.label}
-                      className="flex min-w-0 flex-1 items-center sm:flex-none"
-                    >
-                      {i > 0 && (
-                        <div
-                          aria-hidden="true"
-                          className="h-10 w-px bg-white/10"
-                        />
-                      )}
-                      <div className="w-full min-w-0 px-3 py-4 text-center sm:w-auto sm:px-8 sm:py-5">
-                        <dd className="text-xl font-bold text-white sm:text-2xl">{m.value}</dd>
-                        <dt className="mt-1 text-xs leading-tight text-white/60 sm:text-sm">
-                          {m.label}
-                        </dt>
-                      </div>
-                    </div>
-                  ))}
-                </dl>
               )}
 
               {/* CTA + trust */}
