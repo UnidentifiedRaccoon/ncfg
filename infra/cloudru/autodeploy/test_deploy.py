@@ -13,6 +13,25 @@ spec.loader.exec_module(deploy)
 
 
 class DeploymentTests(unittest.TestCase):
+    def test_build_resolves_current_cms_private_ip_instead_of_public_hairpin(self):
+        with patch.object(deploy, 'docker', return_value=b'{"ncfg-cloudru-application":{"IPAddress":"172.19.0.2"}}'):
+            self.assertEqual(deploy.build_cms_url(), 'http://172.19.0.2:8080')
+        with patch.object(deploy, 'docker', return_value=b'{"ncfg-cloudru-application":{"IPAddress":"45.151.30.122"}}'):
+            with self.assertRaises(RuntimeError):
+                deploy.build_cms_url()
+
+    def test_gateway_verification_keeps_tls_validation_without_public_hairpin(self):
+        with patch.object(deploy, 'run', return_value=b'{"revision":"test"}\n200') as run:
+            self.assertEqual(deploy.gateway_request('ncfg.ru', '/deployment.json'), b'{"revision":"test"}')
+        args = run.call_args.args[0]
+        self.assertIn('ncfg.ru:443:127.0.0.1', args)
+        self.assertIn('https://ncfg.ru/deployment.json', args)
+        self.assertNotIn('--insecure', args)
+        self.assertNotIn('-k', args)
+        with patch.object(deploy, 'run', return_value=b'redirect\n301'):
+            with self.assertRaises(RuntimeError):
+                deploy.gateway_request('ncfg.ru', '/')
+
     def test_sandbox_and_installer_share_docker_config_outside_home(self):
         directory = Path(__file__).parent
         service = (directory / 'ncfg-autodeploy.service').read_text()

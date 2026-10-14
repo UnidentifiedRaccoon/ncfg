@@ -7,6 +7,7 @@ No GitHub credential, inbound webhook or self-hosted Actions runner is required.
 import datetime
 import fcntl
 import hashlib
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -17,7 +18,6 @@ import subprocess
 import sys
 import tarfile
 import time
-import urllib.request
 
 ROOT = Path('/srv/ncfg/autodeploy')
 RUNTIME = Path('/etc/ncfg/runtime')
@@ -95,7 +95,21 @@ def checkout(revision):
     return source, hashlib.sha256(cms_tree).hexdigest()
 
 
+def build_cms_url():
+    networks = json.loads(docker('inspect', '--format', '{{json .NetworkSettings.Networks}}', PREFIX + 'cms'))
+    address = ipaddress.ip_address(networks[PREFIX + 'application']['IPAddress'])
+    if address.version != 4 or not address.is_private:
+        raise RuntimeError('CMS must have a private application-network address')
+    return 'http://' + str(address) + ':8080'
+
+
 def build_image(source, service, revision, values, epoch):
+    # Cloud.ru does not route this VM back through its own public IP. BuildKit's
+    # RUN namespace also cannot resolve Docker aliases, so use the current IP.
+    builder_container = 'buildx_buildkit_' + BUILDER + '0'
+    networks = json.loads(docker('inspect', '--format', '{{json .NetworkSettings.Networks}}', builder_container))
+    if PREFIX + 'application' not in networks:
+        docker('network', 'connect', PREFIX + 'application', builder_container)
     tag = 'ncfg-autodeploy-' + service + ':' + revision
     args = ['docker', 'buildx', 'build', '--builder', BUILDER, '--load', '--progress', 'plain',
             '--tag', tag, '--label', 'io.ncfg.autodeploy=true',
@@ -107,7 +121,7 @@ def build_image(source, service, revision, values, epoch):
         environment['STRAPI_API_TOKEN'] = values['STRAPI_API_TOKEN']
         masked.append(values['STRAPI_API_TOKEN'])
         args += ['--secret', 'id=STRAPI_API_TOKEN,env=STRAPI_API_TOKEN']
-        build_values = {'STRAPI_URL': 'https://admin.ncfg.ru',
+        build_values = {'STRAPI_URL': build_cms_url(),
                         'NEXT_PUBLIC_SITE_URL': 'https://ncfg.ru',
                         'NEXT_PUBLIC_YANDEX_METRIKA_ID': '108387180',
                         'NEXT_PUBLIC_RELEASE_ID': revision, 'DEPLOY_ENV': 'production',
@@ -202,18 +216,26 @@ def recover_transaction():
     print('Interrupted deployment rolled back to prior containers', flush=True)
 
 
+def gateway_request(domain, path):
+    # Keep normal hostname/certificate validation, but avoid public-IP hairpin
+    # routing. GitHub Actions separately checks the real public DNS route.
+    response = run(['curl', '--fail', '--silent', '--show-error', '--max-time', '15',
+                    '--resolve', domain + ':443:127.0.0.1', '--write-out', '\n%{http_code}',
+                    'https://' + domain + path])
+    body, status = response.rsplit(b'\n', 1)
+    if status not in (b'200', b'204'):
+        raise RuntimeError('HTTPS gateway readiness failed')
+    return body
+
+
 def public_check(revision):
     for _ in range(20):
         try:
-            request = urllib.request.Request('https://ncfg.ru/deployment.json?t=' + str(time.time_ns()),
-                                             headers={'Cache-Control': 'no-cache'})
-            with urllib.request.urlopen(request, timeout=15) as response:
-                if json.load(response)['revision'] != revision:
-                    raise RuntimeError('Wrong public release')
-            for url in ['https://ncfg.ru/api/health', 'https://ncfg.ru/', 'https://admin.ncfg.ru/_health']:
-                with urllib.request.urlopen(url, timeout=15) as response:
-                    if response.status not in (200, 204):
-                        raise RuntimeError('Public readiness failed')
+            current = json.loads(gateway_request('ncfg.ru', '/deployment.json?t=' + str(time.time_ns())))
+            if current['revision'] != revision:
+                raise RuntimeError('Wrong public release')
+            for domain, path in [('ncfg.ru', '/api/health'), ('ncfg.ru', '/'), ('admin.ncfg.ru', '/_health')]:
+                gateway_request(domain, path)
             return
         except Exception:
             time.sleep(3)
