@@ -8,7 +8,9 @@ Push в `main` запускает `.github/workflows/deploy.yml`. GitHub про�
 Не отправлять изменения в `cloudru-production` вручную.
 
 Сборка выполняется на `ncfg-app-01`: отдельный BuildKit ограничен 3 ГБ памяти
-и 1,5 CPU, кеш — 3 ГБ. При нехватке 4 ГБ на системном диске деплой не начинается.
+и 1,5 CPU, кеш — 3 ГБ на диске данных `/srv/ncfg/buildkit-cache`.
+Профиль Buildx находится в `/etc/ncfg/autodeploy-docker`, вне закрытого home.
+При нехватке 4 ГБ на системном диске деплой не начинается.
 Сайт получает прежние immutable assets за 21 день. Секрет чтения CMS передаётся
 только через BuildKit secret; runtime-настройки остаются в `/etc/ncfg/runtime`.
 Для GitHub не нужны SSH-ключ, Cloud.ru API key или секреты приложения.
