@@ -7,8 +7,9 @@ Push в `main` запускает `.github/workflows/deploy.yml`. GitHub про�
 совпадающий SHA. После сборки он повторно проверяет, что коммит всё ещё актуален.
 Не отправлять изменения в `cloudru-production` вручную.
 
-Сборка выполняется на `ncfg-app-01`: отдельный BuildKit ограничен 3 ГБ памяти
-и 1,5 CPU, кеш — 3 ГБ на диске данных `/srv/ncfg/buildkit-cache`.
+Сборка выполняется на `ncfg-app-01`: отдельный BuildKit ограничен 4 ГБ памяти
+и 1,5 CPU; этапы выполняются последовательно, кеш — 3 ГБ на диске данных
+`/srv/ncfg/buildkit-cache`.
 Профиль Buildx находится в `/etc/ncfg/autodeploy-docker`, вне закрытого home.
 При нехватке 4 ГБ на системном диске деплой не начинается.
 Сайт получает прежние immutable assets за 21 день. Секрет чтения CMS передаётся
@@ -56,6 +57,10 @@ sudo cat /srv/ncfg/autodeploy/failed.json
 Supervisor установлен отдельно: `/usr/local/lib/ncfg-autodeploy/deploy.py`.
 Изменение этого файла в Git не обновляет службу автоматически. Его новую версию
 сначала проверяют тестами и устанавливают через административный SSH-доступ.
+Изменения лимитов/конфигурации BuildKit требуют пересоздать только builder
+после окончания сборки: `docker buildx rm --keep-state ncfg-autodeploy`, затем
+повторить `install.sh` с профилем `DOCKER_CONFIG=/etc/ncfg/autodeploy-docker`.
+Кеш при этом сохраняется; рабочие контейнеры приложения не пересоздаются.
 Workflow перед ручным запуском должен быть выбран на ветке `main`.
 
 DNS и Postbox остаются в Yandex; production-развёртывание больше не использует

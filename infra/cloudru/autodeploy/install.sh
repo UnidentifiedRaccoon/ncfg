@@ -22,7 +22,7 @@ install -m 600 buildkitd.toml /usr/local/lib/ncfg-autodeploy/buildkitd.toml
 if ! docker buildx inspect ncfg-autodeploy >/dev/null 2>&1; then
   docker buildx create --name ncfg-autodeploy --driver docker-container \
     --driver-opt image=moby/buildkit@sha256:de10faf919fc71ba4eb1dd7bd6449566d012b0c9436b1c61bfee21d621b009aa \
-    --driver-opt memory=3g --driver-opt memory-swap=3g \
+    --driver-opt memory=4g --driver-opt memory-swap=4g \
     --driver-opt cpu-period=100000 --driver-opt cpu-quota=150000 \
     --driver-opt network=ncfg-cloudru-application \
     --buildkitd-config /usr/local/lib/ncfg-autodeploy/buildkitd.toml
