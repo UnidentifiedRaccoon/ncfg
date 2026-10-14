@@ -1,0 +1,17 @@
+[Unit]
+Description=Deploy approved NCFG main revision from GitHub
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/ncfg-autodeploy/deploy.py
+TimeoutStartSec=45min
+UMask=0077
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true

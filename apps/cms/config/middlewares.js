@@ -19,6 +19,7 @@ const mediaSources = [
   'storage.yandexcloud.net',
   '*.storage.yandexcloud.net',
   parseHost(process.env.AWS_ENDPOINT),
+  parseHost(process.env.AWS_PUBLIC_URL),
   ...extraMediaSources,
 ].filter(Boolean);
 

@@ -1,700 +1,94 @@
-# Yandex Cloud Deployment Pipeline
-# Deploys Next.js and Strapi to Serverless Containers
-
-name: Deploy to Yandex Cloud
-
-# Serialize builds/deploys so each build inherits the active release's assets.
-concurrency:
-  group: production-deploy
-  cancel-in-progress: false
+name: Deploy to Cloud.ru
 
 on:
   push:
     branches: [main]
+  pull_request:
+    paths:
+      - '.github/workflows/deploy.yml'
+      - 'infra/cloudru/autodeploy/**'
+      - 'docker/**'
+      - 'scripts/retain-next-static*'
   workflow_dispatch:
-    inputs:
-      deploy_web:
-        description: 'Deploy web (Next.js)'
-        type: boolean
-        default: true
-      deploy_cms:
-        description: 'Deploy CMS (Strapi)'
-        type: boolean
-        default: true
-      web_provisioned:
-        description: 'Min warm instances for web (input -> vars.WEB_PROVISIONED -> 1)'
-        type: number
-        default: 1
-      cms_provisioned:
-        description: 'Min warm instances for cms (input -> vars.CMS_PROVISIONED -> 1)'
-        type: number
-        default: 1
 
-env:
-  YC_REGISTRY: cr.yandex/${{ secrets.YC_REGISTRY_ID }}
-  WEB_IMAGE: ncfg-web
-  CMS_IMAGE: ncfg-cms
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudru-deploy-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
+  cancel-in-progress: true
 
 jobs:
-  # Detect which services changed
-  changes:
-    name: Detect changes
+  validate:
     runs-on: ubuntu-latest
-    outputs:
-      web: ${{ steps.filter.outputs.web }}
-      cms: ${{ steps.filter.outputs.cms }}
     steps:
       - uses: actions/checkout@v6
-
-      - uses: dorny/paths-filter@v4
-        id: filter
+      - uses: actions/setup-node@v6
         with:
-          filters: |
-            web:
-              - 'apps/web/**'
-              - 'apps/web/package-lock.json'
-              - 'docker/web/**'
-              - 'scripts/retain-next-static*'
-              - 'scripts/restore-next-static-history.sh'
-              - '.github/workflows/deploy.yml'
-            cms:
-              - 'apps/cms/**'
-              - 'apps/cms/package-lock.json'
-              - 'docker/cms/**'
+          node-version: '22.22.2'
+      - name: Verify deployment failure handling and static asset retention
+        run: |
+          python3 -m unittest discover -s infra/cloudru/autodeploy -p 'test_*.py'
+          node --test scripts/retain-next-static.test.mjs
+          node --check apps/cms/config/plugins.js
+          node --check apps/cms/config/middlewares.js
 
-  # Build and push Next.js image
-  build-web:
-    name: Build Next.js
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: validate
     runs-on: ubuntu-latest
-    needs: changes
-    outputs:
-      static_history_epoch: ${{ steps.static-history.outputs.epoch }}
-    if: |
-      (github.event_name == 'push' && needs.changes.outputs.web == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_web == 'true')
+    timeout-minutes: 45
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v6
-
-      - name: Install yc CLI
-        run: |
-          # Official installation script from Yandex Cloud docs.
-          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | CLI_VERSION=1.34.0 bash -s -- -i /tmp/yc -n
-          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
-
-      - name: Configure yc CLI
+      - name: Approve the current main revision for the Cloud.ru pull service
+        id: request
         env:
-          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-        run: |
-          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
-          yc config set service-account-key /tmp/sa.json
-          yc config set folder-id "$YC_FOLDER_ID"
-
-      - name: Lockbox preflight (web build)
-        id: web-lockbox
-        env:
-          YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
-          YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          REVISION: ${{ github.sha }}
         run: |
           set -euo pipefail
-
-          fetch_required_key() {
-            local key="$1"
-            local value=""
-            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" || true)"
-
-            if [ -z "$value" ]; then
-              echo "::error::Missing required Lockbox key: $key" >&2
-              exit 1
-            fi
-
-            printf '%s' "$value"
-          }
-
-          strapi_api_token="$(fetch_required_key STRAPI_API_TOKEN)"
-          strapi_write_api_token="$(fetch_required_key STRAPI_WRITE_API_TOKEN)"
-          next_public_yandex_metrika_id="$(fetch_required_key NEXT_PUBLIC_YANDEX_METRIKA_ID)"
-
-          echo "::add-mask::$strapi_api_token"
-          echo "::add-mask::$strapi_write_api_token"
-          echo "::add-mask::$next_public_yandex_metrika_id"
-
-          printf 'strapi_api_token=%s\n' "$strapi_api_token" >> "$GITHUB_OUTPUT"
-          printf 'next_public_yandex_metrika_id=%s\n' "$next_public_yandex_metrika_id" >> "$GITHUB_OUTPUT"
-
-      - name: Login to Yandex Container Registry
-        uses: yc-actions/yc-cr-login@v3
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Restore previous production static assets
-        id: static-history
-        # :latest may belong to a failed deployment. Pin the image that is
-        # actually serving visitors, without exporting its environment/secrets.
-        run: |
-          set -euo pipefail
-          image="$(
-            yc serverless container revision list --container-name ncfg-web --format json \
-              --jq 'map(select(.status == "ACTIVE") | {image_url: .image.image_url, image_digest: .image.image_digest})' \
-            | jq -er '
-                if length != 1 then error("Expected one active web revision") else .[0] end
-                | if (.image_digest | test("^sha256:[a-f0-9]{64}$")) then
-                    (.image_url | split("@")[0] | sub(":[^/]+$"; "")) + "@" + .image_digest
-                  else error("Active image has no digest") end
-              '
-          )"
-          bash scripts/restore-next-static-history.sh "$image" docker/web/static-history
-          echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
-
-      - name: Test static asset retention
-        run: node --test scripts/retain-next-static.test.mjs
-
-      - name: Build and push
-        uses: docker/build-push-action@v7
-        env:
-          STRAPI_API_TOKEN: ${{ steps.web-lockbox.outputs.strapi_api_token }}
-        with:
-          context: .
-          file: docker/web/Dockerfile
-          push: true
-          provenance: false
-          tags: |
-            ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:${{ github.sha }}
-            ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:latest
-          build-args: |
-            STRAPI_URL=${{ secrets.STRAPI_URL }}
-            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
-            NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ steps.web-lockbox.outputs.next_public_yandex_metrika_id }}
-            NEXT_PUBLIC_RELEASE_ID=${{ github.sha }}
-            STATIC_HISTORY_EPOCH=${{ steps.static-history.outputs.epoch }}
-            PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
-          secret-envs: |
-            STRAPI_API_TOKEN=STRAPI_API_TOKEN
-          cache-from: type=gha,scope=web-prod
-          cache-to: type=gha,mode=max,scope=web-prod
-
-  # Build and push Strapi image
-  build-cms:
-    name: Build Strapi
-    runs-on: ubuntu-latest
-    needs: changes
-    if: |
-      (github.event_name == 'push' && needs.changes.outputs.cms == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_cms == 'true')
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install yc CLI
-        run: |
-          # Official installation script from Yandex Cloud docs.
-          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | CLI_VERSION=1.34.0 bash -s -- -i /tmp/yc -n
-          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
-
-      - name: Configure yc CLI
-        env:
-          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-        run: |
-          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
-          yc config set service-account-key /tmp/sa.json
-          yc config set folder-id "$YC_FOLDER_ID"
-
-      - name: Lockbox preflight
-        env:
-          YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
-          YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
-        run: |
-          set -euo pipefail
-
-          required_lockbox_keys=(
-            DATABASE_HOST
-            DATABASE_PORT
-            DATABASE_NAME
-            DATABASE_USERNAME
-            DATABASE_PASSWORD
-            APP_KEYS
-            API_TOKEN_SALT
-            ADMIN_JWT_SECRET
-            JWT_SECRET
-            TRANSFER_TOKEN_SALT
-            AWS_BUCKET
-            AWS_ACCESS_KEY_ID
-            AWS_SECRET_ACCESS_KEY
-          )
-
-          fetch_required_key() {
-            local key="$1"
-            local value=""
-            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" || true)"
-
-            if [ -z "$value" ]; then
-              echo "::error::Missing required Lockbox key: $key" >&2
-              exit 1
-            fi
-
-            echo "::add-mask::$value"
-            printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
-          }
-
-          for key in "${required_lockbox_keys[@]}"; do
-            fetch_required_key "$key"
-          done
-
-          aws_region="ru-central1"
-          aws_endpoint="https://storage.yandexcloud.net"
-
-          if [ -z "$aws_region" ] || [ -z "$aws_endpoint" ]; then
-            echo "::error::AWS_REGION or AWS_ENDPOINT is empty"
-            exit 1
+          current=$(gh api "repos/$REPOSITORY/git/ref/heads/main" --jq '.object.sha')
+          if [ "$current" != "$REVISION" ]; then
+            echo 'This revision has been superseded; no deployment requested.'
+            echo 'requested=false' >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-
-          printf 'AWS_REGION=%s\n' "$aws_region" >> "$GITHUB_ENV"
-          printf 'AWS_ENDPOINT=%s\n' "$aws_endpoint" >> "$GITHUB_ENV"
-
-      - name: Login to Yandex Container Registry
-        uses: yc-actions/yc-cr-login@v3
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Build and push
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: docker/cms/Dockerfile
-          push: true
-          tags: |
-            ${{ env.YC_REGISTRY }}/${{ env.CMS_IMAGE }}:${{ github.sha }}
-            ${{ env.YC_REGISTRY }}/${{ env.CMS_IMAGE }}:latest
-          build-args: |
-            CACHE_BUST=${{ github.sha }}
-          secret-envs: |
-            DATABASE_HOST=DATABASE_HOST
-            DATABASE_PORT=DATABASE_PORT
-            DATABASE_NAME=DATABASE_NAME
-            DATABASE_USERNAME=DATABASE_USERNAME
-            DATABASE_PASSWORD=DATABASE_PASSWORD
-            APP_KEYS=APP_KEYS
-            API_TOKEN_SALT=API_TOKEN_SALT
-            ADMIN_JWT_SECRET=ADMIN_JWT_SECRET
-            JWT_SECRET=JWT_SECRET
-            TRANSFER_TOKEN_SALT=TRANSFER_TOKEN_SALT
-            AWS_BUCKET=AWS_BUCKET
-            AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID
-            AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY
-            AWS_REGION=AWS_REGION
-            AWS_ENDPOINT=AWS_ENDPOINT
-          cache-from: type=gha,scope=cms-prod
-          cache-to: type=gha,mode=max,scope=cms-prod
-
-  # Deploy Next.js to Serverless Container
-  deploy-web:
-    name: Deploy Next.js
-    runs-on: ubuntu-latest
-    needs: build-web
-    environment: production
-    env:
-      WEB_PROVISIONED_INPUT: ${{ github.event.inputs.web_provisioned || '' }}
-      WEB_PROVISIONED_VAR: ${{ vars.WEB_PROVISIONED || '' }}
-    steps:
-      - name: Verify web build is fresh enough for static retention
-        env:
-          STATIC_HISTORY_EPOCH: ${{ needs.build-web.outputs.static_history_epoch }}
-        run: |
-          set -euo pipefail
-          build_epoch="$STATIC_HISTORY_EPOCH"
-          if ! [[ "$build_epoch" =~ ^[0-9]+$ ]]; then
-            echo "::error::Missing static history build timestamp. Rebuild the web image."
-            exit 1
-          fi
-          age=$(( $(date +%s) - build_epoch ))
-          # Reserve the 15-day Webvisor window plus a deployment margin.
-          if [ "$age" -lt 0 ] || [ "$age" -gt 432000 ]; then
-            echo "::error::Web image is too old for static retention. Rebuild before deploying."
-            exit 1
-          fi
-
-      - name: Resolve web provisioned capacity
-        run: |
-          set -euo pipefail
-
-          value="$WEB_PROVISIONED_INPUT"
-          if [ -z "$value" ]; then
-            value="$WEB_PROVISIONED_VAR"
-          fi
-          if [ -z "$value" ]; then
-            value="1"
-          fi
-
-          if ! [[ "$value" =~ ^[0-9]+$ ]]; then
-            echo "::error::Invalid web provisioned value: $value"
-            exit 1
-          fi
-
-          echo "WEB_PROVISIONED_EFFECTIVE=$value" >> "$GITHUB_ENV"
-          echo "Using WEB_PROVISIONED_EFFECTIVE=$value"
-
-      - name: Install yc CLI
-        run: |
-          # Official installation script from Yandex Cloud docs.
-          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | CLI_VERSION=1.34.0 bash -s -- -i /tmp/yc -n
-          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
-
-      - name: Configure yc CLI
-        env:
-          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-        run: |
-          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
-          yc config set service-account-key /tmp/sa.json
-          yc config set folder-id "$YC_FOLDER_ID"
-
-      - name: Lockbox preflight (web runtime)
-        env:
-          YC_LOCKBOX_SECRET_ID: ${{ secrets.YC_LOCKBOX_SECRET_ID }}
-          YC_LOCKBOX_VERSION_ID: ${{ secrets.YC_LOCKBOX_VERSION_ID }}
-        run: |
-          set -euo pipefail
-
-          required_lockbox_keys=(
-            STRAPI_API_TOKEN
-            STRAPI_WRITE_API_TOKEN
-            NEXT_PUBLIC_YANDEX_METRIKA_ID
-            BITRIX24_WEBHOOK_URL
-          )
-
-          for key in "${required_lockbox_keys[@]}"; do
-            value="$(yc lockbox payload get --id "$YC_LOCKBOX_SECRET_ID" --version-id "$YC_LOCKBOX_VERSION_ID" --key "$key" || true)"
-
-            if [ -z "$value" ]; then
-              echo "::error::Missing required Lockbox key: $key" >&2
-              exit 1
-            fi
-
-            echo "::add-mask::$value"
-          done
-
-      - name: Deploy to Yandex Serverless Container
-        uses: yc-actions/yc-sls-container-deploy@v4
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          container-name: ncfg-web
-          folder-id: ${{ secrets.YC_FOLDER_ID }}
-          revision-image-url: ${{ env.YC_REGISTRY }}/${{ env.WEB_IMAGE }}:${{ github.sha }}
-          revision-service-account-id: ${{ secrets.YC_CONTAINER_SA_ID }}
-          revision-cores: 1
-          revision-memory: 512Mb
-          revision-core-fraction: 100
-          revision-concurrency: 8
-          revision-execution-timeout: 30s
-          revision-provisioned: ${{ env.WEB_PROVISIONED_EFFECTIVE }}
-          revision-secrets: |
-            STRAPI_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_API_TOKEN
-            STRAPI_WRITE_API_TOKEN=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/STRAPI_WRITE_API_TOKEN
-            NEXT_PUBLIC_YANDEX_METRIKA_ID=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/NEXT_PUBLIC_YANDEX_METRIKA_ID
-            BITRIX24_WEBHOOK_URL=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/BITRIX24_WEBHOOK_URL
-          revision-env: |
-            NODE_ENV=production
-            DEPLOY_ENV=production
-            STRAPI_WRITE_MODE=enabled
-            OUTBOUND_MODE=enabled
-            STRAPI_URL=${{ secrets.STRAPI_URL }}
-            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
-            PORTFOLIO_PRESENTATION_URL=${{ secrets.PORTFOLIO_PRESENTATION_URL }}
-            BITRIX24_LEAD_ENABLED=true
-            BITRIX24_LEAD_SOURCE_ID=WEB
-            BITRIX24_LEAD_STAGE_ID=10
-            BITRIX24_LEAD_TITLE=Заявка с сайта NCFG
-            BITRIX24_LEAD_ORIGINATOR_ID=ncfg-website
-            POSTBOX_SMTP_HOST=${{ secrets.POSTBOX_SMTP_HOST || 'postbox.cloud.yandex.net' }}
-            POSTBOX_SMTP_PORT=${{ secrets.POSTBOX_SMTP_PORT || '465' }}
-            POSTBOX_API_KEY_ID=${{ secrets.POSTBOX_API_KEY_ID }}
-            POSTBOX_API_KEY_SECRET=${{ secrets.POSTBOX_API_KEY_SECRET }}
-            POSTBOX_FROM_EMAIL=${{ secrets.POSTBOX_FROM_EMAIL || 'no-reply@ncfg.ru' }}
-            LEADS_RECIPIENT_EMAILS=${{ secrets.LEADS_RECIPIENT_EMAILS || 'aedengina@ncfg.ru,yura.posledov@yandex.ru' }}
-            GETCOURSE_BASE_URL=${{ secrets.GETCOURSE_BASE_URL }}
-            GETCOURSE_API_KEY=${{ secrets.GETCOURSE_API_KEY }}
-            GETCOURSE_SOURCE_VALUE=${{ secrets.GETCOURSE_SOURCE_VALUE }}
-            GETCOURSE_DEAL_PRODUCT_TITLE_LEAD=${{ secrets.GETCOURSE_DEAL_PRODUCT_TITLE_LEAD || 'Website Lead' }}
-            GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION=${{ secrets.GETCOURSE_DEAL_PRODUCT_TITLE_QUESTION || 'Website Question' }}
-            GETCOURSE_DEAL_COST=${{ secrets.GETCOURSE_DEAL_COST || '0' }}
-            GETCOURSE_DEAL_STATUS=${{ secrets.GETCOURSE_DEAL_STATUS || 'new' }}
-            GETCOURSE_DEAL_FIELD_SOURCE=${{ secrets.GETCOURSE_DEAL_FIELD_SOURCE }}
-            GETCOURSE_DEAL_FIELD_COMPANY=${{ secrets.GETCOURSE_DEAL_FIELD_COMPANY }}
-            GETCOURSE_DEAL_FIELD_MESSAGE=${{ secrets.GETCOURSE_DEAL_FIELD_MESSAGE }}
-            GETCOURSE_DEAL_FIELD_QUESTION=${{ secrets.GETCOURSE_DEAL_FIELD_QUESTION }}
-            GETCOURSE_DEAL_FIELD_POST_TITLE=${{ secrets.GETCOURSE_DEAL_FIELD_POST_TITLE }}
-            GETCOURSE_DEAL_FIELD_PAGE_URL=${{ secrets.GETCOURSE_DEAL_FIELD_PAGE_URL }}
-            GETCOURSE_DEAL_FIELD_REQUEST_ID=${{ secrets.GETCOURSE_DEAL_FIELD_REQUEST_ID }}
-            GETCOURSE_DEAL_FIELD_FORM_TYPE=${{ secrets.GETCOURSE_DEAL_FIELD_FORM_TYPE }}
-
-      - name: Lock down direct invoke for production web container
-        run: |
-          set -euo pipefail
-          yc serverless container deny-unauthenticated-invoke --name ncfg-web
-
-      - name: Verify production web container is not publicly invokable
-        run: |
-          set -euo pipefail
-
-          access_bindings="$(yc serverless container list-access-bindings --name ncfg-web --format json)"
-          if printf '%s' "$access_bindings" | jq -e '.[] | select(.role_id == "serverless-containers.containerInvoker" and .subject.id == "allUsers")' >/dev/null; then
-            echo "::error::ncfg-web still exposes unauthenticated invoke to allUsers"
-            exit 1
-          fi
-
-          container_url="$(yc serverless container get --name ncfg-web --format json | jq -r '.url')"
-          if [ -z "$container_url" ] || [ "$container_url" = "null" ]; then
-            echo "::error::Failed to resolve direct URL for ncfg-web"
-            exit 1
-          fi
-
-          status_code="$(curl -sS -o /dev/null -w "%{http_code}" -I --max-time 30 "$container_url" || echo "000")"
-          case "$status_code" in
-            401|403)
-              echo "Verified direct invoke is blocked for $container_url (status: $status_code)"
-              ;;
-            *)
-              echo "::error::Expected direct ncfg-web URL to return 401 or 403, got $status_code for $container_url"
-              exit 1
-              ;;
-          esac
-
-  # Deploy Strapi to Serverless Container
-  deploy-cms:
-    name: Deploy Strapi
-    runs-on: ubuntu-latest
-    needs: build-cms
-    environment: production
-    env:
-      CMS_PROVISIONED_INPUT: ${{ github.event.inputs.cms_provisioned || '' }}
-      CMS_PROVISIONED_VAR: ${{ vars.CMS_PROVISIONED || '' }}
-    steps:
-      - name: Resolve cms provisioned capacity
-        run: |
-          set -euo pipefail
-
-          value="$CMS_PROVISIONED_INPUT"
-          if [ -z "$value" ]; then
-            value="$CMS_PROVISIONED_VAR"
-          fi
-          if [ -z "$value" ]; then
-            value="1"
-          fi
-
-          if ! [[ "$value" =~ ^[0-9]+$ ]]; then
-            echo "::error::Invalid cms provisioned value: $value"
-            exit 1
-          fi
-
-          echo "CMS_PROVISIONED_EFFECTIVE=$value" >> "$GITHUB_ENV"
-          echo "Using CMS_PROVISIONED_EFFECTIVE=$value"
-
-      - name: Deploy to Yandex Serverless Container
-        uses: yc-actions/yc-sls-container-deploy@v4
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          container-name: ncfg-cms
-          folder-id: ${{ secrets.YC_FOLDER_ID }}
-          revision-image-url: ${{ env.YC_REGISTRY }}/${{ env.CMS_IMAGE }}:${{ github.sha }}
-          revision-service-account-id: ${{ secrets.YC_CONTAINER_SA_ID }}
-          revision-cores: 1
-          revision-memory: 2Gb
-          revision-core-fraction: 100
-          revision-concurrency: 4
-          revision-execution-timeout: 120s
-          revision-provisioned: ${{ env.CMS_PROVISIONED_EFFECTIVE }}
-          revision-secrets: |
-            DATABASE_HOST=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_HOST
-            DATABASE_PORT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_PORT
-            DATABASE_NAME=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_NAME
-            DATABASE_USERNAME=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_USERNAME
-            DATABASE_PASSWORD=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/DATABASE_PASSWORD
-            AWS_ACCESS_KEY_ID=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/AWS_ACCESS_KEY_ID
-            AWS_SECRET_ACCESS_KEY=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/AWS_SECRET_ACCESS_KEY
-            AWS_BUCKET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/AWS_BUCKET
-            APP_KEYS=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/APP_KEYS
-            API_TOKEN_SALT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/API_TOKEN_SALT
-            ADMIN_JWT_SECRET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/ADMIN_JWT_SECRET
-            JWT_SECRET=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/JWT_SECRET
-            TRANSFER_TOKEN_SALT=${{ secrets.YC_LOCKBOX_SECRET_ID }}/${{ secrets.YC_LOCKBOX_VERSION_ID }}/TRANSFER_TOKEN_SALT
-          revision-env: |
-            NODE_ENV=production
-            DATABASE_CLIENT=postgres
-            DATABASE_SSL=true
-            DATABASE_SSL_REJECT_UNAUTHORIZED=false
-            AWS_REGION=ru-central1
-            AWS_ENDPOINT=https://storage.yandexcloud.net
-            HOST=0.0.0.0
-            PUBLIC_URL=https://admin.ncfg.ru
-            ADMIN_URL=/admin
-
-  verify-provisioned:
-    name: Verify provisioned capacity
-    runs-on: ubuntu-latest
-    needs: [deploy-web, deploy-cms]
-    if: always() && (needs.deploy-web.result == 'success' || needs.deploy-cms.result == 'success')
-    environment: production
-    env:
-      WEB_PROVISIONED_INPUT: ${{ github.event.inputs.web_provisioned || '' }}
-      CMS_PROVISIONED_INPUT: ${{ github.event.inputs.cms_provisioned || '' }}
-      WEB_PROVISIONED_VAR: ${{ vars.WEB_PROVISIONED || '' }}
-      CMS_PROVISIONED_VAR: ${{ vars.CMS_PROVISIONED || '' }}
-    steps:
-      - name: Install yc CLI
-        run: |
-          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | CLI_VERSION=1.34.0 bash -s -- -i /tmp/yc -n
-          echo "/tmp/yc/bin" >> "$GITHUB_PATH"
-
-      - name: Configure yc CLI
-        env:
-          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-        run: |
-          printf '%s' "$YC_SA_JSON_CREDENTIALS" > /tmp/sa.json
-          yc config set service-account-key /tmp/sa.json
-          yc config set folder-id "$YC_FOLDER_ID"
-
-      - name: Verify active revisions provisioned policy
-        run: |
-          set -euo pipefail
-
-          resolve_expected() {
-            local input_value="$1"
-            local var_value="$2"
-            local value="$input_value"
-
-            if [ -z "$value" ]; then
-              value="$var_value"
-            fi
-            if [ -z "$value" ]; then
-              value="1"
-            fi
-
-            if ! [[ "$value" =~ ^[0-9]+$ ]]; then
-              echo "::error::Expected provisioned value must be a non-negative integer, got: $value"
-              exit 1
-            fi
-
-            printf '%s' "$value"
-          }
-
-          verify_container() {
-            local container_name="$1"
-            local expected="$2"
-            local active_revision
-            local provision_policy
-            local actual
-            local revision_id
-
-            active_revision="$(yc serverless container revision list --container-name "$container_name" --format json | jq -c '[.[] | select(.status == "ACTIVE")][0]')"
-            if [ -z "$active_revision" ] || [ "$active_revision" = "null" ]; then
-              echo "::error::No ACTIVE revision found for $container_name"
-              exit 1
-            fi
-
-            provision_policy="$(printf '%s' "$active_revision" | jq -c '.provision_policy // {}')"
-            if [ "$provision_policy" = "{}" ]; then
-              echo "::error::$container_name ACTIVE revision has empty provision policy"
-              exit 1
-            fi
-
-            actual="$(printf '%s' "$provision_policy" | jq -r '[.. | scalars | tostring | select(test("^[0-9]+$"))][0] // empty')"
-            if [ -z "$actual" ]; then
-              echo "::error::Cannot parse provisioned value for $container_name from policy: $provision_policy"
-              exit 1
-            fi
-
-            if [ "$actual" != "$expected" ]; then
-              echo "::error::$container_name provisioned mismatch: expected $expected, got $actual"
-              exit 1
-            fi
-
-            revision_id="$(printf '%s' "$active_revision" | jq -r '.id')"
-            echo "Verified $container_name (revision: $revision_id, provisioned: $actual)"
-          }
-
-          web_expected="$(resolve_expected "$WEB_PROVISIONED_INPUT" "$WEB_PROVISIONED_VAR")"
-          cms_expected="$(resolve_expected "$CMS_PROVISIONED_INPUT" "$CMS_PROVISIONED_VAR")"
-
-          if [ "${{ needs.deploy-web.result }}" = "success" ]; then
-            verify_container "ncfg-web" "$web_expected"
+          if gh api "repos/$REPOSITORY/git/ref/heads/cloudru-production" >/dev/null 2>&1; then
+            gh api -X PATCH "repos/$REPOSITORY/git/refs/heads/cloudru-production" \
+              -f sha="$REVISION" -F force=false >/dev/null
           else
-            echo "Skipping ncfg-web verification: deploy-web result is ${{ needs.deploy-web.result }}"
+            gh api -X POST "repos/$REPOSITORY/git/refs" \
+              -f ref=refs/heads/cloudru-production -f sha="$REVISION" >/dev/null
           fi
-
-          if [ "${{ needs.deploy-cms.result }}" = "success" ]; then
-            verify_container "ncfg-cms" "$cms_expected"
-          else
-            echo "Skipping ncfg-cms verification: deploy-cms result is ${{ needs.deploy-cms.result }}"
-          fi
-
-  # Health check after deployment
-  health-check:
-    name: Health Check
-    runs-on: ubuntu-latest
-    needs: [deploy-web, deploy-cms]
-    if: always() && (needs.deploy-web.result == 'success' || needs.deploy-cms.result == 'success')
-    steps:
-      - name: Wait for containers to start
-        run: sleep 30
-
-      - name: Check web health
-        if: needs.deploy-web.result == 'success'
+          echo 'requested=true' >> "$GITHUB_OUTPUT"
+      - name: Wait for the public server to run this exact release
+        if: steps.request.outputs.requested == 'true'
+        env:
+          REVISION: ${{ github.sha }}
         run: |
-          for i in $(seq 1 10); do
-            response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.NEXT_PUBLIC_SITE_URL }}/api/health" || echo "000")
-            if [ "$response" = "200" ]; then
-              echo "Web health check passed"
-              exit 0
-            fi
-            echo "Web health check attempt $i/10 failed with status: $response"
-            sleep 5
-          done
-          echo "Web health check failed after retries"
-          exit 1
-
-      - name: Check CMS health
-        if: needs.deploy-cms.result == 'success'
-        run: |
-          for i in $(seq 1 15); do
-            response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.STRAPI_URL }}/_health" || echo "000")
-            if [ "$response" = "204" ]; then
-              echo "CMS health check passed"
-              exit 0
-            fi
-            echo "CMS health check attempt $i/15 failed with status: $response"
-            sleep 8
-          done
-          echo "CMS health check failed after retries"
-          exit 1
-
-      - name: Check CMS admin UI
-        if: needs.deploy-cms.result == 'success'
-        run: |
-          admin_url="${{ secrets.STRAPI_URL }}/admin"
-
-          for i in $(seq 1 10); do
-            body_file="$(mktemp)"
-            status_code="$(curl -sS -L --max-time 30 -o "$body_file" -w "%{http_code}" "$admin_url" || echo "000")"
-
-            if [ "$status_code" = "200" ] && grep -q "<title>Strapi Admin</title>" "$body_file"; then
-              echo "CMS admin UI check passed"
-              rm -f "$body_file"
-              exit 0
-            fi
-
-            snippet="$(tr '\n' ' ' < "$body_file" | head -c 160)"
-            echo "CMS admin UI check attempt $i/10 failed with status: $status_code"
-            echo "Response snippet: $snippet"
-            rm -f "$body_file"
-            sleep 8
-          done
-
-          echo "CMS admin UI check failed after retries"
-          exit 1
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          expected = os.environ['REVISION']
+          deadline = time.monotonic() + 40 * 60
+          while time.monotonic() < deadline:
+              try:
+                  request = urllib.request.Request(
+                      'https://ncfg.ru/deployment.json?t=' + str(time.time_ns()),
+                      headers={'Cache-Control': 'no-cache'})
+                  with urllib.request.urlopen(request, timeout=15) as response:
+                      current = json.load(response)
+                  if current.get('revision') == expected:
+                      for url in ('https://ncfg.ru/api/health', 'https://admin.ncfg.ru/_health'):
+                          with urllib.request.urlopen(url, timeout=15) as response:
+                              assert response.status in (200, 204)
+                      print('Cloud.ru is serving verified revision ' + expected, flush=True)
+                      break
+              except Exception:
+                  pass
+              print('Waiting for the Cloud.ru build and health checks...', flush=True)
+              time.sleep(20)
+          else:
+              raise SystemExit('Deployment did not become healthy; inspect ncfg-autodeploy.service on the server.')
+          PY
