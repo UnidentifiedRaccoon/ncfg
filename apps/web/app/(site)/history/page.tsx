@@ -13,7 +13,7 @@ import {
 } from "@/shared/api/data-provider";
 import { buildPageMetadata } from "@/shared/lib/metadata";
 import { buildBreadcrumbList } from "@/shared/lib/structured-data";
-import { ABOUT_HERO_LEAD, pickAboutHeroMetrics } from "@/shared/lib/about-hero";
+import { ABOUT_HERO_LEAD } from "@/shared/lib/about-hero";
 import { StructuredDataScript } from "@/shared/ui/StructuredDataScript";
 import { Container } from "@/shared/ui/Container";
 
@@ -61,7 +61,6 @@ export default async function HistoryPage() {
     fetchPortfolioPageData(),
   ]);
 
-  const heroMetrics = pickAboutHeroMetrics(siteSetting.metrics);
   const breadcrumbStructuredData = buildBreadcrumbList([
     { name: "Главная", path: "/" },
     { name: "История", path: "/history" },
@@ -83,7 +82,6 @@ export default async function HistoryPage() {
                   ? { label: aboutPage.heroCta.label, href: aboutPage.heroCta.href }
                   : undefined
               }
-              metrics={heroMetrics}
             />
           }
         >

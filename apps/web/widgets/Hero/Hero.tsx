@@ -2,11 +2,6 @@
 import { HeroLayout } from "@/shared/ui/HeroLayout";
 import { HeroCenteredSpotlight } from "@/widgets/HeroCenteredSpotlight/HeroCenteredSpotlight";
 
-interface HeroMetric {
-  value: string;
-  label: string;
-}
-
 interface HeroProps {
   headline: string;
   accentWord?: string | string[];
@@ -15,7 +10,6 @@ interface HeroProps {
     label: string;
     href: string;
   };
-  metrics?: HeroMetric[];
   imageSrc?: string;
   imageAlt?: string;
   noSentinel?: boolean;
@@ -27,7 +21,6 @@ export function Hero({
   accentWord,
   lead,
   primaryCta,
-  metrics,
   imageSrc = "/heroV2.webp",
   imageAlt = "",
   noSentinel = false,
@@ -53,7 +46,6 @@ export function Hero({
         secondaryAction={secondaryAction}
         imageSrc={imageSrc}
         imageAlt={imageAlt}
-        metrics={metrics}
         scrollScene={scrollScene}
       />
 
@@ -66,7 +58,6 @@ export function Hero({
         lead={lead}
         primaryAction={primaryAction}
         secondaryAction={secondaryAction}
-        metrics={metrics}
       />
 
       {/* Standalone sentinel — always visible for header tone switching */}

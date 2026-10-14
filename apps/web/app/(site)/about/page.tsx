@@ -15,7 +15,7 @@ import {
   fetchPeopleData,
   fetchSiteSettings,
 } from "@/shared/api/data-provider";
-import { ABOUT_HERO_LEAD, pickAboutHeroMetrics } from "@/shared/lib/about-hero";
+import { ABOUT_HERO_LEAD } from "@/shared/lib/about-hero";
 import { buildPageMetadata } from "@/shared/lib/metadata";
 import {
   buildBreadcrumbList,
@@ -65,7 +65,6 @@ export default async function AboutPage() {
     .sort((a, b) => a.order - b.order)
     .map((item) => ({ question: item.question, answer: item.answer }));
 
-  const heroMetrics = pickAboutHeroMetrics(siteSetting.metrics);
   const breadcrumbStructuredData = buildBreadcrumbList([
     { name: "Главная", path: "/" },
     { name: "О центре", path: "/about" },
@@ -87,7 +86,6 @@ export default async function AboutPage() {
                   ? { label: aboutPage.heroCta.label, href: aboutPage.heroCta.href }
                   : undefined
               }
-              metrics={heroMetrics}
             />
           }
         >

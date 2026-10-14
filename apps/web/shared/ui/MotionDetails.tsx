@@ -17,6 +17,7 @@ export function MotionDetails(props: ComponentPropsWithoutRef<"details">) {
     let animation: ReturnType<typeof animate> | undefined;
     let revision = 0;
     const syncAccessibility = () => {
+      details.dataset.state = expanded ? "open" : "closed";
       content.inert = !expanded;
       content.setAttribute("aria-hidden", String(!expanded));
       summary.setAttribute("aria-expanded", String(expanded));
@@ -71,5 +72,5 @@ export function MotionDetails(props: ComponentPropsWithoutRef<"details">) {
       summary.removeEventListener("click", toggle);
     };
   }, [reduced]);
-  return <details {...props} ref={ref} />;
+  return <details {...props} ref={ref} data-state={props.open ? "open" : "closed"} />;
 }
