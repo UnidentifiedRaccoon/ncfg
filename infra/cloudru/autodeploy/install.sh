@@ -7,8 +7,16 @@ mountpoint -q /srv/ncfg
 test -s /etc/ncfg/runtime/web.json
 test -s /etc/ncfg/runtime/cms.json
 umask 077
-install -d -m 700 /usr/local/lib/ncfg-autodeploy /srv/ncfg/autodeploy /etc/ncfg/autodeploy-docker
+install -d -m 700 /usr/local/lib/ncfg-autodeploy /srv/ncfg/autodeploy /etc/ncfg/autodeploy-docker /srv/ncfg/buildkit-cache
 export DOCKER_CONFIG=/etc/ncfg/autodeploy-docker
+builder_volume=buildx_buildkit_ncfg-autodeploy0_state
+if docker volume inspect "$builder_volume" >/dev/null 2>&1; then
+  # Existing boot-disk caches require a stopped, verified migration first.
+  test "$(docker volume inspect --format '{{index .Options "device"}}' "$builder_volume")" = /srv/ncfg/buildkit-cache
+else
+  docker volume create --driver local --opt type=none --opt o=bind \
+    --opt device=/srv/ncfg/buildkit-cache "$builder_volume" >/dev/null
+fi
 install -m 600 deploy.py /usr/local/lib/ncfg-autodeploy/deploy.py
 install -m 600 buildkitd.toml /usr/local/lib/ncfg-autodeploy/buildkitd.toml
 if ! docker buildx inspect ncfg-autodeploy >/dev/null 2>&1; then

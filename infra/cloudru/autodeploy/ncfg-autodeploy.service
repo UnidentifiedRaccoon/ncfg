@@ -3,6 +3,7 @@ Description=Deploy approved NCFG main revision from GitHub
 After=network-online.target docker.service
 Wants=network-online.target
 Requires=docker.service
+RequiresMountsFor=/srv/ncfg
 
 [Service]
 Type=oneshot

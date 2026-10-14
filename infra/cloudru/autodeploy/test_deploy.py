@@ -20,6 +20,8 @@ class DeploymentTests(unittest.TestCase):
         self.assertIn('ProtectHome=true', service)
         self.assertIn('Environment=DOCKER_CONFIG=/etc/ncfg/autodeploy-docker', service)
         self.assertIn('export DOCKER_CONFIG=/etc/ncfg/autodeploy-docker', installer)
+        self.assertIn('RequiresMountsFor=/srv/ncfg', service)
+        self.assertIn('--opt device=/srv/ncfg/buildkit-cache', installer)
 
     def test_only_approved_current_main_is_deployable(self):
         sha = 'a' * 40
