@@ -6,6 +6,7 @@ Requires=docker.service
 
 [Service]
 Type=oneshot
+Environment=DOCKER_CONFIG=/etc/ncfg/autodeploy-docker
 ExecStart=/usr/bin/python3 /usr/local/lib/ncfg-autodeploy/deploy.py
 TimeoutStartSec=45min
 UMask=0077

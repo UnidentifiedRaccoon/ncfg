@@ -13,6 +13,14 @@ spec.loader.exec_module(deploy)
 
 
 class DeploymentTests(unittest.TestCase):
+    def test_sandbox_and_installer_share_docker_config_outside_home(self):
+        directory = Path(__file__).parent
+        service = (directory / 'ncfg-autodeploy.service').read_text()
+        installer = (directory / 'install.sh').read_text()
+        self.assertIn('ProtectHome=true', service)
+        self.assertIn('Environment=DOCKER_CONFIG=/etc/ncfg/autodeploy-docker', service)
+        self.assertIn('export DOCKER_CONFIG=/etc/ncfg/autodeploy-docker', installer)
+
     def test_only_approved_current_main_is_deployable(self):
         sha = 'a' * 40
         self.assertEqual(deploy.approved_revision(f'{sha}\trefs/heads/main\n{sha}\trefs/heads/cloudru-production\n'), sha)
