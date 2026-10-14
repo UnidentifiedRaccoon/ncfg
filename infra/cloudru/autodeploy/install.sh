@@ -7,7 +7,8 @@ mountpoint -q /srv/ncfg
 test -s /etc/ncfg/runtime/web.json
 test -s /etc/ncfg/runtime/cms.json
 umask 077
-install -d -m 700 /usr/local/lib/ncfg-autodeploy /srv/ncfg/autodeploy
+install -d -m 700 /usr/local/lib/ncfg-autodeploy /srv/ncfg/autodeploy /etc/ncfg/autodeploy-docker
+export DOCKER_CONFIG=/etc/ncfg/autodeploy-docker
 install -m 600 deploy.py /usr/local/lib/ncfg-autodeploy/deploy.py
 install -m 600 buildkitd.toml /usr/local/lib/ncfg-autodeploy/buildkitd.toml
 if ! docker buildx inspect ncfg-autodeploy >/dev/null 2>&1; then
