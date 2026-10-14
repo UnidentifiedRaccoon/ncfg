@@ -1,4 +1,5 @@
 [worker.oci]
+  max-parallelism = 1
   gc = true
   reservedSpace = "512MB"
   maxUsedSpace = "3GB"
