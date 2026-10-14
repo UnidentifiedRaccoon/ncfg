@@ -110,6 +110,6 @@ EXPOSE 8080
 
 # Healthcheck uses PORT env var (default 8080 for YC Serverless)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-8080}/_health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:${PORT:-8080}/_health || exit 1
 
 CMD ["npm", "run", "start"]

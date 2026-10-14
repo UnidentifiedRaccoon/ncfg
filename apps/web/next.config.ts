@@ -74,6 +74,12 @@ const nextConfig: NextConfig = {
         hostname: '*.storage.yandexcloud.net',
         pathname: '/**',
       },
+      // Cloud.ru exposes anonymous object reads through its global endpoint.
+      {
+        protocol: 'https',
+        hostname: 'global.s3.cloud.ru',
+        pathname: '/ncfg-media-69340acf/**',
+      },
     ],
   },
 };

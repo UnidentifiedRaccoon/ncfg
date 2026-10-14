@@ -4,7 +4,7 @@ module.exports = ({ env }) => ({
       jwtSecret: env('JWT_SECRET'),
     },
   },
-  // S3-compatible storage (Yandex Object Storage / MinIO)
+  // S3-compatible storage (Yandex Object Storage / Cloud.ru / MinIO)
   upload: {
     config: {
       provider: '@strapi/provider-upload-aws-s3',
@@ -32,7 +32,8 @@ module.exports = ({ env }) => ({
         const endpoint = env('AWS_ENDPOINT');
 
         return {
-          baseUrl: `${endpoint}/${bucket}`,
+          // Cloud.ru uses different endpoints for signed API calls and public reads.
+          baseUrl: env('AWS_PUBLIC_URL', `${endpoint}/${bucket}`).replace(/\/+$/, ''),
           s3Options: {
             credentials: {
               accessKeyId: env('AWS_ACCESS_KEY_ID'),
@@ -47,6 +48,18 @@ module.exports = ({ env }) => ({
           },
         };
       })(),
+      // With bucket policies the service account does not need permission to
+      // change object ACLs. Access remains controlled by the bucket policy.
+      actionOptions: {
+        upload: {
+          ...(env.bool('AWS_USE_BUCKET_POLICY', false) ? { ACL: undefined } : {}),
+          ...(env('AWS_STORAGE_CLASS') ? { StorageClass: env('AWS_STORAGE_CLASS') } : {}),
+        },
+        uploadStream: {
+          ...(env.bool('AWS_USE_BUCKET_POLICY', false) ? { ACL: undefined } : {}),
+          ...(env('AWS_STORAGE_CLASS') ? { StorageClass: env('AWS_STORAGE_CLASS') } : {}),
+        },
+      },
     },
   },
 });

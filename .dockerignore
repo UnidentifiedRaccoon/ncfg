@@ -9,6 +9,11 @@
 **/out
 
 # Development
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/secrets
 **/.env.local
 **/.env.development.local
 **/.env.test.local
@@ -37,3 +42,6 @@ Dockerfile*
 # Database
 **/*.db
 **/.tmp
+.local-backups/
+.local-rehearsal/
+infra/cloudru/__pycache__/

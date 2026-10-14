@@ -108,6 +108,17 @@ debug.log
 # Local development launcher state (contains no secrets).
 .dev-state/
 
+# Cloud.ru host-specific configuration and database archives.
+infra/cloudru/deployment.local.json
+infra/cloudru/*.dump
+infra/cloudru/*.dump.*
+
+# Private disaster-recovery exports; never commit cloud data or image archives.
+.local-backups/
+.local-rehearsal/
+infra/cloudru/__pycache__/
+infra/cloudru/**/__pycache__/
+
 # impeccable-ignore-start
 # Ephemeral output, runtime state, and per-developer overrides.
 # Shared artifacts such as config.json, design.json and critique/*.md stay tracked.
