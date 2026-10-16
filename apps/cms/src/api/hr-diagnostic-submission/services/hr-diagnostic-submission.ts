@@ -451,7 +451,7 @@ export default factories.createCoreService(
     async exportHrCsv({ from, to }: ExportHrCsvInput = {}) {
       const submissions: any[] = [];
       const submittedAtFilters = buildSubmittedAtFilters(from, to);
-      let page = 1;
+      let start = 0;
 
       while (true) {
         const batch = await strapi.documents(SUBMISSION_UID).findMany({
@@ -460,11 +460,10 @@ export default factories.createCoreService(
                 submittedAt: submittedAtFilters,
               }
             : {},
-          sort: ["submittedAt:desc"],
-          pagination: {
-            page,
-            pageSize: 100,
-          },
+          sort: ["submittedAt:desc", "id:desc"],
+          // Document Service expects offset pagination at the top level.
+          start,
+          limit: 100,
         });
 
         if (!Array.isArray(batch) || batch.length === 0) {
@@ -477,7 +476,7 @@ export default factories.createCoreService(
           break;
         }
 
-        page += 1;
+        start += batch.length;
       }
 
       const questionColumns = appendMissingQuestionColumns(
