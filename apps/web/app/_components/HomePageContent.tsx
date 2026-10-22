@@ -134,14 +134,14 @@ export async function HomePageContent() {
       }
     />
   );
-  const missionIntro = <MissionLedgerAlliance />;
 
   return (
     <>
       <StructuredDataScript data={websiteStructuredData} />
       <StructuredDataScript data={organizationStructuredData} />
       <main>
-        <HomeMotionScene hero={heroIntro} mission={missionIntro} />
+        <HomeMotionScene hero={heroIntro} mission={<MissionLedgerAlliance />} />
+        <Products />
         <Services
           title={homePage.servicesTitle ?? "Услуги"}
           services={servicesData.serviceCategories.slice(0, 3).map((category) => ({
@@ -151,7 +151,6 @@ export async function HomePageContent() {
             href: `/companies#services-${category.id}`,
           }))}
         />
-        <Products />
         <Projects
           title={homePage.projectsTitle ?? "Проекты"}
           projects={homePage.projects}
