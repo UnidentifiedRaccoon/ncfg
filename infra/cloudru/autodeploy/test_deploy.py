@@ -39,6 +39,7 @@ class DeploymentTests(unittest.TestCase):
                 patch.object(deploy.socket, 'gethostname', return_value='ncfg-app-01'), \
                 patch.object(deploy.os.path, 'ismount', return_value=True), \
                 patch.object(deploy, 'recover_transaction'), \
+                patch.object(deploy, 'cleanup_old_releases'), \
                 patch.object(deploy, 'desired', return_value='a' * 40), \
                 patch.object(deploy.shutil, 'disk_usage', return_value=SimpleNamespace(free=3 * 1024**3)), \
                 patch.object(deploy, 'docker') as docker, patch.object(deploy, 'deploy') as release:

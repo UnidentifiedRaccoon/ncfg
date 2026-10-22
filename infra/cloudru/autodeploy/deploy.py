@@ -28,7 +28,9 @@ PUBLIC_STATUS = Path('/srv/ncfg/caddy-config/ncfg-public-status/deployment-statu
 MIN_DOCKER_FREE_BYTES = 4 * 1024**3
 STAGES = {'preflight', 'cleanup', 'checkout', 'build_cms', 'build_web', 'backup',
           'activate', 'verify', 'complete', 'recovery'}
-ERROR_CODES = {'insufficient_disk', 'cache_cleanup_failed', 'deployment_failed'}
+ERROR_CODES = {'insufficient_disk', 'cache_cleanup_failed', 'retention_cleanup_failed', 'deployment_failed'}
+ROLLBACK_VERSIONS = 2
+UNUSED_IMAGE_GRACE_SECONDS = 24 * 60 * 60
 GIT_ENV = {**os.environ, 'GIT_TERMINAL_PROMPT': '0', 'GIT_CONFIG_GLOBAL': '/dev/null',
            'GIT_CONFIG_SYSTEM': '/dev/null'}
 
@@ -56,6 +58,131 @@ class DeploymentFailure(RuntimeError):
         super().__init__(code)
         self.code = code
         self.details = details
+
+
+def retention_inventory():
+    # Project only safe metadata: never load container environments or image config.
+    container_ids = docker('ps', '-aq', '--no-trunc').decode().split()
+    container_format = ('{"id":{{json .Id}},"name":{{json .Name}},"image":{{json .Image}},'
+                        '"status":{{json .State.Status}},"finished":{{json .State.FinishedAt}},'
+                        '"health":{{with index .State "Health"}}{{json .Status}}{{else}}null{{end}},'
+                        '"managed":{{json (index .Config.Labels "io.ncfg.autodeploy")}}}')
+    containers = [json.loads(line) for line in docker(
+        'inspect', '--format', container_format, *container_ids).decode().splitlines()] if container_ids else []
+    image_ids = sorted(set(docker('image', 'ls', '-aq', '--no-trunc', '--filter',
+                                 'label=io.ncfg.autodeploy=true').decode().split()))
+    image_format = ('{"id":{{json .Id}},"tags":{{json .RepoTags}},"created":{{json .Created}},'
+                    '"managed":{{json (index .Config.Labels "io.ncfg.autodeploy")}},'
+                    '"revision":{{json (index .Config.Labels "org.opencontainers.image.revision")}}}')
+    images = [json.loads(line) for line in docker(
+        'image', 'inspect', '--format', image_format, *image_ids).decode().splitlines()] if image_ids else []
+    return containers, images
+
+
+def retention_timestamp(value):
+    parsed = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
+    if parsed.tzinfo is None:
+        raise ValueError('Retention timestamp must have a timezone')
+    return parsed.timestamp()
+
+
+def retention_plan(active, containers, images, now, transaction_exists=False):
+    """Pure deletion plan; unknown state and unhealthy services forbid cleanup."""
+    plan = {'containers': [], 'images': [], 'keepPreviousContainers': [], 'skipped': None}
+    if transaction_exists:
+        plan['skipped'] = 'unfinished_transaction'
+        return plan
+    if (not isinstance(active, dict) or not isinstance(active.get('images'), dict)
+            or not re.fullmatch('[0-9a-f]{40}', str(active.get('revision', '')))
+            or any(not re.fullmatch('sha256:[0-9a-f]{64}', str(active['images'].get(service, '')))
+                   for service in ('web', 'cms'))):
+        plan['skipped'] = 'unknown_active_state'
+        return plan
+    for service in ('web', 'cms'):
+        current = [item for item in containers if item['name'] == '/' + PREFIX + service]
+        if len(current) != 1 or current[0]['image'] != active['images'][service]:
+            plan['skipped'] = 'active_image_mismatch'
+            return plan
+        if current[0]['status'] != 'running' or current[0]['health'] != 'healthy':
+            plan['skipped'] = 'active_service_unhealthy'
+            return plan
+    previous = active.get('previousContainers', {})
+    if not isinstance(previous, dict) or not all(isinstance(name, str) for name in previous.values()):
+        plan['skipped'] = 'unknown_previous_state'
+        return plan
+    protected_names = set(previous.values())
+    for service in ('web', 'cms'):
+        prior = [item for item in containers if item['status'] == 'exited'
+                 and re.fullmatch('/' + PREFIX + service + '-release-[0-9]+', item['name'])]
+        prior.sort(key=lambda item: retention_timestamp(item['finished']), reverse=True)
+        protected_names.update(item['name'].lstrip('/') for item in prior[:ROLLBACK_VERSIONS])
+    plan['keepPreviousContainers'] = sorted(protected_names)
+    cutoff = now - UNUSED_IMAGE_GRACE_SECONDS
+    for item in containers:
+        if (item['managed'] != 'true' or item['status'] != 'exited'
+                or item['name'].lstrip('/') in protected_names):
+            continue
+        is_release = re.fullmatch('/' + PREFIX + '(web|cms)-release-[0-9]+', item['name'])
+        is_failed = re.fullmatch('/' + PREFIX + '(web|cms)-failed-[0-9]+', item['name'])
+        if is_release or (is_failed and retention_timestamp(item['finished']) <= cutoff):
+            plan['containers'].append(item['id'])
+    removed = set(plan['containers'])
+    protected_images = set(active['images'].values()) | {
+        item['image'] for item in containers if item['id'] not in removed}
+    for item in images:
+        tags, revision = item['tags'], item['revision']
+        if (item.get('managed') != 'true' or item['id'] in protected_images or not tags or not isinstance(revision, str)
+                or not re.fullmatch('[0-9a-f]{40}', revision)):
+            continue
+        if not all(re.fullmatch('ncfg-autodeploy-(web|cms):' + revision, tag) for tag in tags):
+            continue  # An extra operator tag makes this image ineligible.
+        if retention_timestamp(item['created']) <= cutoff:
+            plan['images'].append(item['id'])
+    return plan
+
+
+def current_retention_plan():
+    active_file = ROOT / 'active.json'
+    active = json.loads(active_file.read_text()) if active_file.exists() else {}
+    containers, images = retention_inventory()
+    return retention_plan(active, containers, images, time.time(), (ROOT / 'transaction.json').exists())
+
+
+def cleanup_old_releases():
+    # Call only while holding deploy.lock. Replan before every removal to protect
+    # changes made by operators outside the supervisor. Docker's own non-force
+    # deletion also rejects running containers and images with container references.
+    planned = current_retention_plan()
+    removed = {'containers': 0, 'images': 0, 'skipped': planned['skipped']}
+    if planned['skipped']:
+        print('Release retention skipped: ' + planned['skipped'], flush=True)
+        return removed
+    for kind, command in (('containers', ('container', 'rm')), ('images', ('image', 'rm'))):
+        for identifier in planned[kind]:
+            fresh = current_retention_plan()
+            if fresh['skipped']:
+                removed['skipped'] = fresh['skipped']
+                return removed
+            if identifier not in fresh[kind]:
+                continue
+            if kind == 'images':
+                actual_containers, _ = retention_inventory()
+                if any(item['image'] == identifier for item in actual_containers):
+                    continue  # A newly planned container may not have been removed.
+            docker(*command, identifier)  # Never --force, --volumes or a global prune.
+            removed[kind] += 1
+    if removed['containers'] or removed['images']:
+        print('Release retention removed ' + json.dumps(removed, sort_keys=True), flush=True)
+    return removed
+
+
+def maintain_release_retention():
+    try:
+        cleanup_old_releases()
+    except Exception:
+        # The verified release stays successful. The idle timer retries, and a
+        # subsequent release reports a preflight retention failure to Actions.
+        print('Release retention maintenance failed; will retry on the next timer tick', flush=True)
 
 
 def publish_status(revision, state, stage, **details):
@@ -349,20 +476,24 @@ def deploy(revision, active):
     transaction = activate(revision, images, environments)
     next_state = {'revision': revision, 'cmsTree': cms_tree, 'images': {**active.get('images', {}), **images},
                   'completedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                  'previousContainers': transaction['previous']}
+                  'previousContainers': {**active.get('previousContainers', {}), **transaction['previous']}}
     write_json(ROOT / 'active.json', next_state)
     (ROOT / 'transaction.json').unlink()
     publish_status(revision, 'succeeded', 'complete')
     print('Deployed ' + revision, flush=True)
 
 
-def main():
+def main(retention_mode=None):
     os.umask(0o077)
     if os.geteuid() != 0 or socket.gethostname() != 'ncfg-app-01' or not os.path.ismount('/srv/ncfg'):
         raise RuntimeError('Unexpected deployment host')
     ROOT.mkdir(mode=0o700, exist_ok=True)
     with (ROOT / 'deploy.lock').open('w') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if retention_mode:
+            result = current_retention_plan() if retention_mode == 'plan' else cleanup_old_releases()
+            print(json.dumps(result, indent=2), flush=True)
+            return
         recover_transaction()
         revision = desired()
         active_file = ROOT / 'active.json'
@@ -370,6 +501,7 @@ def main():
         if not revision:
             return
         if revision == active.get('revision'):
+            maintain_release_retention()
             publish_status(revision, 'succeeded', 'complete')
             return
         failure = ROOT / 'failed.json'
@@ -380,8 +512,13 @@ def main():
             return  # Retry only after an operator clears this recorded failure.
         try:
             publish_status(revision, 'running', 'preflight')
+            try:
+                cleanup_old_releases()
+            except Exception as error:
+                raise DeploymentFailure('retention_cleanup_failed') from error
             prepare_disk(revision)
             deploy(revision, active)
+            maintain_release_retention()
         except Exception as error:
             stage = 'preflight'
             try:
@@ -403,7 +540,9 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
+        if sys.argv[1:] not in ([], ['--retention-plan'], ['--retention-apply']):
+            raise ValueError('Use --retention-plan or --retention-apply')
+        main(sys.argv[1].removeprefix('--retention-') if len(sys.argv) == 2 else None)
     except Exception as error:
         # Do not expose command output, credentials, private CMS data or config.
         print('Autodeploy failed: ' + type(error).__name__ + '; see root-only state/build logs', file=sys.stderr)

@@ -53,10 +53,12 @@ def failure_message(status):
         if all(type(value) is int and 0 <= value <= 2**63 for value in values):
             return ('Insufficient Docker disk space after automatic old-cache cleanup: '
                     f'{values[0] / 1024**3:.2f} GiB free; {values[1] / 1024**3:.2f} GiB required. '
-                    'The previous release remains active. No images, containers or volumes were pruned.')
+                    'The active release and retained rollback versions are preserved. Data volumes were not pruned.')
         return 'Insufficient Docker disk space after automatic old-cache cleanup; previous release remains active.'
     if status.get('code') == 'cache_cleanup_failed':
         return 'Automatic old build-cache cleanup failed; deployment stopped before the build.'
+    if status.get('code') == 'retention_cleanup_failed':
+        return 'Automatic old release cleanup failed; deployment stopped before the build. The active release is unchanged.'
     return f'Cloud.ru deployment failed at stage {stage}; inspect the root-only server journal.'
 
 

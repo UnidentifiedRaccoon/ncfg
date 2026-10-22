@@ -131,7 +131,7 @@ def validate_public_status(value):
         raise RuntimeError('Invalid public status stage')
     if not isinstance(value['updatedAt'], str) or datetime.datetime.fromisoformat(value['updatedAt']).tzinfo is None:
         raise RuntimeError('Invalid public status timestamp')
-    if 'code' in value and value['code'] not in {'insufficient_disk', 'cache_cleanup_failed', 'deployment_failed'}:
+    if 'code' in value and value['code'] not in {'insufficient_disk', 'cache_cleanup_failed', 'retention_cleanup_failed', 'deployment_failed'}:
         raise RuntimeError('Invalid public status error code')
     for field in optional - {'code'}:
         if field in value and (type(value[field]) is not int or value[field] < 0):
