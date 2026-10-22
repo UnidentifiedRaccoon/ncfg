@@ -24,6 +24,11 @@ RUNTIME = Path('/etc/ncfg/runtime')
 REPOSITORY = 'https://github.com/UnidentifiedRaccoon/ncfg.git'
 PREFIX = 'ncfg-cloudru-'
 BUILDER = 'ncfg-autodeploy'
+PUBLIC_STATUS = Path('/srv/ncfg/caddy-config/ncfg-public-status/deployment-status.json')
+MIN_DOCKER_FREE_BYTES = 4 * 1024**3
+STAGES = {'preflight', 'cleanup', 'checkout', 'build_cms', 'build_web', 'backup',
+          'activate', 'verify', 'complete', 'recovery'}
+ERROR_CODES = {'insufficient_disk', 'cache_cleanup_failed', 'deployment_failed'}
 GIT_ENV = {**os.environ, 'GIT_TERMINAL_PROMPT': '0', 'GIT_CONFIG_GLOBAL': '/dev/null',
            'GIT_CONFIG_SYSTEM': '/dev/null'}
 
@@ -39,11 +44,55 @@ def docker(*args, **kwargs):
     return run(['docker', *args], **kwargs)
 
 
-def write_json(path, value):
+def write_json(path, value, mode=0o600):
     temporary = path.with_suffix('.pending')
     temporary.write_text(json.dumps(value, indent=2) + '\n')
-    temporary.chmod(0o600)
+    temporary.chmod(mode)
     temporary.replace(path)
+
+
+class DeploymentFailure(RuntimeError):
+    def __init__(self, code, **details):
+        super().__init__(code)
+        self.code = code
+        self.details = details
+
+
+def publish_status(revision, state, stage, **details):
+    """Public data is deliberately constructed, never copied from exceptions/state."""
+    if not re.fullmatch('[0-9a-f]{40}', revision) or stage not in STAGES:
+        raise ValueError('Invalid deployment status identity')
+    if state not in {'running', 'failed', 'succeeded', 'superseded'}:
+        raise ValueError('Invalid deployment status state')
+    value = {'schema': 1, 'revision': revision, 'state': state, 'stage': stage,
+             'updatedAt': datetime.datetime.now(datetime.timezone.utc).isoformat()}
+    if details.get('code') in ERROR_CODES:
+        value['code'] = details['code']
+    for field in ('freeBytes', 'requiredBytes', 'freeBeforeBytes'):
+        if type(details.get(field)) is int and details[field] >= 0:
+            value[field] = details[field]
+    write_json(PUBLIC_STATUS, value, mode=0o644)
+
+
+def prepare_disk(revision):
+    before = shutil.disk_usage('/var/lib/docker').free
+    publish_status(revision, 'running', 'cleanup', freeBeforeBytes=before,
+                   requiredBytes=MIN_DOCKER_FREE_BYTES)
+    try:
+        # Explicitly target the legacy/default cache, never the named builder,
+        # release images, stopped rollback containers, volumes or application data.
+        docker('buildx', 'prune', '--builder', 'default', '--filter', 'until=24h',
+               '--reserved-space', '1GB', '--force', timeout=600)
+    except Exception as error:
+        raise DeploymentFailure('cache_cleanup_failed') from error
+    free = shutil.disk_usage('/var/lib/docker').free
+    print(f'Docker disk after old cache cleanup: {free} bytes free; '
+          f'{MIN_DOCKER_FREE_BYTES} required', flush=True)
+    if free < MIN_DOCKER_FREE_BYTES:
+        raise DeploymentFailure('insufficient_disk', freeBytes=free,
+                                requiredBytes=MIN_DOCKER_FREE_BYTES, freeBeforeBytes=before)
+    publish_status(revision, 'running', 'preflight', freeBytes=free,
+                   requiredBytes=MIN_DOCKER_FREE_BYTES, freeBeforeBytes=before)
 
 
 def approved_revision(output):
@@ -257,6 +306,7 @@ def activate(revision, images, environments):
             docker('rename', name, backup)
             start_container(service, name, images[service], environments[service])
             healthy(name)
+        publish_status(revision, 'running', 'verify')
         public_check(revision)
         return transaction
     except Exception:
@@ -265,6 +315,7 @@ def activate(revision, images, environments):
 
 
 def deploy(revision, active):
+    publish_status(revision, 'running', 'checkout')
     source, cms_tree = checkout(revision)
     environments = {service: json.loads((RUNTIME / (service + '.json')).read_text()) for service in ['web', 'cms']}
     epoch = int(time.time())
@@ -278,24 +329,30 @@ def deploy(revision, active):
     public.chmod(0o644)
     images = {}
     if active.get('cmsTree') != cms_tree:
+        publish_status(revision, 'running', 'build_cms')
         print('Building CMS', flush=True)
         images['cms'] = build_image(source, 'cms', revision, {}, epoch)
     print('Building website', flush=True)
+    publish_status(revision, 'running', 'build_web')
     images['web'] = build_image(source, 'web', revision, environments['web'], epoch)
     if desired() != revision:
+        publish_status(revision, 'superseded', 'build_web')
         print('Newer main detected; built release will not be activated', flush=True)
         return
     if 'cms' in images:
+        publish_status(revision, 'running', 'backup')
         run(['systemctl', 'start', 'ncfg-running-backup.service'], timeout=1200)
         backup = json.loads(Path('/srv/ncfg/backups/last-offsite-success.json').read_text())
         if not backup['databaseRoundtripPassed']:
             raise RuntimeError('Pre-deployment backup not verified')
+    publish_status(revision, 'running', 'activate')
     transaction = activate(revision, images, environments)
     next_state = {'revision': revision, 'cmsTree': cms_tree, 'images': {**active.get('images', {}), **images},
                   'completedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                   'previousContainers': transaction['previous']}
     write_json(ROOT / 'active.json', next_state)
     (ROOT / 'transaction.json').unlink()
+    publish_status(revision, 'succeeded', 'complete')
     print('Deployed ' + revision, flush=True)
 
 
@@ -310,18 +367,37 @@ def main():
         revision = desired()
         active_file = ROOT / 'active.json'
         active = json.loads(active_file.read_text()) if active_file.exists() else {}
-        if not revision or revision == active.get('revision'):
+        if not revision:
+            return
+        if revision == active.get('revision'):
+            publish_status(revision, 'succeeded', 'complete')
             return
         failure = ROOT / 'failed.json'
         if failure.exists() and json.loads(failure.read_text()).get('revision') == revision:
+            recorded = json.loads(failure.read_text())
+            publish_status(revision, 'failed', recorded.get('stage', 'preflight'),
+                           **recorded.get('details', {}), code=recorded.get('code', 'deployment_failed'))
             return  # Retry only after an operator clears this recorded failure.
-        if shutil.disk_usage('/var/lib/docker').free < 4 * 1024**3:
-            raise RuntimeError('Less than 4 GiB free for Docker; refusing deployment')
         try:
+            publish_status(revision, 'running', 'preflight')
+            prepare_disk(revision)
             deploy(revision, active)
         except Exception as error:
+            stage = 'preflight'
+            try:
+                status = json.loads(PUBLIC_STATUS.read_text())
+                if (isinstance(status, dict) and status.get('revision') == revision
+                        and isinstance(status.get('stage'), str) and status['stage'] in STAGES):
+                    stage = status['stage']
+            except (OSError, ValueError):
+                pass  # A damaged status file must not hide the original failure.
+            code = error.code if isinstance(error, DeploymentFailure) else 'deployment_failed'
+            details = error.details if isinstance(error, DeploymentFailure) else {}
             write_json(failure, {'revision': revision, 'error': type(error).__name__,
+                                'stage': stage, 'code': code, 'details': details,
                                 'failedAt': datetime.datetime.now(datetime.timezone.utc).isoformat()})
+            publish_status(revision, 'failed', stage, code=code, **details)
+            print(f'Deployment failed at {stage}: {code}', flush=True)
             raise
 
 

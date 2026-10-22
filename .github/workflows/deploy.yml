@@ -41,6 +41,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - name: Approve the current main revision for the Cloud.ru pull service
         id: request
         env:
@@ -67,28 +70,4 @@ jobs:
         if: steps.request.outputs.requested == 'true'
         env:
           REVISION: ${{ github.sha }}
-        run: |
-          python3 - <<'PY'
-          import json, os, time, urllib.request
-          expected = os.environ['REVISION']
-          deadline = time.monotonic() + 40 * 60
-          while time.monotonic() < deadline:
-              try:
-                  request = urllib.request.Request(
-                      'https://ncfg.ru/deployment.json?t=' + str(time.time_ns()),
-                      headers={'Cache-Control': 'no-cache'})
-                  with urllib.request.urlopen(request, timeout=15) as response:
-                      current = json.load(response)
-                  if current.get('revision') == expected:
-                      for url in ('https://ncfg.ru/api/health', 'https://admin.ncfg.ru/_health'):
-                          with urllib.request.urlopen(url, timeout=15) as response:
-                              assert response.status in (200, 204)
-                      print('Cloud.ru is serving verified revision ' + expected, flush=True)
-                      break
-              except Exception:
-                  pass
-              print('Waiting for the Cloud.ru build and health checks...', flush=True)
-              time.sleep(20)
-          else:
-              raise SystemExit('Deployment did not become healthy; inspect ncfg-autodeploy.service on the server.')
-          PY
+        run: python3 infra/cloudru/autodeploy/wait_for_release.py

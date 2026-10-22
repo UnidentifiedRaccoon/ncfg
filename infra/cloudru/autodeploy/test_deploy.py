@@ -13,6 +13,73 @@ spec.loader.exec_module(deploy)
 
 
 class DeploymentTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        patcher = patch.object(deploy, 'PUBLIC_STATUS', Path(temporary.name) / 'deployment-status.json')
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_cache_cleanup_targets_only_old_default_builder_cache(self):
+        from types import SimpleNamespace
+        with patch.object(deploy.shutil, 'disk_usage', side_effect=[
+                SimpleNamespace(free=3 * 1024**3), SimpleNamespace(free=5 * 1024**3)]), \
+                patch.object(deploy, 'docker') as docker:
+            deploy.prepare_disk('a' * 40)
+        docker.assert_called_once_with('buildx', 'prune', '--builder', 'default', '--filter',
+                                       'until=24h', '--reserved-space', '1GB', '--force', timeout=600)
+        status = json.loads(deploy.PUBLIC_STATUS.read_text())
+        self.assertEqual(status['freeBytes'], 5 * 1024**3)
+        self.assertEqual(status['state'], 'running')
+
+    def test_low_disk_is_recorded_and_published_before_checkout_or_container_changes(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as temporary, patch.object(deploy, 'ROOT', Path(temporary)), \
+                patch.object(deploy.os, 'geteuid', return_value=0), \
+                patch.object(deploy.socket, 'gethostname', return_value='ncfg-app-01'), \
+                patch.object(deploy.os.path, 'ismount', return_value=True), \
+                patch.object(deploy, 'recover_transaction'), \
+                patch.object(deploy, 'desired', return_value='a' * 40), \
+                patch.object(deploy.shutil, 'disk_usage', return_value=SimpleNamespace(free=3 * 1024**3)), \
+                patch.object(deploy, 'docker') as docker, patch.object(deploy, 'deploy') as release:
+            active = Path(temporary) / 'active.json'
+            deploy.write_json(active, {'revision': 'b' * 40})
+            before = active.read_bytes()
+            with self.assertRaises(deploy.DeploymentFailure):
+                deploy.main()
+            self.assertEqual(active.read_bytes(), before)
+            release.assert_not_called()
+            self.assertEqual(docker.call_count, 1)
+            failure = json.loads((Path(temporary) / 'failed.json').read_text())
+            self.assertEqual(failure['code'], 'insufficient_disk')
+            self.assertEqual(failure['revision'], 'a' * 40)
+            status = json.loads(deploy.PUBLIC_STATUS.read_text())
+            self.assertEqual(status['state'], 'failed')
+            self.assertEqual(status['freeBytes'], 3 * 1024**3)
+            self.assertEqual(status['requiredBytes'], 4 * 1024**3)
+            deploy.main()  # Recorded failure stays visible; no pruning every timer tick.
+            self.assertEqual(docker.call_count, 1)
+
+    def test_prune_failure_prevents_build_and_does_not_expose_command_output(self):
+        with patch.object(deploy, 'docker', side_effect=RuntimeError('PRIVATE_CMS_DATA')), \
+                patch.object(deploy.shutil, 'disk_usage'):
+            with self.assertRaises(deploy.DeploymentFailure) as raised:
+                deploy.prepare_disk('a' * 40)
+        self.assertEqual(raised.exception.code, 'cache_cleanup_failed')
+        self.assertNotIn('PRIVATE_CMS_DATA', str(raised.exception))
+
+    def test_public_status_whitelists_fields_and_keeps_private_state_private(self):
+        deploy.publish_status('a' * 40, 'failed', 'preflight', code='insufficient_disk',
+                              freeBytes=123, requiredBytes=456, token='SECRET',
+                              output='PRIVATE_CMS_DATA', exception='SECRET')
+        text = deploy.PUBLIC_STATUS.read_text()
+        self.assertNotIn('SECRET', text)
+        self.assertNotIn('PRIVATE', text)
+        self.assertEqual(deploy.PUBLIC_STATUS.stat().st_mode & 0o777, 0o644)
+        private = deploy.PUBLIC_STATUS.with_name('private.json')
+        deploy.write_json(private, {'token': 'SECRET'})
+        self.assertEqual(private.stat().st_mode & 0o777, 0o600)
+
     def test_build_resolves_current_cms_private_ip_instead_of_public_hairpin(self):
         with patch.object(deploy, 'docker', return_value=b'{"ncfg-cloudru-application":{"IPAddress":"172.19.0.2"}}'):
             self.assertEqual(deploy.build_cms_url(), 'http://172.19.0.2:8080')
