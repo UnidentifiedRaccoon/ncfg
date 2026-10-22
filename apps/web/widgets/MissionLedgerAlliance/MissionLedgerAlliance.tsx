@@ -142,7 +142,7 @@ function MissionDirectionControls({
             }}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
-              "group w-full rounded-[24px] border px-4 py-2.5 text-left transition-[border-color,background-color,box-shadow] duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] motion-reduce:transition-none md:px-5",
+              "group w-full rounded-[24px] border px-4 py-3.5 text-left transition-[border-color,background-color,box-shadow] duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] motion-reduce:transition-none md:px-5",
               isActive
                 ? "border-[#9FBFE6] bg-[#F3F8FF] shadow-[0_12px_26px_rgba(18,45,78,0.10)]"
                 : "border-[#D8E4F2] bg-white/76 hover:border-[#BFD5EE] hover:bg-white"
@@ -159,11 +159,11 @@ function MissionDirectionControls({
               </span>
               <span
                 className={cn(
-                  "mt-1 block text-sm leading-[1.55]",
+                  "mt-1.5 block text-sm leading-[1.55]",
                   isActive ? "text-[#486481]" : "text-[#5E738E]"
                 )}
               >
-                {direction.compactSummary}
+                {direction.summary}
               </span>
             </span>
           </button>
@@ -189,16 +189,16 @@ function MissionLayerCard({
       <article
         className={cn(
           "relative flex h-full flex-col overflow-hidden rounded-[34px] border p-6 transition-[border-color,background-color] duration-[340ms] motion-reduce:transition-none md:p-8",
-          isActive && "pt-7 md:pt-8",
+          isActive && "pt-9 md:pt-12",
           layerClass.card
         )}
       >
-        <div className="relative flex h-full flex-col justify-center gap-8">
+        <div className="relative flex h-full flex-col justify-between gap-6">
           <div>
             <div>
               <h3
                 className={cn(
-                  "w-full max-w-none text-[32px] font-semibold leading-[1.02] tracking-[-0.03em] text-[#153153] transition-opacity duration-200 motion-reduce:transition-none",
+                  "w-full max-w-none text-[32px] font-semibold leading-[1.02] tracking-[-0.045em] text-[#153153] transition-opacity duration-200 motion-reduce:transition-none",
                   isActive && "text-center",
                   !isActive && "text-[26px] leading-[1.08]"
                 )}
@@ -405,7 +405,7 @@ function MissionLedgerAlliancePanel({
         </div>
       </div>
 
-      <div data-mission-controls ref={controlsColumnRef} className="hidden xl:order-1 xl:block">
+      <div data-mission-controls ref={controlsColumnRef} className="hidden xl:order-1 xl:block xl:sticky xl:top-20">
         <MissionDirectionControls
           activeIndex={activeIndex}
           baseId={baseId}
@@ -429,7 +429,7 @@ export function MissionLedgerAlliance({
   return (
     <Section
       id="mission"
-      className="bg-white lg:py-8"
+      className="pt-8 pb-2 md:pt-10 md:pb-4 lg:pb-6"
       title="Наш подход"
     >
       <MissionLedgerAlliancePanel
