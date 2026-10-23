@@ -22,16 +22,24 @@ REPOSITORY = 's3:https://s3.cloud.ru/ncfg-backups/initial-recovery'
 
 def run(args, **kwargs):
     result = subprocess.run(args, capture_output=True, timeout=1800, **kwargs)
-    assert result.returncode == 0, 'Operation failed; sensitive output suppressed'
+    if result.returncode != 0:
+        raise RuntimeError('Operation failed; sensitive output suppressed')
     return result.stdout
 
 
 def main():
     os.umask(0o077)
-    assert os.geteuid() == 0 and socket.gethostname() == 'ncfg-app-01'
-    assert os.path.ismount(ROOT)
-    lock = (ROOT / 'backups/running-stack.lock').open('w')
-    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    if os.geteuid() != 0 or socket.gethostname() != 'ncfg-app-01':
+        raise RuntimeError('Backup requires root on ncfg-app-01')
+    if not os.path.ismount(ROOT):
+        raise RuntimeError('Backup data volume is not mounted')
+    with (ROOT / 'backups/running-stack.lock').open('w') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        backup_locked()
+
+
+def backup_locked():
+    """Run only while holding the exclusive running-stack lock."""
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     current = ROOT / 'backups/current'
     media = current / 'media'
@@ -55,10 +63,12 @@ def main():
             entries.append({'key': key, 'path': filename, 'bytes': len(data), 'sha256': digest})
     (media / 'manifest.json').write_text(json.dumps(entries, ensure_ascii=False, indent=2) + '\n')
     dump = ROOT / 'backups' / ('strapi-' + stamp + '.dump')
-    result = subprocess.run(['docker', 'exec', '--user', 'postgres', 'ncfg-cloudru-postgres',
-                             'pg_dump', '-U', 'ncfg_admin', '-d', 'strapi', '-Fc', '--no-owner', '--no-acl'],
-                            stdout=dump.open('xb'), stderr=subprocess.PIPE, timeout=600)
-    assert result.returncode == 0, 'Database export failed; details suppressed'
+    with dump.open('xb') as output:
+        result = subprocess.run(['docker', 'exec', '--user', 'postgres', 'ncfg-cloudru-postgres',
+                                 'pg_dump', '-U', 'ncfg_admin', '-d', 'strapi', '-Fc', '--no-owner', '--no-acl'],
+                                stdout=output, stderr=subprocess.PIPE, timeout=600)
+    if result.returncode != 0:
+        raise RuntimeError('Database export failed; details suppressed')
     digest = hashlib.sha256(dump.read_bytes()).hexdigest()
     checksum = dump.with_suffix('.dump.sha256')
     checksum.write_text(digest + '  ' + dump.name + '\n')
@@ -76,7 +86,8 @@ def main():
                    if json.loads(line).get('message_type') == 'summary')
     snapshot = summary['snapshot_id']
     roundtrip = run(restic + ['dump', snapshot, str(dump)], env=env)
-    assert hashlib.sha256(roundtrip).hexdigest() == digest
+    if hashlib.sha256(roundtrip).hexdigest() != digest:
+        raise RuntimeError('Database roundtrip checksum mismatch')
     run(restic + ['check'], env=env)
     report = {'completedAt': stamp, 'snapshot': snapshot, 'databaseSha256': digest,
               'databaseRoundtripPassed': True, 'mediaObjects': len(entries),

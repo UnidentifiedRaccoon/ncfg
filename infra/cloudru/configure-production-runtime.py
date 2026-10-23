@@ -20,17 +20,20 @@ CADDY = 'caddy@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d
 
 def run(args, **kwargs):
     result = subprocess.run(['docker', *args], capture_output=True, timeout=180, **kwargs)
-    assert result.returncode == 0, 'Docker operation failed; sensitive output suppressed'
+    if result.returncode != 0:
+        raise RuntimeError('Docker operation failed; sensitive output suppressed')
     return result.stdout
 
 
 def replace_service(stage, service, image, values, suffix):
     name = PREFIX + service
     old = name + suffix
-    assert not run(['ps', '-aq', '--filter', 'name=^' + old + '$']).strip()
-    run(['stop', '--time', '30', name])
-    run(['rename', name, old])
+    if run(['ps', '-aq', '--filter', 'name=^' + old + '$']).strip():
+        raise RuntimeError('Rollback container already exists')
+    original = run(['inspect', '--format', '{{.Id}}', name]).strip().decode()
     try:
+        run(['stop', '--time', '30', name])
+        run(['rename', name, old])
         extra = ['--network', PREFIX + 'application', '--network-alias', service, '--cap-drop', 'ALL']
         if service == 'web':
             extra += ['--mount', 'type=bind,src=/srv/ncfg/next-cache,dst=/app/.next/cache']
@@ -45,11 +48,15 @@ def replace_service(stage, service, image, values, suffix):
             time.sleep(2)
         raise RuntimeError('Runtime health check failed')
     except Exception:
-        if run(['ps', '-aq', '--filter', 'name=^' + name + '$']).strip():
-            run(['stop', '--time', '10', name])
-            run(['rename', name, name + '-failed-' + str(int(time.time()))])
-        run(['rename', old, name])
-        run(['start', name])
+        # Docker may finish a rename even if the client times out. Inspect the
+        # preserved identity before moving anything; never quarantine the original.
+        preserved = run(['ps', '-aq', '--no-trunc', '--filter', 'name=^' + old + '$']).strip().decode()
+        if preserved == original:
+            if run(['ps', '-aq', '--filter', 'name=^' + name + '$']).strip():
+                run(['stop', '--time', '10', name])
+                run(['rename', name, name + '-failed-' + str(int(time.time()))])
+            run(['rename', old, name])
+        run(['start', original])
         raise
 
 
