@@ -1,0 +1,30 @@
+name: Cloud.ru tools CI
+
+on:
+  pull_request:
+    paths:
+      - 'infra/cloudru/**'
+      - '.github/workflows/cloudru-tools-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Check Python syntax
+        run: python3 -m compileall -q infra/cloudru
+      - name: Test runtime rollback and backup failures without external services
+        run: |
+          python3 -B infra/cloudru/test-runtime-safety.py
+          python3 -B -O infra/cloudru/test-runtime-safety.py
+      - name: Test export tools without external services
+        run: |
+          python3 -B infra/cloudru/test-verify-export.py
+          python3 -B -O infra/cloudru/test-verify-export.py

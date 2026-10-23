@@ -1,4 +1,6 @@
 ---
+
+> Архивные ссылки ведут на закрытый ZIP v3 в Google Drive; требуется доступ владельца. Путь в скобках — расположение файла внутри ZIP, а не прямая ссылка на файл. После скачивания и распаковки используйте этот путь локально.
 version: 1
 slug: "app-experiments-seasonal-offer-editorial-page-tsx"
 primary_target: "app/experiments/seasonal-offer-editorial/page.tsx"
@@ -19,7 +21,7 @@ The latest user correction removes the remuneration note from B and asks to reco
 
 The dedicated `/experiments/seasonal-offer-editorial` route and the sixth/default `editorial` / `Редакционный` laboratory variant share this implementation. The other five variants remain available; `?variant=editorial` opens B. The route remains in the experiments registry, outside the public `(site)` layout, with `noindex, nofollow`, no public navigation and no production analytics.
 
-[Approved comp](../../../../.impeccable/mocks/seasonal-offer-editorial-v3/b-human-accent.png) · [Approval and prompt](../../../../.impeccable/mocks/seasonal-offer-editorial-v3/b-human-accent.png.json) · [Implementation, assets and QA](../../docs/seasonal-offer-hero/editorial-b-implementation.md). `PRODUCT.md`, `DESIGN.md` and incumbent tokens remain the read-only project authority; this record applies only to the experimental surface.
+[Approved comp](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3/b-human-accent.png`) · [Approval and prompt](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3/b-human-accent.png.json`) · [Implementation, assets and QA](../../docs/seasonal-offer-hero/editorial-b-implementation.md). `PRODUCT.md`, `DESIGN.md` and incumbent tokens remain the read-only project authority; this record applies only to the experimental surface.
 
 ## Direction contract
 
@@ -50,7 +52,7 @@ The later copy/refocus revision passed the same eight tests, targeted ESLint and
 
 ## History and boundary
 
-The [v2 comp](../../docs/seasonal-offer-hero/focus-portraits-v2-preview.png) and [v2 asset record](../../docs/seasonal-offer-hero/focus-portraits-v2.md) preserve the earlier white-field, Roboto Condensed 800, static-trio version. B replaced its type, material and portrait behavior; the subsequent user correction replaced B’s initial stacked mobile grid with the compact carousel. [A and C](../../docs/seasonal-offer-hero/editorial-v3-directions.md) remain archived proposals.
+The [v2 comp](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/focus-portraits-v2-preview.png`) and [v2 asset record](../../docs/seasonal-offer-hero/focus-portraits-v2.md) preserve the earlier white-field, Roboto Condensed 800, static-trio version. B replaced its type, material and portrait behavior; the subsequent user correction replaced B’s initial stacked mobile grid with the compact carousel. [A and C](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3-directions.md`) remain archived proposals.
 
 No public production rollout is approved. This experiment’s type pairing, background, captions, composition and timing are not canonized into global `DESIGN.md` or its sidecar.
 
@@ -68,4 +70,4 @@ The responsive alignment correction is confined to the existing below-1200px bre
 
 The user requested at most three headline lines, preferably two, and a button aligned with the existing design system. Browser checks at widths 320, 390, 600, 768, 1024, 1200, 1440 and 1600px confirm three headline lines on the two phone widths and two lines on all other checked widths. After shortening the lead, final checks at 320, 390, 1024 and 1440px preserve those counts, matched italic sizes/colors, nine semantic professions, no gallery buttons, no horizontal overflow and `noindex, nofollow`. The CTA is the shared primary large button, 56px high, with its original destination. Keyboard navigation reaches it and displays the shared focus outline. TypeScript and targeted ESLint passed after the component/CSS changes; the subsequent text-only lead edit does not alter types or behavior. No new unit tests were added for this copy/layout adjustment.
 
-Temporary evidence: [validation](/private/tmp/ncfg-editorial-short-title-qa/validation.json), [phone](/private/tmp/ncfg-editorial-short-title-qa/final-mobile-390.png), [narrow phone](/private/tmp/ncfg-editorial-short-title-qa/final-mobile-320.png), [tablet](/private/tmp/ncfg-editorial-short-title-qa/final-tablet-1024.png), [desktop](/private/tmp/ncfg-editorial-short-title-qa/final-desktop-1440.png). The earlier finish verdicts and captures above describe earlier revisions; this correction is available in the experiment for user review.
+Historical QA evidence is unavailable in the checked locations as of 23 October 2026: `validation.json`, `final-mobile-390.png`, `final-mobile-320.png`, `final-tablet-1024.png` and `final-desktop-1440.png` are absent from their original temporary directory, the integration Git tree and archive packages v1–v3. The five broken links have been removed; no replacement evidence is claimed. The validation statements above remain a historical session record and cannot be independently rechecked from these missing artifacts. The earlier finish verdicts and captures above describe earlier revisions; this correction is available in the experiment for user review.
