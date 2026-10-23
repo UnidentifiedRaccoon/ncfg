@@ -1,0 +1,85 @@
+{
+  "generator": "built-in imagegen",
+  "illustrative": true,
+  "encoding": "WebP q87, 800px width, no crop or color editing",
+  "assets": [
+    {
+      "id": "portrait-colleague",
+      "source": "ncfg-archive/design/seasonal-offer/sources/focus-portraits-v2/portrait-colleague.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-colleague.webp",
+      "width": 800,
+      "height": 800,
+      "bytes": 49884
+    },
+    {
+      "id": "portrait-engineer",
+      "source": "ncfg-archive/design/seasonal-offer/sources/focus-portraits-v2/portrait-engineer.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-engineer.webp",
+      "width": 800,
+      "height": 800,
+      "bytes": 61880
+    },
+    {
+      "id": "portrait-specialist",
+      "source": "ncfg-archive/design/seasonal-offer/sources/focus-portraits-v2/portrait-specialist.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-specialist.webp",
+      "width": 800,
+      "height": 1600,
+      "bytes": 150020
+    },
+    {
+      "id": "portrait-square-man",
+      "source": "ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-square-man.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-square-man.webp",
+      "width": 800,
+      "height": 800,
+      "bytes": 52764
+    },
+    {
+      "id": "portrait-square-woman-junior",
+      "source": "ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-square-woman-junior.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-square-woman-junior.webp",
+      "width": 800,
+      "height": 800,
+      "bytes": 68334
+    },
+    {
+      "id": "portrait-square-woman-midlife",
+      "source": "ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-square-woman-midlife.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-square-woman-midlife.webp",
+      "width": 800,
+      "height": 800,
+      "bytes": 58768
+    },
+    {
+      "id": "portrait-square-woman-young",
+      "source": "ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-square-woman-young.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-square-woman-young.webp",
+      "width": 800,
+      "height": 800,
+      "bytes": 61360
+    },
+    {
+      "id": "portrait-tall-man",
+      "source": "ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-tall-man.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-tall-man.webp",
+      "width": 800,
+      "height": 1600,
+      "bytes": 122610
+    },
+    {
+      "id": "portrait-tall-woman",
+      "source": "ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-tall-woman.png",
+      "output": "apps/web/public/services/season-offer/portraits/portrait-tall-woman.webp",
+      "width": 800,
+      "height": 1600,
+      "bytes": 144242
+    }
+  ],
+  "sourceArchive": {
+    "url": "https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view",
+    "fileName": "ncfg-archive-2026-10-23-v3.zip",
+    "sha256": "920c239145bd44d9670c9c8b8e99dee8b2170c7542d7023a14ab5789359e4815",
+    "sourcePaths": "Paths in assets[].source are relative to the ZIP root; download and extract the archive. Access requires owner permission."
+  }
+}

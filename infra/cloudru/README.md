@@ -1,0 +1,236 @@
+# Запуск ncfg в Cloud.ru
+
+> Архивные ссылки ведут на закрытый ZIP v3 в Google Drive; требуется доступ владельца. Путь в скобках — расположение файла внутри ZIP, а не прямая ссылка на файл. После скачивания и распаковки используйте этот путь локально.
+
+14 октября 2026 сайт и CMS публично запущены в Cloud.ru:
+[ncfg.ru](https://ncfg.ru/) и [admin.ncfg.ru/admin](https://admin.ncfg.ru/admin).
+Домены направлены на `45.151.30.122`, HTTPS-сертификаты выпущены, формы включены.
+`www.ncfg.ru` перенаправляет на основной сайт. Точка восстановления и публичное
+переключение подтверждены пользователем.
+
+Первоначальная проверка автодеплоя из GitHub `main` выполнена 14 октября, 13:08 МСК:
+коммит `1cf131d19135ad92b390ee9ef90db9a40887ebfa` опубликован на ВМ, а
+[GitHub Actions](https://github.com/UnidentifiedRaccoon/ncfg/actions/runs/38546469803)
+завершился успешно. Повторно проверены страницы сайта, CMS, изображения,
+защита закрытых API и включённые режимы форм; тестовые заявки не отправлялись.
+
+## Восстановленные данные
+
+База восстановлена на **11 октября 2026, 03:08:31 МСК**. С исходным дампом совпали
+86 таблиц и 116 199 строк; 491 медиафайл проверен по SHA-256 после загрузки в S3.
+Более поздние изменения исходной базы в восстановленной копии не гарантированы.
+14 октября пользователь подтвердил запуск на этой копии базы.
+Исходная база и остановленный кластер восстановления в Yandex сохранены.
+
+Первоначальный Web собран из production-коммита
+`9749c1543897546692c46ac9b6d84b6225d95e68` с конфигурацией Cloud.ru; CMS использовала
+сохранённый production-образ с обновлённым S3-провайдером. Происхождение этой
+первоначальной сборки сохранено в `/srv/ncfg/migration/release.json`.
+Последующие версии собираются из GitHub `main` по инструкции
+[автодеплоя](autodeploy/README.md). Текущий успешный релиз и digest его образов
+записываются в `/srv/ncfg/autodeploy/active.json`, публичный SHA — в
+`https://ncfg.ru/deployment.json`. Состав текущего релиза определяется опубликованным SHA, а не состоянием
+локального рабочего дерева. Локальные отчёты хранятся в закрытом каталоге
+`.local-backups/cloudru-access-20261014/`.
+
+## Сверка исходников и действующего окружения — 23 октября 2026
+
+Проверки выполнены только чтением; скрипты восстановления, настройки S3 и службы
+не запускались и не изменялись. На момент сверки GitHub `main`, ветка
+`cloudru-production` и публичный `deployment.json` указывали на
+`4614517b12c2b28422183412bfd81c0dd0a39448`; соответствующий workflow завершился успешно.
+Это снимок проверки, а не закреплённая версия для следующего релиза.
+
+### Скрипты первоначального восстановления
+
+SHA-256 восьми локальных файлов совпал с файлами в `/srv/ncfg/migration/`:
+`activate-private-release.py`, `build-restored-release.py`,
+`configure-production-runtime.py`, `import-form-settings.py`, `init-postgres.sh`,
+`migrate-restored-media.py`, `stage-offsite-backup.py`, `rehearsal-proxy.mjs`.
+Совпадение исходников не означает, что их безопасно повторно запускать на работающем стеке:
+они содержат привязки к восстановлению 14 октября, образам и путям той миграции.
+
+В `stage-restored-server.py` на сервере отсутствует единственная строка,
+которая есть локально: `--health-cmd` с командой
+`wget --quiet --spider http://127.0.0.1:8080/api/health` для gateway.
+Историческая причина удаления строки не установлена. При её отсутствии Docker
+наследует healthcheck образа `ncfg-recovery-web:20261014`, использующий
+`localhost:${PORT:-8080}`; это не отключение healthcheck.
+
+Локальная строка сохранена: действующий `ncfg-cloudru-gateway` использует
+именно явный адрес `127.0.0.1` и имеет статус `healthy`.
+Такая же команда задана в совпадающем с сервером `activate-private-release.py`,
+который пересоздаёт gateway на следующем этапе миграции. Серверная копия
+начального staging-скрипта не является эталоном текущей конфигурации контейнера.
+
+### Политики медиа S3
+
+Сохранённые настройки бакета `ncfg-media` прочитаны в консоли Cloud.ru,
+в разделах «Безопасность → Bucket Policy» и «Правила CORS»:
+
+- [media-public-read-policy.json](media-public-read-policy.json): совпадают
+  Version, Sid, Effect, Principal, Action и Resource; разрешён только
+  `s3:GetObject` для `arn:aws:s3:::ncfg-media/*` всем пользователям.
+  Редактор консоли дополнительно показывает пустые `NotPrincipal`, `NotAction`,
+  `NotResource` и `Condition`; локальный JSON оставлен в компактной форме.
+  Это сверка полей интерфейса, а не побайтное сравнение ответа S3 API.
+- [media-cors.json](media-cors.json): одно правило; источники
+  `https://admin.ncfg.ru`, `https://ncfg.ru`, `https://www.ncfg.ru`;
+  методы GET/HEAD; AllowedHeaders `*`; ExposeHeaders `ETag`;
+  время кеширования один час (3600 секунд). Все поля совпадают.
+
+Эта проверка не меняла политики и не проверяла заново IAM, ACL или настройки
+бакета резервных копий. Публичная политика медиа не разрешает ListBucket,
+PutObject или DeleteObject.
+
+### Граница комплекта
+
+[compose.yaml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/compose.yaml`), [compose.public.yaml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/compose.public.yaml`), [ctl.mjs](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/ctl.mjs`) и сопутствующие файлы —
+альтернативная схема, не источник конфигурации работающего стека.
+Локальный [Caddyfile](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/Caddyfile`) также не является точной копией активного:
+в `/srv/ncfg/migration/Caddyfile`, подключённом к HTTPS-контейнеру, есть
+обработка `/deployment-status.json`. Не заменять его локальным шаблоном.
+
+Действующие таймеры `ncfg-running-backup.timer` и `ncfg-autodeploy.timer` включены.
+Старые [backup-offsite.sh](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/backup-offsite.sh`) и [ncfg-backup.service](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/ncfg-backup.service`) относятся к альтернативной схеме.
+Канонический workflow — `.github/workflows/deploy.yml` в GitHub `main`;
+[autodeploy/workflow.yml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/autodeploy/workflow.yml`) — ранняя копия, не инструкция для публикации.
+
+## Доступ к серверу
+
+ВМ `ncfg-app-01`: `45.151.30.122`, 4 vCPU, 8 ГБ RAM, системный SSD 20 ГБ,
+диск данных 30 ГБ. Данные расположены в `/srv/ncfg`. При запуске 14 октября SSH был разрешён только
+с `93.158.190.181/32`, вход настроен по отдельному ключу, пароль и root-вход отключены.
+Текущие сетевые правила нужно проверять отдельно; сверка файлов 23 октября их не проверяла.
+
+Из корня репозитория:
+
+```sh
+ssh -i .local-backups/cloudru-access-20261014/deploy.key \
+  -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+  -o UserKnownHostsFile=.local-backups/cloudru-access-20261014/known_hosts \
+  ncfg@45.151.30.122
+```
+
+Закрытый просмотр использует SSH-туннель с локальных портов 28080 и 28081
+на серверные `127.0.0.1:8080` и `127.0.0.1:8081`. В браузере:
+`http://localhost:28080/` и `http://localhost:28081/admin`.
+
+Реальный стек запущен отдельными Docker-контейнерами `ncfg-cloudru-postgres`,
+`ncfg-cloudru-cms`, `ncfg-cloudru-web`, `ncfg-cloudru-gateway`, `ncfg-cloudru-https`.
+Публичны только TCP 80/443; PostgreSQL не имеет опубликованного порта.
+`gateway` остаётся доступным только через SSH-туннель. Caddy хранит сертификаты
+в `/srv/ncfg/caddy-data` и продлевает их автоматически.
+[compose.yaml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/compose.yaml`) и [ctl.mjs](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/ctl.mjs`) — отдельный подготовленный путь развёртывания;
+не запускать их поверх этого стека. Скрипты `stage-*` и импорта рассчитаны
+на первичное восстановление, а не на повседневный перезапуск.
+
+## Настройки форм и файлов
+
+Одобренные настройки Strapi, Bitrix24, Postbox и GetCourse переданы в память
+процесса и закрытую конфигурацию ВМ. Окружение хранит Docker; копии итоговых
+настроек находятся в `/etc/ncfg/runtime/` с правами 0700 на каталог и 0600 на файлы.
+Не выводить `docker inspect` целиком, содержимое конфигурации или полные логи.
+
+Токены чтения и записи проверены против восстановленной базы. Postbox прошёл
+TLS-авторизацию, но письма и реальные заявки при проверке не отправлялись.
+Почтовая доставка продолжает зависеть от Yandex Postbox и его платёжного состояния.
+Режимы `STRAPI_WRITE_MODE` и `OUTBOUND_MODE` установлены в `enabled`.
+Реальная доставка заявки в почту и CRM пока не проверена; потребуется согласованная
+контрольная отправка. Успешная проверка конфигурации не подтверждает доставку.
+
+У каждого S3-бакета отдельный сервисный аккаунт с доступом только к своему бакету.
+Ключи действуют до 14 октября 2027. Технические имена бакетов — `ncfg-media`
+и `ncfg-backups`; endpoint — `https://s3.cloud.ru`, регион — `ru-central-1`.
+Глобальный URL медиа — `https://global.s3.cloud.ru/ncfg-media-69340acf/`.
+Из-за уведомления Cloud.ru об ограничении загрузок выбран класс SINGLE.
+Для `ncfg-media` разрешён анонимный `GetObject`; запись, удаление и просмотр списка
+не разрешены. Список возвращает 403. CORS разрешает GET/HEAD для сайта и CMS.
+Бакет резервных копий остаётся приватным.
+
+## Резервные копии
+
+`ncfg-running-backup.timer` запускается ежедневно в 04:00 МСК с разбросом до
+10 минут. Копируются текущая база и медиа в зашифрованный Restic-репозиторий
+`s3:https://s3.cloud.ru/ncfg-backups/initial-recovery`. Runtime-ключи приложения
+в эту копию не входят. Автоматическое удаление старых снимков выключено;
+лимит бакета 20 ГБ требует контроля роста.
+
+На сервере:
+
+```sh
+sudo systemctl status ncfg-running-backup.timer
+sudo systemctl start ncfg-running-backup.service
+sudo cat /srv/ncfg/backups/last-offsite-success.json
+```
+
+Первоначальная внешняя копия проверена реальным восстановлением в отдельный
+PostgreSQL: совпали все таблицы и строки. Текущие ежедневные копии проходят
+обратное чтение дампа с проверкой SHA-256 и `restic check`.
+Файл `.local-backups/cloudru-access-20261014/backup-recovery.age` содержит
+зашифрованный комплект доступа к резервной копии и S3. Для восстановления
+потребуется отдельный SSH-ключ развёртывания; сохранить оба файла приватно.
+
+## Выполненное публичное переключение
+
+Публичный доступ и восстановленная база одобрены пользователем 14 октября.
+Следующие шаги уже выполнены; не повторять их как обычный перезапуск.
+Не включать запись одновременно
+в исходную и восстановленную базы. Если исходный сервис снова начал принимать
+записи, сначала остановить этот поток и согласовать финальный набор данных.
+
+1. Разрешить публичное чтение только объектов `ncfg-media` политикой
+   `media-public-read-policy.json`. Она не даёт право записи, удаления или
+   просмотра списка объектов. Бакет резервных копий остаётся закрытым.
+   Добавить CORS из `media-cors.json` для загрузки медиа в браузере CMS.
+2. В группе `ncfg-deploy-ssh` добавить входящий TCP 80 и 443 от `0.0.0.0/0`.
+   Правило SSH 22 оставить с прежним `/32`. PostgreSQL не публиковать.
+3. На ВМ выполнить `sudo python3 /srv/ncfg/migration/configure-production-runtime.py --enable-forms`.
+   Скрипт сохраняет предыдущий web-контейнер и откатывается при сбое readiness.
+4. Запустить `sudo docker start ncfg-cloudru-https`. Образ Caddy закреплён
+   digest в скрипте; сертификаты сохраняются на диске данных.
+5. Сначала создать A `cloudru-origin.ncfg.ru.` → `45.151.30.122`, TTL 300,
+   и проверить её у авторитетного DNS-сервера. Затем изменить значение существующей
+   ANAME `ncfg.ru.` на `cloudru-origin.ncfg.ru.`. Записи `www.ncfg.ru.` и
+   `admin.ncfg.ru.` изменить на CNAME `ncfg.ru.`, TTL 300. Такой порядок не требует
+   удаления корневой записи. MX, TXT, NS и остальные поддомены сохранены;
+   сверка зоны до и после подтвердила только эти три изменения и одну новую запись.
+6. Проверить DNS, валидные сертификаты трёх имён, редирект www, сайт, CMS,
+   медиа и оптимизацию изображений, отсутствие внешнего доступа к базе.
+   Полную доставку тестовой заявки проверять только по отдельному согласованию.
+
+Исходные записи сохранены в `dns-before-20261014.json` локального закрытого каталога.
+Их значения для отката: корень и www —
+`d5d1a3velg9e6hkj777c.i99u1wfk.apigw.yandexcloud.net.`,
+admin — `d5dldgvqcrea64k57ge9.aqkd4clz.apigw.yandexcloud.net.`.
+Перед возвратом DNS после начала приёма заявок сохранить новую базу и учесть
+все новые записи. Возврат DNS в Yandex не гарантирует исправность старого сервиса.
+
+## Проверки публичного запуска
+
+HTTP 200 получены для главной, about, blog, portfolio, individuals, companies,
+season-offer, history, vacancies, rekomendacii, sitemap, robots, health и входа CMS.
+Эти страницы повторно проверены по публичным адресам с проверкой TLS, ответы
+получены от IP Cloud.ru. Сертификаты всех трёх доменов валидны, HTTP перенаправляет
+на HTTPS, www — на основной сайт. Анонимное чтение диагностических ответов CMS
+возвращает 403, `/admin/users/me` — 401. Реальное изображение из Cloud.ru и его
+версия через Next Image возвращают 200; CORS для CMS подтверждён HTTP-заголовками.
+Все четыре контейнера с healthcheck healthy, Caddy работает. Реальный S3-провайдер CMS проверен
+загрузкой, чтением и удалением собственного временного файла.
+Конфигурация HTTPS прошла `caddy validate`.
+Отчёты проверок лежат в `/srv/ncfg/migration/` и локальном каталоге миграции,
+включая `public-readiness.json` и снимки DNS до/после.
+
+## Оставшиеся зависимости
+
+DNS-зона пока обслуживается Yandex Cloud; почта использует Yandex Postbox.
+Исходные ресурсы и локальный архив Yandex не удалены.
+Production workflow `.github/workflows/deploy.yml` в GitHub `main` переведён на
+Cloud.ru: проверенный push в `main` передаёт коммит службе на ВМ, а GitHub ожидает
+его успешного публичного запуска. Подробности и управление — в
+[инструкции автодеплоя](autodeploy/README.md). Старые preview/служебные workflows
+Yandex не входят в этот перенос. Действующий workflow нужно смотреть в GitHub `main`; не подменять его
+ранней копией [autodeploy/workflow.yml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/autodeploy/workflow.yml`).
+
+Политика чтения соответствует [документации Cloud.ru](https://cloud.ru/docs/s3e/ug/topics/security__bucketpolicy).
+Применённая схема ANAME описана в [документации Yandex Cloud DNS](https://yandex.cloud/ru/docs/dns/concepts/resource-record#aname).
