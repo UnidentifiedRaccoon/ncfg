@@ -395,7 +395,8 @@ export function HeaderClient({ companyNavigation }: HeaderClientProps) {
   const ctaHref =
     pathname?.startsWith("/blog") ||
     isVacanciesPath(pathname) ||
-    pathname?.startsWith("/diagnostika")
+    pathname?.startsWith("/diagnostika") ||
+    ["/history", "/portfolio", "/rekomendacii", "/politika-konfidencialnosti", "/polzovatelskoe-soglashenie"].includes(pathname ?? "")
       ? "/#lead-form"
       : "#lead-form";
   const mobileMenuOpen = mobileMenu.open && mobileMenu.openedOnPath === pathname;

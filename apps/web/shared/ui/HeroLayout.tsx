@@ -109,7 +109,7 @@ export function HeroLayout({
                     size="lg"
                     data-ym-goal="cta_click"
                     data-ym-cta-location="hero"
-                    className="shadow-[0_16px_44px_rgba(88,168,224,0.22)]"
+                    className="h-auto min-h-14 py-3.5 text-center shadow-[0_16px_44px_rgba(88,168,224,0.22)]"
                   >
                     {primaryAction.label}
                   </Button>
