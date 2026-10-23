@@ -37,6 +37,21 @@ class WaitTests(unittest.TestCase):
             verify.assert_not_called()
         self.assertEqual(self.now, 0)
 
+    def test_fetch_timeout_has_safe_actionable_message(self):
+        failed = status('failed', stage='checkout', code='git_fetch_timeout', timeoutSeconds=600,
+                        output='PRIVATE_OUTPUT')
+        with patch.object(waiter, 'fetch_json', return_value=failed), \
+                patch.object(waiter, 'verify_public') as verify:
+            with self.assertRaisesRegex(waiter.ReleaseFailure, 'Git fetch timed out after 600 seconds') as raised:
+                waiter.wait_for_release(REVISION)
+            self.assertNotIn('PRIVATE', str(raised.exception))
+            verify.assert_not_called()
+        self.assertEqual(self.now, 0)
+        for value in ('PRIVATE', True, -1, 3601):
+            message = waiter.failure_message({**failed, 'timeoutSeconds': value})
+            self.assertNotIn(str(value), message)
+            self.assertIn('Git fetch timed out;', message)
+
     def test_stale_other_revision_failure_is_ignored(self):
         values = [status('failed', revision='b' * 40), status('running'), status('succeeded', stage='complete')]
         with patch.object(waiter, 'fetch_json', side_effect=values), \

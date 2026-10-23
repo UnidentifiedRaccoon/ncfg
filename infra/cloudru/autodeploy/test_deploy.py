@@ -1,3 +1,5 @@
+import contextlib
+import subprocess
 import importlib.util
 import io
 import json
@@ -19,6 +21,72 @@ class DeploymentTests(unittest.TestCase):
         patcher = patch.object(deploy, 'PUBLIC_STATUS', Path(temporary.name) / 'deployment-status.json')
         patcher.start()
         self.addCleanup(patcher.stop)
+
+    def test_fetch_timeout_is_safe_recorded_and_not_retried(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.ExitStack() as stack:
+            root = Path(temporary)
+            (root / 'git').mkdir()
+            lock = root / 'git/shallow.lock'
+            lock.write_text('existing lock')
+            active = root / 'active.json'
+            active.write_text('{"revision": "' + 'b' * 40 + '"}')
+            before = active.read_bytes()
+            stack.enter_context(patch.object(deploy, 'ROOT', root))
+            stack.enter_context(patch.object(deploy.os, 'umask'))
+            stack.enter_context(patch.object(deploy.os, 'geteuid', return_value=0))
+            stack.enter_context(patch.object(deploy.socket, 'gethostname', return_value='ncfg-app-01'))
+            stack.enter_context(patch.object(deploy.os.path, 'ismount', return_value=True))
+            stack.enter_context(patch.object(deploy, 'recover_transaction'))
+            stack.enter_context(patch.object(deploy, 'desired', return_value='a' * 40))
+            stack.enter_context(patch.object(deploy, 'prepare_disk'))
+            stack.enter_context(patch.object(deploy, 'cleanup_old_releases'))
+            error = subprocess.TimeoutExpired(['git', 'PRIVATE_ARG'], 600,
+                                              output=b'PRIVATE_OUTPUT', stderr=b'PRIVATE_ERROR')
+            process = stack.enter_context(patch.object(deploy.subprocess, 'run', side_effect=error))
+            build = stack.enter_context(patch.object(deploy, 'build_image'))
+            activate = stack.enter_context(patch.object(deploy, 'activate'))
+            stdout, stderr = io.StringIO(), io.StringIO()
+            stack.enter_context(contextlib.redirect_stdout(stdout))
+            stack.enter_context(contextlib.redirect_stderr(stderr))
+            with self.assertRaises(deploy.DeploymentFailure) as raised:
+                deploy.main()
+            self.assertEqual(raised.exception.code, 'git_fetch_timeout')
+            process.assert_called_once_with(
+                ['git', '-C', str(root / 'git'), 'fetch', '--depth=1', deploy.REPOSITORY, 'a' * 40],
+                capture_output=True, timeout=600, env=deploy.GIT_ENV)
+            failure = json.loads((root / 'failed.json').read_text())
+            status = json.loads(deploy.PUBLIC_STATUS.read_text())
+            self.assertEqual(failure['stage'], 'checkout')
+            self.assertEqual(failure['code'], 'git_fetch_timeout')
+            self.assertEqual(failure['details'], {'timeoutSeconds': 600})
+            self.assertEqual(status['timeoutSeconds'], 600)
+            self.assertEqual(status['code'], 'git_fetch_timeout')
+            self.assertEqual(status['state'], 'failed')
+            self.assertIn('600 seconds', stderr.getvalue())
+            self.assertNotIn('PRIVATE', stdout.getvalue() + stderr.getvalue()
+                             + json.dumps(failure) + json.dumps(status) + str(raised.exception))
+            self.assertFalse((root / 'releases').exists())
+            self.assertEqual(active.read_bytes(), before)
+            self.assertEqual(lock.read_text(), 'existing lock')
+            build.assert_not_called()
+            activate.assert_not_called()
+            deploy.main()  # The timer republishes the failure instead of retrying fetch.
+            self.assertEqual(process.call_count, 1)
+            self.assertEqual(json.loads(deploy.PUBLIC_STATUS.read_text())['code'], 'git_fetch_timeout')
+
+    def test_successful_fetch_continues_checkout_with_unchanged_other_timeouts(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as temporary, patch.object(deploy, 'ROOT', Path(temporary)), \
+                patch.object(deploy, 'extract_source'), patch.object(Path, 'unlink'), \
+                patch.object(deploy.subprocess, 'run', side_effect=[
+                    SimpleNamespace(returncode=0, stdout=b''),
+                    SimpleNamespace(returncode=0, stdout=('a' * 40).encode()),
+                    SimpleNamespace(returncode=0, stdout=b''),
+                    SimpleNamespace(returncode=0, stdout=b'cms-tree')]) as process:
+            (Path(temporary) / 'git').mkdir()
+            source, _ = deploy.checkout('a' * 40)
+            self.assertEqual(source, Path(temporary) / 'releases' / ('a' * 40))
+            self.assertEqual([call.kwargs['timeout'] for call in process.call_args_list], [600, 180, 180, 180])
 
     def test_cache_cleanup_targets_only_old_default_builder_cache(self):
         from types import SimpleNamespace

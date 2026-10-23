@@ -55,6 +55,11 @@ def failure_message(status):
                     f'{values[0] / 1024**3:.2f} GiB free; {values[1] / 1024**3:.2f} GiB required. '
                     'The active release and retained rollback versions are preserved. Data volumes were not pruned.')
         return 'Insufficient Docker disk space after automatic old-cache cleanup; previous release remains active.'
+    if status.get('code') == 'git_fetch_timeout':
+        seconds = status.get('timeoutSeconds')
+        duration = f' after {seconds} seconds' if type(seconds) is int and 0 < seconds <= 3600 else ''
+        return ('Git fetch timed out' + duration + '; no build or activation started. '
+                'Inspect Git connectivity and leftover locks before an operator retries.')
     if status.get('code') == 'cache_cleanup_failed':
         return 'Automatic old build-cache cleanup failed; deployment stopped before the build.'
     if status.get('code') == 'retention_cleanup_failed':

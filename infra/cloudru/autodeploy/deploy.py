@@ -26,9 +26,11 @@ PREFIX = 'ncfg-cloudru-'
 BUILDER = 'ncfg-autodeploy'
 PUBLIC_STATUS = Path('/srv/ncfg/caddy-config/ncfg-public-status/deployment-status.json')
 MIN_DOCKER_FREE_BYTES = 4 * 1024**3
+GIT_FETCH_TIMEOUT_SECONDS = 600
 STAGES = {'preflight', 'cleanup', 'checkout', 'build_cms', 'build_web', 'backup',
           'activate', 'verify', 'complete', 'recovery'}
-ERROR_CODES = {'insufficient_disk', 'cache_cleanup_failed', 'retention_cleanup_failed', 'deployment_failed'}
+ERROR_CODES = {'insufficient_disk', 'cache_cleanup_failed', 'retention_cleanup_failed',
+               'deployment_failed', 'git_fetch_timeout'}
 ROLLBACK_VERSIONS = 2
 UNUSED_IMAGE_GRACE_SECONDS = 24 * 60 * 60
 GIT_ENV = {**os.environ, 'GIT_TERMINAL_PROMPT': '0', 'GIT_CONFIG_GLOBAL': '/dev/null',
@@ -198,6 +200,10 @@ def publish_status(revision, state, stage, **details):
     for field in ('freeBytes', 'requiredBytes', 'freeBeforeBytes'):
         if type(details.get(field)) is int and details[field] >= 0:
             value[field] = details[field]
+    if (value.get('code') == 'git_fetch_timeout'
+            and type(details.get('timeoutSeconds')) is int
+            and 0 < details['timeoutSeconds'] <= 3600):
+        value['timeoutSeconds'] = details['timeoutSeconds']
     write_json(PUBLIC_STATUS, value, mode=0o644)
 
 
@@ -255,7 +261,15 @@ def checkout(revision):
     git = ROOT / 'git'
     if not git.exists():
         run(['git', 'init', '--bare', str(git)], env=GIT_ENV)
-    run(['git', '-C', str(git), 'fetch', '--depth=1', REPOSITORY, revision], env=GIT_ENV)
+    try:
+        run(['git', '-C', str(git), 'fetch', '--depth=1', REPOSITORY, revision],
+            env=GIT_ENV, timeout=GIT_FETCH_TIMEOUT_SECONDS)
+    except subprocess.TimeoutExpired:
+        # Never copy exception text, command arguments or captured output to logs.
+        print(f'Git fetch timed out after {GIT_FETCH_TIMEOUT_SECONDS} seconds; '
+              'command output suppressed', file=sys.stderr, flush=True)
+        raise DeploymentFailure('git_fetch_timeout',
+                                timeoutSeconds=GIT_FETCH_TIMEOUT_SECONDS) from None
     actual = run(['git', '-C', str(git), 'rev-parse', 'FETCH_HEAD'], env=GIT_ENV).decode().strip()
     if actual != revision:
         raise RuntimeError('Fetched revision does not match request')
