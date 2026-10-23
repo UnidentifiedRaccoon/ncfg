@@ -1,5 +1,7 @@
 # Editorial B — accepted seasonal-offer hero
 
+> Архивные ссылки ведут на закрытый ZIP v3 в Google Drive; требуется доступ владельца. Путь в скобках — расположение файла внутри ZIP, а не прямая ссылка на файл. После скачивания и распаковки используйте этот путь локально.
+
 ## Current status — 23 October 2026
 
 The accepted hero is implemented on `/companies/season-offer` and merged in [PR #36](https://github.com/UnidentifiedRaccoon/ncfg/pull/36). The desktop refocus proposal below was superseded by the fade loop in [PR #38](https://github.com/UnidentifiedRaccoon/ncfg/pull/38).
@@ -23,7 +25,7 @@ The sections below preserve the earlier experimental record. Earlier statements 
 
 ## Approved experimental result — historical record
 
-[Approved B comp](../../../../.impeccable/mocks/seasonal-offer-editorial-v3/b-human-accent.png) and [approval/prompt sidecar](../../../../.impeccable/mocks/seasonal-offer-editorial-v3/b-human-accent.png.json) establish the human editorial direction. The user delegated a softer background, implemented as flat blue-gray porcelain (`#EEF3F6`), and subsequently requested desktop profession captions and a compact People/Focus-style carousel on phones/tablets. A and C remain [archived proposals](editorial-v3-directions.md).
+[Approved B comp](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3/b-human-accent.png`) and [approval/prompt sidecar](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3/b-human-accent.png.json`) establish the human editorial direction. The user delegated a softer background, implemented as flat blue-gray porcelain (`#EEF3F6`), and subsequently requested desktop profession captions and a compact People/Focus-style carousel on phones/tablets. A and C remain [archived proposals](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3-directions.md`).
 
 The headline combines navy Onest 420 with matching blue (`#2563EB`) PT Serif italic 400 accents: `благополучие` and `без роста ФОТ`. Both accents share font size, weight, line-height, tracking and color, as explicitly requested by the user. The latest correction shortens the local H1 to `Финансовое благополучие без роста ФОТ`, placing `Финансовое благополучие` on the first line and `без роста ФОТ` on the second where space permits. The first phrase wraps naturally on phones, giving three lines. Desktop copy gains width with 1.16:1 columns and `clamp(42px, 3.7vw, 60px)` type. The employee audience remains explicit in the shortened lead: `Шесть форматов обучения для сотрудников — от вебинара до годовой программы.` The remuneration note stays removed and the public content model is unchanged. `Обсудить программу` now uses the existing shared primary `Button`, size `lg`: white 18px semibold text, blue `#5485D5` fill, 56px height, 12px corners and shared interaction states. The custom cyan/dark treatment and diagonal arrow are removed. The [surface brief](../../.impeccable/surfaces/app-experiments-seasonal-offer-editorial-page-tsx.md) records typography, spacing and responsive rules.
 
@@ -50,12 +52,12 @@ The [asset manifest](portrait-assets-v3.json) lists all nine outputs, source pat
 
 Three originals come from the [v2 provenance record](focus-portraits-v2.md). Six additional built-in imagegen source PNGs and their full generation prompts are retained together:
 
-- [Tall man prompt/source record](portrait-sources-v3/portrait-tall-man.json)
-- [Tall woman prompt/source record](portrait-sources-v3/portrait-tall-woman.json)
-- [Square man prompt/source record](portrait-sources-v3/portrait-square-man.json)
-- [Young woman prompt/source record](portrait-sources-v3/portrait-square-woman-young.json)
-- [Midlife woman prompt/source record](portrait-sources-v3/portrait-square-woman-midlife.json)
-- [Junior woman prompt/source record](portrait-sources-v3/portrait-square-woman-junior.json)
+- [Tall man prompt/source record](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-tall-man.json`)
+- [Tall woman prompt/source record](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-tall-woman.json`)
+- [Square man prompt/source record](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-square-man.json`)
+- [Young woman prompt/source record](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-square-woman-young.json`)
+- [Midlife woman prompt/source record](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-square-woman-midlife.json`)
+- [Junior woman prompt/source record](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/sources/portrait-sources-v3/portrait-square-woman-junior.json`)
 
 ## Historical validation and limits
 

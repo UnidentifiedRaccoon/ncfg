@@ -1,4 +1,6 @@
 ---
+
+> Архивные ссылки ведут на закрытый ZIP v3 в Google Drive; требуется доступ владельца. Путь в скобках — расположение файла внутри ZIP, а не прямая ссылка на файл. После скачивания и распаковки используйте этот путь локально.
 version: 1
 slug: "app-experiments-seasonal-offer-editorial-page-tsx"
 primary_target: "app/experiments/seasonal-offer-editorial/page.tsx"
@@ -19,7 +21,7 @@ The latest user correction removes the remuneration note from B and asks to reco
 
 The dedicated `/experiments/seasonal-offer-editorial` route and the sixth/default `editorial` / `Редакционный` laboratory variant share this implementation. The other five variants remain available; `?variant=editorial` opens B. The route remains in the experiments registry, outside the public `(site)` layout, with `noindex, nofollow`, no public navigation and no production analytics.
 
-[Approved comp](../../../../.impeccable/mocks/seasonal-offer-editorial-v3/b-human-accent.png) · [Approval and prompt](../../../../.impeccable/mocks/seasonal-offer-editorial-v3/b-human-accent.png.json) · [Implementation, assets and QA](../../docs/seasonal-offer-hero/editorial-b-implementation.md). `PRODUCT.md`, `DESIGN.md` and incumbent tokens remain the read-only project authority; this record applies only to the experimental surface.
+[Approved comp](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3/b-human-accent.png`) · [Approval and prompt](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3/b-human-accent.png.json`) · [Implementation, assets and QA](../../docs/seasonal-offer-hero/editorial-b-implementation.md). `PRODUCT.md`, `DESIGN.md` and incumbent tokens remain the read-only project authority; this record applies only to the experimental surface.
 
 ## Direction contract
 
@@ -50,7 +52,7 @@ The later copy/refocus revision passed the same eight tests, targeted ESLint and
 
 ## History and boundary
 
-The [v2 comp](../../docs/seasonal-offer-hero/focus-portraits-v2-preview.png) and [v2 asset record](../../docs/seasonal-offer-hero/focus-portraits-v2.md) preserve the earlier white-field, Roboto Condensed 800, static-trio version. B replaced its type, material and portrait behavior; the subsequent user correction replaced B’s initial stacked mobile grid with the compact carousel. [A and C](../../docs/seasonal-offer-hero/editorial-v3-directions.md) remain archived proposals.
+The [v2 comp](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/focus-portraits-v2-preview.png`) and [v2 asset record](../../docs/seasonal-offer-hero/focus-portraits-v2.md) preserve the earlier white-field, Roboto Condensed 800, static-trio version. B replaced its type, material and portrait behavior; the subsequent user correction replaced B’s initial stacked mobile grid with the compact carousel. [A and C](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/design/seasonal-offer/concepts/editorial-v3-directions.md`) remain archived proposals.
 
 No public production rollout is approved. This experiment’s type pairing, background, captions, composition and timing are not canonized into global `DESIGN.md` or its sidecar.
 

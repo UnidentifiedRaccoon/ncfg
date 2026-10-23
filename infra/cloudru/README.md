@@ -1,5 +1,7 @@
 # Запуск ncfg в Cloud.ru
 
+> Архивные ссылки ведут на закрытый ZIP v3 в Google Drive; требуется доступ владельца. Путь в скобках — расположение файла внутри ZIP, а не прямая ссылка на файл. После скачивания и распаковки используйте этот путь локально.
+
 14 октября 2026 сайт и CMS публично запущены в Cloud.ru:
 [ncfg.ru](https://ncfg.ru/) и [admin.ncfg.ru/admin](https://admin.ncfg.ru/admin).
 Домены направлены на `45.151.30.122`, HTTPS-сертификаты выпущены, формы включены.
@@ -83,16 +85,16 @@ PutObject или DeleteObject.
 
 ### Граница комплекта
 
-`compose.yaml`, `compose.public.yaml`, `ctl.mjs` и сопутствующие файлы —
+[compose.yaml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/compose.yaml`), [compose.public.yaml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/compose.public.yaml`), [ctl.mjs](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/ctl.mjs`) и сопутствующие файлы —
 альтернативная схема, не источник конфигурации работающего стека.
-Локальный `Caddyfile` также не является точной копией активного:
+Локальный [Caddyfile](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/Caddyfile`) также не является точной копией активного:
 в `/srv/ncfg/migration/Caddyfile`, подключённом к HTTPS-контейнеру, есть
 обработка `/deployment-status.json`. Не заменять его локальным шаблоном.
 
 Действующие таймеры `ncfg-running-backup.timer` и `ncfg-autodeploy.timer` включены.
-Старые `backup-offsite.sh` и `ncfg-backup.service` относятся к альтернативной схеме.
+Старые [backup-offsite.sh](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/backup-offsite.sh`) и [ncfg-backup.service](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/ncfg-backup.service`) относятся к альтернативной схеме.
 Канонический workflow — `.github/workflows/deploy.yml` в GitHub `main`;
-`autodeploy/workflow.yml` — ранняя копия, не инструкция для публикации.
+[autodeploy/workflow.yml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/autodeploy/workflow.yml`) — ранняя копия, не инструкция для публикации.
 
 ## Доступ к серверу
 
@@ -119,7 +121,7 @@ ssh -i .local-backups/cloudru-access-20261014/deploy.key \
 Публичны только TCP 80/443; PostgreSQL не имеет опубликованного порта.
 `gateway` остаётся доступным только через SSH-туннель. Caddy хранит сертификаты
 в `/srv/ncfg/caddy-data` и продлевает их автоматически.
-`compose.yaml` и `ctl.mjs` — отдельный подготовленный путь развёртывания;
+[compose.yaml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/compose.yaml`) и [ctl.mjs](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/ctl.mjs`) — отдельный подготовленный путь развёртывания;
 не запускать их поверх этого стека. Скрипты `stage-*` и импорта рассчитаны
 на первичное восстановление, а не на повседневный перезапуск.
 
@@ -228,7 +230,7 @@ Cloud.ru: проверенный push в `main` передаёт коммит с
 его успешного публичного запуска. Подробности и управление — в
 [инструкции автодеплоя](autodeploy/README.md). Старые preview/служебные workflows
 Yandex не входят в этот перенос. Действующий workflow нужно смотреть в GitHub `main`; не подменять его
-ранней копией `autodeploy/workflow.yml`.
+ранней копией [autodeploy/workflow.yml](https://drive.google.com/file/d/1qOG58Ap8CPjD8QY9t8RdZybufK2SyVo5/view) (`ncfg-archive/infrastructure/legacy-cloudru-2026-10-23/infra/cloudru/autodeploy/workflow.yml`).
 
 Политика чтения соответствует [документации Cloud.ru](https://cloud.ru/docs/s3e/ug/topics/security__bucketpolicy).
 Применённая схема ANAME описана в [документации Yandex Cloud DNS](https://yandex.cloud/ru/docs/dns/concepts/resource-record#aname).
