@@ -6,6 +6,7 @@ interface HeroProps {
   headline: string;
   accentWord?: string | string[];
   lead?: string;
+  primaryActionHref?: string;
   primaryCta?: {
     label: string;
     href: string;
@@ -20,6 +21,7 @@ export function Hero({
   headline,
   accentWord,
   lead,
+  primaryActionHref = "#lead-form",
   primaryCta,
   imageSrc = "/heroV2.webp",
   imageAlt = "",
@@ -28,7 +30,7 @@ export function Hero({
 }: HeroProps) {
   const sanitizeLabel = (label: string) => label.replace(/\.{2,}$/, "");
 
-  const primaryAction = { label: "Оставить заявку", href: "#lead-form" };
+  const primaryAction = { label: "Оставить заявку", href: primaryActionHref };
   const secondaryAction = primaryCta
     ? { label: sanitizeLabel(primaryCta.label), href: primaryCta.href }
     : undefined;

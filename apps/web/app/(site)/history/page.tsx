@@ -69,12 +69,13 @@ export default async function HistoryPage() {
   return (
     <>
       <StructuredDataScript data={breadcrumbStructuredData} />
-      <main className="pb-10 md:pb-12">
+      <main className="pb-10 md:pb-12 [&>[data-hero-motion-scene]]:bg-[#050B16]">
         <HeroMotionScene
           sentinel={false}
           hero={
             <Hero
               noSentinel
+              primaryActionHref="/#lead-form"
               headline={aboutPage.heroHeadline ?? ""}
               lead={ABOUT_HERO_LEAD}
               primaryCta={
