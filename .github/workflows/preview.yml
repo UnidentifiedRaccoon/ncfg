@@ -3,7 +3,8 @@ name: PR Preview (Web)
 on:
   pull_request:
     branches: [main]
-    types: [opened, reopened, synchronize, ready_for_review, closed]
+    # Automatic preview deployment is disabled; retain legacy preview cleanup.
+    types: [closed]
 
 permissions:
   contents: read
