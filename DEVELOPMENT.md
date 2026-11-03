@@ -9,25 +9,25 @@ npm run dev
 ```
 
 Она запускает Next.js frontend и `app/api` backend, получает read-only токен
-production Strapi из Yandex Lockbox только в память процесса и проверяет две
+production Strapi из Cloud.ru Secret Management только в память процесса и проверяет две
 точки готовности: `/api/health` и `/api/health/strapi`.
 
-Первичная настройка Yandex Cloud выполняется один раз:
+Первичная настройка: выделенный сервисный аккаунт `ncfg-dev-reader` получает
+роль `scsm.user` только на секрет `ncfg/development`. Его ключ доступа хранится
+в macOS Keychain, сервис `ncfg-cloudru-dev-reader`, как JSON с полями `keyId` и
+`secret`. Значения не добавляйте в репозиторий, env-файлы или команды в истории shell.
+На других системах передайте `NCFG_CLOUDRU_KEY_ID` и `NCFG_CLOUDRU_KEY_SECRET`
+через защищённое окружение launcher; дочерние процессы их не получают.
+
+По умолчанию закреплена версия `1` секрета. При ротации укажите проверенную версию:
 
 ```bash
-yc init
+NCFG_CLOUDRU_DEV_VERSION=2 npm run dev
 ```
 
-Если активный профиль `yc` относится к другому проекту или региону, задайте
-нужный существующий профиль только для NCFG:
-
-```bash
-NCFG_YC_PROFILE=default npm run dev
-NCFG_YC_PROFILE=default npm run dev:doctor
-```
-
-Launcher передаёт имя через `yc --profile`; глобальный активный профиль не
-меняется. Без `NCFG_YC_PROFILE` используется текущий профиль `yc`.
+Секрет разработки должен содержать только `STRAPI_PROD_API_TOKEN` с правами
+чтения. Production-секреты web/CMS этому аккаунту недоступны. Настройки `yc`
+для launcher больше не используются.
 
 ## Профили
 
@@ -50,7 +50,7 @@ Launcher передаёт имя через `yc --profile`; глобальный
 - сохраняет текущую ветку и dirty worktree без `git pull` и переключений;
 - запускает `npm ci --no-audit --no-fund` только при отсутствии зависимостей
   или изменении `package.json`/`package-lock.json`;
-- для `dev` получает только `ncfg-dev-secrets/STRAPI_PROD_API_TOKEN`;
+- для `dev` получает только `ncfg/development` → `STRAPI_PROD_API_TOKEN`;
 - для CMS-профилей поднимает Docker daemon через Colima на macOS, если это нужно;
 - слушает локальные сервисы только на loopback-интерфейсе;
 - префиксует логи, редактирует известные токены и корректно завершает дочерние процессы.
@@ -87,11 +87,17 @@ npm run dev:doctor
 
 Частые причины:
 
-- `yc` не авторизован — выполните `yc init`;
-- Lockbox недоступен в регионе — проверьте `yc config profile list` и задайте
-  профиль NCFG через `NCFG_YC_PROFILE`;
-- нет доступа к Lockbox — нужна роль `lockbox.payloadViewer` на
-  `ncfg-dev-secrets`;
+- нет доступа к Secret Management — проверьте выделенный аккаунт `ncfg-dev-reader`
+  с ролью `scsm.user` только на секрет `ncfg/development`;
+- на macOS bootstrap-ключ читается из Keychain (service `ncfg-cloudru-dev-reader`),
+  запись содержит JSON с полями `keyId` и `secret`; значения не выводятся;
+- на других системах передайте `NCFG_CLOUDRU_KEY_ID` и `NCFG_CLOUDRU_KEY_SECRET`
+  через защищённое хранилище окружения. Не записывайте их в `.env` или Git;
+- проект, путь и закреплённую версию можно задать через `NCFG_CLOUDRU_PROJECT_ID`,
+  `NCFG_CLOUDRU_DEV_SECRET`, `NCFG_CLOUDRU_DEV_VERSION`. По умолчанию используются
+  проект NCFG, `ncfg/development`, версия `1`. Новая версия требует явного выбора;
+- ошибка Cloud.ru не вызывает скрытого обращения в Yandex Lockbox. Явно заданный
+  `STRAPI_PROD_API_TOKEN` поддерживается и не требует получения bootstrap-ключа;
 - порт `3000` или `1337` занят чужим процессом — launcher ничего не завершает
   по номеру порта;
 - Docker-профиль не стартует — проверьте Docker Desktop или Colima.

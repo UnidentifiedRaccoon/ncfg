@@ -19,6 +19,8 @@ import sys
 import tarfile
 import time
 
+from secret_manager import load_runtime_environments
+
 ROOT = Path('/srv/ncfg/autodeploy')
 RUNTIME = Path('/etc/ncfg/runtime')
 REPOSITORY = 'https://github.com/UnidentifiedRaccoon/ncfg.git'
@@ -397,7 +399,10 @@ def recover_transaction():
         return
     transaction = json.loads(journal.read_text())
     active = ROOT / 'active.json'
-    if active.exists() and json.loads(active.read_text()).get('revision') == transaction.get('revision'):
+    committed = json.loads(active.read_text()) if active.exists() else {}
+    identity_matches = (committed.get('transactionId') == transaction['id'] if transaction.get('id')
+                        else committed.get('revision') == transaction.get('revision'))
+    if committed and identity_matches:
         journal.unlink()  # Public checks and the atomic commit completed before a crash.
         return
     for service, backup in reversed(list(transaction['previous'].items())):
@@ -433,7 +438,7 @@ def public_check(revision):
 
 
 def activate(revision, images, environments):
-    transaction = {'revision': revision, 'previous': {}}
+    transaction = {'revision': revision, 'id': str(time.time_ns()), 'previous': {}}
     write_json(ROOT / 'transaction.json', transaction)
     try:
         for service in ['cms', 'web']:
@@ -455,10 +460,20 @@ def activate(revision, images, environments):
         raise
 
 
+def cms_image_for_environment(values):
+    """Reuse the running image when only CMS configuration needs to change."""
+    container = json.loads(docker('inspect', PREFIX + 'cms'))[0]
+    image = json.loads(docker('image', 'inspect', container['Image']))[0]
+    current = dict(item.split('=', 1) for item in container['Config'].get('Env', []))
+    expected = dict(item.split('=', 1) for item in image['Config'].get('Env', []))
+    expected.update(values)
+    return container['Image'] if current != expected else None
+
+
 def deploy(revision, active):
+    environments = load_runtime_environments(RUNTIME)
     publish_status(revision, 'running', 'checkout')
     source, cms_tree = checkout(revision)
-    environments = {service: json.loads((RUNTIME / (service + '.json')).read_text()) for service in ['web', 'cms']}
     epoch = int(time.time())
     history = source / 'docker/web/static-history'
     (history / 'static').mkdir(parents=True, exist_ok=True)
@@ -473,6 +488,10 @@ def deploy(revision, active):
         publish_status(revision, 'running', 'build_cms')
         print('Building CMS', flush=True)
         images['cms'] = build_image(source, 'cms', revision, {}, epoch)
+    else:
+        existing_image = cms_image_for_environment(environments['cms'])
+        if existing_image:
+            images['cms'] = existing_image
     print('Building website', flush=True)
     publish_status(revision, 'running', 'build_web')
     images['web'] = build_image(source, 'web', revision, environments['web'], epoch)
@@ -488,7 +507,7 @@ def deploy(revision, active):
             raise RuntimeError('Pre-deployment backup not verified')
     publish_status(revision, 'running', 'activate')
     transaction = activate(revision, images, environments)
-    next_state = {'revision': revision, 'cmsTree': cms_tree, 'images': {**active.get('images', {}), **images},
+    next_state = {'revision': revision, 'transactionId': transaction['id'], 'cmsTree': cms_tree, 'images': {**active.get('images', {}), **images},
                   'completedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                   'previousContainers': {**active.get('previousContainers', {}), **transaction['previous']}}
     write_json(ROOT / 'active.json', next_state)
@@ -497,7 +516,7 @@ def deploy(revision, active):
     print('Deployed ' + revision, flush=True)
 
 
-def main(retention_mode=None):
+def main(retention_mode=None, refresh_secrets=False):
     os.umask(0o077)
     if os.geteuid() != 0 or socket.gethostname() != 'ncfg-app-01' or not os.path.ismount('/srv/ncfg'):
         raise RuntimeError('Unexpected deployment host')
@@ -514,12 +533,12 @@ def main(retention_mode=None):
         active = json.loads(active_file.read_text()) if active_file.exists() else {}
         if not revision:
             return
-        if revision == active.get('revision'):
+        if revision == active.get('revision') and not refresh_secrets:
             maintain_release_retention()
             publish_status(revision, 'succeeded', 'complete')
             return
         failure = ROOT / 'failed.json'
-        if failure.exists() and json.loads(failure.read_text()).get('revision') == revision:
+        if failure.exists() and json.loads(failure.read_text()).get('revision') == revision and not refresh_secrets:
             recorded = json.loads(failure.read_text())
             publish_status(revision, 'failed', recorded.get('stage', 'preflight'),
                            **recorded.get('details', {}), code=recorded.get('code', 'deployment_failed'))
@@ -554,9 +573,11 @@ def main(retention_mode=None):
 
 if __name__ == '__main__':
     try:
-        if sys.argv[1:] not in ([], ['--retention-plan'], ['--retention-apply']):
-            raise ValueError('Use --retention-plan or --retention-apply')
-        main(sys.argv[1].removeprefix('--retention-') if len(sys.argv) == 2 else None)
+        if sys.argv[1:] not in ([], ['--retention-plan'], ['--retention-apply'], ['--refresh-secrets']):
+            raise ValueError('Use --retention-plan, --retention-apply or --refresh-secrets')
+        refresh = sys.argv[1:] == ['--refresh-secrets']
+        main(sys.argv[1].removeprefix('--retention-') if len(sys.argv) == 2 and not refresh else None,
+             refresh_secrets=refresh)
     except Exception as error:
         # Do not expose command output, credentials, private CMS data or config.
         print('Autodeploy failed: ' + type(error).__name__ + '; see root-only state/build logs', file=sys.stderr)

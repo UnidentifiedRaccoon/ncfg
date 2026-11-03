@@ -18,6 +18,7 @@ else
     --opt device=/srv/ncfg/buildkit-cache "$builder_volume" >/dev/null
 fi
 python3 install_status.py
+install -m 600 secret_manager.py /usr/local/lib/ncfg-autodeploy/secret_manager.py
 install -m 600 deploy.py /usr/local/lib/ncfg-autodeploy/deploy.py
 install -m 600 buildkitd.toml /usr/local/lib/ncfg-autodeploy/buildkitd.toml
 if ! docker buildx inspect ncfg-autodeploy >/dev/null 2>&1; then

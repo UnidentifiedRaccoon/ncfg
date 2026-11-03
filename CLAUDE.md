@@ -138,5 +138,5 @@ export function HeroSection({ title, lead, ctaText, ctaHref }: HeroSectionProps)
 ## Environment variables
 
 Не создавай `.env*` для обычного запуска. Корневой launcher передаёт явные
-переменные дочерним процессам, а production read-token получает из Lockbox
+переменные дочерним процессам, а production read-token получает из Cloud.ru Secret Management
 только в память. Write/outbound режимы описаны в `DEVELOPMENT.md`.

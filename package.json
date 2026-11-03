@@ -9,7 +9,7 @@
     "dev:doctor": "node scripts/dev.mjs doctor",
     "dev:verify": "node scripts/dev.mjs verify",
     "dev:down": "node scripts/dev.mjs down",
-    "test:dev-launcher": "node --test scripts/dev.test.mjs"
+    "test:dev-launcher": "node --test scripts/dev.test.mjs scripts/cloudru-secrets.test.mjs"
   },
   "engines": {
     "node": ">=22.22.2 <23",
