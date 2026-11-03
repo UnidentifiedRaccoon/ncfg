@@ -3,7 +3,11 @@ import { createHash } from "node:crypto";
 export const MIN_NODE_VERSION = [22, 22, 2];
 export const MAX_NODE_MAJOR = 23;
 
-const BLOCKED_WEB_ENV = [
+const BLOCKED_INHERITED_ENV = [
+  "ADMIN_JWT_SECRET", "API_TOKEN_SALT", "APP_KEYS", "JWT_SECRET", "TRANSFER_TOKEN_SALT",
+  "NCFG_LOCAL_TOKEN_BOOTSTRAP", "NCFG_LOCAL_READ_API_TOKEN", "NCFG_LOCAL_WRITE_API_TOKEN",
+  "NCFG_CLOUDRU_KEY_ID",
+  "NCFG_CLOUDRU_KEY_SECRET",
   "STRAPI_API_TOKEN",
   "STRAPI_WRITE_API_TOKEN",
   "STRAPI_LOCAL_API_TOKEN",
@@ -71,17 +75,23 @@ export function decideDependencyAction({
   return "install";
 }
 
+export function withoutProductionCredentials(baseEnvironment) {
+  const environment = { ...baseEnvironment };
+  for (const name of Object.keys(environment)) {
+    if (BLOCKED_INHERITED_ENV.includes(name) || /^(DATABASE_|POSTGRES_|AWS_|SMTP_)/.test(name)) {
+      delete environment[name];
+    }
+  }
+  return environment;
+}
+
 export function createWebEnvironment(baseEnvironment, {
   source,
   readToken,
   writeToken,
   strapiUrl,
 }) {
-  const environment = { ...baseEnvironment };
-
-  for (const name of BLOCKED_WEB_ENV) {
-    delete environment[name];
-  }
+  const environment = withoutProductionCredentials(baseEnvironment);
 
   Object.assign(environment, {
     DEPLOY_ENV: "local",
@@ -111,12 +121,10 @@ export function createWebEnvironment(baseEnvironment, {
 }
 
 export function createLocalCmsEnvironment(baseEnvironment, localTokens = null) {
-  const environment = { ...baseEnvironment };
-  delete environment.NCFG_LOCAL_TOKEN_BOOTSTRAP;
-  delete environment.NCFG_LOCAL_READ_API_TOKEN;
-  delete environment.NCFG_LOCAL_WRITE_API_TOKEN;
+  const environment = withoutProductionCredentials(baseEnvironment);
 
   Object.assign(environment, {
+    OUTBOUND_MODE: "disabled",
     ADMIN_JWT_SECRET: "ncfg-local-admin-jwt-secret",
     API_TOKEN_SALT: "ncfg-local-api-token-salt",
     APP_KEYS: "ncfg-local-key-1,ncfg-local-key-2,ncfg-local-key-3,ncfg-local-key-4",
@@ -148,6 +156,12 @@ export function createLocalCmsEnvironment(baseEnvironment, localTokens = null) {
   }
 
   return environment;
+}
+
+export function createCommandEnvironment(baseEnvironment, profile = "generic") {
+  return profile === "local-cms"
+    ? createLocalCmsEnvironment(baseEnvironment)
+    : withoutProductionCredentials(baseEnvironment);
 }
 
 export function redactSecrets(value, secrets) {

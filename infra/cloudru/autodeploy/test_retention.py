@@ -148,9 +148,10 @@ class RetentionTests(unittest.TestCase):
             with patch.object(deploy, 'ROOT', root), patch.object(deploy, 'RUNTIME', root), \
                     patch.object(deploy, 'PUBLIC_STATUS', root / 'public.json'), \
                     patch.object(deploy, 'checkout', return_value=(root, 'same-tree')), \
-                    patch.object(deploy, 'docker'), patch.object(deploy, 'build_image', return_value=image_id(9)), \
+                    patch.object(deploy, 'docker'), patch.object(deploy, 'cms_image_for_environment', return_value=None), \
+                    patch.object(deploy, 'build_image', return_value=image_id(9)), \
                     patch.object(deploy, 'desired', return_value='a' * 40), \
-                    patch.object(deploy, 'activate', return_value={'previous': {'web': 'new-previous-web'}}):
+                    patch.object(deploy, 'activate', return_value={'id':'new-operation', 'previous': {'web': 'new-previous-web'}}):
                 deploy.deploy('a' * 40, active)
             state = json.loads((root / 'active.json').read_text())
             self.assertEqual(state['previousContainers'], {'web': 'new-previous-web', 'cms': 'keep-cms'})

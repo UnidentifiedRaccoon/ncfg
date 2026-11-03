@@ -20,13 +20,16 @@ import { fileURLToPath } from "node:url";
 
 import {
   createLocalCmsEnvironment,
+  createCommandEnvironment,
   createWebEnvironment,
   decideDependencyAction,
   dependencyFingerprint,
   isSupportedNodeVersion,
   isSupportedNpmVersion,
   redactSecrets,
+  withoutProductionCredentials,
 } from "./dev-lib.mjs";
+import { loadDevelopmentReadToken } from "./cloudru-secrets.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(SCRIPT_DIR, "..");
@@ -51,8 +54,6 @@ const CONTROL_SOCKET =
     ? "\\\\.\\pipe\\ncfg-local-dev"
     : path.join(STATE_DIR, "control.sock");
 const PROD_STRAPI_URL = "https://admin.ncfg.ru";
-const DEV_SECRET_NAME = "ncfg-dev-secrets";
-const DEV_SECRET_KEY = "STRAPI_PROD_API_TOKEN";
 const WEB_URL = "http://127.0.0.1:3000";
 const CMS_URL = "http://127.0.0.1:1337";
 const VALID_COMMANDS = new Set(["web", "cms", "full", "doctor", "verify", "down"]);
@@ -109,7 +110,7 @@ function runCapture(command, args, options = {}) {
       args,
       {
         cwd: options.cwd ?? ROOT_DIR,
-        env: options.env ?? process.env,
+        env: withoutProductionCredentials(options.env ?? process.env),
         detached: process.platform !== "win32",
         encoding: "utf8",
         maxBuffer: 1024 * 1024,
@@ -142,7 +143,7 @@ async function commandSucceeds(command, args, options = {}) {
 async function runForeground(command, args, options = {}) {
   const child = spawn(command, args, {
     cwd: options.cwd ?? ROOT_DIR,
-    env: options.env ?? process.env,
+    env: createCommandEnvironment(options.env ?? process.env, options.profile),
     detached: process.platform !== "win32",
     stdio: "inherit",
     shell: false,
@@ -248,35 +249,14 @@ async function ensureDependencies(appName, appDir, requiredBinary) {
 }
 
 async function getProductionReadToken() {
-  const inherited = process.env.STRAPI_PROD_API_TOKEN?.trim();
-  if (inherited) {
-    log("Production Strapi read-token получен из окружения (значение не выводится).");
-    return inherited;
-  }
-
-  if (!(await commandSucceeds("yc", ["--version"]))) {
-    fail("yc CLI не найден. Установите его и выполните `yc init`.");
-  }
-
-  try {
-    const profile = process.env.NCFG_YC_PROFILE?.trim();
-    const profileArgs = profile ? ["--profile", profile] : [];
-    if (profile) log(`Yandex Cloud: профиль ${profile} только для этого запуска.`);
-    const { stdout } = await runCapture(
-      "yc",
-      [...profileArgs, "lockbox", "payload", "get", "--name", DEV_SECRET_NAME, "--key", DEV_SECRET_KEY],
-      { timeout: 30_000 }
-    );
-    const token = stdout.trim();
-    if (!token) fail("Lockbox вернул пустой read-token.");
-    log("Production Strapi read-token получен из Lockbox только в память процесса.");
-    return token;
-  } catch {
-    fail(
-      `Не удалось получить ${DEV_SECRET_NAME}/${DEV_SECRET_KEY}. ` +
-        "Проверьте профиль yc (можно задать NCFG_YC_PROFILE), его регион и роль lockbox.payloadViewer."
-    );
-  }
+  const token = await loadDevelopmentReadToken({
+    environment: process.env,
+    platform: process.platform,
+    runCapture,
+  });
+  const source = process.env.STRAPI_PROD_API_TOKEN?.trim() ? "окружения" : "Cloud.ru Secret Management";
+  log(`Production Strapi read-token получен из ${source} только в память процесса.`);
+  return token;
 }
 
 async function fetchWithTimeout(url, options = {}, timeoutMs = 15_000) {
@@ -833,6 +813,7 @@ async function startCms({ localTokens = null } = {}) {
   const environment = createLocalCmsEnvironment(process.env, localTokens);
   await runForeground(process.execPath, [CMS_ENV_VALIDATOR], {
     cwd: CMS_DIR,
+    profile: "local-cms",
     env: environment,
   });
   spawnManaged("cms", process.execPath, [STRAPI_CLI, "develop"], {
@@ -928,7 +909,7 @@ async function runDoctor() {
   try {
     const token = await getProductionReadToken();
     await probeProductionStrapi(token);
-    add("Prod Strapi", true, "Lockbox + read-check");
+    add("Prod Strapi", true, "Secret Management / окружение + read-check");
   } catch (error) {
     add("Prod Strapi", false, error.message);
   }

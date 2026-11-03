@@ -3,12 +3,14 @@ import test from "node:test";
 
 import {
   createLocalCmsEnvironment,
+  createCommandEnvironment,
   createWebEnvironment,
   decideDependencyAction,
   dependencyFingerprint,
   isSupportedNodeVersion,
   isSupportedNpmVersion,
   redactSecrets,
+  withoutProductionCredentials,
 } from "./dev-lib.mjs";
 
 test("runtime version ranges match package engines", () => {
@@ -142,4 +144,52 @@ test("log redaction never preserves a known token", () => {
     redactSecrets("before super-secret after", ["super-secret"]),
     "before [REDACTED] after"
   );
+});
+
+
+test("Cloud.ru bootstrap credentials never reach web or local CMS child processes", () => {
+  const base = { NCFG_CLOUDRU_KEY_ID: "bootstrap-id", NCFG_CLOUDRU_KEY_SECRET: "bootstrap-secret", KEEP_ME: "yes" };
+  const web = createWebEnvironment(base, { source: "prod", readToken: "read", strapiUrl: "https://admin.ncfg.ru" });
+  const cms = createLocalCmsEnvironment(base);
+  for (const env of [web, cms]) {
+    assert.equal(env.NCFG_CLOUDRU_KEY_ID, undefined);
+    assert.equal(env.NCFG_CLOUDRU_KEY_SECRET, undefined);
+    assert.equal(env.KEEP_ME, "yes");
+  }
+});
+
+
+test("all development children discard inherited production secrets", () => {
+  const sensitive = {
+    ADMIN_JWT_SECRET: "production-signing", APP_KEYS: "production-keys",
+    API_TOKEN_SALT: "production-salt", JWT_SECRET: "production-jwt",
+    TRANSFER_TOKEN_SALT: "production-transfer", DATABASE_PASSWORD: "production-db",
+    DATABASE_URL: "postgres://production", AWS_SECRET_ACCESS_KEY: "production-s3",
+    STRAPI_PROD_WRITE_API_TOKEN: "production-write", STRAPI_PROD_API_TOKEN: "production-read",
+    POSTBOX_API_KEY_SECRET: "production-mail", GETCOURSE_API_KEY: "production-crm",
+    BITRIX24_WEBHOOK_URL: "production-webhook", NCFG_CLOUDRU_KEY_SECRET: "production-bootstrap",
+  };
+  const base = { ...sensitive, PATH: "/bin", KEEP_ME: "yes" };
+  const generic = withoutProductionCredentials(base);
+  const web = createWebEnvironment(base, { source: "prod", readToken: "selected-read", strapiUrl: "https://admin.ncfg.ru" });
+  const cms = createLocalCmsEnvironment(base);
+  for (const env of [generic, web, cms]) {
+    assert.equal(env.PATH, "/bin");
+    assert.equal(env.KEEP_ME, "yes");
+    for (const [key, value] of Object.entries(sensitive)) assert.notEqual(env[key], value, key);
+  }
+  assert.equal(web.STRAPI_PROD_API_TOKEN, "selected-read");
+  assert.equal(cms.STRAPI_PROD_API_TOKEN, undefined);
+  assert.equal(cms.OUTBOUND_MODE, "disabled");
+  assert.equal(base.ADMIN_JWT_SECRET, "production-signing");
+});
+
+
+test("CMS validation commands receive local credentials after inherited secrets are scrubbed", () => {
+  const base={DATABASE_PASSWORD:"production",APP_KEYS:"production",POSTBOX_API_KEY_SECRET:"production"};
+  const environment=createCommandEnvironment(base, "local-cms");
+  assert.equal(environment.DATABASE_PASSWORD,"strapi_local_password");
+  assert.match(environment.APP_KEYS,/^ncfg-local-/);
+  assert.equal(environment.POSTBOX_API_KEY_SECRET,undefined);
+  assert.equal(createCommandEnvironment(base).DATABASE_PASSWORD,undefined);
 });

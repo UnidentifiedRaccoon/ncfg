@@ -1,3 +1,5 @@
+> Historical Yandex setup, retained for recovery documentation only. Do not run these provisioning commands for the active NCFG deployment. Production and development secrets now use Cloud.ru; see `infra/cloudru/autodeploy/README.md` and `DEVELOPMENT.md`.
+
 # Yandex Cloud Setup Guide
 
 ## Prerequisites

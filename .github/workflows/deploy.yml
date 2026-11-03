@@ -9,6 +9,9 @@ on:
       - 'infra/cloudru/autodeploy/**'
       - 'docker/**'
       - 'scripts/retain-next-static*'
+      - 'scripts/dev*.mjs'
+      - 'scripts/cloudru-secrets*.mjs'
+      - 'package.json'
   workflow_dispatch:
 
 permissions:
@@ -30,6 +33,7 @@ jobs:
         run: |
           python3 -m unittest discover -s infra/cloudru/autodeploy -p 'test_*.py'
           node --test scripts/retain-next-static.test.mjs
+          npm run test:dev-launcher
           node --check apps/cms/config/plugins.js
           node --check apps/cms/config/middlewares.js
 

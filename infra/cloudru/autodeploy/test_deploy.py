@@ -32,6 +32,9 @@ class DeploymentTests(unittest.TestCase):
             active.write_text('{"revision": "' + 'b' * 40 + '"}')
             before = active.read_bytes()
             stack.enter_context(patch.object(deploy, 'ROOT', root))
+            stack.enter_context(patch.object(deploy, 'RUNTIME', root))
+            for service in ['web', 'cms']:
+                (root / (service + '.json')).write_text('{}')
             stack.enter_context(patch.object(deploy.os, 'umask'))
             stack.enter_context(patch.object(deploy.os, 'geteuid', return_value=0))
             stack.enter_context(patch.object(deploy.socket, 'gethostname', return_value='ncfg-app-01'))
@@ -277,7 +280,8 @@ class DeploymentTests(unittest.TestCase):
             for service in ['web', 'cms']:
                 (root / (service + '.json')).write_text('{}')
             with patch.object(deploy, 'RUNTIME', root), patch.object(deploy, 'checkout', return_value=(root, 'tree')), \
-                    patch.object(deploy, 'docker'), patch.object(deploy, 'build_image', return_value='image'), \
+                    patch.object(deploy, 'docker'), patch.object(deploy, 'cms_image_for_environment', return_value=None), \
+                    patch.object(deploy, 'build_image', return_value='image'), \
                     patch.object(deploy, 'desired', return_value='b' * 40), patch.object(deploy, 'activate') as activate:
                 deploy.deploy('a' * 40, {'cmsTree': 'tree'})
                 activate.assert_not_called()
