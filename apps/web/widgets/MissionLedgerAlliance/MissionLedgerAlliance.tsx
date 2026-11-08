@@ -159,7 +159,7 @@ function MissionDirectionControls({
               </span>
               <span
                 className={cn(
-                  "mt-1.5 block text-sm leading-[1.55]",
+                  "mt-3 block text-sm leading-[1.55]",
                   isActive ? "text-[#486481]" : "text-[#5E738E]"
                 )}
               >
@@ -333,19 +333,19 @@ function MissionLedgerAlliancePanel({
       <div className="space-y-3 xl:hidden">
         {missionDirections.map((direction) => (
           <MotionDetails key={direction.id} className="group rounded-[24px] border border-[#D8E4F2] bg-white open:border-[#9FBFE6] open:bg-[#F9FCFF]">
-            <summary className="faq-summary flex cursor-pointer items-start gap-3 rounded-[24px] p-5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+            <summary className="faq-summary flex cursor-pointer items-start gap-3 rounded-[24px] p-6 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
               <span className="min-w-0 flex-1">
                 <span className="block text-base font-semibold leading-6 text-[#163153]">{direction.label}</span>
-                <span className="mt-1 block text-sm leading-6 text-[#52657D]">{direction.summary}</span>
+                <span className="mt-3 block text-sm leading-6 text-[#52657D]">{direction.summary}</span>
               </span>
               <ChevronDown aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary transition-transform duration-200 group-data-[state=open]:rotate-180 motion-reduce:transition-none" />
             </summary>
             <div>
-              <div className="mx-5 border-t border-[#D8E4F2] pb-5 pt-4">
+              <div className="mx-6 border-t border-[#D8E4F2] pb-6 pt-6">
                 <div className="space-y-3 text-base leading-7 text-[#52657D]">
                   {direction.detail.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
                 </div>
-                <ul className="mt-5 grid gap-3 text-sm leading-6 text-[#234361] sm:grid-cols-2">
+                <ul className="mt-6 grid gap-3 text-sm leading-6 text-[#234361] sm:grid-cols-2">
                   {direction.outcomes.map((outcome) => <li key={outcome} className="rounded-[18px] border border-[#D8E4F2] bg-[#F3F8FF] px-4 py-3">{outcome}</li>)}
                 </ul>
               </div>

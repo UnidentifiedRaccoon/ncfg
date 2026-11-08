@@ -54,6 +54,7 @@ export default async function SeasonOffer2026Page() {
         <HeroMotionScene
           hero={<SeasonOfferHero {...seasonOffer2026Content.hero} />}
           variant="editorial"
+          backdropColor="#eef3f6"
           sentinel={false}
         >
           <SeasonOfferTaskNavigator

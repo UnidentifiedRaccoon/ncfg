@@ -90,10 +90,10 @@ function OtherServicesCard({
         </div>
 
         <div className="mt-auto">
-          <div className="text-2xl font-semibold tracking-tight text-white">
+          <div className="card-title text-white">
             Другие услуги
           </div>
-          <div className="mt-2 max-w-[34ch] text-sm text-white/70 leading-relaxed">
+          <div className="card-description mt-3 max-w-[34ch] text-white/70">
             Все направления для компаний, проекты и форматы сотрудничества.
           </div>
 
@@ -129,9 +129,10 @@ function ServiceTile({
         "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-out",
         "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
+        "p-6",
         featured
-          ? "bg-[#F0F7FF] border-[#E2E8F0] p-6 md:p-8"
-          : "bg-white border-[#F1F5F9] p-5 md:p-6",
+          ? "bg-[#F0F7FF] border-[#E2E8F0]"
+          : "bg-white border-[#F1F5F9]",
         "before:pointer-events-none before:absolute before:inset-x-6 before:top-0 before:z-0 before:h-px before:content-['']",
         "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
         "before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100",
@@ -168,21 +169,11 @@ function ServiceTile({
         </div>
       )}
 
-      <h3
-        className={cn(
-          "relative z-10 mt-4 leading-tight tracking-tight text-[#1E3A5F]",
-          featured ? "text-2xl md:text-3xl font-bold" : "text-lg font-semibold"
-        )}
-      >
+      <h3 className="card-title relative z-10 mt-4 text-[#1E3A5F]">
         {service.title}
       </h3>
 
-      <p
-        className={cn(
-          "relative z-10 mt-3 text-[#475569] leading-relaxed",
-          featured ? "text-base md:text-lg" : "text-sm line-clamp-3"
-        )}
-      >
+      <p className="card-description relative z-10 mt-3 text-[#475569]">
         {service.description}
       </p>
 
@@ -207,7 +198,7 @@ export function Services({ title, services }: ServicesProps) {
 
   return (
     <Section id="services" title={title}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Reveal variant="card" className="md:col-span-2 lg:col-span-2 lg:row-span-2">
           <ServiceTile service={featured} featured />
         </Reveal>

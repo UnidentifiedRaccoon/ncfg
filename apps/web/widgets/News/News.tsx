@@ -152,13 +152,17 @@ export function News({
             )}
             aria-label={featured.title}
           >
-            <div className="relative aspect-[4/3] w-full">
-              <Cover
-                post={featured}
-                sizes="(min-width: 1024px) 720px, 100vw"
-              />
+            <div className="relative grid w-full grid-cols-1">
+              <div className="relative col-start-1 row-start-1 aspect-[4/3] min-w-0 w-full self-stretch">
+                <div className="absolute inset-0">
+                  <Cover
+                    post={featured}
+                    sizes="(min-width: 1024px) 720px, 100vw"
+                  />
+                </div>
+              </div>
 
-              <div className="absolute inset-x-0 bottom-0 p-4 md:p-5 lg:p-6">
+              <div className="relative z-10 col-start-1 row-start-1 min-w-0 self-end p-4 md:p-5 lg:p-6">
                 <div
                   className={cn(
                     "rounded-2xl border border-white/40 bg-white/90 backdrop-blur-sm",
@@ -179,12 +183,12 @@ export function News({
                     </time>
                   </div>
 
-                  <h3 className="mt-3 text-xl md:text-2xl leading-snug font-semibold tracking-tight text-[#1E3A5F] line-clamp-2">
+                  <h3 className="card-title mt-3 text-[#1E3A5F]">
                     {featured.title}
                   </h3>
 
                   {featuredExcerpt && (
-                    <p className="mt-3 text-sm leading-relaxed text-[#475569] line-clamp-2">
+                    <p className="card-description mt-3 text-[#475569]">
                       {featuredExcerpt}
                     </p>
                   )}

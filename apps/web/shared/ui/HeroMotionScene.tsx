@@ -1,7 +1,7 @@
 "use client";
 
 import { m, scroll, useInView, useMotionValue, useTransform } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 
 import { useDesktopScene, useDocumentVisible, useReducedMotion } from "@/shared/lib/motion";
 
@@ -18,9 +18,13 @@ export function HeroMotionScene({
   missionDeck = false,
   sentinel = true,
   variant = "illustration",
+  backdropColor = variant === "illustration" ? "#050B16" : "var(--color-white)",
   surfaceClassName,
 }: HeroMotionSceneProps) {
   const sceneRef = useRef<HTMLDivElement>(null);
+  const sceneStyle: CSSProperties & { "--home-scene-background": string } = {
+    "--home-scene-background": backdropColor,
+  };
   const heroRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
   const cardsUsed = useRef(false);
@@ -167,7 +171,7 @@ export function HeroMotionScene({
   }, [deck, desktop, inView, missionDeck, progress, reduced, visible]);
 
   return (
-    <div ref={sceneRef} className={styles.scene} data-hero-motion-scene={variant} data-home-motion-scene={missionDeck || undefined}>
+    <div ref={sceneRef} className={styles.scene} style={sceneStyle} data-hero-motion-scene={variant} data-home-motion-scene={missionDeck || undefined}>
       <m.div ref={heroRef} className={styles.hero} style={heroStyle}>
         {missionDeck ? hero : <HeroEntrance compactOnly>{hero}</HeroEntrance>}
       </m.div>

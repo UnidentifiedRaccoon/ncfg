@@ -69,7 +69,7 @@ export default async function HistoryPage() {
   return (
     <>
       <StructuredDataScript data={breadcrumbStructuredData} />
-      <main className="pb-10 md:pb-12 [&>[data-hero-motion-scene]]:bg-[#050B16]">
+      <main className="pb-10 md:pb-12">
         <HeroMotionScene
           sentinel={false}
           hero={

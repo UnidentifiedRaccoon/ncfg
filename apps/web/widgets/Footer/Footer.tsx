@@ -248,32 +248,34 @@ export function Footer({ data, ctaHref = "/#lead-form" }: FooterProps) {
                   />
                 </Button>
 
-                <a
-                  href={`tel:${phoneSanitized}`}
-                  data-ym-goal="phone_click"
-                  className={cn(
-                    "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
-                    "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
-                  )}
-                >
-                  <Phone size={14} className={iconAccentClassName} />
-                  <span className="whitespace-nowrap">{data.contacts.phone}</span>
-                  <span className="whitespace-nowrap text-xs font-medium text-white/50">
-                    {phoneWorkingHours}
-                  </span>
-                </a>
+                <div className="flex flex-wrap items-center gap-2 lg:shrink-0 lg:flex-nowrap">
+                  <a
+                    href={`tel:${phoneSanitized}`}
+                    data-ym-goal="phone_click"
+                    className={cn(
+                      "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
+                      "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
+                    )}
+                  >
+                    <Phone size={14} className={iconAccentClassName} />
+                    <span className="whitespace-nowrap">{data.contacts.phone}</span>
+                    <span className="whitespace-nowrap text-xs font-medium text-white/50">
+                      {phoneWorkingHours}
+                    </span>
+                  </a>
 
-                <a
-                  href={`mailto:${data.contacts.email}`}
-                  data-ym-goal="email_click"
-                  className={cn(
-                    "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
-                    "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
-                  )}
-                >
-                  <Mail size={14} className={iconAccentClassName} />
-                  {data.contacts.email}
-                </a>
+                  <a
+                    href={`mailto:${data.contacts.email}`}
+                    data-ym-goal="email_click"
+                    className={cn(
+                      "inline-flex h-11 items-center gap-2 rounded-full border px-6 text-base font-semibold transition-colors",
+                      "border-white/15 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
+                    )}
+                  >
+                    <Mail size={14} className={iconAccentClassName} />
+                    {data.contacts.email}
+                  </a>
+                </div>
               </div>
             </div>
 

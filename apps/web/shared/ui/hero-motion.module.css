@@ -2,6 +2,8 @@
   position: relative;
   display: flow-root;
   isolation: isolate;
+  /* The hero can be hidden before the rounded surface fully covers the scene. */
+  background: var(--home-scene-background, var(--color-white));
 }
 
 /* Window-scroll offsets need a positioned root; scope this to pages with a hero scene. */

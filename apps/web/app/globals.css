@@ -137,6 +137,27 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Shared card roles: layout emphasis must not change typography. */
+.card-title {
+  overflow-wrap: anywhere;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.card-description {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .card-title {
+    font-size: 1.5rem;
+  }
+}
+
 /* Focus styles - never remove outline */
 :focus-visible {
   outline: 2px solid var(--color-secondary);

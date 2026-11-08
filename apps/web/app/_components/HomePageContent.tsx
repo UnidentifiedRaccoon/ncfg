@@ -1,13 +1,12 @@
 import dynamic from "next/dynamic";
-import {
-  Hero,
-  MissionLedgerAlliance,
-  Products,
-  Projects,
-  Services,
-  News,
-  Footer,
-} from "@/widgets";
+
+import { Footer } from "@/widgets/Footer";
+import { Hero } from "@/widgets/Hero";
+import { MissionLedgerAlliance } from "@/widgets/MissionLedgerAlliance";
+import { News } from "@/widgets/News";
+import { Products } from "@/widgets/Products";
+import { Projects } from "@/widgets/Projects";
+import { Services } from "@/widgets/Services";
 
 import {
   fetchHomePageData,

@@ -7,6 +7,8 @@ export interface HeroMotionSceneProps {
   missionDeck?: boolean;
   sentinel?: boolean;
   variant?: "illustration" | "photo" | "editorial";
+  /** Persistent paint behind the rounded surface, including while the hero is inert. */
+  backdropColor?: string;
   surfaceClassName?: string;
 }
 
