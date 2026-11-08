@@ -79,11 +79,11 @@ export function Projects({
                   </span>
                 </div>
 
-                <h3 className="relative z-10 mt-4 break-words text-xl font-bold leading-snug tracking-tight text-[#1E3A5F]">
+                <h3 className="card-title relative z-10 mt-4 break-words text-[#1E3A5F]">
                   {project.title}
                 </h3>
 
-                <p className="relative z-10 mt-4 text-sm leading-relaxed text-[#475569]">
+                <p className="card-description relative z-10 mt-3 text-[#475569]">
                   {project.description}
                 </p>
 

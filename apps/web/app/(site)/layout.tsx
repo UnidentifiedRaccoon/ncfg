@@ -1,7 +1,7 @@
 import Script from "next/script";
 import { Suspense } from "react";
 
-import { Header } from "@/widgets";
+import { Header } from "@/widgets/Header";
 import { ScrollDepthTracker } from "@/shared/ui/ScrollDepthTracker";
 import { UtmCapture } from "@/shared/ui/UtmCapture";
 import { YandexMetrikaGoalTracker } from "@/shared/ui/YandexMetrikaGoalTracker";

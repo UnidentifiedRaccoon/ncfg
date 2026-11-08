@@ -7,6 +7,7 @@ import {
   createWebEnvironment,
   decideDependencyAction,
   dependencyFingerprint,
+  getNextDevFlags,
   isSupportedNodeVersion,
   isSupportedNpmVersion,
   redactSecrets,
@@ -62,6 +63,20 @@ test("dependency fingerprint covers package metadata and lockfile", () => {
   assert.equal(dependencyFingerprint("package", "lock"), dependencyFingerprint("package", "lock"));
   assert.notEqual(dependencyFingerprint("package", "lock"), dependencyFingerprint("package2", "lock"));
   assert.notEqual(dependencyFingerprint("package", "lock"), dependencyFingerprint("package", "lock2"));
+});
+
+test("Turbopack disables Node source maps by default and allows debugging with them enabled", () => {
+  assert.deepEqual(getNextDevFlags({}), ["--turbopack", "--disable-source-maps"]);
+  assert.deepEqual(getNextDevFlags({ NCFG_DEV_BUNDLER: "turbopack", NCFG_DEV_SOURCE_MAPS: "0" }), [
+    "--turbopack", "--disable-source-maps",
+  ]);
+  assert.deepEqual(getNextDevFlags({ NCFG_DEV_SOURCE_MAPS: "1" }), ["--turbopack"]);
+});
+
+test("Webpack keeps its own source map defaults and unknown bundlers are rejected", () => {
+  assert.deepEqual(getNextDevFlags({ NCFG_DEV_BUNDLER: "webpack" }), ["--webpack"]);
+  assert.deepEqual(getNextDevFlags({ NCFG_DEV_BUNDLER: "webpack", NCFG_DEV_SOURCE_MAPS: "1" }), ["--webpack"]);
+  assert.throws(() => getNextDevFlags({ NCFG_DEV_BUNDLER: "unknown" }), /NCFG_DEV_BUNDLER/);
 });
 
 test("production web environment is read-only and strips external-effect credentials", () => {

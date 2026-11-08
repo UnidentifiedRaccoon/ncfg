@@ -24,6 +24,7 @@ import {
   createWebEnvironment,
   decideDependencyAction,
   dependencyFingerprint,
+  getNextDevFlags,
   isSupportedNodeVersion,
   isSupportedNpmVersion,
   redactSecrets,
@@ -783,13 +784,9 @@ async function prepareProductionWeb() {
 }
 
 async function startWeb({ source, readToken, writeToken = null, strapiUrl }) {
-  const bundler = process.env.NCFG_DEV_BUNDLER?.trim() || "turbopack";
-  if (bundler !== "turbopack" && bundler !== "webpack") {
-    fail("NCFG_DEV_BUNDLER должен быть turbopack или webpack.");
-  }
-  const args = [NEXT_CLI, "dev", "--hostname", "127.0.0.1"];
-  if (bundler === "webpack") args.push("--webpack");
-  log(`Next.js dev bundler: ${bundler}.`);
+  const flags = getNextDevFlags(process.env);
+  const args = [NEXT_CLI, "dev", "--hostname", "127.0.0.1", ...flags];
+  log(`Next.js dev: ${flags.join(" ")}`);
   const environment = createWebEnvironment(process.env, {
     source,
     readToken,

@@ -102,17 +102,20 @@ npm run dev:doctor
   по номеру порта;
 - Docker-профиль не стартует — проверьте Docker Desktop или Colima.
 
-Если Turbopack повторно зависает или расходует много памяти после переноса
-маршрутов, можно выбрать Webpack только для текущей dev-сессии:
+`npm run dev` по умолчанию запускает Turbopack с флагом `--disable-source-maps`.
+Это сокращает задержку при первом открытии главной. Чтобы видеть исходные
+строки в серверных стеках при отладке, включите source maps Node.js для новой сессии.
 
 ```bash
-npm run dev:down
-NCFG_YC_PROFILE=default NCFG_DEV_BUNDLER=webpack npm run dev
+NCFG_DEV_SOURCE_MAPS=1 npm run dev
 ```
 
-`NCFG_DEV_BUNDLER` принимает `turbopack` (по умолчанию) или `webpack`.
-Профиль Strapi, отключение внешних эффектов и readiness остаются прежними.
-Переменная не меняет production-сборку.
+При повторных зависаниях Turbopack можно выбрать Webpack для новой dev-сессии.
+Webpack использует стандартные настройки source maps Next.js.
+
+```bash
+NCFG_DEV_BUNDLER=webpack npm run dev
+```
 
 Проверки кода выполняются отдельно от запуска, в каталоге изменённого приложения:
 

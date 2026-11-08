@@ -49,19 +49,6 @@ const products: Product[] = [
   },
 ];
 
-function DecorativeBackground() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-      aria-hidden="true"
-    >
-      <div className="absolute -top-24 right-[-160px] h-80 w-80 rounded-full bg-[#58A8E0]/14 blur-3xl" />
-
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(226,232,240,0.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(226,232,240,0.55)_1px,transparent_1px)] bg-[size:28px_28px] opacity-[0.22]" />
-    </div>
-  );
-}
-
 function ProductTileLink({
   href,
   className,
@@ -112,7 +99,7 @@ function ProductTile({
         "bg-white border-[#F1F5F9]",
         "hover:-translate-y-1 hover:shadow-lg hover:border-[#3B82F6]/25 hover:z-10",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B82F6] focus-visible:z-10",
-        featured ? "p-6 md:p-8" : "p-5 md:p-6",
+        "p-6",
         "before:pointer-events-none before:absolute before:inset-x-6 before:top-0 before:z-0 before:h-px before:content-['']",
         "before:bg-gradient-to-r before:from-transparent before:via-[#58A8E0]/70 before:to-transparent",
         "before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100",
@@ -147,21 +134,11 @@ function ProductTile({
         )}
       </div>
 
-      <h3
-        className={cn(
-          "relative z-10 mt-5 leading-tight tracking-tight text-[#1E3A5F]",
-          featured ? "text-2xl md:text-3xl font-bold" : "text-lg font-semibold"
-        )}
-      >
+      <h3 className="card-title relative z-10 mt-4 text-[#1E3A5F]">
         {product.title}
       </h3>
 
-      <p
-        className={cn(
-          "relative z-10 mt-3 text-[#475569] leading-relaxed",
-          featured ? "text-base md:text-lg" : "text-sm line-clamp-3"
-        )}
-      >
+      <p className="card-description relative z-10 mt-3 text-[#475569]">
         {product.description}
       </p>
 
@@ -190,8 +167,6 @@ export function Products() {
       className="overflow-x-clip"
     >
       <div className="relative">
-        <DecorativeBackground />
-
         <div className="relative z-10 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
           <Reveal variant="card" from="left" className="h-full min-w-0">
             <ProductTile product={products[0]} featured />

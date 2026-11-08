@@ -85,6 +85,18 @@ export function withoutProductionCredentials(baseEnvironment) {
   return environment;
 }
 
+export function getNextDevFlags(env) {
+  const bundler = env.NCFG_DEV_BUNDLER?.trim() || "turbopack";
+  if (bundler === "webpack") return ["--webpack"];
+  if (bundler !== "turbopack") {
+    throw new Error("NCFG_DEV_BUNDLER должен быть turbopack или webpack.");
+  }
+
+  const flags = ["--turbopack"];
+  if (env.NCFG_DEV_SOURCE_MAPS?.trim() !== "1") flags.push("--disable-source-maps");
+  return flags;
+}
+
 export function createWebEnvironment(baseEnvironment, {
   source,
   readToken,
