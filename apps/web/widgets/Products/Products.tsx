@@ -47,6 +47,15 @@ const products: Product[] = [
     audience: "Дети",
     icon: "graduation-cap",
   },
+  {
+    id: "finmarket_lovushki",
+    title: "Финансовый рынок и его ловушки",
+    description:
+      "Бесплатный курс при поддержке АРФГ. 12 уроков о том, как устроен финансовый рынок и как не попасться в ловушки.",
+    href: "https://fin-zdorov.pro/finmarket_lovushki",
+    audience: "Взрослые",
+    icon: "trending-up",
+  },
 ];
 
 function ProductTileLink({
@@ -122,7 +131,7 @@ function ProductTile({
             <Icon className="h-4 w-4 text-[#1E3A5F]" />
           </span>
 
-          <span className="inline-flex h-8 w-24 shrink-0 items-center justify-center rounded-full bg-[#3B82F6]/10 px-0 py-1 text-xs font-semibold text-[#1E3A5F] whitespace-nowrap">
+          <span className="inline-flex h-8 min-w-24 shrink-0 items-center justify-center rounded-full bg-[#3B82F6]/10 px-3 py-1 text-xs font-semibold text-[#1E3A5F] whitespace-nowrap">
             {product.audience}
           </span>
         </div>
@@ -134,7 +143,7 @@ function ProductTile({
         )}
       </div>
 
-      <h3 className="card-title relative z-10 mt-4 text-[#1E3A5F]">
+      <h3 className="card-title relative z-10 mt-4 min-h-[2lh] text-[#1E3A5F]">
         {product.title}
       </h3>
 
@@ -167,7 +176,7 @@ export function Products() {
       className="overflow-x-clip"
     >
       <div className="relative">
-        <div className="relative z-10 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+        <div className="relative z-10 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-6">
           <Reveal variant="card" from="left" className="h-full min-w-0">
             <ProductTile product={products[0]} featured />
           </Reveal>
