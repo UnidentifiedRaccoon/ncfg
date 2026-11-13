@@ -179,9 +179,10 @@ export function Footer({ data, ctaHref = "/#lead-form" }: FooterProps) {
 
   const phoneSanitized = data.contacts.phone.replace(/\s/g, "");
   const phoneWorkingHours = "(9-18 мск)";
-  const officeAddress = "Бульвар Матроса Железняка, 13";
+  const officeAddress =
+    "125414, Город Москва, вн.тер. г. Муниципальный Округ Ховрино, ул. Петрозаводская, дом 18, корпус 1, квартира 110";
   const officeAddressHref =
-    "https://yandex.ru/maps/?text=%D0%91%D1%83%D0%BB%D1%8C%D0%B2%D0%B0%D1%80%20%D0%9C%D0%B0%D1%82%D1%80%D0%BE%D1%81%D0%B0%20%D0%96%D0%B5%D0%BB%D0%B5%D0%B7%D0%BD%D1%8F%D0%BA%D0%B0%2C%2013";
+    "https://yandex.ru/maps/213/moscow/house/petrozavodskaya_ulitsa_18k1/Z04Ycg5oQEAHQFtvfXR3dHhhYA==/";
 
   const copyrightTitle = data.copyright.years
     ? `© ${data.copyright.years} ${data.organization.shortName}.`
