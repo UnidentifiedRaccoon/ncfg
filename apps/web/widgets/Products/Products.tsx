@@ -49,10 +49,10 @@ const products: Product[] = [
   },
   {
     id: "finmarket_lovushki",
-    title: "Финансовый рынок и его ловушки",
+    title: "Финансовый рынок и его ловушки",
     description:
-      "Бесплатный курс при поддержке АРФГ. 12 уроков о том, как устроен финансовый рынок и как не попасться в ловушки.",
-    href: "https://fin-zdorov.pro/finmarket_lovushki",
+      "Бесплатный курс при поддержке АРФГ. 12 уроков о том, как устроен финансовый рынок и как не попасться в ловушки.",
+    href: "https://xn----8sbldn4awhx.xn--p1ai/finmarket_lovushki",
     audience: "Взрослые",
     icon: "trending-up",
   },
