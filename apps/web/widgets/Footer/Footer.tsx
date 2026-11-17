@@ -180,7 +180,7 @@ export function Footer({ data, ctaHref = "/#lead-form" }: FooterProps) {
   const phoneSanitized = data.contacts.phone.replace(/\s/g, "");
   const phoneWorkingHours = "(9-18 мск)";
   const officeAddress =
-    "125414, Город Москва, вн.тер. г. Муниципальный Округ Ховрино, ул. Петрозаводская, дом 18, корпус 1, квартира 110";
+    "125414, Город Москва, ул. Петрозаводская, дом 18, корпус 1, квартира 110";
   const officeAddressHref =
     "https://yandex.ru/maps/213/moscow/house/petrozavodskaya_ulitsa_18k1/Z04Ycg5oQEAHQFtvfXR3dHhhYA==/";
 
