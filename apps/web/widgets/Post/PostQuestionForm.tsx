@@ -238,16 +238,16 @@ export function PostQuestionForm({
 
               <div className="pt-4 border-t border-[#E2E8F0]">
                 <p className="text-sm text-[#94A3B8] mb-2">
-                  Или свяжитесь с нами напрямую:
+                  Другие контакты НЦФГ
                 </p>
                 <div className="flex flex-wrap gap-4 text-sm">
                   <a
-                    href="https://t.me/wellf_club"
+                    href="https://t.me/kultura_deneg"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[#3B82F6] hover:underline"
                   >
-                    Telegram @wellf_club
+                    Канал НЦФГ в Telegram
                   </a>
                   <a
                     href="tel:+74995011173"

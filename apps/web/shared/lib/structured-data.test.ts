@@ -47,7 +47,7 @@ test("buildOrganizationStructuredData includes legal name, contacts, sameAs, and
         contactsEmail: "info@finzdorov.pro",
         socialLinks: [
           { href: "https://vk.com/ncfingram" },
-          { href: "https://t.me/wellf_club" },
+          { href: "https://t.me/kultura_deneg" },
         ],
       }),
       {
@@ -65,7 +65,7 @@ test("buildOrganizationStructuredData includes legal name, contacts, sameAs, and
         },
         telephone: "+7 (499) 501-11-73",
         email: "info@finzdorov.pro",
-        sameAs: ["https://vk.com/ncfingram", "https://t.me/wellf_club"],
+        sameAs: ["https://vk.com/ncfingram", "https://t.me/kultura_deneg"],
         address: {
           "@type": "PostalAddress",
           postalCode: "125239",
