@@ -132,7 +132,11 @@ export function useDiagnosticSurvey({
   const previewCounter = useRef(0);
 
   const currentQuestion = currentStep < questions.length ? questions[currentStep] : null;
+  const firstMissingStep = questions.findIndex((question) => !answers[question.key]);
   const answeredCount = questions.filter((question) => Boolean(answers[question.key])).length;
+  const canShowResults = questions.length > 0 && firstMissingStep === -1;
+  const returnToMissing = currentStep === questions.length - 1
+    && firstMissingStep >= 0 && firstMissingStep < currentStep;
   const progressPercent = questions.length
     ? Math.max(8, Math.round((answeredCount / questions.length) * 100))
     : 100;
@@ -251,8 +255,18 @@ export function useDiagnosticSurvey({
   const continueDraft = () => {
     const draft = loadDraft(campaignSlug);
     if (draft) {
-      setCurrentStep(draft.currentStep);
-      setAnswers(draft.answers);
+      const restoredAnswers: Record<string, string> = {};
+      for (const question of questions) {
+        const answer = draft.answers[question.key];
+        if (question.options.some((option) => option.key === answer)) {
+          restoredAnswers[question.key] = answer;
+        }
+      }
+      const missingStep = questions.findIndex((question) => !restoredAnswers[question.key]);
+      const resumeAtMissing = draft.phase === "results" && missingStep >= 0;
+      const savedStep = questions[draft.currentStep] ? draft.currentStep : Math.max(0, missingStep);
+      setCurrentStep(resumeAtMissing ? missingStep : savedStep);
+      setAnswers(restoredAnswers);
       setRespondent(draft.respondent);
       setConsentAccepted(draft.consentAccepted);
       setSubmissionKey(draft.submissionKey);
@@ -260,7 +274,7 @@ export function useDiagnosticSurvey({
       setEmailDeliveryStatus(null);
 
       // If draft was in results phase, restore and re-fetch preview
-      if (draft.phase === "results") {
+      if (draft.phase === "results" && questions.length > 0 && missingStep === -1) {
         setPhase("results");
         setStatus("idle");
         setErrorMessage("");
@@ -276,7 +290,7 @@ export function useDiagnosticSurvey({
     setPhase("survey");
   };
 
-  // Auto-fetch preview when entering results phase from draft restore
+  // Fetch the preview once when entering results, including after a draft restore.
   const prevPhaseRef = useRef<DiagnosticPhase>("intro");
   useEffect(() => {
     if (phase === "results" && prevPhaseRef.current !== "results" && !previewResult && previewStatus === "idle") {
@@ -314,21 +328,22 @@ export function useDiagnosticSurvey({
   const goToNextStep = () => {
     if (!currentQuestion) return;
 
-    if (!answers[currentQuestion.key]) {
+    if (!returnToMissing && !answers[currentQuestion.key]) {
       setStatus("error");
       setErrorMessage("Выберите один вариант ответа, чтобы продолжить");
       return;
     }
 
-    // Last question → go to results phase
-    if (currentStep === questions.length - 1) {
+    if (canShowResults) {
       setPhase("results");
       clearError();
-      fetchPreviewResult();
       return;
     }
 
-    const nextStep = currentStep + 1;
+    const nextMissingStep = questions.findIndex(
+      (question, index) => index > currentStep && !answers[question.key]
+    );
+    const nextStep = nextMissingStep >= 0 ? nextMissingStep : firstMissingStep;
     setCurrentStep(nextStep);
     clearError();
     reachGoal(YM_GOALS.DIAGNOSTIC_STEP, { step: nextStep + 1, total: questions.length });
@@ -434,6 +449,8 @@ export function useDiagnosticSurvey({
     emailDeliveryStatus,
     currentQuestion,
     answeredCount,
+    canShowResults,
+    returnToMissing,
     progressPercent,
     previewResult,
     previewStatus,

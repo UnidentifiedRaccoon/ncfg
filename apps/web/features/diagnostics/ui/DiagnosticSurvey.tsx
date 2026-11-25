@@ -422,6 +422,8 @@ export function DiagnosticSurvey({
     emailDeliveryStatus,
     currentQuestion,
     answeredCount,
+    canShowResults,
+    returnToMissing,
     progressPercent,
     previewResult,
     previewStatus,
@@ -429,7 +431,7 @@ export function DiagnosticSurvey({
     handleSelectAnswer,
     handleRespondentChange,
     handleConsentChange,
-    goToNextStep: rawGoToNextStep,
+    goToNextStep,
     goToPreviousStep: rawGoToPreviousStep,
     goToStep: rawGoToStep,
     handleSubmit,
@@ -438,9 +440,9 @@ export function DiagnosticSurvey({
     startFromIntro,
   } = survey;
 
-  const goToNextStep = () => {
-    rawGoToNextStep();
-  };
+  let nextButtonLabel = "Далее";
+  if (canShowResults) nextButtonLabel = "К результатам";
+  if (returnToMissing) nextButtonLabel = "Перейти к пропущенным вопросам";
 
   const goToPreviousStep = () => {
     if (phase === "results" || isSubmitted) return;
@@ -1028,7 +1030,7 @@ export function DiagnosticSurvey({
                               </div>
                             </div>
 
-                            <div className="mt-8 flex items-center justify-between">
+                            <div className="mt-8 flex flex-wrap items-center justify-between gap-2">
                               <p className="text-sm leading-6 text-[#94A3B8]">
                                 После перехода к результату ответы фиксируются.
                               </p>
@@ -1127,7 +1129,7 @@ export function DiagnosticSurvey({
                             })}
                           </fieldset>
 
-                          <div className="mt-8 flex items-center justify-between">
+                          <div className="mt-8 flex flex-wrap items-center justify-between gap-2">
                             <button
                               type="button"
                               onClick={goToPreviousStep}
@@ -1141,10 +1143,8 @@ export function DiagnosticSurvey({
                               type="button"
                               onClick={goToNextStep}
                               className={primaryCtaCompactClass}
-                              >
-                                {currentStep === questions.length - 1
-                                ? "К результатам"
-                                : "Далее"}
+                            >
+                              {nextButtonLabel}
                               <ArrowRight className="h-4 w-4" />
                             </button>
                           </div>
